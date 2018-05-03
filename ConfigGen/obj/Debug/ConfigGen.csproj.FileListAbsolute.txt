@@ -1,0 +1,8 @@
+E:\C#Project\ConfigGen\ConfigGen\bin\Debug\ConfigGen.exe
+E:\C#Project\ConfigGen\ConfigGen\bin\Debug\ConfigGen.pdb
+E:\C#Project\ConfigGen\ConfigGen\obj\Debug\ConfigGen.csprojResolveAssemblyReference.cache
+E:\C#Project\ConfigGen\ConfigGen\obj\Debug\ConfigGen.csproj.CoreCompileInputs.cache
+E:\C#Project\ConfigGen\ConfigGen\obj\Debug\ConfigGen.exe
+E:\C#Project\ConfigGen\ConfigGen\obj\Debug\ConfigGen.pdb
+D:\__VSProject\ConfigGen\ConfigGen\obj\Debug\ConfigGen.exe
+D:\__VSProject\ConfigGen\ConfigGen\obj\Debug\ConfigGen.pdb
