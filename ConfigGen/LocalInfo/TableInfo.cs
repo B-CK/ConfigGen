@@ -73,7 +73,7 @@ namespace ConfigGen.LocalInfo
                 startIndex += ruleRef.Length;
                 DataClassInfo.Name = checkRule.Substring(startIndex, endIndex - startIndex);
                 className = DataClassInfo.GetClassName();
-                if (!TypeInfo.CheckClass(className))
+                if (!TableChecker.CheckClass(className))
                 {
                     Util.LogErrorFormat("TableDataInfo数据表引用{0}类型不存在,表名:{1}", className, RelPath);
                     isOK = false;
@@ -98,17 +98,20 @@ namespace ConfigGen.LocalInfo
             {
                 string field = tableFields[i].ToString();
                 string fieldType = dt.Rows[Values.DataSheetTypeIndex][i].ToString();
-                //解析数据类字段
+
                 if (!string.IsNullOrWhiteSpace(field) && !string.IsNullOrWhiteSpace(fieldType))
                 {
                     TableFieldInfo tableFieldInfo = new TableFieldInfo();
                     if (fieldInfoDict.ContainsKey(field))
                     {
+                        //解析数据类字段
                         FieldInfo fieldInfo = fieldInfoDict[field];
                         tableFieldInfo.Name = fieldInfo.Name;
                         tableFieldInfo.Des = fieldInfo.Des;
                         tableFieldInfo.Group = fieldInfo.Group;
-                        tableFieldInfo.Check = dt.Rows[Values.DataSheetCheckIndex][i].ToString();
+                        string check = dt.Rows[Values.DataSheetCheckIndex][i].ToString();
+                        tableFieldInfo.Check = string.IsNullOrWhiteSpace(check) ? fieldInfo.Check : check;
+                        //解析检查规则
 
                         int endIndex = fieldType.LastIndexOf('.');
                         if (endIndex == -1)
@@ -123,18 +126,21 @@ namespace ConfigGen.LocalInfo
                         tableFieldInfo.TypeType = TypeInfo.GetFieldTypeType(tableFieldInfo.Type);
                         tableFieldInfo.ColumnIndex = i;
 
-                        //字段的数据
                         switch (tableFieldInfo.TypeType)
                         {
-                            case FieldTypeType.Base://定值1
-                            case FieldTypeType.Enum://定值1
+                            case FieldTypeType.Base://单列
+                            case FieldTypeType.Enum:
                                 tableFieldInfo.Data = new List<List<object>>();
-                                tableFieldInfo.Data(AnalyzeData(dt, ));
+                                if (!AnalyzeColumnData(dt, i, tableFieldInfo))
+                                {
+                                    Util.LogErrorFormat("在{0}类型的数据表中,{1}字段的数据解析错误,错误位置{3}[{4}{5}]",
+                                       DataClassInfo.Name, tableFieldInfo.Name, tableFieldInfo.Type, RelPath, Util.GetColumnName(i + 1), (Values.DataSheetTypeIndex + 1).ToString());
+                                    isOK = false;
+                                }
                                 break;
-                            case FieldTypeType.Class://定值*
-                            case FieldTypeType.List://变量*
-                            case FieldTypeType.Dict://变量*
-                                tableFieldInfo.Data = new List<List<object>>();
+                            case FieldTypeType.Class://多列
+                            case FieldTypeType.List:
+                            case FieldTypeType.Dict:
                                 break;
                             case FieldTypeType.None:
                             default:
@@ -143,6 +149,21 @@ namespace ConfigGen.LocalInfo
                                 isOK = false;
                                 break;
                         }
+                        if (tableFieldInfo.TypeType != FieldTypeType.None)
+                        {
+                            tableFieldInfo.Data = new List<List<object>>();
+                            if (!AnalyzeColumnData(dt, i, tableFieldInfo))
+                            {
+                                Util.LogErrorFormat("在{0}类型的数据表中,{1}字段的数据解析错误,错误位置{3}[{4}{5}]",
+                                   DataClassInfo.Name, tableFieldInfo.Name, tableFieldInfo.Type, RelPath, Util.GetColumnName(i + 1), (Values.DataSheetTypeIndex + 1).ToString());
+                                isOK = false;
+                            }
+                        }
+                        else
+                        {
+
+                        }
+
                         if (!_dataFieldDict.ContainsKey(tableFieldInfo.Name))
                             _dataFieldDict.Add(tableFieldInfo.Name, tableFieldInfo);
                     }
@@ -153,14 +174,14 @@ namespace ConfigGen.LocalInfo
                         isOK = false;
                     }
                 }
-                //解析数据类字段的子字段.一般为集合或者自定义类型
-                else if (!string.IsNullOrWhiteSpace(field) && string.IsNullOrWhiteSpace(fieldType))
-                {
+                ////解析数据类字段的子字段.一般为集合或者自定义类型
+                //else if (!string.IsNullOrWhiteSpace(field) && string.IsNullOrWhiteSpace(fieldType))
+                //{                    
 
-                }
+                //}
             }
 
-
+            //解析类字段数据
 
 
 
@@ -201,15 +222,21 @@ namespace ConfigGen.LocalInfo
             DataFields.AddRange(_dataFieldDict.Values);
             return isOK;
         }
-        private List<object> AnalyzeData(DataTable dt, int column, string check)
+        private bool AnalyzeChildField(DataTable dt, int column, TableFieldInfo tableFieldInfo)
+        {
+            return false;
+        }
+        private bool AnalyzeColumnData(DataTable dt, int column, TableFieldInfo tableFieldInfo)
         {
             List<object> columnData = new List<object>();
             for (int i = Values.DataSheetDataStartIndex; i < dt.Rows.Count; i++)
             {
 
             }
-            return null;
+            tableFieldInfo.Data.Add(columnData);
+            return false;
         }
+
 
         /// <summary>
         /// 只查询数据表中类型定义
@@ -287,7 +314,7 @@ namespace ConfigGen.LocalInfo
                                 int endIndex = fieldType.LastIndexOf('.');
                                 if (endIndex == -1)
                                     fieldType = string.Format("{0}.{1}", classInfo.NamespaceName, fieldType);
-                                if (!TypeInfo.CheckFieldClassName(fieldType, out errorString))
+                                if (!TableChecker.CheckFieldClassName(fieldType, out errorString))
                                 {
                                     Util.LogErrorFormat("数据类型{0}的字段{1}类型定义错误:{2},错误位置{3}[{4}{5}]",
                                         classInfo.GetClassName(), fieldInfo.Name, errorString, RelPath, Util.GetColumnName(2 + 1), (j + 1).ToString());
@@ -349,6 +376,8 @@ namespace ConfigGen.LocalInfo
         /// </summary>
         public int ColumnIndex { get; set; }
 
+        public CheckRuleType RuleType { get; set; }
+        public string[] RuleArgs { get; set; }
 
         /// <summary>
         /// 不带命名空间,纯类名
@@ -360,7 +389,7 @@ namespace ConfigGen.LocalInfo
         }
         public ClassInfo GetClassInfo()
         {
-            if (!TypeInfo.CheckClass(Type))
+            if (!TableChecker.CheckClass(Type))
                 return null;
             return LocalInfoManager.Instance.TypeInfoLib.ClassInfoDict[Type];
         }

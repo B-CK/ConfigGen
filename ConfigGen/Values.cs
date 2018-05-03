@@ -86,6 +86,11 @@ namespace ConfigGen
         /// 多个数据字段检查规则组合分隔符
         /// </summary>
         public const string CheckRuleSplitFlag = "|";
+        /// <summary>
+        /// 单个检查功能内存在多个参数时,用:符号分离
+        /// </summary>
+        public const string CheckRunleArgsSplitFlag = ":";
+
         #endregion
     }
 
