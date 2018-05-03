@@ -23,21 +23,10 @@ namespace ConfigGen.LocalInfo
         /// </summary>
         Range,
         /// <summary>
-        /// 检查字段内容长度,仅限类字段,不包含子字段
-        /// </summary>
-        SameLenght,
-        /// <summary>
-        /// 数据不可为空
+        /// 数据不可为空;
+        /// trim参数,字符串不能为null,空白符;
         /// </summary>
         NoEmpty,
-        /// <summary>
-        /// 字符串不能为null,空白符
-        /// </summary>
-        NoEmptyTrim,
-        /// <summary>
-        /// 内容是否非法检查
-        /// </summary>
-        Illegal,
         /// <summary>
         /// 有效性检查
         /// </summary>
@@ -138,13 +127,83 @@ namespace ConfigGen.LocalInfo
 
 
         //---------------------------------------数据检查
-        public static bool ParseCheckRule(TableFieldInfo tableFieldInfo)
+        public static void ParseCheckRule(TableFieldInfo tableFieldInfo)
         {
-            string check = tableFieldInfo.Check;
+            string[] checks = tableFieldInfo.Check.Split(Values.CheckRuleSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string refFlag = "ref";
+            string defineFlag = "define";
             string[] rangeFlags = { "[", "]", "(", ")" };
+            string noEmptyFlag = "noEmpty";
+            string uniqueFlag = "unique";
             string[] relOpFlags = { "<", ">", "<=", ">=", "==" };
+            string fileExistFlags = "file";
 
-            return false;
+            for (int i = 0; i < checks.Length; i++)
+            {
+                string check = checks[i];
+                CheckRuleType ruleType = CheckRuleType.None;
+                List<string> ruleArgs = new List<string>();
+
+                if (check.StartsWith(refFlag))
+                {
+                    ruleType = CheckRuleType.Ref;
+                    ruleArgs.AddRange(check.Replace(refFlag, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
+                        StringSplitOptions.RemoveEmptyEntries));
+                }
+                else if (check.StartsWith(defineFlag))
+                {
+                    ruleType = CheckRuleType.Define;
+                    ruleArgs.AddRange(check.Replace(defineFlag, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
+                        StringSplitOptions.RemoveEmptyEntries));
+                }
+                else if (check.StartsWith(defineFlag))
+                {
+                    ruleType = CheckRuleType.Range;
+                    ruleArgs.AddRange(check.Replace(defineFlag, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
+                        StringSplitOptions.RemoveEmptyEntries));
+                }
+                else if (check.StartsWith(noEmptyFlag))
+                {
+                    ruleType = CheckRuleType.NoEmpty;
+                    ruleArgs.AddRange(check.Replace(noEmptyFlag, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
+                        StringSplitOptions.RemoveEmptyEntries));
+                }
+                else if (check.StartsWith(uniqueFlag))
+                {
+                    ruleType = CheckRuleType.Unique;
+                    ruleArgs.AddRange(check.Replace(uniqueFlag, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
+                        StringSplitOptions.RemoveEmptyEntries));
+                }
+                else if (check.StartsWith(fileExistFlags))
+                {
+                    ruleType = CheckRuleType.FileExist;
+                    ruleArgs.AddRange(check.Replace(fileExistFlags, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
+                        StringSplitOptions.RemoveEmptyEntries));
+                }
+                else
+                {
+                    for (int j = 0; j < rangeFlags.Length; j++)
+                    {
+                        if (check.StartsWith(rangeFlags[j]) || check.EndsWith(rangeFlags[j]))
+                        {
+                            ruleType = CheckRuleType.Range;
+                            ruleArgs.AddRange(check.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries));
+                            break;
+                        }
+                    }
+                    for (int j = 0; j < relOpFlags.Length; j++)
+                    {
+                        if (check.StartsWith(relOpFlags[j]) || check.EndsWith(relOpFlags[j]))
+                        {
+                            ruleType = CheckRuleType.RelationalOp;
+                            ruleArgs.Add(check.Replace(relOpFlags[j], ""));
+                            break;
+                        }
+                    }
+                }
+                if (!tableFieldInfo.RuleDict.ContainsKey(ruleType))
+                    tableFieldInfo.RuleDict.Add(ruleType, ruleArgs);
+            }
         }
         public static bool CheckFieldData(TableFieldInfo tableFieldInfo, object data)
         {
@@ -159,13 +218,7 @@ namespace ConfigGen.LocalInfo
                     break;
                 case CheckRuleType.Range:
                     break;
-                case CheckRuleType.SameLenght:
-                    break;
                 case CheckRuleType.NoEmpty:
-                    break;
-                case CheckRuleType.NoEmptyTrim:
-                    break;
-                case CheckRuleType.Illegal:
                     break;
                 case CheckRuleType.Validity:
                     break;

@@ -112,7 +112,7 @@ namespace ConfigGen.LocalInfo
                         string check = dt.Rows[Values.DataSheetCheckIndex][i].ToString();
                         tableFieldInfo.Check = string.IsNullOrWhiteSpace(check) ? fieldInfo.Check : check;
                         //解析检查规则
-
+                        TableChecker.ParseCheckRule(tableFieldInfo);
                         int endIndex = fieldType.LastIndexOf('.');
                         if (endIndex == -1)
                             fieldType = string.Format("{0}.{1}", DataClassInfo.NamespaceName, fieldType);
@@ -376,8 +376,7 @@ namespace ConfigGen.LocalInfo
         /// </summary>
         public int ColumnIndex { get; set; }
 
-        public CheckRuleType RuleType { get; set; }
-        public string[] RuleArgs { get; set; }
+        public Dictionary<CheckRuleType, List<string>> RuleDict { get; set; }
 
         /// <summary>
         /// 不带命名空间,纯类名
