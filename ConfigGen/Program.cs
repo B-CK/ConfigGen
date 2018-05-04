@@ -9,6 +9,10 @@ namespace ConfigGen
 {
     class Program
     {
+        //测试内容
+        //1.表中数据是int还是string类型;HashSet中int=1和string=1是两种不同值
+        //
+
         static void Main(string[] args)
         {
             //命令行参数解析

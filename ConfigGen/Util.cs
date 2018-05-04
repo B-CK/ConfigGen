@@ -41,9 +41,13 @@ namespace ConfigGen
             else
                 return FileState.Inexist;
         }
+
         /// <summary>
         /// 将指定Excel文件的内容读取到DataTable中
         /// </summary>
+        /// <param name="filePath">excel文件路径</param>
+        /// <param name="sheetDict">sheet表类型及名字列表</param>
+        /// <returns>excel中多个sheet数据集</returns>
         public static DataSet ReadXlsxFile(string filePath, out Dictionary<SheetType, List<string>> sheetDict, out string errorString)
         {
             // 检查文件是否存在且没被打开

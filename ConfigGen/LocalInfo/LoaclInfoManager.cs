@@ -46,10 +46,18 @@ namespace ConfigGen.LocalInfo
         /// 查询操作信息
         /// </summary>
         public FindInfo FindInfoLib { get; private set; }
+
         /// <summary>
-        /// 差异表信息
+        /// key:数据表类型
+        /// value:数据表信息
         /// </summary>
-        public List<TableInfo> DiffTableInfos { get; private set; }
+        public Dictionary<string, TableDataInfo> DataInfoDict { get; private set; }
+        /// <summary>
+        /// key:表文件路径
+        /// value:定义表信息
+        /// </summary>
+        public Dictionary<string, TableDefineInfo> DefineInfoDict { get; private set; }
+
 
         private const string _ext = "lfi";
         private bool _isInit = false;
@@ -153,25 +161,35 @@ namespace ConfigGen.LocalInfo
                     Util.LogErrorFormat("[UpdateFileInfo]读取Xlsx失败!错误:{0}", error);
                     return;
                 }
-                foreach (var item in dict)
+
+                List<string> defines = dict[SheetType.Define];
+                TableDefineInfo defineInfo = null;
+                for (int j = 0; j < defines.Count; j++)
                 {
-                    for (int j = 0; j < item.Value.Count; j++)
+                    DataTable dt = ds.Tables[defines[j]];
+                    if (defineInfo == null)
+                        defineInfo = new TableDefineInfo(diffRelPath[i], dt);
+                    else
+                        defineInfo.TableDataSet.Merge(dt);
+                }
+                if (!DefineInfoDict.ContainsKey(diffRelPath[i]))
+                    DefineInfoDict.Add(diffRelPath[i], defineInfo);
+                List<string> datas = dict[SheetType.Data];
+                TableDataInfo dataInfo = null;
+                for (int j = 0; j < datas.Count; j++)
+                {
+                    DataTable dt = ds.Tables[datas[j]];
+                    string name = defineInfo.GetFirstName();
+                    if (dataInfo == null)
+                        dataInfo = new TableDataInfo(diffRelPath[i], dt, name);
+                    else
                     {
-                        DataTable dt = ds.Tables[item.Value[j]];
-                        TableInfo tableInfo = null;
-                        switch (item.Key)
-                        {
-                            case SheetType.Data:
-                                tableInfo = new TableDataInfo(item.Key, Util.GetConfigRelPath(filePath), dt);
-                                break;
-                            case SheetType.Define:
-                                tableInfo = new TableDefineInfo(item.Key, Util.GetConfigRelPath(filePath), dt);
-                                break;
-                            default:
-                                break;
-                        }
+                        for (int k = Values.DataSheetDataStartIndex; k < dt.Rows.Count; k++)
+                            dataInfo.TableDataSet.Rows.Add(dt.Rows[k]);
                     }
                 }
+                if (!DataInfoDict.ContainsKey(dataInfo.ClassName))
+                    DataInfoDict.Add(dataInfo.ClassName, dataInfo);
             }
         }
         public void UpdateTypeInfo()
