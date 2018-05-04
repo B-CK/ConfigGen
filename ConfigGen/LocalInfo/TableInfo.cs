@@ -146,7 +146,7 @@ namespace ConfigGen.LocalInfo
                             case FieldTypeType.List:
                             case FieldTypeType.Dict:
                                 tableFieldInfo.Data = new List<object>();
-                                errorString = AnalyzeChildField(dt, i + 1, tableFieldInfo);
+                                i = AnalyzeListChildField(dt, i + 1, tableFieldInfo, out errorString);
                                 if (!string.IsNullOrWhiteSpace(errorString))
                                 {
                                     Util.LogErrorFormat("在{0}类型的数据表中,{1}字段数据解析错误,错误位置{3}[{4}{5}]\r\n{6}",
@@ -181,33 +181,43 @@ namespace ConfigGen.LocalInfo
                 //}
             }
 
-            //if (tableFieldInfo.TypeType != FieldTypeType.None)
-            //{
-            //    tableFieldInfo.Data = new List<object>(AnalyzeColumnData(dt, tableFieldInfo, out errorString));
-            //    if (!string.IsNullOrWhiteSpace(errorString))
-            //    {
-            //        Util.LogErrorFormat("在{0}类型的数据表中,{1},错误位置{3}[{4}{5}]",
-            //           DataClassInfo.Name, errorString, RelPath, Util.GetColumnName(i + 1), (Values.DataSheetTypeIndex + 1).ToString());
-            //        isOK = false;
-            //    }
-            //}
-            //else
-            //{
-
-            //}
-
             DataFields.AddRange(dataFieldDict.Values);
             return isOK;
         }
-        private string AnalyzeChildField(DataTable dt, int column, TableFieldInfo parentFieldInfo)
-        {
-            string error = null;
 
-            for (int i = parentFieldInfo.ColumnIndex + 1; i < dt.Rows.Count; i++)
+        // 解析子字段数据,最后一个字段的列索引
+        private int AnalyzeClassChildField(DataTable dt, int column, TableFieldInfo parentFieldInfo, out string error)
+        {
+            error = TableChecker.CheckClass(parentFieldInfo.Type);
+            if (string.IsNullOrWhiteSpace(error))
             {
-                
+
             }
-            return error;
+            ClassInfo classInfo = LocalInfoManager.Instance.TypeInfoLib.ClassInfoDict[]
+            for (int i = column; i < dt.Rows.Count; i++)
+            {
+
+            }
+            error = null;
+            return 1;
+        }
+        private int AnalyzeListChildField(DataTable dt, int column, TableFieldInfo parentFieldInfo, out string error)
+        {
+            for (int i = column; i < dt.Rows.Count; i++)
+            {
+
+            }
+            error = null;
+            return 1;
+        }
+        private int AnalyzeDictChildField(DataTable dt, int column, TableFieldInfo parentFieldInfo, out string error)
+        {
+            for (int i = column; i < dt.Rows.Count; i++)
+            {
+
+            }
+            error = null;
+            return 1;
         }
         /// <summary>
         /// 解析字段列数据
@@ -379,7 +389,7 @@ namespace ConfigGen.LocalInfo
         public FieldTypeType TypeType { get; set; }
         /// <summary>
         /// 基础/枚举类型单列数据存储在Data
-        /// 类类型多列数据存储在ChildFields
+        /// Class类型多列数据存储在ChildFields
         /// List类型多列数据存储在ChildFields
         /// Dict类型多列数据key/value存储在ChildFields
         /// </summary>
