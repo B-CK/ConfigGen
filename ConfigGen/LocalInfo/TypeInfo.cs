@@ -54,6 +54,12 @@ namespace ConfigGen.LocalInfo
                 if (!_enumInfoDict.ContainsKey(enumName))
                     _enumInfoDict.Add(enumName, EnumInfos[i]);
             }
+            foreach (var item in BaseType)
+            {
+                ClassInfo classInfo = new ClassInfo();
+                classInfo.Name = item;
+                ClassInfoDict.Add(item, classInfo);
+            }
         }
         public void Add(object info)
         {
@@ -111,7 +117,7 @@ namespace ConfigGen.LocalInfo
         //    return true;
         //}
 
-
+        
         static readonly HashSet<string> BaseType = new HashSet<string>() { "int", "long", "bool", "float", "string" };
         /// <summary>
         /// 完整类名,即带命名空间,基础类型和集合除外
@@ -195,6 +201,8 @@ namespace ConfigGen.LocalInfo
         public string Des { get; set; }
         public string Check { get; set; }
         public string Group { get; set; }
+
+
     }
 
     /// <summary>

@@ -51,12 +51,13 @@ namespace ConfigGen.LocalInfo
     {
 
         /// <summary>
-        /// 检查类是否存在
+        /// 检查类是否存在-----------类型检查不全
         /// </summary>
-        public static string CheckClass(string className)
+        public static string CheckType(string className)
         {
             string error = null;
-            if (!LocalInfoManager.Instance.TypeInfoLib.ClassInfoDict.ContainsKey(className))
+            if (!LocalInfoManager.Instance.TypeInfoLib.ClassInfoDict.ContainsKey(className)
+                && LocalInfoManager.Instance.TypeInfoLib.EnumInfoDict.ContainsKey(className))
                 error = string.Format("类型{0}不存在", className);
             return error;
         }
@@ -76,7 +77,7 @@ namespace ConfigGen.LocalInfo
                 case FieldTypeType.Class:
                 case FieldTypeType.Enum:
                     int endIndex = type.LastIndexOf('.');
-                    errorString = CheckClass(type);
+                    errorString = CheckType(type);
                     if (endIndex > -1 && !string.IsNullOrWhiteSpace(errorString))
                     {
                         return errorString;
@@ -126,7 +127,7 @@ namespace ConfigGen.LocalInfo
 
 
         //---------------------------------------数据检查
-        public static string ParseCheckRule(TableFieldInfo tableFieldInfo)
+        public static bool ParseCheckRule(TableFieldInfo tableFieldInfo)
         {
             string[] checks = tableFieldInfo.Check.Split(Values.CheckRuleSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             string refFlag = "ref";
@@ -137,7 +138,7 @@ namespace ConfigGen.LocalInfo
             string[] relOpFlags = { "<", ">", "<=", ">=", "==" };
             string fileExistFlags = "file";
 
-            string error = null;
+            bool isOK = true;
             for (int i = 0; i < checks.Length; i++)
             {
                 string check = checks[i];
@@ -207,13 +208,13 @@ namespace ConfigGen.LocalInfo
 
                 if (isNullOrWhiteSpace == false)
                 {
-                    error = string.Format("{0}字段检查规则{1}不存在", tableFieldInfo.Name, check);
+                    Util.LogWarningFormat("{0}字段检查规则{1}不存在", tableFieldInfo.Name, check);
                     continue;
                 }
                 if (!tableFieldInfo.RuleDict.ContainsKey(ruleType))
                     tableFieldInfo.RuleDict.Add(ruleType, ruleArgs);
             }
-            return error;
+            return isOK;
         }
         public static string CheckFieldData(TableFieldInfo tableFieldInfo, object data)
         {
