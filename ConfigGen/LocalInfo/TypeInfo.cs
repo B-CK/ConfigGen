@@ -10,7 +10,7 @@ namespace ConfigGen.LocalInfo
     /// <summary>
     /// 表中字段类型分类
     /// </summary>
-    public enum FieldTypeType
+    public enum TypeType
     {
         None,
         Base,
@@ -23,6 +23,11 @@ namespace ConfigGen.LocalInfo
     [XmlRoot("TypeInfo")]
     class TypeInfo : BaseInfo
     {
+        public List<ClassInfo> TypeInfos { get; set; }
+        [XmlIgnore]
+        public Dictionary<string, ClassInfo> TypeInfoDict { get { return _typeInfoDict; } }
+        private Dictionary<string, ClassInfo> _typeInfoDict = new Dictionary<string, ClassInfo>();
+
         public List<ClassInfo> ClassInfos { get; set; }
         public List<EnumInfo> EnumInfos { get; set; }
 
@@ -35,71 +40,87 @@ namespace ConfigGen.LocalInfo
 
         public void Init()
         {
-            if (ClassInfos == null || ClassInfos.Count == 0 || EnumInfos == null || EnumInfos.Count == 0)
+            if (TypeInfos == null || TypeInfos.Count == 0)
             {
-                ClassInfos = new List<ClassInfo>();
-                EnumInfos = new List<EnumInfo>();
+                TypeInfos = new List<ClassInfo>();
                 return;
             }
 
             for (int i = 0; i < ClassInfos.Count; i++)
             {
-                string className = ClassInfos[i].GetClassName();
-                if (!_classInfoDict.ContainsKey(className))
-                    _classInfoDict.Add(className, ClassInfos[i]);
+                string typeName = ClassInfos[i].GetClassName();
+                if (!_typeInfoDict.ContainsKey(typeName))
+                    _typeInfoDict.Add(typeName, ClassInfos[i]);
             }
-            for (int i = 0; i < EnumInfos.Count; i++)
-            {
-                string enumName = EnumInfos[i].Name;
-                if (!_enumInfoDict.ContainsKey(enumName))
-                    _enumInfoDict.Add(enumName, EnumInfos[i]);
-            }
+
+            //基础类型信息
             foreach (var item in BaseType)
             {
                 ClassInfo classInfo = new ClassInfo();
                 classInfo.Name = item;
-                ClassInfoDict.Add(item, classInfo);
+                _typeInfoDict.Add(item, classInfo);
             }
         }
         public void Add(object info)
         {
-            if (info is ClassInfo)
+            BaseTypeInfo baseInfo = info as BaseTypeInfo;
+            switch (baseInfo.TypeType)
             {
-                ClassInfo classInfo = info as ClassInfo;
-                string className = classInfo.GetClassName();
-                if (!_classInfoDict.ContainsKey(className))
-                    _classInfoDict.Add(className, classInfo);
-                else
-                    _classInfoDict[className] = classInfo;
+                case TypeType.Base:
+                case TypeType.Class:
+                case TypeType.List:
+                case TypeType.Dict:
+                    ClassInfo classInfo = baseInfo as ClassInfo;
+                    string className = classInfo.GetClassName();
+                    if (!_classInfoDict.ContainsKey(className))
+                        _classInfoDict.Add(className, classInfo);
+                    else
+                        _classInfoDict[className] = classInfo;
+                    break;
+                case TypeType.Enum:
+                    EnumInfo enumInfo = info as EnumInfo;
+                    if (!_enumInfoDict.ContainsKey(enumInfo.Name))
+                        _enumInfoDict.Add(enumInfo.Name, enumInfo);
+                    else
+                        _enumInfoDict[enumInfo.Name] = enumInfo;
+                    break;
+                case TypeType.None:
+                default:
+                    Util.LogErrorFormat("未定义{0}.{1}类型", baseInfo.NamespaceName, baseInfo.Name);
+                    break;
             }
-            else if (info is EnumInfo)
-            {
-                EnumInfo enumInfo = info as EnumInfo;
-                if (!_enumInfoDict.ContainsKey(enumInfo.Name))
-                    _enumInfoDict.Add(enumInfo.Name, enumInfo);
-                else
-                    _enumInfoDict[enumInfo.Name] = enumInfo;
-            }
-            else
-                Util.LogError("[添加类型信]信息类型不匹配" + info.GetType().ToString());
 
+            if (baseInfo.TypeType != TypeType.None)
+            {
+                string type = "";
+                if (!TypeInfoDict.ContainsKey(type))
+                    TypeInfoDict.Add()
+
+            }
         }
         public void Remove(object info)
         {
-            if (info is ClassInfo)
+            BaseTypeInfo baseInfo = info as BaseTypeInfo;
+            switch (baseInfo.TypeType)
             {
-                ClassInfo classInfo = info as ClassInfo;
-                if (_classInfoDict.ContainsKey(classInfo.Name))
-                    _classInfoDict.Remove(classInfo.Name);
+                case TypeType.Base:
+                case TypeType.Class:
+                case TypeType.List:
+                case TypeType.Dict:
+                    ClassInfo classInfo = info as ClassInfo;
+                    if (_classInfoDict.ContainsKey(classInfo.Name))
+                        _classInfoDict.Remove(classInfo.Name);
+                    break;
+                case TypeType.Enum:
+                    EnumInfo enumInfo = info as EnumInfo;
+                    if (_enumInfoDict.ContainsKey(enumInfo.Name))
+                        _enumInfoDict.Remove(enumInfo.Name);
+                    break;
+              case TypeType.None:
+                default:
+                    Util.LogErrorFormat("未定义{0}.{1}类型", baseInfo.NamespaceName, baseInfo.Name);
+                    break;
             }
-            else if (info is EnumInfo)
-            {
-                EnumInfo enumInfo = info as EnumInfo;
-                if (_enumInfoDict.ContainsKey(enumInfo.Name))
-                    _enumInfoDict.Remove(enumInfo.Name);
-            }
-            else
-                Util.LogError("[移除类型信息]信息类型不匹配" + info.GetType().ToString());
         }
 
 
@@ -117,24 +138,24 @@ namespace ConfigGen.LocalInfo
         //    return true;
         //}
 
-        
+        [XmlIgnore]
         static readonly HashSet<string> BaseType = new HashSet<string>() { "int", "long", "bool", "float", "string" };
         /// <summary>
         /// 完整类名,即带命名空间,基础类型和集合除外
         /// </summary>
-        public static FieldTypeType GetFieldTypeType(string type)
+        public static TypeType GetFieldTypeType(string type)
         {
-            FieldTypeType typeType = FieldTypeType.None;
+            TypeType typeType = TypeType.None;
             if (BaseType.Contains(type))
-                typeType = FieldTypeType.Base;
-            else if (LocalInfoManager.Instance.TypeInfoLib.ClassInfoDict.ContainsKey(type))
-                typeType = FieldTypeType.Class;
-            else if (LocalInfoManager.Instance.TypeInfoLib.EnumInfoDict.ContainsKey(type))
-                typeType = FieldTypeType.Enum;
-            else if (type.StartsWith(FieldTypeType.List.ToString().ToLower()))
-                typeType = FieldTypeType.List;
-            else if (type.StartsWith(FieldTypeType.Dict.ToString().ToLower()))
-                typeType = FieldTypeType.Dict;
+                typeType = TypeType.Base;
+            else if (LocalInfoManager.Instance.TypeInfoLib.TypeInfoDict.ContainsKey(type))
+                typeType = TypeType.Class;
+            else if (LocalInfoManager.Instance.TypeInfoLib.TypeInfoDict.ContainsKey(type))
+                typeType = TypeType.Enum;
+            else if (type.StartsWith(TypeType.List.ToString().ToLower()))
+                typeType = TypeType.List;
+            else if (type.StartsWith(TypeType.Dict.ToString().ToLower()))
+                typeType = TypeType.Dict;
 
             return typeType;
         }
@@ -143,14 +164,21 @@ namespace ConfigGen.LocalInfo
             string[] nodes = Path.GetDirectoryName(relPath).Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             return Util.ListStringSplit(nodes, ".");
         }
+        public static BaseTypeInfo GetBaseTypeInfo(string type)
+        {
+            BaseTypeInfo baseTypeInfo = null;
+            var typeDict = LocalInfoManager.Instance.TypeInfoLib.TypeInfoDict;
+            if (typeDict.ContainsKey(type))
+                baseTypeInfo = typeDict[type];
+            else
+                Util.LogErrorFormat("未定义{0}类型", type);
+            return baseTypeInfo;
+        }
     }
 
-    /// <summary>
-    /// 类描述
-    /// </summary>
-    [XmlInclude(typeof(ClassInfo))]
-    class ClassInfo
+    class BaseTypeInfo
     {
+        public TypeType TypeType { get; set; }
         /// <summary>
         /// 类对应文件的相对路径
         /// </summary>
@@ -158,6 +186,26 @@ namespace ConfigGen.LocalInfo
         public string NamespaceName { get; set; }
         public string Name { get; set; }
         public string Group { get; set; }
+
+        public string GetClassName()
+        {
+            return string.Format("{0}.{1}", NamespaceName, Name);
+        }
+    }
+
+    /// <summary>
+    /// 类描述
+    /// </summary>
+    [XmlInclude(typeof(ClassInfo))]
+    class ClassInfo : BaseTypeInfo
+    {
+        ///// <summary>
+        ///// 类对应文件的相对路径
+        ///// </summary>
+        //public string RelPath { get; set; }
+        //public string NamespaceName { get; set; }
+        //public string Name { get; set; }
+        //public string Group { get; set; }
         public List<FieldInfo> Fields { get; set; }
 
 
@@ -174,11 +222,7 @@ namespace ConfigGen.LocalInfo
                 if (!_fieldInfoDict.ContainsKey(fieldName))
                     _fieldInfoDict.Add(fieldName, Fields[i]);
             }
-        }
-        public string GetClassName()
-        {
-            return string.Format("{0}.{1}", NamespaceName, Name);
-        }
+        } 
         public ClassInfo Clone()
         {
             ClassInfo newClassInfo = new ClassInfo();
@@ -189,6 +233,17 @@ namespace ConfigGen.LocalInfo
             newClassInfo.Fields = new List<FieldInfo>(Fields.ToArray());
             return newClassInfo;
         }
+    }
+    [XmlInclude(typeof(ListInfo))]
+    class ListInfo : ClassInfo
+    {
+        public string ElementType { get; set; }
+    }
+    [XmlInclude(typeof(DictInfo))]
+    class DictInfo : ClassInfo
+    {
+        public string KeyType { get; set; }
+        public string ValueType { get; set; }
     }
     [XmlInclude(typeof(FieldInfo))]
     class FieldInfo
@@ -202,22 +257,32 @@ namespace ConfigGen.LocalInfo
         public string Check { get; set; }
         public string Group { get; set; }
 
-
+        [XmlIgnore]
+        public BaseTypeInfo BaseInfo
+        {
+            get
+            {
+                if (_typeInfo == null)
+                    _typeInfo = TypeInfo.GetBaseTypeInfo(Type);
+                return _typeInfo;
+            }
+        }
+        private BaseTypeInfo _typeInfo;
     }
 
     /// <summary>
     /// 枚举描述
     /// </summary>
     [XmlInclude(typeof(EnumInfo))]
-    class EnumInfo
+    class EnumInfo : BaseTypeInfo
     {
-        /// <summary>
-        /// 类对应文件的相对路径
-        /// </summary>
-        public string RelPath { get; set; }
-        public string NamespaceName { get; set; }
-        public string Name { get; set; }
-        public string Group { get; set; }
+        ///// <summary>
+        ///// 类对应文件的相对路径
+        ///// </summary>
+        //public string RelPath { get; set; }
+        //public string NamespaceName { get; set; }
+        //public string Name { get; set; }
+        //public string Group { get; set; }
         public List<EnumKeyValue> KeyValuePair { get; set; }
     }
     [XmlInclude(typeof(EnumKeyValue))]
