@@ -72,7 +72,7 @@ namespace ConfigGen.LocalInfo
             }
 
             string name = DataClassInfo.GetClassName();
-            ClassInfo define = LocalInfoManager.Instance.TypeInfoLib.TypeInfoDict[name];
+            ClassInfo define = LocalInfoManager.Instance.TypeInfoLib.ClassInfoDict[name];
             DataClassInfo = define.Clone();
             DataClassInfo.UpdateToDict();
         }
@@ -80,10 +80,6 @@ namespace ConfigGen.LocalInfo
         public string ClassName { get { return DataClassInfo.GetClassName(); } }
         public ClassInfo DataClassInfo { get; private set; }
         public List<TableFieldInfo> DataFields { get; private set; }
-
-        /// <summary>
-        /// 表头检查字段名和字段检查规则,其他不检查
-        /// </summary>
         public override bool Analyze()
         {
             bool isOK = true;
@@ -167,8 +163,8 @@ namespace ConfigGen.LocalInfo
             fieldInfo.ColumnIndex = column;
             switch (fieldInfo.TypeType)
             {
-                case TypeType.Base://单列
-                case TypeType.Enum:
+                case FieldTypeType.Base://单列
+                case FieldTypeType.Enum:
                     fieldInfo.Data = new List<object>(AnalyzeColumnData(dt, fieldInfo, out isOK));
                     if (!isOK)
                     {
@@ -176,20 +172,19 @@ namespace ConfigGen.LocalInfo
                            fieldInfo.Name, RelPath, Util.GetColumnName(column + 1), (Values.DataSheetFieldIndex + 1).ToString());
                     }
                     return column;
-                case TypeType.Class://多列
+                case FieldTypeType.Class://多列
                     fieldInfo.ChildFields = new List<TableFieldInfo>();
                     column = AnalyzeClassChildField(dt, column + 1, fieldInfo, out isOK);
                     break;
-                case TypeType.List:
-                    //基础类型集合字段名用索引当字段名
+                case FieldTypeType.List:
                     fieldInfo.ChildFields = new List<TableFieldInfo>();
                     column = AnalyzeListChildField(dt, column + 1, fieldInfo, out isOK);
                     break;
-                case TypeType.Dict:
+                case FieldTypeType.Dict:
                     fieldInfo.ChildFields = new List<TableFieldInfo>();
                     column = AnalyzeDictChildField(dt, column + 1, fieldInfo, out isOK);
                     break;
-                case TypeType.None:
+                case FieldTypeType.None:
                 default:
                     Util.LogErrorFormat("{0}字段的类型{1}不合法", fieldInfo.Name, fieldInfo.Type);
                     break;
@@ -213,7 +208,7 @@ namespace ConfigGen.LocalInfo
                 isOk = false;
                 return nextColumn;
             }
-            ClassInfo classInfo = LocalInfoManager.Instance.TypeInfoLib.TypeInfoDict[parentFieldInfo.Type];
+            ClassInfo classInfo = LocalInfoManager.Instance.TypeInfoLib.ClassInfoDict[parentFieldInfo.Type];
             int lastColumn = -1;
             for (int i = 0; i < classInfo.Fields.Count; i++)
             {
@@ -416,7 +411,7 @@ namespace ConfigGen.LocalInfo
     /// </summary>
     class TableFieldInfo : FieldInfo
     {
-        public TypeType TypeType { get; set; }
+        public FieldTypeType TypeType { get; set; }
         /// <summary>
         /// 基础/枚举类型单列数据存储在Data
         /// Class类型多列数据存储在ChildFields
@@ -462,7 +457,7 @@ namespace ConfigGen.LocalInfo
             if (!string.IsNullOrWhiteSpace(errorString))
                 return null;
 
-            return LocalInfoManager.Instance.TypeInfoLib.TypeInfoDict[Type];
+            return LocalInfoManager.Instance.TypeInfoLib.ClassInfoDict[Type];
         }
         public string WriteCsv()
         {
