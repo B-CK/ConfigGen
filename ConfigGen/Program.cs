@@ -13,6 +13,11 @@ namespace ConfigGen
         //1.表中数据是int还是string类型;HashSet中int=1和string=1是两种不同值
         //
 
+        //局部流程
+        //1.解析完类定义
+        //2.检查类定义
+        //3.解析数据定义
+
         static void Main(string[] args)
         {
             //命令行参数解析
@@ -25,12 +30,8 @@ namespace ConfigGen
             if (CmdOption.Instance.CmdArgs.ContainsKey("-replace")
                 || CmdOption.Instance.CmdArgs.ContainsKey("-find"))
                 infoTypes.Add(LocalInfoType.FindInfo);
-            LocalInfoManager.Instance.InitInfo(infoTypes);
-            //筛选Config文件,依据文件MD5判断是否有修改;
-            LocalInfoManager.Instance.UpdateFileInfo();
-            //更新Config数据类型信息和查询信息文件
-            LocalInfoManager.Instance.UpdateTypeInfo();
-            LocalInfoManager.Instance.UpdateFindInfo();
+            LocalInfoManager.Instance.Init(infoTypes);
+            LocalInfoManager.Instance.Update();
 
             //执行所有命令
             if (!CmdOption.Instance.Excute()) return;

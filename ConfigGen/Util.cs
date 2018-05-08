@@ -223,7 +223,10 @@ namespace ConfigGen
         {
             return string.Format("{0}/{1}", Values.ConfigDir, relPath.Replace("\\", "/"));
         }
-
+        public static string Combine(string nameSpace, string className)
+        {
+            return string.Format("{0}.{1}", nameSpace, className);
+        }
 
         public static string ListStringSplit(string[] array, string split = ",")
         {

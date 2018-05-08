@@ -58,13 +58,15 @@ namespace ConfigGen.LocalInfo
         /// </summary>
         public Dictionary<string, TableDefineInfo> DefineInfoDict { get; private set; }
 
-
+        private List<LocalInfoType> _infoTypes = new List<LocalInfoType>();
+        private List<string> _diffRelPath = new List<string>();
         private const string _ext = "lfi";
         private bool _isInit = false;
-        public void InitInfo(List<LocalInfoType> infos)
+        public void Init(List<LocalInfoType> infos)
         {
             if (_isInit) return;
             _isInit = true;
+            _infoTypes = infos;
             for (int i = 0; i < infos.Count; i++)
             {
                 LocalInfoType type = infos[i];
@@ -83,6 +85,52 @@ namespace ConfigGen.LocalInfo
                     case LocalInfoType.FindInfo:
                         FindInfoLib = Util.Deserialize(path, typeof(FindInfo)) as FindInfo;
                         FindInfoLib.Init();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        public void Update()
+        {
+            for (int i = 0; i < _infoTypes.Count; i++)
+            {
+                LocalInfoType type = _infoTypes[i];
+                switch (type)
+                {
+                    case LocalInfoType.FileInfo:
+                        List<string> diffRelPath = new List<string>();
+                        string[] files = Directory.GetFiles(Values.ConfigDir);
+                        var fileDict = FileInfoLib.FileDict;
+                        for (int j = 0; j < files.Length; j++)
+                        {
+                            string relPath = Util.GetConfigRelPath(files[j]);
+                            string md5 = Util.GetMD5HashFromFile(files[j]);
+                            if (fileDict.ContainsKey(relPath))
+                            {
+                                if (fileDict[relPath].MD5Hash != md5)
+                                {
+                                    fileDict[relPath].MD5Hash = md5;
+                                    diffRelPath.Add(relPath);
+                                }
+                            }
+                            else
+                            {
+                                FileState fileState = new FileState();
+                                fileState.RelPath = relPath;
+                                fileState.MD5Hash = md5;
+                                FileInfoLib.Add(fileState);
+                                diffRelPath.Add(relPath);
+                            }
+                        }
+                        Util.Serialize(GetInfoPath(LocalInfoType.FileInfo), FileInfoLib);
+                        _diffRelPath.AddRange(diffRelPath);
+                        break;
+                    case LocalInfoType.TypeInfo:
+                        AnalyzeCfgFile();
+                        UpdateTypeInfo();
+                        break;
+                    case LocalInfoType.FindInfo:
                         break;
                     default:
                         break;
@@ -122,37 +170,13 @@ namespace ConfigGen.LocalInfo
         //        }
         //    }
         //}
-        public void UpdateFileInfo()
-        {
-            List<string> diffRelPath = new List<string>();
-            string[] files = Directory.GetFiles(Values.ConfigDir);
-            var fileDict = FileInfoLib.FileDict;
-            for (int i = 0; i < files.Length; i++)
-            {
-                string relPath = Util.GetConfigRelPath(files[i]);
-                string md5 = Util.GetMD5HashFromFile(files[i]);
-                if (fileDict.ContainsKey(relPath))
-                {
-                    if (fileDict[relPath].MD5Hash != md5)
-                    {
-                        fileDict[relPath].MD5Hash = md5;
-                        diffRelPath.Add(relPath);
-                    }
-                }
-                else
-                {
-                    FileState fileState = new FileState();
-                    fileState.RelPath = relPath;
-                    fileState.MD5Hash = md5;
-                    FileInfoLib.Add(fileState);
-                    diffRelPath.Add(relPath);
-                }
-            }
-            Util.Serialize(GetInfoPath(LocalInfoType.FileInfo), FileInfoLib);
 
-            for (int i = 0; i < diffRelPath.Count; i++)
+        private void AnalyzeCfgFile()
+        {
+            //填充基本信息
+            for (int i = 0; i < _diffRelPath.Count; i++)
             {
-                string filePath = Util.GetConfigAbsPath(diffRelPath[i]);
+                string filePath = Util.GetConfigAbsPath(_diffRelPath[i]);
                 string error = null;
                 Dictionary<SheetType, List<string>> dict;
                 DataSet ds = Util.ReadXlsxFile(filePath, out dict, out error);
@@ -168,12 +192,12 @@ namespace ConfigGen.LocalInfo
                 {
                     DataTable dt = ds.Tables[defines[j]];
                     if (defineInfo == null)
-                        defineInfo = new TableDefineInfo(diffRelPath[i], dt);
+                        defineInfo = new TableDefineInfo(_diffRelPath[i], dt);
                     else
                         defineInfo.TableDataSet.Merge(dt);
                 }
-                if (!DefineInfoDict.ContainsKey(diffRelPath[i]))
-                    DefineInfoDict.Add(diffRelPath[i], defineInfo);
+                if (!DefineInfoDict.ContainsKey(_diffRelPath[i]))
+                    DefineInfoDict.Add(_diffRelPath[i], defineInfo);
                 List<string> datas = dict[SheetType.Data];
                 TableDataInfo dataInfo = null;
                 for (int j = 0; j < datas.Count; j++)
@@ -181,7 +205,7 @@ namespace ConfigGen.LocalInfo
                     DataTable dt = ds.Tables[datas[j]];
                     string name = defineInfo.GetFirstName();
                     if (dataInfo == null)
-                        dataInfo = new TableDataInfo(diffRelPath[i], dt, name);
+                        dataInfo = new TableDataInfo(_diffRelPath[i], dt, name);
                     else
                     {
                         for (int k = Values.DataSheetDataStartIndex; k < dt.Rows.Count; k++)
@@ -191,8 +215,20 @@ namespace ConfigGen.LocalInfo
                 if (!DataInfoDict.ContainsKey(dataInfo.ClassName))
                     DataInfoDict.Add(dataInfo.ClassName, dataInfo);
             }
+            //解析类定义
+            foreach (var define in DefineInfoDict)
+                define.Value.Analyze();
+            //检查类定义
+            foreach (var item in TypeInfoLib.TypeInfoDict)
+            {
+                BaseTypeInfo baseType = item.Value;
+                TableChecker.CheckTypeByTypeType(item.Key, baseType.TypeType);
+            }
+            //解析数据定义和检查规则
+            foreach (var data in DataInfoDict)
+                data.Value.Analyze();
         }
-        public void UpdateTypeInfo()
+        private void UpdateTypeInfo()
         {
             if (TypeInfoLib == null) return;
 
@@ -205,7 +241,8 @@ namespace ConfigGen.LocalInfo
             //    //  2.字段名
             //}
         }
-        public void UpdateFindInfo()
+
+        private void UpdateFindInfo()
         {
             if (FindInfoLib == null) return;
 

@@ -51,14 +51,13 @@ namespace ConfigGen.LocalInfo
     {
 
         /// <summary>
-        /// 检查类是否存在-----------类型检查不全
+        /// 检查类是否存在
         /// </summary>
-        public static string CheckType(string className)
+        public static string CheckType(string typeName)
         {
             string error = null;
-            if (!LocalInfoManager.Instance.TypeInfoLib.ClassInfoDict.ContainsKey(className)
-                && LocalInfoManager.Instance.TypeInfoLib.EnumInfoDict.ContainsKey(className))
-                error = string.Format("类型{0}不存在", className);
+            if (!LocalInfoManager.Instance.TypeInfoLib.TypeInfoDict.ContainsKey(typeName))
+                error = string.Format("类型{0}不存在", typeName);
             return error;
         }
         /// <summary>
@@ -66,16 +65,15 @@ namespace ConfigGen.LocalInfo
         /// true:通过,false:不通过
         /// </summary>
         /// <param name="type">类型全名,即带命名空间</param>
-        public static string CheckFieldClassName(string type)
+        public static string CheckTypeByTypeType(string type, TypeType typeType)
         {
             string errorString = null;
-            FieldTypeType fieldTypeType = TypeInfo.GetFieldTypeType(type);
-            switch (fieldTypeType)
+            switch (typeType)
             {
-                case FieldTypeType.Base:
+                case TypeType.Base:
                     break;
-                case FieldTypeType.Class:
-                case FieldTypeType.Enum:
+                case TypeType.Class:
+                case TypeType.Enum:
                     int endIndex = type.LastIndexOf('.');
                     errorString = CheckType(type);
                     if (endIndex > -1 && !string.IsNullOrWhiteSpace(errorString))
@@ -83,41 +81,48 @@ namespace ConfigGen.LocalInfo
                         return errorString;
                     }
                     break;
-                case FieldTypeType.List:
+                case TypeType.List:
                     string element = type.Replace("list<", "").Replace(">", "");
-                    FieldTypeType elementType = TypeInfo.GetFieldTypeType(element);
-                    if (elementType == FieldTypeType.None)
+                    BaseTypeInfo elemTypeInfo = TypeInfo.GetTypeInfo(element);
+                    TypeType elementType = elemTypeInfo.TypeType;
+                    if (elementType == TypeType.None)
                     {
                         return string.Format("list中元素类型{0}不存在", element);
                     }
-                    else if (elementType == FieldTypeType.Dict || elementType == FieldTypeType.List)
+                    else if (elementType == TypeType.Dict || elementType == TypeType.List)
                     {
                         return string.Format("list元素类型{0}不能再为集合", element);
                     }
                     break;
-                case FieldTypeType.Dict:
+                case TypeType.Dict:
                     string keyValue = type.Replace("dict<", "").Replace(">", "");
                     string[] nodes = keyValue.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                     if (nodes.Length != 2)
                     {
                         return string.Format("dict中只能填写key类型和value类型,错误类型{0}", type);
                     }
-                    FieldTypeType keyType = TypeInfo.GetFieldTypeType(nodes[0]);
-                    if (keyType != FieldTypeType.Base && keyType != FieldTypeType.Enum)
-                    {
-                        return string.Format("dict中key类型只能为基础类型或者枚举,错误类型{0}", type);
-                    }
-                    FieldTypeType valueType = TypeInfo.GetFieldTypeType(nodes[1]);
-                    if (valueType == FieldTypeType.None)
+                    BaseTypeInfo keyTypeInfo = TypeInfo.GetTypeInfo(nodes[0]);
+                    TypeType keyType = keyTypeInfo.TypeType;
+                    if (keyType == TypeType.None)
                     {
                         return string.Format("dict中value类型{0}不存在", nodes[1]);
                     }
-                    else if (valueType == FieldTypeType.Dict || valueType == FieldTypeType.List)
+                    else if (keyType != TypeType.Base && keyType != TypeType.Enum)
+                    {
+                        return string.Format("dict中key类型只能为基础类型或者枚举,错误类型{0}", type);
+                    }
+                    BaseTypeInfo valueTypeInfo = TypeInfo.GetTypeInfo(nodes[1]);
+                    TypeType valueType = valueTypeInfo.TypeType;
+                    if (valueType == TypeType.None)
+                    {
+                        return string.Format("dict中value类型{0}不存在", nodes[1]);
+                    }
+                    else if (valueType == TypeType.Dict || valueType == TypeType.List)
                     {
                         return string.Format("dict中value类型{0}不能再为集合", nodes[1]);
                     }
                     break;
-                case FieldTypeType.None:
+                case TypeType.None:
                 default:
                     return string.Format("类型种类{0}不存在", type);
             }
