@@ -5,6 +5,7 @@ using System.Text;
 using ConfigGen.LocalInfo;
 using ConfigGen.CmdUsage;
 
+
 namespace ConfigGen
 {
     class Program
@@ -20,6 +21,7 @@ namespace ConfigGen
 
         static void Main(string[] args)
         {
+            Util.InitTime();
             //命令行参数解析
             if (!CmdOption.Instance.Init(args)) return;
 
@@ -33,8 +35,7 @@ namespace ConfigGen
             LocalInfoManager.Instance.Init(infoTypes);
             LocalInfoManager.Instance.Update();
 
-            //执行所有命令
-            if (!CmdOption.Instance.Excute()) return;
+
             //重新存储文件信息及类型信息
             //刷新数据库
             //TODO

@@ -19,9 +19,9 @@ namespace ConfigGen.CmdUsage
             string cmdDes = "";
 
             CmdLine cmdLine = new CmdLine();
-            cmdLine.Cmd = "-toolPath";
-            cmdLine.CmdDes = "[必填]应用工具路径.";
-            Usage.CmdUsageList.Add(cmdLine);
+            //cmdLine.Cmd = "-toolPath";
+            //cmdLine.CmdDes = "[必填]应用工具路径.";
+            //Usage.CmdUsageList.Add(cmdLine);
 
             cmdLine = new CmdLine();
             cmdLine.Cmd = "-configDir";

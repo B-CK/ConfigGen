@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 namespace ConfigGen.LocalInfo
 {
     [XmlRoot("FindInfo")]
-    class FindInfo : BaseInfo
+    public class FindInfo : BaseInfo
     {
         public List<FindState> FindStates { get; set; }
 
@@ -43,10 +43,20 @@ namespace ConfigGen.LocalInfo
             }
         }
         public void Remove(object info) { }
+        public void UpdateList()
+        {
+             
+        }
 
+        public void Save()
+        {
+            UpdateList();
+            string path = LocalInfoManager.GetInfoPath(LocalInfoType.FindInfo);
+            Util.Serialize(path, this);
+        }
     }
     [XmlInclude(typeof(FindState))]
-    class FindState
+    public class FindState
     {
         private List<string> _files;
         public string Content { get; set; }

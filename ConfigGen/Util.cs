@@ -7,6 +7,9 @@ using System.Runtime.InteropServices;
 using System.Data;
 using System.Data.OleDb;
 using ConfigGen.LocalInfo;
+using System.Diagnostics;
+using System.Timers;
+
 
 namespace ConfigGen
 {
@@ -272,5 +275,31 @@ namespace ConfigGen
             Console.WriteLine(format, errorString);
             Values.LogContent.AppendLine(ListStringSplit(errorString, "\r\n"));
         }
+
+        static Stopwatch _sw = new Stopwatch();
+        static Timer _timer = new Timer();
+        const int _interval = 33;
+        public static void InitTime()
+        {
+            _timer.Interval = _interval;
+            _timer.Elapsed += (object sender, ElapsedEventArgs e) =>
+            {
+                Console.Write(".");
+            };
+            _timer.AutoReset = true;
+            _timer.Enabled = true;
+        }
+        public static void Start()
+        {
+            _sw.Reset();
+            _sw.Start();
+        }
+        public static void Stop(string sheetName)
+        {
+            string seconds = (_sw.ElapsedMilliseconds / 1000).ToString();
+            Util.LogFormat("加载配置:{0} 耗时 {1}s", sheetName, seconds);
+            _timer.Stop();
+        }
+
     }
 }

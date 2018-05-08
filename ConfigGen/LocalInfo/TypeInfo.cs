@@ -21,9 +21,14 @@ namespace ConfigGen.LocalInfo
     }
 
     [XmlRoot("TypeInfo")]
-    class TypeInfo : BaseInfo
+    public class TypeInfo : BaseInfo
     {
+        [XmlArrayItem("Base", typeof(BaseTypeInfo))]
+        [XmlArrayItem("Class", typeof(ClassTypeInfo))]
+        [XmlArrayItem("List", typeof(ListTypeInfo))]
+        [XmlArrayItem("Dict", typeof(DictTypeInfo))]
         public List<ClassTypeInfo> ClassInfos { get; set; }
+        [XmlArrayItem("Enum", typeof(EnumTypeInfo))]
         public List<EnumTypeInfo> EnumInfos { get; set; }
 
         [XmlIgnore]
@@ -148,19 +153,12 @@ namespace ConfigGen.LocalInfo
                     TypeInfoDict.Remove(type);
             }
         }
+        public void UpdateList()
+        {
+            ClassInfos = new List<ClassTypeInfo>(ClassInfoDict.Values);
+            EnumInfos = new List<EnumTypeInfo>(EnumInfoDict.Values);
+        }
 
-
-        ///// <summary>
-        ///// 检查类字段信息是否修改
-        ///// </summary>
-        //public bool CheckFieldInfo(ClassInfo classInfo)
-        //{
-        //    //检测字段类型修改,存在性
-        //    //TODO
-        //    //检查字段是否有增减
-        //    //TODO
-        //    return true;
-        //}
 
         [XmlIgnore]
         static readonly HashSet<string> BaseType = new HashSet<string>() { "int", "long", "bool", "float", "string" };
@@ -198,9 +196,16 @@ namespace ConfigGen.LocalInfo
                 Util.LogErrorFormat("未定义{0}类型", type);
             return baseTypeInfo;
         }
+
+        public void Save()
+        {
+            UpdateList();
+            string path = LocalInfoManager.GetInfoPath(LocalInfoType.FileInfo);
+            Util.Serialize(path, this);
+        }
     }
 
-    abstract class BaseTypeInfo
+    public abstract class BaseTypeInfo
     {
         public TypeType TypeType { get; set; }
         /// <summary>
@@ -221,17 +226,9 @@ namespace ConfigGen.LocalInfo
     /// 类描述
     /// </summary>
     [XmlInclude(typeof(ClassTypeInfo))]
-    class ClassTypeInfo : BaseTypeInfo
+    public class ClassTypeInfo : BaseTypeInfo
     {
-        ///// <summary>
-        ///// 类对应文件的相对路径
-        ///// </summary>
-        //public string RelPath { get; set; }
-        //public string NamespaceName { get; set; }
-        //public string Name { get; set; }
-        //public string Group { get; set; }
         public List<FieldInfo> Fields { get; set; }
-
 
         Dictionary<string, FieldInfo> _fieldInfoDict = new Dictionary<string, FieldInfo>();
         public Dictionary<string, FieldInfo> GetFieldInfoDict()
@@ -259,12 +256,12 @@ namespace ConfigGen.LocalInfo
         }
     }
     [XmlInclude(typeof(ListTypeInfo))]
-    class ListTypeInfo : ClassTypeInfo
+    public class ListTypeInfo : ClassTypeInfo
     {
         public string ElementType { get; set; }
     }
     [XmlInclude(typeof(DictTypeInfo))]
-    class DictTypeInfo : ClassTypeInfo
+    public class DictTypeInfo : ClassTypeInfo
     {
         public string KeyType { get; set; }
         public string ValueType { get; set; }
@@ -275,8 +272,11 @@ namespace ConfigGen.LocalInfo
         }
     }
     [XmlInclude(typeof(FieldInfo))]
-    class FieldInfo
+    public class FieldInfo
     {
+        /// <summary>
+        /// 字段名
+        /// </summary>
         public string Name { get; set; }
         /// <summary>
         /// 完整类型名,即带命名空间
@@ -303,19 +303,12 @@ namespace ConfigGen.LocalInfo
     /// 枚举描述
     /// </summary>
     [XmlInclude(typeof(EnumTypeInfo))]
-    class EnumTypeInfo : BaseTypeInfo
+    public class EnumTypeInfo : BaseTypeInfo
     {
-        ///// <summary>
-        ///// 类对应文件的相对路径
-        ///// </summary>
-        //public string RelPath { get; set; }
-        //public string NamespaceName { get; set; }
-        //public string Name { get; set; }
-        //public string Group { get; set; }
         public List<EnumKeyValue> KeyValuePair { get; set; }
     }
     [XmlInclude(typeof(EnumKeyValue))]
-    class EnumKeyValue
+    public class EnumKeyValue
     {
         public string Key { get; set; }
         public string Value { get; set; }

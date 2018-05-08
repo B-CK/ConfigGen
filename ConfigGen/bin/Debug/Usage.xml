@@ -2,10 +2,6 @@
 <Usage xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <UsageList>
     <CmdLine>
-      <Cmd>-toolPath</Cmd>
-      <CmdDes>[必填]应用工具路径.</CmdDes>
-    </CmdLine>
-    <CmdLine>
       <Cmd>-configDir</Cmd>
       <CmdDes>[必填]数据表所在文件夹路径.</CmdDes>
     </CmdLine>
@@ -16,16 +12,6 @@
     <CmdLine>
       <Cmd>-csvDir</Cmd>
       <CmdDes>[选填]数据表导出数据存储路径,静态语言必填.</CmdDes>
-    </CmdLine>
-    <CmdLine>
-      <Cmd>-typedb</Cmd>
-      <CmdDes>[选填]是否在检索数据库中生成数据类型.格式state</CmdDes>
-      <CmdArgs>
-        <CmdArg>
-          <Arg>state</Arg>
-          <ArgDes>true:生成类型信息;false:不生成.默认值false</ArgDes>
-        </CmdArg>
-      </CmdArgs>
     </CmdLine>
     <CmdLine>
       <Cmd>-language</Cmd>

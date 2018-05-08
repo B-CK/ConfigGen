@@ -83,6 +83,10 @@ namespace ConfigGen
         /// </summary>
         public const string DefineTypeFlag = "##";
         /// <summary>
+        /// 数据集合结束符,可用在数据/子字段上.
+        /// </summary>
+        public const string DataSetEndFlag = "##";
+        /// <summary>
         /// 多个数据字段检查规则组合分隔符
         /// </summary>
         public const string CheckRuleSplitFlag = "|";

@@ -18,6 +18,7 @@ namespace ConfigGen.LocalInfo
         void Init();
         void Add(object info);
         void Remove(object info);
+        void Save();
     }
 
     class LocalInfoManager
@@ -71,18 +72,32 @@ namespace ConfigGen.LocalInfo
             {
                 LocalInfoType type = infos[i];
                 string path = GetInfoPath(type);
-                if (!File.Exists(path)) return;
                 switch (type)
                 {
                     case LocalInfoType.FileInfo:
+                        if (!File.Exists(path))
+                        {
+                            FileInfoLib = new FileInfo();
+                            FileInfoLib.Save();
+                        }
                         FileInfoLib = Util.Deserialize(path, typeof(FileInfo)) as FileInfo;
                         FileInfoLib.Init();
                         break;
                     case LocalInfoType.TypeInfo:
+                        if (!File.Exists(path))
+                        {
+                            TypeInfoLib = new TypeInfo();
+                            TypeInfoLib.Save();
+                        }
                         TypeInfoLib = Util.Deserialize(path, typeof(TypeInfo)) as TypeInfo;
                         TypeInfoLib.Init();
                         break;
                     case LocalInfoType.FindInfo:
+                        if (!File.Exists(path))
+                        {
+                            FindInfoLib = new FindInfo();
+                            FindInfoLib.Save();
+                        }
                         FindInfoLib = Util.Deserialize(path, typeof(FindInfo)) as FindInfo;
                         FindInfoLib.Init();
                         break;
@@ -127,52 +142,20 @@ namespace ConfigGen.LocalInfo
                         _diffRelPath.AddRange(diffRelPath);
                         break;
                     case LocalInfoType.TypeInfo:
-                        AnalyzeCfgFile();
                         UpdateTypeInfo();
                         break;
                     case LocalInfoType.FindInfo:
+                        UpdateFindInfo();
                         break;
                     default:
                         break;
                 }
             }
         }
-        //public void RefreshInfo(List<LocalInfoType> types, List<object> infos)
-        //{
-        //    if (types.Count != infos.Count)
-        //    {
-        //        Util.LogError("刷新数据类型的种类比实际数据量多.");
-        //        return;
-        //    }
-        //    for (int i = 0; i < types.Count; i++)
-        //    {
-        //        LocalInfoType type = types[i];
-        //        object info = infos[i];
-        //        if (info == null)
-        //        {
-        //            Util.LogWarningFormat("[{0}]刷新信息失败,数据为null!", type.ToString());
-        //            return;
-        //        }
-        //        string path = string.Format(@"{0}/{1}.{2}", Values.ApplicationDir, type.ToString(), _ext);
-        //        switch (type)
-        //        {
-        //            case LocalInfoType.FileInfo:
-        //                if (FileInfoLib == null)
-        //                    FileInfoLib = new FileInfo();
-        //                Util.Serialize(path, FileInfoLib);
-        //                break;
-        //            case LocalInfoType.TypeInfo:
-        //                break;
-        //            case LocalInfoType.FindInfo:
-        //                break;
-        //            default:
-        //                break;
-        //        }
-        //    }
-        //}
-
-        private void AnalyzeCfgFile()
+        private void UpdateTypeInfo()
         {
+            if (TypeInfoLib == null) return;
+
             //填充基本信息
             for (int i = 0; i < _diffRelPath.Count; i++)
             {
@@ -226,22 +209,15 @@ namespace ConfigGen.LocalInfo
             }
             //解析数据定义和检查规则
             foreach (var data in DataInfoDict)
+            {
+                Util.Start();
                 data.Value.Analyze();
-        }
-        private void UpdateTypeInfo()
-        {
-            if (TypeInfoLib == null) return;
+                Util.Stop(data.Value.RelPath);
+            }
 
-            //for (int i = 0; i < _diffFile.Count; i++)
-            //{
-            //    //string file = _diffFile[i];
-            //    //命名空间:相对路径确定命名空间
-            //    //类字段
-            //    //  1.类型
-            //    //  2.字段名
-            //}
+            TypeInfoLib.UpdateList();
+            Util.Serialize(GetInfoPath(LocalInfoType.TypeInfo), TypeInfoLib);
         }
-
         private void UpdateFindInfo()
         {
             if (FindInfoLib == null) return;
@@ -249,7 +225,7 @@ namespace ConfigGen.LocalInfo
 
         }
 
-        private string GetInfoPath(LocalInfoType type)
+        public static string GetInfoPath(LocalInfoType type)
         {
             return string.Format(@"{0}/{1}.{2}", Values.ApplicationDir, type.ToString(), _ext);
         }

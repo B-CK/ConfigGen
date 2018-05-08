@@ -7,16 +7,14 @@ using System.Xml.Serialization;
 namespace ConfigGen.LocalInfo
 {
     [XmlRoot("FileInfo")]
-    class FileInfo : BaseInfo
+    public class FileInfo : BaseInfo
     {
         [XmlIgnore]
-        private List<FileState> _fileStates;
+        private List<FileState> _fileStates = new List<FileState>();
         public List<FileState> FileStates
         {
             get
             {
-                if (_fileStates == null)
-                    _fileStates = new List<FileState>();
                 UpdateList();
                 return _fileStates;
             }
@@ -43,7 +41,7 @@ namespace ConfigGen.LocalInfo
         private Dictionary<string, FileState> _fileDict = new Dictionary<string, FileState>();
         public void Init()
         {
-            if (FileStates == null || FileStates.Count == 0)
+            if (FileStates == null)
             {
                 FileStates = new List<FileState>();
                 return;
@@ -68,10 +66,17 @@ namespace ConfigGen.LocalInfo
             FileState fileState = info as FileState;
             if (_fileDict.ContainsKey(fileState.RelPath))
                 _fileDict.Remove(fileState.RelPath);
-        }     
+        }
+
+        public void Save()
+        {
+            UpdateList();
+            string path = LocalInfoManager.GetInfoPath(LocalInfoType.FileInfo);
+            Util.Serialize(path, this);
+        }
     }
     [XmlInclude(typeof(FileState))]
-    class FileState
+    public class FileState
     {
         public string RelPath { get; set; }
         public string MD5Hash { get; set; }

@@ -51,15 +51,15 @@ namespace ConfigGen.CmdUsage
                     string cmdName = cmd.Key;
                     switch (cmdName)
                     {
-                        case "-toolPath":
-                            if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.AppPath = cmd.Value[0];
-                            if (!File.Exists(Values.AppPath))
-                            {
-                                Util.LogErrorFormat("[{0}]导出工具不在此路径{1}", cmdName, Values.AppPath);
-                                return false;
-                            }
-                            break;
+                        //case "-toolPath":
+                        //    if (!CheckArgList(cmdName, cmd.Value)) return false;
+                        //    Values.AppPath = cmd.Value[0];
+                        //    if (!File.Exists(Values.AppPath))
+                        //    {
+                        //        Util.LogErrorFormat("[{0}]导出工具不在此路径{1}", cmdName, Values.AppPath);
+                        //        return false;
+                        //    }
+                        //    break;
                         case "-configDir":
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
                             Values.ConfigDir = cmd.Value[0];
@@ -70,6 +70,7 @@ namespace ConfigGen.CmdUsage
                             }
                             break;
                         case "-help":
+                            Help();
                             break;
                         case "-language"://null不做语言类导出
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
@@ -112,39 +113,7 @@ namespace ConfigGen.CmdUsage
             }
             return true;
         }
-        public bool Excute()
-        {
-            try
-            {
-                foreach (var cmd in _cmdArgs)
-                {
-                    string cmdName = cmd.Key;
-                    switch (cmdName)
-                    {
-                        case "-help":
-                            Help();
-                            break;
-                        case "-language":
-                            break;
-                        case "-csvDir":
-                            break;
-                        case "-group":
-                            break;
-                        case "-replace":
-                            break;
-                        case "-find":
-                            break;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Util.LogError("执行命令失败!");
-                Util.LogErrorFormat("{0}\r\n{1}", e.Message, e.StackTrace);
-                return false;
-            }
-            return true;
-        }
+       
         private bool CheckArg(string arg)
         {
             if (string.IsNullOrEmpty(arg) || string.IsNullOrWhiteSpace(arg))
@@ -197,14 +166,6 @@ namespace ConfigGen.CmdUsage
             for (int j = 0; j < num; j++)
                 sb.Append(" ");
             return sb.ToString();
-        }
-        private void Replace()
-        {
-
-        }
-        private void Find()
-        {
-
         }
     }
 }
