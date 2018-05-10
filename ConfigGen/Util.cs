@@ -220,11 +220,11 @@ namespace ConfigGen
         }
         public static string GetConfigRelPath(string path)
         {
-            return path.Replace(Values.ConfigDir, "").Replace("\\", "/");
+            return path.Replace(Values.ConfigDir, "");
         }
         public static string GetConfigAbsPath(string relPath)
         {
-            return string.Format("{0}/{1}", Values.ConfigDir, relPath.Replace("\\", "/"));
+            return string.Format(@"{0}\{1}", Values.ConfigDir, relPath);
         }
         public static string Combine(string nameSpace, string className)
         {
@@ -277,28 +277,15 @@ namespace ConfigGen
         }
 
         static Stopwatch _sw = new Stopwatch();
-        static Timer _timer = new Timer();
-        const int _interval = 33;
-        public static void InitTime()
-        {
-            _timer.Interval = _interval;
-            _timer.Elapsed += (object sender, ElapsedEventArgs e) =>
-            {
-                Console.Write(".");
-            };
-            _timer.AutoReset = true;
-            _timer.Enabled = true;
-        }
-        public static void Start()
+        public static void StartTime()
         {
             _sw.Reset();
             _sw.Start();
         }
-        public static void Stop(string sheetName)
+        public static void StopTime(string msg)
         {
             string seconds = (_sw.ElapsedMilliseconds / 1000).ToString();
-            Util.LogFormat("加载配置:{0} 耗时 {1}s", sheetName, seconds);
-            _timer.Stop();
+            LogFormat("{0} 耗时 {1}s", msg, seconds);
         }
 
     }
