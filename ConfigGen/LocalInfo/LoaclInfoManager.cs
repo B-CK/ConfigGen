@@ -114,9 +114,8 @@ namespace ConfigGen.LocalInfo
                 switch (type)
                 {
                     case LocalInfoType.FileInfo:
-                        Util.StartTime();
                         List<string> diffRelPath = new List<string>();
-                        string[] files = Directory.GetFiles(Values.ConfigDir, "*", SearchOption.AllDirectories);
+                        string[] files = Directory.GetFiles(Values.ConfigDir);
                         var fileDict = FileInfoLib.FileDict;
                         for (int j = 0; j < files.Length; j++)
                         {
@@ -139,14 +138,8 @@ namespace ConfigGen.LocalInfo
                                 diffRelPath.Add(relPath);
                             }
                         }
-                        FileInfoLib.Save();
+                        Util.Serialize(GetInfoPath(LocalInfoType.FileInfo), FileInfoLib);
                         _diffRelPath.AddRange(diffRelPath);
-                        for (int k = 0; k < diffRelPath.Count; k++)
-                        {
-                            Util.LogFormat(">修改文件:{0}", diffRelPath[k]);
-                        }
-                        Util.StopTime("\n==>>搜索修改文件");
-                        Util.Log("");
                         break;
                     case LocalInfoType.TypeInfo:
                         UpdateTypeInfo();
@@ -217,9 +210,9 @@ namespace ConfigGen.LocalInfo
             //解析数据定义和检查规则
             foreach (var data in DataInfoDict)
             {
-                Util.StartTime();
+                Util.Start();
                 data.Value.Analyze();
-                Util.StopTime(string.Format("加载配置:{0}", data.Key));
+                Util.Stop(data.Value.RelPath);
             }
 
             TypeInfoLib.UpdateList();

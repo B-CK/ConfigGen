@@ -21,6 +21,7 @@ namespace ConfigGen
 
         static void Main(string[] args)
         {
+            Util.InitTime();
             //命令行参数解析
             if (!CmdOption.Instance.Init(args)) return;
 
@@ -39,8 +40,7 @@ namespace ConfigGen
             //刷新数据库
             //TODO
             //查找内容/替换内容/导出类文件/导出csv
-            Util.Log("按任意键退出...");
-            Console.ReadKey();
+            Console.Read();
         }
     }
 }

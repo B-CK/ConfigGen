@@ -53,7 +53,7 @@ namespace ConfigGen
         /// 路径与应用路径相同
         /// </summary>
         public const string ExcelInfoDB = "excelInfo.ei";
-        public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
+        public static readonly string ApplicationDir = Directory.GetCurrentDirectory().Replace("\\", "/");
         /// <summary>
         /// 导出语言种类
         /// </summary>

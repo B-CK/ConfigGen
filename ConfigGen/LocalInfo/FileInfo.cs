@@ -11,15 +11,27 @@ namespace ConfigGen.LocalInfo
     {
         [XmlIgnore]
         private List<FileState> _fileStates = new List<FileState>();
-        public List<FileState> FileStates { get { return _fileStates; } }
+        public List<FileState> FileStates
+        {
+            get
+            {
+                UpdateList();
+                return _fileStates;
+            }
+            set
+            {
+                _fileStates = value;
+                UpdateList();
+            }
+        }
         private void UpdateList()
         {
             var ls = new List<FileState>();
-            foreach (var f in _fileDict)
+            foreach (var f in _fileStates)
             {
-                string path = Util.GetConfigAbsPath(f.Key);
+                string path = Util.GetConfigAbsPath(f.RelPath);
                 if (File.Exists(path))
-                    ls.Add(f.Value);
+                    ls.Add(f);
             }
             _fileStates = ls;
         }
@@ -29,6 +41,12 @@ namespace ConfigGen.LocalInfo
         private Dictionary<string, FileState> _fileDict = new Dictionary<string, FileState>();
         public void Init()
         {
+            if (FileStates == null)
+            {
+                FileStates = new List<FileState>();
+                return;
+            }
+
             for (int i = 0; i < FileStates.Count; i++)
             {
                 string relPath = FileStates[i].RelPath;

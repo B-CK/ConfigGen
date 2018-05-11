@@ -62,7 +62,7 @@ namespace ConfigGen.CmdUsage
                         //    break;
                         case "-configDir":
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ConfigDir = string.Format(@"{0}\{1}", Directory.GetCurrentDirectory(), cmd.Value[0]);
+                            Values.ConfigDir = cmd.Value[0];
                             if (!Directory.Exists(Values.ConfigDir))
                             {
                                 Util.LogErrorFormat("[{0}]Config文件夹不在此路径{1}", cmdName, Values.ConfigDir);
@@ -113,7 +113,7 @@ namespace ConfigGen.CmdUsage
             }
             return true;
         }
-
+       
         private bool CheckArg(string arg)
         {
             if (string.IsNullOrEmpty(arg) || string.IsNullOrWhiteSpace(arg))
