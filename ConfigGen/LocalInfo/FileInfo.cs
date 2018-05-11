@@ -9,31 +9,17 @@ namespace ConfigGen.LocalInfo
     [XmlRoot("FileInfo")]
     public class FileInfo : BaseInfo
     {
-        [XmlIgnore]
-        private List<FileState> _fileStates = new List<FileState>();
-        public List<FileState> FileStates
-        {
-            get
-            {
-                UpdateList();
-                return _fileStates;
-            }
-            set
-            {
-                _fileStates = value;
-                UpdateList();
-            }
-        }
+        public List<FileState> FileStates { get; set; }
         private void UpdateList()
         {
             var ls = new List<FileState>();
-            foreach (var f in _fileStates)
+            foreach (var f in _fileDict)
             {
-                string path = Util.GetConfigAbsPath(f.RelPath);
+                string path = Util.GetConfigAbsPath(f.Key);
                 if (File.Exists(path))
-                    ls.Add(f);
+                    ls.Add(f.Value);
             }
-            _fileStates = ls;
+            FileStates = ls;
         }
 
         [XmlIgnore]
@@ -41,18 +27,12 @@ namespace ConfigGen.LocalInfo
         private Dictionary<string, FileState> _fileDict = new Dictionary<string, FileState>();
         public void Init()
         {
-            if (FileStates == null)
-            {
-                FileStates = new List<FileState>();
-                return;
-            }
-
             for (int i = 0; i < FileStates.Count; i++)
             {
-                string relPath = FileStates[i].RelPath;
-                if (!File.Exists(relPath)) continue;
-                if (!_fileDict.ContainsKey(relPath))
-                    _fileDict.Add(relPath, FileStates[i]);
+                string path = Util.GetConfigAbsPath(FileStates[i].RelPath);
+                if (!File.Exists(path)) continue;
+                if (!_fileDict.ContainsKey(FileStates[i].RelPath))
+                    _fileDict.Add(FileStates[i].RelPath, FileStates[i]);
             }
         }
         public void Add(object info)
@@ -78,7 +58,9 @@ namespace ConfigGen.LocalInfo
     [XmlInclude(typeof(FileState))]
     public class FileState
     {
+        [XmlAttribute]
         public string RelPath { get; set; }
+        [XmlAttribute]
         public string MD5Hash { get; set; }
     }
 }

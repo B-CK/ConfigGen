@@ -23,10 +23,8 @@ namespace ConfigGen.LocalInfo
     [XmlRoot("TypeInfo")]
     public class TypeInfo : BaseInfo
     {
-        [XmlArrayItem("Base", typeof(BaseTypeInfo))]
+        
         [XmlArrayItem("Class", typeof(ClassTypeInfo))]
-        [XmlArrayItem("List", typeof(ListTypeInfo))]
-        [XmlArrayItem("Dict", typeof(DictTypeInfo))]
         public List<ClassTypeInfo> ClassInfos { get; set; }
         [XmlArrayItem("Enum", typeof(EnumTypeInfo))]
         public List<EnumTypeInfo> EnumInfos { get; set; }
@@ -44,13 +42,6 @@ namespace ConfigGen.LocalInfo
 
         public void Init()
         {
-            if (ClassInfos == null || ClassInfos.Count == 0 || EnumInfos == null || EnumInfos.Count == 0)
-            {
-                ClassInfos = new List<ClassTypeInfo>();
-                EnumInfos = new List<EnumTypeInfo>();
-                return;
-            }
-
             for (int i = 0; i < ClassInfos.Count; i++)
             {
                 string type = ClassInfos[i].GetClassName();
@@ -73,16 +64,6 @@ namespace ConfigGen.LocalInfo
                 else
                     Util.LogErrorFormat("{0}类型重复定义,路径{1}", type, EnumInfos[i].RelPath);
             }
-            //基础类型信息
-            foreach (var item in BaseType)
-            {
-                ClassTypeInfo classInfo = new ClassTypeInfo();
-                classInfo.Name = item;
-                classInfo.TypeType = TypeType.Base;
-                _typeInfoDict.Add(item, classInfo);
-                _typeInfoDict.Add(item, classInfo);
-            }
-
         }
 
         public void Add(object info)
@@ -155,6 +136,14 @@ namespace ConfigGen.LocalInfo
         }
         public void UpdateList()
         {
+            //基础类型信息
+            foreach (var item in BaseType)
+            {
+                ClassTypeInfo classInfo = new ClassTypeInfo();
+                classInfo.Name = item;
+                classInfo.TypeType = TypeType.Base;
+                ClassInfoDict.Add(item, classInfo);
+            }
             ClassInfos = new List<ClassTypeInfo>(ClassInfoDict.Values);
             EnumInfos = new List<EnumTypeInfo>(EnumInfoDict.Values);
         }
@@ -200,20 +189,25 @@ namespace ConfigGen.LocalInfo
         public void Save()
         {
             UpdateList();
-            string path = LocalInfoManager.GetInfoPath(LocalInfoType.FileInfo);
+            string path = LocalInfoManager.GetInfoPath(LocalInfoType.TypeInfo);
             Util.Serialize(path, this);
         }
     }
 
     public abstract class BaseTypeInfo
     {
+        [XmlAttribute]
         public TypeType TypeType { get; set; }
+        [XmlAttribute]
         /// <summary>
         /// 类对应文件的相对路径
         /// </summary>
         public string RelPath { get; set; }
+        [XmlAttribute]
         public string NamespaceName { get; set; }
+        [XmlAttribute]
         public string Name { get; set; }
+        [XmlAttribute]
         public string Group { get; set; }
 
         public string GetClassName()
@@ -265,25 +259,25 @@ namespace ConfigGen.LocalInfo
     {
         public string KeyType { get; set; }
         public string ValueType { get; set; }
-
-        public static implicit operator DictTypeInfo(ListTypeInfo v)
-        {
-            throw new NotImplementedException();
-        }
     }
     [XmlInclude(typeof(FieldInfo))]
     public class FieldInfo
     {
+        [XmlAttribute]
         /// <summary>
         /// 字段名
         /// </summary>
         public string Name { get; set; }
+        [XmlAttribute]
         /// <summary>
         /// 完整类型名,即带命名空间
         /// </summary>
         public string Type { get; set; }
+        [XmlAttribute]
         public string Des { get; set; }
+        [XmlAttribute]
         public string Check { get; set; }
+        [XmlAttribute]
         public string Group { get; set; }
 
         [XmlIgnore]
@@ -310,8 +304,11 @@ namespace ConfigGen.LocalInfo
     [XmlInclude(typeof(EnumKeyValue))]
     public class EnumKeyValue
     {
+        [XmlAttribute]
         public string Key { get; set; }
+        [XmlAttribute]
         public string Value { get; set; }
+        [XmlAttribute]
         public string Des { get; set; }
     }
 }

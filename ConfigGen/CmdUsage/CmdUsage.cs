@@ -16,14 +16,9 @@ namespace ConfigGen.CmdUsage
         {
             Usage = new CmdUsage();
             Usage.CmdUsageList = new List<CmdLine>();
-            string cmdDes = "";
-
+            string cmdDes = "";         
+           
             CmdLine cmdLine = new CmdLine();
-            //cmdLine.Cmd = "-toolPath";
-            //cmdLine.CmdDes = "[必填]应用工具路径.";
-            //Usage.CmdUsageList.Add(cmdLine);
-
-            cmdLine = new CmdLine();
             cmdLine.Cmd = "-configDir";
             cmdLine.CmdDes = "[必填]数据表所在文件夹路径.";
             Usage.CmdUsageList.Add(cmdLine);
@@ -31,6 +26,16 @@ namespace ConfigGen.CmdUsage
             cmdLine = new CmdLine();
             cmdLine.Cmd = "-help";
             cmdLine.CmdDes = "[选填]显示应用命令行帮助文档";
+            Usage.CmdUsageList.Add(cmdLine);
+
+            cmdLine = new CmdLine();
+            cmdLine.Cmd = "-optMode";
+            cmdLine.CmdDes = "[选填]数据表操作模式,全部或者部分,默认只对部分文件进行操作";
+            cmdLine.CmdArgs = new List<CmdArg>()
+            {
+                new CmdArg("part", "总是对修改文件进行操作"),
+                new CmdArg("all", "无论文件是否修改,均进行操作"),
+            };
             Usage.CmdUsageList.Add(cmdLine);
 
             //数据及类型生成操作

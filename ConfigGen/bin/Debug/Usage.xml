@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Usage xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<Usage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <UsageList>
     <CmdLine>
       <Cmd>-configDir</Cmd>
@@ -8,6 +8,20 @@
     <CmdLine>
       <Cmd>-help</Cmd>
       <CmdDes>[选填]显示应用命令行帮助文档</CmdDes>
+    </CmdLine>
+    <CmdLine>
+      <Cmd>-optMode</Cmd>
+      <CmdDes>[选填]数据表操作模式,全部或者部分,默认只对部分文件进行操作</CmdDes>
+      <CmdArgs>
+        <CmdArg>
+          <Arg>part</Arg>
+          <ArgDes>总是对修改文件进行操作</ArgDes>
+        </CmdArg>
+        <CmdArg>
+          <Arg>all</Arg>
+          <ArgDes>无论文件是否修改,均进行操作</ArgDes>
+        </CmdArg>
+      </CmdArgs>
     </CmdLine>
     <CmdLine>
       <Cmd>-csvDir</Cmd>

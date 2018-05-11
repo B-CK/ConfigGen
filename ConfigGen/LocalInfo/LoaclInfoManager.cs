@@ -91,6 +91,8 @@ namespace ConfigGen.LocalInfo
                         }
                         TypeInfoLib = Util.Deserialize(path, typeof(TypeInfo)) as TypeInfo;
                         TypeInfoLib.Init();
+                        DefineInfoDict = new Dictionary<string, TableDefineInfo>();
+                        DataInfoDict = new Dictionary<string, TableDataInfo>();
                         break;
                     case LocalInfoType.FindInfo:
                         if (!File.Exists(path))
@@ -115,7 +117,7 @@ namespace ConfigGen.LocalInfo
                 {
                     case LocalInfoType.FileInfo:
                         List<string> diffRelPath = new List<string>();
-                        string[] files = Directory.GetFiles(Values.ConfigDir);
+                        string[] files = Directory.GetFiles(Values.ConfigDir, "*", SearchOption.AllDirectories);
                         var fileDict = FileInfoLib.FileDict;
                         for (int j = 0; j < files.Length; j++)
                         {
@@ -138,8 +140,20 @@ namespace ConfigGen.LocalInfo
                                 diffRelPath.Add(relPath);
                             }
                         }
-                        Util.Serialize(GetInfoPath(LocalInfoType.FileInfo), FileInfoLib);
-                        _diffRelPath.AddRange(diffRelPath);
+                        if (diffRelPath.Count > 0)
+                        {
+                            FileInfoLib.Save();
+                            for (int k = 0; k < diffRelPath.Count; k++)
+                            {
+                                Util.LogFormat(">修改文件:{0}", diffRelPath[k]);
+                            }
+                        }
+
+                        Util.LogFormat("\r\n==>>修改文件数{0}个\n", diffRelPath.Count.ToString());
+                        if (Values.IsOptPart)
+                            _diffRelPath.AddRange(diffRelPath);
+                        else
+                            _diffRelPath.AddRange(FileInfoLib.FileDict.Keys);
                         break;
                     case LocalInfoType.TypeInfo:
                         UpdateTypeInfo();
@@ -165,7 +179,7 @@ namespace ConfigGen.LocalInfo
                 DataSet ds = Util.ReadXlsxFile(filePath, out dict, out error);
                 if (!string.IsNullOrEmpty(error))
                 {
-                    Util.LogErrorFormat("[UpdateFileInfo]读取Xlsx失败!错误:{0}", error);
+                    Util.LogErrorFormat("读取Xlsx失败!{0}", error);
                     return;
                 }
 
@@ -181,9 +195,10 @@ namespace ConfigGen.LocalInfo
                 }
                 if (!DefineInfoDict.ContainsKey(_diffRelPath[i]))
                     DefineInfoDict.Add(_diffRelPath[i], defineInfo);
+                //数据表引用类型是谁?未正常处理...
                 List<string> datas = dict[SheetType.Data];
                 TableDataInfo dataInfo = null;
-                for (int j = 0; j < datas.Count; j++)
+                for (int j = 0; j < datas.Count && defineInfo != null; j++)
                 {
                     DataTable dt = ds.Tables[datas[j]];
                     string name = defineInfo.GetFirstName();
@@ -212,11 +227,10 @@ namespace ConfigGen.LocalInfo
             {
                 Util.Start();
                 data.Value.Analyze();
-                Util.Stop(data.Value.RelPath);
+                Util.Stop(string.Format("加载配置:{0}", data.Value.RelPath));
             }
 
-            TypeInfoLib.UpdateList();
-            Util.Serialize(GetInfoPath(LocalInfoType.TypeInfo), TypeInfoLib);
+            TypeInfoLib.Save();
         }
         private void UpdateFindInfo()
         {
@@ -227,7 +241,7 @@ namespace ConfigGen.LocalInfo
 
         public static string GetInfoPath(LocalInfoType type)
         {
-            return string.Format(@"{0}/{1}.{2}", Values.ApplicationDir, type.ToString(), _ext);
+            return string.Format(@"{0}\{1}.{2}", Values.ApplicationDir, type.ToString(), _ext);
         }
     }
 }

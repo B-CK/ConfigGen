@@ -54,7 +54,7 @@ namespace ConfigGen
         public static DataSet ReadXlsxFile(string filePath, out Dictionary<SheetType, List<string>> sheetDict, out string errorString)
         {
             // 检查文件是否存在且没被打开
-            FileState fileState = Util.GetFileState(filePath);
+            FileState fileState = GetFileState(filePath);
             if (fileState == FileState.Inexist)
             {
                 sheetDict = null;
@@ -70,16 +70,20 @@ namespace ConfigGen
 
             OleDbConnection conn = null;
             OleDbDataAdapter da = null;
-            DataSet ds = null;
-
+            DataSet ds = new DataSet();
+            ds.DataSetName = filePath;
             sheetDict = new Dictionary<SheetType, List<string>>();
             sheetDict.Add(SheetType.Data, new List<string>());
             sheetDict.Add(SheetType.Define, new List<string>());
 
             try
             {
-                // 初始化连接并打开
-                string connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + filePath + ";Extended Properties=\"Excel 12.0;HDR=NO;IMEX=1\"";
+                string connectionString = "";
+                string ext = Path.GetExtension(filePath);
+                if (ext.Equals(".xls"))
+                    connectionString = "Provider=Microsoft.Jet.OLEDB.4.0;" + "Data Source=" + filePath + ";" + ";Extended Properties=\"Excel 8.0;HDR=YES;IMEX=1\"";
+                else
+                    connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + filePath + ";Extended Properties=\"Excel 12.0;HDR=YES;IMEX=1\"";
 
                 conn = new OleDbConnection(connectionString);
                 conn.Open();
@@ -104,9 +108,9 @@ namespace ConfigGen
                     da.Dispose();
                 }
             }
-            catch
+            catch (Exception e)
             {
-                errorString = "错误：连接Excel失败，你可能尚未安装Office数据连接组件: http://www.microsoft.com/en-US/download/details.aspx?id=23734 \n";
+                errorString = "错误：连接Excel失败，你可能尚未安装Office数据连接组件\n" + e.Message;
                 return null;
             }
             finally
@@ -189,6 +193,18 @@ namespace ConfigGen
         {
             try
             {
+                FileState fileState = GetFileState(filePath);
+                if (fileState == FileState.Inexist)
+                {
+                    LogErrorFormat("{0}文件不存在", filePath);
+                    return null;
+                }
+                else if (fileState == FileState.IsOpen)
+                {
+                    LogErrorFormat("{0}文件正在被其他软件打开，请关闭后重新运行本工具", filePath);
+                    return null;
+                }
+
                 FileStream file = new FileStream(filePath, FileMode.Open);
                 System.Security.Cryptography.MD5 md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
                 byte[] retVal = md5.ComputeHash(file);
@@ -203,8 +219,8 @@ namespace ConfigGen
             }
             catch (Exception ex)
             {
-                string error = string.Format("Get md5 hash from {0} fail.", filePath);
-                throw new Exception(ex.Message);
+                LogErrorFormat("文件{0} MD5生成失败.", filePath);
+                return null;
             }
         }
         /// <summary>
@@ -220,11 +236,11 @@ namespace ConfigGen
         }
         public static string GetConfigRelPath(string path)
         {
-            return path.Replace(Values.ConfigDir, "").Replace("\\", "/");
+            return path.Replace(Values.ConfigDir, "");
         }
         public static string GetConfigAbsPath(string relPath)
         {
-            return string.Format("{0}/{1}", Values.ConfigDir, relPath.Replace("\\", "/"));
+            return string.Format(@"{0}{1}", Values.ConfigDir, relPath);
         }
         public static string Combine(string nameSpace, string className)
         {
@@ -277,28 +293,16 @@ namespace ConfigGen
         }
 
         static Stopwatch _sw = new Stopwatch();
-        static Timer _timer = new Timer();
-        const int _interval = 33;
-        public static void InitTime()
-        {
-            _timer.Interval = _interval;
-            _timer.Elapsed += (object sender, ElapsedEventArgs e) =>
-            {
-                Console.Write(".");
-            };
-            _timer.AutoReset = true;
-            _timer.Enabled = true;
-        }
+
         public static void Start()
         {
             _sw.Reset();
             _sw.Start();
         }
-        public static void Stop(string sheetName)
+        public static void Stop(string msg)
         {
             string seconds = (_sw.ElapsedMilliseconds / 1000).ToString();
-            Util.LogFormat("加载配置:{0} 耗时 {1}s", sheetName, seconds);
-            _timer.Stop();
+            Util.LogFormat("{0} 耗时 {1}s", msg, seconds);
         }
 
     }

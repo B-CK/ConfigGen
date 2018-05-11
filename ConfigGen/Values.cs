@@ -13,10 +13,6 @@ namespace ConfigGen
         /// </summary>
         public static string ConfigDir { get; set; }
         /// <summary>
-        /// 应用路径
-        /// </summary>
-        public static string AppPath { get; set; }
-        /// <summary>
         /// 导出语言
         /// </summary>
         public static string ExportLanguage { get; set; }
@@ -32,6 +28,10 @@ namespace ConfigGen
         /// 生成本地数据类型信息
         /// </summary>
         public static string GenTypeDB { get; set; }
+        /// <summary>
+        /// 是否只对已修改文件进行操作
+        /// </summary>
+        public static bool IsOptPart { get; set; }
         ///// <summary>
         ///// 替换内容参数
         ///// </summary>
@@ -53,7 +53,7 @@ namespace ConfigGen
         /// 路径与应用路径相同
         /// </summary>
         public const string ExcelInfoDB = "excelInfo.ei";
-        public static readonly string ApplicationDir = Directory.GetCurrentDirectory().Replace("\\", "/");
+        public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
         /// <summary>
         /// 导出语言种类
         /// </summary>

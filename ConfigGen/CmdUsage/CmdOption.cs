@@ -46,31 +46,28 @@ namespace ConfigGen.CmdUsage
 
             try
             {
+                Values.IsOptPart = true;
                 foreach (var cmd in _cmdArgs)
                 {
                     string cmdName = cmd.Key;
                     switch (cmdName)
-                    {
-                        //case "-toolPath":
-                        //    if (!CheckArgList(cmdName, cmd.Value)) return false;
-                        //    Values.AppPath = cmd.Value[0];
-                        //    if (!File.Exists(Values.AppPath))
-                        //    {
-                        //        Util.LogErrorFormat("[{0}]导出工具不在此路径{1}", cmdName, Values.AppPath);
-                        //        return false;
-                        //    }
-                        //    break;
+                    {                
                         case "-configDir":
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ConfigDir = cmd.Value[0];
+                            Values.ConfigDir = string.Format(@"{0}\{1}\", Values.ApplicationDir, cmd.Value[0]);
                             if (!Directory.Exists(Values.ConfigDir))
                             {
                                 Util.LogErrorFormat("[{0}]Config文件夹不在此路径{1}", cmdName, Values.ConfigDir);
                                 return false;
-                            }
+                            }                            
                             break;
                         case "-help":
                             Help();
+                            break;
+                        case "-optMode":
+                            if (!CheckArgList(cmdName, cmd.Value)) return false;
+                            if (CheckArg(cmd.Value[0]))
+                                Values.IsOptPart = "part".Equals(cmd.Value[0]);
                             break;
                         case "-language"://null不做语言类导出
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
@@ -113,7 +110,7 @@ namespace ConfigGen.CmdUsage
             }
             return true;
         }
-       
+
         private bool CheckArg(string arg)
         {
             if (string.IsNullOrEmpty(arg) || string.IsNullOrWhiteSpace(arg))

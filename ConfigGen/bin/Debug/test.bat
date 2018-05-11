@@ -1,2 +1,2 @@
-ConfigGen.exe -configDir ../../../Csv -help
+ConfigGen.exe -configDir ..\..\..\Csv -help
 @pause
