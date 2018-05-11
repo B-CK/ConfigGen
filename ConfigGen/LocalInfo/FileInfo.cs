@@ -9,6 +9,7 @@ namespace ConfigGen.LocalInfo
     [XmlRoot("FileInfo")]
     public class FileInfo : BaseInfo
     {
+        [XmlElement("FileState")]
         public List<FileState> FileStates { get; set; }
         private void UpdateList()
         {
