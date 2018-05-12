@@ -23,8 +23,10 @@ namespace ConfigGen.LocalInfo
     [XmlRoot("TypeInfo")]
     public class TypeInfo : BaseInfo
     {
-        
+
         [XmlArrayItem("Class", typeof(ClassTypeInfo))]
+        [XmlArrayItem("List", typeof(ListTypeInfo))]
+        [XmlArrayItem("Dict", typeof(DictTypeInfo))]
         public List<ClassTypeInfo> ClassInfos { get; set; }
         [XmlArrayItem("Enum", typeof(EnumTypeInfo))]
         public List<EnumTypeInfo> EnumInfos { get; set; }
@@ -97,7 +99,7 @@ namespace ConfigGen.LocalInfo
 
             if (baseInfo.TypeType != TypeType.None)
             {
-                string type = "";
+                string type = baseInfo.GetClassName();
                 if (!TypeInfoDict.ContainsKey(type))
                     TypeInfoDict.Add(type, baseInfo);
                 else
@@ -139,6 +141,8 @@ namespace ConfigGen.LocalInfo
             //基础类型信息
             foreach (var item in BaseType)
             {
+                if (ClassInfoDict.ContainsKey(item)) continue;
+
                 ClassTypeInfo classInfo = new ClassTypeInfo();
                 classInfo.Name = item;
                 classInfo.TypeType = TypeType.Base;
@@ -212,7 +216,12 @@ namespace ConfigGen.LocalInfo
 
         public string GetClassName()
         {
-            return string.Format("{0}.{1}", NamespaceName, Name);
+            string className = null;
+            if (string.IsNullOrWhiteSpace(NamespaceName))
+                className = Name;
+            else
+                className = string.Format("{0}.{1}", NamespaceName, Name);
+            return className;
         }
     }
 
@@ -222,6 +231,7 @@ namespace ConfigGen.LocalInfo
     [XmlInclude(typeof(ClassTypeInfo))]
     public class ClassTypeInfo : BaseTypeInfo
     {
+        [XmlElement("Field")]
         public List<FieldInfo> Fields { get; set; }
 
         Dictionary<string, FieldInfo> _fieldInfoDict = new Dictionary<string, FieldInfo>();
@@ -299,6 +309,7 @@ namespace ConfigGen.LocalInfo
     [XmlInclude(typeof(EnumTypeInfo))]
     public class EnumTypeInfo : BaseTypeInfo
     {
+        [XmlElement("Item")]
         public List<EnumKeyValue> KeyValuePair { get; set; }
     }
     [XmlInclude(typeof(EnumKeyValue))]

@@ -81,9 +81,9 @@ namespace ConfigGen
                 string connectionString = "";
                 string ext = Path.GetExtension(filePath);
                 if (ext.Equals(".xls"))
-                    connectionString = "Provider=Microsoft.Jet.OLEDB.4.0;" + "Data Source=" + filePath + ";" + ";Extended Properties=\"Excel 8.0;HDR=YES;IMEX=1\"";
+                    connectionString = "Provider=Microsoft.Jet.OLEDB.4.0;" + "Data Source=" + filePath + ";" + ";Extended Properties=\"Excel 8.0;HDR=No;IMEX=1\"";
                 else
-                    connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + filePath + ";Extended Properties=\"Excel 12.0;HDR=YES;IMEX=1\"";
+                    connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + filePath + ";Extended Properties=\"Excel 12.0;HDR=No;IMEX=1\"";
 
                 conn = new OleDbConnection(connectionString);
                 conn.Open();
@@ -95,7 +95,7 @@ namespace ConfigGen
                 {
                     string sheetName = dtSheet.Rows[i]["TABLE_NAME"].ToString();
                     if (!sheetName.StartsWith(Values.DataSheetPrefix)
-                        || sheetName.StartsWith(Values.DefineSheetPrefix)) continue;
+                        && !sheetName.StartsWith(Values.DefineSheetPrefix)) continue;
 
                     if (sheetName.StartsWith(Values.DataSheetPrefix))
                         sheetDict[SheetType.Data].Add(sheetName);
@@ -162,7 +162,7 @@ namespace ConfigGen
         {
             object result = null;
             if (File.Exists(filePath))
-            {
+            {                
                 using (StreamReader streamReader = new StreamReader(filePath))
                 {
                     result = new XmlSerializer(type).Deserialize(streamReader);

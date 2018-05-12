@@ -75,34 +75,58 @@ namespace ConfigGen.LocalInfo
                 switch (type)
                 {
                     case LocalInfoType.FileInfo:
-                        if (!File.Exists(path))
                         {
-                            FileInfoLib = new FileInfo();
-                            FileInfoLib.Save();
+                            if (File.Exists(path))
+                            {
+                                string txt = File.ReadAllText(path);
+                                if (string.IsNullOrWhiteSpace(txt))
+                                    File.Delete(path);
+                            }
+                            else 
+                            {
+                                FileInfoLib = new FileInfo();
+                                FileInfoLib.Save();
+                            }
+                            FileInfoLib = Util.Deserialize(path, typeof(FileInfo)) as FileInfo;
+                            FileInfoLib.Init();
+                            break;
                         }
-                        FileInfoLib = Util.Deserialize(path, typeof(FileInfo)) as FileInfo;
-                        FileInfoLib.Init();
-                        break;
                     case LocalInfoType.TypeInfo:
-                        if (!File.Exists(path))
                         {
-                            TypeInfoLib = new TypeInfo();
-                            TypeInfoLib.Save();
+                            if (File.Exists(path))
+                            {
+                                string txt = File.ReadAllText(path);
+                                if (string.IsNullOrWhiteSpace(txt))
+                                    File.Delete(path);
+                            }
+                            else
+                            {
+                                TypeInfoLib = new TypeInfo();
+                                TypeInfoLib.Save();
+                            }
+                            TypeInfoLib = Util.Deserialize(path, typeof(TypeInfo)) as TypeInfo;
+                            TypeInfoLib.Init();
+                            DefineInfoDict = new Dictionary<string, TableDefineInfo>();
+                            DataInfoDict = new Dictionary<string, TableDataInfo>();
+                            break;
                         }
-                        TypeInfoLib = Util.Deserialize(path, typeof(TypeInfo)) as TypeInfo;
-                        TypeInfoLib.Init();
-                        DefineInfoDict = new Dictionary<string, TableDefineInfo>();
-                        DataInfoDict = new Dictionary<string, TableDataInfo>();
-                        break;
                     case LocalInfoType.FindInfo:
-                        if (!File.Exists(path))
                         {
-                            FindInfoLib = new FindInfo();
-                            FindInfoLib.Save();
+                            if (File.Exists(path))
+                            {
+                                string txt = File.ReadAllText(path);
+                                if (string.IsNullOrWhiteSpace(txt))
+                                    File.Delete(path);
+                            }
+                            else 
+                            {
+                                FindInfoLib = new FindInfo();
+                                FindInfoLib.Save();
+                            }
+                            FindInfoLib = Util.Deserialize(path, typeof(FindInfo)) as FindInfo;
+                            FindInfoLib.Init();
+                            break;
                         }
-                        FindInfoLib = Util.Deserialize(path, typeof(FindInfo)) as FindInfo;
-                        FindInfoLib.Init();
-                        break;
                     default:
                         break;
                 }
@@ -123,6 +147,7 @@ namespace ConfigGen.LocalInfo
                         {
                             string relPath = Util.GetConfigRelPath(files[j]);
                             string md5 = Util.GetMD5HashFromFile(files[j]);
+                            if (string.IsNullOrWhiteSpace(md5)) return;
                             if (fileDict.ContainsKey(relPath))
                             {
                                 if (fileDict[relPath].MD5Hash != md5)
@@ -188,20 +213,30 @@ namespace ConfigGen.LocalInfo
                 for (int j = 0; j < defines.Count; j++)
                 {
                     DataTable dt = ds.Tables[defines[j]];
+                    if (dt.Rows.Count < 2)
+                    {
+                        Util.LogWarningFormat("{0}文件中{1}表定义异常", _diffRelPath[i], defines[j]);
+                        continue;
+                    }
                     if (defineInfo == null)
                         defineInfo = new TableDefineInfo(_diffRelPath[i], dt);
                     else
                         defineInfo.TableDataSet.Merge(dt);
+
+                    if (!DefineInfoDict.ContainsKey(_diffRelPath[i]))
+                        DefineInfoDict.Add(_diffRelPath[i], defineInfo);
                 }
-                if (!DefineInfoDict.ContainsKey(_diffRelPath[i]))
-                    DefineInfoDict.Add(_diffRelPath[i], defineInfo);
-                //数据表引用类型是谁?未正常处理...
                 List<string> datas = dict[SheetType.Data];
                 TableDataInfo dataInfo = null;
-                for (int j = 0; j < datas.Count && defineInfo != null; j++)
+                for (int j = 0; j < datas.Count; j++)
                 {
                     DataTable dt = ds.Tables[datas[j]];
-                    string name = defineInfo.GetFirstName();
+                    if (dt.Rows.Count < 4)
+                    {
+                        Util.LogWarningFormat("{0}文件中{1}表定义异常", _diffRelPath[i], datas[j]);
+                        continue;
+                    }
+                    string name = defineInfo == null ? null : defineInfo.GetFirstName();
                     if (dataInfo == null)
                         dataInfo = new TableDataInfo(_diffRelPath[i], dt, name);
                     else
@@ -210,7 +245,7 @@ namespace ConfigGen.LocalInfo
                             dataInfo.TableDataSet.Rows.Add(dt.Rows[k]);
                     }
                 }
-                if (!DataInfoDict.ContainsKey(dataInfo.ClassName))
+                if (dataInfo != null && !DataInfoDict.ContainsKey(dataInfo.ClassName))
                     DataInfoDict.Add(dataInfo.ClassName, dataInfo);
             }
             //解析类定义
