@@ -190,6 +190,7 @@ namespace ConfigGen.LocalInfo
             return baseTypeInfo;
         }
 
+
         public void Save()
         {
             UpdateList();
@@ -231,6 +232,10 @@ namespace ConfigGen.LocalInfo
     [XmlInclude(typeof(ClassTypeInfo))]
     public class ClassTypeInfo : BaseTypeInfo
     {
+        [XmlAttribute]
+        public string Inherit { get; set; }
+        [XmlAttribute]
+        public string DataTable { get; set; }
         [XmlElement("Field")]
         public List<FieldInfo> Fields { get; set; }
 

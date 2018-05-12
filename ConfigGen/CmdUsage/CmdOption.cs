@@ -51,7 +51,7 @@ namespace ConfigGen.CmdUsage
                 {
                     string cmdName = cmd.Key;
                     switch (cmdName)
-                    {                
+                    {
                         case "-configDir":
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
                             Values.ConfigDir = string.Format(@"{0}\{1}\", Values.ApplicationDir, cmd.Value[0]);
@@ -59,7 +59,7 @@ namespace ConfigGen.CmdUsage
                             {
                                 Util.LogErrorFormat("[{0}]Config文件夹不在此路径{1}", cmdName, Values.ConfigDir);
                                 return false;
-                            }                            
+                            }
                             break;
                         case "-help":
                             Help();
@@ -72,12 +72,18 @@ namespace ConfigGen.CmdUsage
                         case "-language"://null不做语言类导出
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
                             Values.ExportLanguage = cmd.Value[0];
-                            bool isExist = Values.Languages.Exists(l => l.Equals(Values.ExportLanguage));
-                            if (!isExist)
+                            bool isExist = true;
+                            string[] lans = Values.ExportLanguage.Split("|".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                            for (int i = 0; i < lans.Length; i++)
                             {
-                                Util.LogErrorFormat("[{0}]当前导出语言不存在{1}", cmdName, Values.ExportLanguage);
-                                Values.ExportLanguage = null;
+                                if (!Values.Languages.Contains(lans[i]))
+                                {
+                                    Util.LogErrorFormat("[{0}]当前导出语言不存在{1}", cmdName, Values.ExportLanguage);
+                                    isExist = false;
+                                }
                             }
+                            if (!isExist)
+                                Values.ExportLanguage = null;
                             break;
                         case "-csvDir"://null不导出csv
                             if (!CheckArgList(cmdName, cmd.Value)) return false;

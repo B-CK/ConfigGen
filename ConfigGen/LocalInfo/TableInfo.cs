@@ -6,11 +6,6 @@ using System.Collections;
 
 namespace ConfigGen.LocalInfo
 {
-    //public enum DefineType
-    //{
-    //    Class,
-    //    Enum,
-    //}
     public enum SheetType
     {
         None,
@@ -99,7 +94,7 @@ namespace ConfigGen.LocalInfo
                 ClassTypeInfo define = TypeInfo.GetTypeInfo(type) as ClassTypeInfo;
                 DataClassInfo = define.Clone();
                 DataClassInfo.UpdateToDict();
-               
+
                 DataTable dt = TableDataSet;
                 var dataFieldDict = new Dictionary<string, TableFieldInfo>();
                 var fieldInfoDict = DataClassInfo.GetFieldInfoDict();
@@ -148,7 +143,7 @@ namespace ConfigGen.LocalInfo
             {
                 Util.LogErrorFormat("{0}\n{1}", e.Message, e.StackTrace);
             }
-           
+
             return isOK;
         }
         private string GetErrorSite(int c, int r)
@@ -426,35 +421,50 @@ namespace ConfigGen.LocalInfo
 
                     //开始定义类型
                     defineTypeStr = firstColumn.TrimStart(Values.DefineTypeFlag.ToCharArray());
+                    string nameSpace = TypeInfo.GetNamespaceName(RelPath);
                     name = dt.Rows[i][1].ToString();
-                    string group = dt.Rows[i][2].ToString();
-                    i += 2;
                     if (defineTypeStr.Equals("class"))
                     {
+                        string inherit = dt.Rows[i][2].ToString();
+                        string dataTable = dt.Rows[i][3].ToString();
+                        string group = dt.Rows[i][4].ToString();
                         ClassTypeInfo classInfo = new ClassTypeInfo();
                         classInfo.RelPath = RelPath;
-                        classInfo.NamespaceName = TypeInfo.GetNamespaceName(RelPath);
                         classInfo.Name = name;
-                        classInfo.Group = group;
+                        classInfo.NamespaceName = FilterEmptyOrNull(nameSpace);
+                        classInfo.Inherit = FilterEmptyOrNull(inherit);
+                        classInfo.DataTable = FilterEmptyOrNull(dataTable);
+                        classInfo.Group = FilterEmptyOrNull(group);
                         classInfo.TypeType = TypeType.Class;
                         classInfo.Fields = new List<FieldInfo>();
                         if (string.IsNullOrWhiteSpace(FirstName))
                             FirstName = classInfo.Name;
+
+                        i += 2;
                         for (int j = i; j < dt.Rows.Count; j++, i++)
                         {
+                            if (IsEndClassOrEnum(dt.Rows[j][0].ToString()))
+                                break;
+
                             FieldInfo fieldInfo = new FieldInfo();
                             fieldInfo.Name = dt.Rows[j][0].ToString();
                             string fieldType = dt.Rows[j][1].ToString();
-                            int endIndex = fieldType.LastIndexOf('.');
-                            if (endIndex == -1)
-                                fieldType = Util.Combine(classInfo.NamespaceName, fieldType);
+                            TypeType typeType = TypeInfo.GetTypeType(fieldType);
+                            if (typeType == TypeType.Base || typeType == TypeType.List || typeType == TypeType.Dict)
+                            {
+                            }
+                            else
+                            {
+                                int endIndex = fieldType.LastIndexOf('.');
+                                if (endIndex == -1)
+                                    fieldType = Util.Combine(classInfo.NamespaceName, fieldType);
+                            }
                             fieldInfo.Type = fieldType;
-                            fieldInfo.Des = dt.Rows[j][2].ToString();
-                            fieldInfo.Check = dt.Rows[j][3].ToString();
-                            fieldInfo.Group = dt.Rows[j][4].ToString();
+                            fieldInfo.Des = FilterEmptyOrNull(dt.Rows[j][2].ToString());
+                            fieldInfo.Check = FilterEmptyOrNull(dt.Rows[j][3].ToString());
+                            fieldInfo.Group = FilterEmptyOrNull(dt.Rows[j][4].ToString());
                             classInfo.Fields.Add(fieldInfo);
 
-                            TypeType typeType = TypeInfo.GetTypeType(fieldType);
                             BaseTypeInfo baseType = null;
                             if (typeType == TypeType.List)
                             {
@@ -480,9 +490,6 @@ namespace ConfigGen.LocalInfo
                                 continue;
 
                             LocalInfoManager.Instance.TypeInfoLib.Add(baseType);
-
-                            if (string.IsNullOrWhiteSpace(dt.Rows[j][0].ToString()))
-                                break;
                         }
                         ClassInfoDict.Add(name, classInfo);
                         LocalInfoManager.Instance.TypeInfoLib.Add(classInfo);
@@ -491,21 +498,22 @@ namespace ConfigGen.LocalInfo
                     {
                         EnumTypeInfo enumInfo = new EnumTypeInfo();
                         enumInfo.RelPath = RelPath;
-                        enumInfo.NamespaceName = TypeInfo.GetNamespaceName(RelPath);
                         enumInfo.Name = name;
-                        enumInfo.Group = group;
+                        enumInfo.NamespaceName = FilterEmptyOrNull(TypeInfo.GetNamespaceName(RelPath));
+                        enumInfo.Group = FilterEmptyOrNull(dt.Rows[i][2].ToString());
                         enumInfo.TypeType = TypeType.Enum;
                         enumInfo.KeyValuePair = new List<EnumKeyValue>();
+                        i += 2;
                         for (int j = i; j < dt.Rows.Count; j++, i++)
                         {
+                            if (IsEndClassOrEnum(dt.Rows[j][0].ToString()))
+                                break;
+
                             EnumKeyValue kv = new EnumKeyValue();
                             kv.Key = dt.Rows[j][0].ToString();
                             kv.Value = dt.Rows[j][1].ToString();
                             kv.Des = dt.Rows[j][2].ToString();
                             enumInfo.KeyValuePair.Add(kv);
-
-                            if (string.IsNullOrWhiteSpace(dt.Rows[j][0].ToString()))
-                                break;
                         }
                         EnumInfoDict.Add(name, enumInfo);
                         LocalInfoManager.Instance.TypeInfoLib.Add(enumInfo);
@@ -524,6 +532,17 @@ namespace ConfigGen.LocalInfo
             }
 
             return isOK;
+        }
+        string FilterEmptyOrNull(string str)
+        {
+            return string.IsNullOrWhiteSpace(str) ? null : str;
+        }
+        bool IsEndClassOrEnum(string flag)
+        {
+            if (string.IsNullOrWhiteSpace(flag)
+                || flag.StartsWith(Values.DefineTypeFlag))
+                return true;
+            return false;
         }
     }
     /// <summary>

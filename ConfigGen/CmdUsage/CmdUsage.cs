@@ -16,8 +16,8 @@ namespace ConfigGen.CmdUsage
         {
             Usage = new CmdUsage();
             Usage.CmdUsageList = new List<CmdLine>();
-            string cmdDes = "";         
-           
+            string cmdDes = "";
+
             CmdLine cmdLine = new CmdLine();
             cmdLine.Cmd = "-configDir";
             cmdLine.CmdDes = "[必填]数据表所在文件夹路径.";
@@ -47,9 +47,10 @@ namespace ConfigGen.CmdUsage
             cmdLine = new CmdLine();
             cmdLine.Cmd = "-language";
             cmdDes = Util.ListStringSplit(Values.Languages, " ");
-            cmdLine.CmdDes = string.Format("[选填]数据表导出语言.动态语言无需数据路径,静态语言需要数据存储路径.可选[{0}]", cmdDes);
+            cmdLine.CmdDes = string.Format("[选填]数据表导出语言.动态语言无需数据路径,静态语言需要数据存储路径.可选[{0}] dir", cmdDes);
             cmdLine.CmdArgs = new List<CmdArg>()
             {
+                new CmdArg("dir","必填参数,数据类代码导出文件夹路径"),
                 new CmdArg("|符号", "多种语言同时使用时,用|符号分隔."),
             };
             Usage.CmdUsageList.Add(cmdLine);
