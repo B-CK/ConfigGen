@@ -49,10 +49,12 @@ namespace ConfigGen.LocalInfo
 
     class TableChecker
     {
-
         /// <summary>
         /// 检查类是否存在
         /// </summary>
+        /// <param name="typeName">类型名,可全路径可不全路径</param>
+        /// <param name="nameSpace">非空时会检查组合类型</param>
+        /// <returns></returns>
         public static string CheckType(string typeName)
         {
             string error = null;
@@ -60,76 +62,19 @@ namespace ConfigGen.LocalInfo
                 error = string.Format("类型{0}不存在", typeName);
             return error;
         }
-        /// <summary>
-        /// 检查字段类型,基于单个格子
-        /// true:通过,false:不通过
-        /// </summary>
-        /// <param name="type">类型全名,即带命名空间</param>
-        public static string CheckTypeByTypeType(string type, TypeType typeType)
+
+        static readonly HashSet<string> DictKeyTypeLimit = new HashSet<string>() { "int", "long", "string" };
+        public static string CheckDictKey(string type)
         {
-            string errorString = null;
-            switch (typeType)
+            string error = null;
+            if (!DictKeyTypeLimit.Contains(type))
             {
-                case TypeType.Base:
-                    break;
-                case TypeType.Class:
-                case TypeType.Enum:
-                    int endIndex = type.LastIndexOf('.');
-                    errorString = CheckType(type);
-                    if (endIndex > -1 && !string.IsNullOrWhiteSpace(errorString))
-                    {
-                        return errorString;
-                    }
-                    break;
-                case TypeType.List:
-                    string element = type.Replace("list<", "").Replace(">", "");
-                    BaseTypeInfo elemTypeInfo = TypeInfo.GetTypeInfo(element);
-                    TypeType elementType = elemTypeInfo.TypeType;
-                    if (elementType == TypeType.None)
-                    {
-                        return string.Format("list中元素类型{0}不存在", element);
-                    }
-                    else if (elementType == TypeType.Dict || elementType == TypeType.List)
-                    {
-                        return string.Format("list元素类型{0}不能再为集合", element);
-                    }
-                    break;
-                case TypeType.Dict:
-                    string keyValue = type.Replace("dict<", "").Replace(">", "");
-                    string[] nodes = keyValue.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                    if (nodes.Length != 2)
-                    {
-                        return string.Format("dict中只能填写key类型和value类型,错误类型{0}", type);
-                    }
-                    BaseTypeInfo keyTypeInfo = TypeInfo.GetTypeInfo(nodes[0]);
-                    TypeType keyType = keyTypeInfo.TypeType;
-                    if (keyType == TypeType.None)
-                    {
-                        return string.Format("dict中value类型{0}不存在", nodes[1]);
-                    }
-                    else if (keyType != TypeType.Base && keyType != TypeType.Enum)
-                    {
-                        return string.Format("dict中key类型只能为基础类型或者枚举,错误类型{0}", type);
-                    }
-                    BaseTypeInfo valueTypeInfo = TypeInfo.GetTypeInfo(nodes[1]);
-                    TypeType valueType = valueTypeInfo.TypeType;
-                    if (valueType == TypeType.None)
-                    {
-                        return string.Format("dict中value类型{0}不存在", nodes[1]);
-                    }
-                    else if (valueType == TypeType.Dict || valueType == TypeType.List)
-                    {
-                        return string.Format("dict中value类型{0}不能再为集合", nodes[1]);
-                    }
-                    break;
-                case TypeType.None:
-                default:
-                    return string.Format("类型种类{0}不存在", type);
+                TypeType typeType = TypeInfo.GetTypeType(type);
+                if (typeType != TypeType.Enum)
+                    error = "字段key类型错误" + type;
             }
-
-            return errorString;
+            return error;
         }
-
 
         //---------------------------------------数据检查
         public static bool ParseCheckRule(TableFieldInfo tableFieldInfo)

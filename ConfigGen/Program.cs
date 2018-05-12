@@ -21,6 +21,21 @@ namespace ConfigGen
 
         static void Main(string[] args)
         {
+            //int[] ary = { 1, 2, 3, 4, 5 };
+            //foreach (var item in ary)
+            //{
+            //    for (int i = 0; i < 6; i++)
+            //    {
+            //        if (i == 3)
+            //        {
+            //            continue;
+            //        }
+            //        Console.WriteLine("-J-" + i);
+            //    }
+            //    Console.WriteLine("I-" + item);
+            //}
+            //Console.ReadKey();
+            //return;
             //命令行参数解析
             if (!CmdOption.Instance.Init(args)) return;
 

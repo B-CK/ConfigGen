@@ -177,6 +177,7 @@ namespace ConfigGen
         {
             if (!string.IsNullOrEmpty(filePath) && filePath.Trim().Length != 0 && sourceObj != null)
             {
+                File.Delete(filePath);
                 Type type = sourceObj.GetType();
                 using (StreamWriter streamWriter = new StreamWriter(filePath))
                 {

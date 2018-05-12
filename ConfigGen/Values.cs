@@ -94,7 +94,6 @@ namespace ConfigGen
         /// 单个检查功能内存在多个参数时,用:符号分离
         /// </summary>
         public const string CheckRunleArgsSplitFlag = ":";
-
         #endregion
     }
 

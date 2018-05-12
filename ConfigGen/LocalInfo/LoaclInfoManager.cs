@@ -82,7 +82,7 @@ namespace ConfigGen.LocalInfo
                                 if (string.IsNullOrWhiteSpace(txt))
                                     File.Delete(path);
                             }
-                            else 
+                            else
                             {
                                 FileInfoLib = new FileInfo();
                                 FileInfoLib.Save();
@@ -118,7 +118,7 @@ namespace ConfigGen.LocalInfo
                                 if (string.IsNullOrWhiteSpace(txt))
                                     File.Delete(path);
                             }
-                            else 
+                            else
                             {
                                 FindInfoLib = new FindInfo();
                                 FindInfoLib.Save();
@@ -251,21 +251,104 @@ namespace ConfigGen.LocalInfo
             //解析类定义
             foreach (var define in DefineInfoDict)
                 define.Value.Analyze();
-            //检查类定义
-            foreach (var item in TypeInfoLib.TypeInfoDict)
+            //检查类定义并且修正集合类型中的泛型
+            var infoDict = new Dictionary<string, BaseTypeInfo>(TypeInfoLib.TypeInfoDict);
+            foreach (var item in infoDict)
             {
-                BaseTypeInfo baseType = item.Value;
-                TableChecker.CheckTypeByTypeType(item.Key, baseType.TypeType);
+                BaseTypeInfo typeInfo = item.Value;
+                if (typeInfo.TypeType == TypeType.Class
+                    || typeInfo.TypeType == TypeType.Enum)
+                {
+                    string error = TableChecker.CheckType(item.Key);
+                    if (!string.IsNullOrWhiteSpace(error))
+                    {
+                        Util.LogErrorFormat("{0}类型不存在,错误位置{1}", item.Key, item.Value.RelPath);
+                        continue;
+                    }
+
+                    ClassTypeInfo classType = typeInfo as ClassTypeInfo;
+                    for (int i = 0; classType != null && i < classType.Fields.Count; i++)
+                    {
+                        FieldInfo fieldInfo = classType.Fields[i];
+                        string fieldType = CorrectType(fieldInfo.Type, classType.NamespaceName);
+                        TypeType typeType = TypeInfo.GetTypeType(fieldType);
+                        if (typeType != TypeType.None && !fieldInfo.Type.Equals(fieldType))
+                            TypeInfoLib.Remove(TypeInfo.GetTypeInfo(fieldInfo.Type));
+                        BaseTypeInfo baseType = null;
+                        switch (typeType)
+                        {
+                            case TypeType.Class:
+                            case TypeType.Enum:
+                                fieldInfo.Type = CorrectType(fieldInfo.Type, classType.NamespaceName);
+                                continue;
+                            case TypeType.List:
+                                ListTypeInfo listType = new ListTypeInfo();
+                                listType.TypeType = typeType;
+                                string type = fieldInfo.Type.Replace("list<", "").Replace(">", "");
+                                listType.ItemType = CorrectType(type, classType.NamespaceName);
+                                fieldInfo.Type = string.Format("list<{0}>", listType.ItemType);
+                                listType.Name = fieldInfo.Type;
+                                baseType = listType;
+                                break;
+                            case TypeType.Dict:
+                                DictTypeInfo dictType = new DictTypeInfo();
+                                dictType.TypeType = typeType;
+                                string[] kv = fieldInfo.Type.Replace("dict<", "").Replace(">", "").Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                                if (kv.Length != 2)
+                                {
+                                    Util.LogErrorFormat("{0}类中字段{1}的dict类型格式错误,错误位置{2}",
+                                        classType.GetClassName(), fieldInfo.Name, classType.RelPath);
+                                    continue;
+                                }
+                                string key = CorrectType(kv[0], classType.NamespaceName);
+                                error = TableChecker.CheckDictKey(key);
+                                if (!string.IsNullOrWhiteSpace(error))
+                                {
+                                    Util.LogErrorFormat("{0}类中字段{1}定义dict key类型错误,错误位置{2}",
+                                        classType.GetClassName(), fieldInfo.Name, classType.RelPath);
+                                    continue;
+                                }
+                                dictType.KeyType = key;
+                                dictType.ValueType = CorrectType(kv[1], classType.NamespaceName);
+                                fieldInfo.Type = string.Format("dict<{0}, {1}>", dictType.KeyType, dictType.ValueType);
+                                dictType.Name = fieldInfo.Type;
+                                baseType = dictType;
+                                break;
+                            case TypeType.None:
+                            case TypeType.Base:
+                            default:
+                                continue;
+                        }
+                        TypeInfoLib.Add(baseType);
+                    }
+                }
             }
-            //解析数据定义和检查规则
-            foreach (var data in DataInfoDict)
-            {
-                Util.Start();
-                data.Value.Analyze();
-                Util.Stop(string.Format("加载配置:{0}", data.Value.RelPath));
-            }
+            ////解析数据定义和检查规则
+            //foreach (var data in DataInfoDict)
+            //{
+            //    Util.Start();
+            //    data.Value.Analyze();
+            //    Util.Stop(string.Format("加载配置:{0}", data.Value.RelPath));
+            //}
 
             TypeInfoLib.Save();
+        }
+        private string CorrectType(string type, string nameSpace)
+        {
+            string newType = null;
+            string combine = Util.Combine(nameSpace, type);
+            string error = TableChecker.CheckType(combine);
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                error = TableChecker.CheckType(type);
+                if (!string.IsNullOrWhiteSpace(error))
+                    newType = null;
+                else
+                    newType = type;
+            }
+            else
+                newType = combine;
+            return newType;
         }
         private void UpdateFindInfo()
         {

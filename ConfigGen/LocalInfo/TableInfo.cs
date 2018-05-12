@@ -148,7 +148,7 @@ namespace ConfigGen.LocalInfo
         }
         private string GetErrorSite(int c, int r)
         {
-            return string.Format("错误位置{0}[{1}{2}]", RelPath, c, r);
+            return string.Format("错误位置{0}[{1}{2}]", RelPath, Util.GetColumnName(c), r);
         }
 
         /// <summary>
@@ -247,7 +247,7 @@ namespace ConfigGen.LocalInfo
             int startColumn = listFieldInfo.ColumnIndex + 1;
             listFieldInfo.ChildFields = new List<TableFieldInfo>();
             ListTypeInfo listTypeInfo = listFieldInfo.BaseInfo as ListTypeInfo;
-            BaseTypeInfo elemTypeInfo = TypeInfo.GetTypeInfo(listTypeInfo.ElementType);
+            BaseTypeInfo elemTypeInfo = TypeInfo.GetTypeInfo(listTypeInfo.ItemType);
             string flag = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
             for (int i = 0; !flag.StartsWith(Values.DataSetEndFlag); i++)
             {
@@ -368,7 +368,6 @@ namespace ConfigGen.LocalInfo
             ClassInfoDict = new Dictionary<string, ClassTypeInfo>();
             EnumInfoDict = new Dictionary<string, EnumTypeInfo>();
         }
-        public string FirstName { get; private set; }
         public Dictionary<string, ClassTypeInfo> ClassInfoDict { get; private set; }
         public Dictionary<string, EnumTypeInfo> EnumInfoDict { get; private set; }
 
@@ -437,11 +436,9 @@ namespace ConfigGen.LocalInfo
                         classInfo.Group = FilterEmptyOrNull(group);
                         classInfo.TypeType = TypeType.Class;
                         classInfo.Fields = new List<FieldInfo>();
-                        if (string.IsNullOrWhiteSpace(FirstName))
-                            FirstName = classInfo.Name;
 
-                        i += 2;
-                        for (int j = i; j < dt.Rows.Count; j++, i++)
+                        int j = i += 2;
+                        for( ; j < dt.Rows.Count; j++)
                         {
                             if (IsEndClassOrEnum(dt.Rows[j][0].ToString()))
                                 break;
@@ -449,48 +446,16 @@ namespace ConfigGen.LocalInfo
                             FieldInfo fieldInfo = new FieldInfo();
                             fieldInfo.Name = dt.Rows[j][0].ToString();
                             string fieldType = dt.Rows[j][1].ToString();
-                            TypeType typeType = TypeInfo.GetTypeType(fieldType);
-                            if (typeType == TypeType.Base || typeType == TypeType.List || typeType == TypeType.Dict)
-                            {
-                            }
-                            else
-                            {
-                                int endIndex = fieldType.LastIndexOf('.');
-                                if (endIndex == -1)
-                                    fieldType = Util.Combine(classInfo.NamespaceName, fieldType);
-                            }
                             fieldInfo.Type = fieldType;
                             fieldInfo.Des = FilterEmptyOrNull(dt.Rows[j][2].ToString());
                             fieldInfo.Check = FilterEmptyOrNull(dt.Rows[j][3].ToString());
                             fieldInfo.Group = FilterEmptyOrNull(dt.Rows[j][4].ToString());
-                            classInfo.Fields.Add(fieldInfo);
-
-                            BaseTypeInfo baseType = null;
-                            if (typeType == TypeType.List)
-                            {
-                                ListTypeInfo listType = new ListTypeInfo();
-                                listType.Name = fieldInfo.Name;
-                                listType.TypeType = typeType;
-                                listType.ElementType = fieldType.Replace("list<", "").Replace(">", "");
-                                baseType = listType;
-                            }
-                            else if (typeType == TypeType.Dict)
-                            {
-                                DictTypeInfo dictType = new DictTypeInfo();
-                                dictType.Name = fieldInfo.Name;
-                                dictType.TypeType = typeType;
-                                string[] kv = fieldType.Replace("dict<", "").Replace(">", "").Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                                if (kv.Length != 2) continue;
-
-                                dictType.KeyType = kv[0];
-                                dictType.ValueType = kv[1];
-                                baseType = dictType;
-                            }
-                            else
-                                continue;
-
-                            LocalInfoManager.Instance.TypeInfoLib.Add(baseType);
+                            classInfo.Fields.Add(fieldInfo);      
+                            
+                            //子类型未知,必须在检查修正子类型前预存子类型数据
+                            //TODO
                         }
+                        i = j - 1;
                         ClassInfoDict.Add(name, classInfo);
                         LocalInfoManager.Instance.TypeInfoLib.Add(classInfo);
                     }
@@ -503,8 +468,8 @@ namespace ConfigGen.LocalInfo
                         enumInfo.Group = FilterEmptyOrNull(dt.Rows[i][2].ToString());
                         enumInfo.TypeType = TypeType.Enum;
                         enumInfo.KeyValuePair = new List<EnumKeyValue>();
-                        i += 2;
-                        for (int j = i; j < dt.Rows.Count; j++, i++)
+                        int j = i += 2;
+                        for (; j < dt.Rows.Count; j++)
                         {
                             if (IsEndClassOrEnum(dt.Rows[j][0].ToString()))
                                 break;
@@ -515,6 +480,7 @@ namespace ConfigGen.LocalInfo
                             kv.Des = dt.Rows[j][2].ToString();
                             enumInfo.KeyValuePair.Add(kv);
                         }
+                        i = j - 1;
                         EnumInfoDict.Add(name, enumInfo);
                         LocalInfoManager.Instance.TypeInfoLib.Add(enumInfo);
                     }
