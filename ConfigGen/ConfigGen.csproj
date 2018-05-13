@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="CmdUsage\CmdOption.cs" />
     <Compile Include="CmdUsage\CmdUsage.cs" />
+    <Compile Include="Export\ExportCsv.cs" />
     <Compile Include="LocalInfo\FileInfo.cs" />
     <Compile Include="LocalInfo\FindInfo.cs" />
     <Compile Include="LocalInfo\LoaclInfoManager.cs" />
@@ -76,8 +77,6 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Language\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

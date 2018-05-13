@@ -13,13 +13,13 @@ namespace ConfigGen
         /// </summary>
         public static string ConfigDir { get; set; }
         /// <summary>
-        /// 导出语言
+        /// 导出CSharp类型
         /// </summary>
-        public static string ExportLanguage { get; set; }
+        public static string ExportCSharp { get; set; }
         /// <summary>
         /// 导出csv存储路径
         /// </summary>
-        public static string ExportCsvDir { get; set; }
+        public static string ExportCsv { get; set; }
         /// <summary>
         /// 数据导出分组
         /// </summary>
@@ -55,13 +55,9 @@ namespace ConfigGen
         public const string ExcelInfoDB = "excelInfo.ei";
         public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
         /// <summary>
-        /// 导出语言种类
+        /// 导出所有分组
         /// </summary>
-        public static readonly List<string> Languages = new List<string>() { Language.Cs, Language.Lua, Language.Java, Language.Cpp };
-        /// <summary>
-        /// 导出分组种类
-        /// </summary>
-        public static readonly List<string> Groups = new List<string>() { Group.Server, Group.Client, Group.Editor, Group.All, Group.Xx };
+        public const string AllGroup = "all";
         /// <summary>
         /// 数据表格Sheet名定义格式
         /// </summary>
@@ -73,10 +69,10 @@ namespace ConfigGen
         /// <summary>
         /// 数据表前四行分别声明字段检查规则,字段描述,字段名,字段数据类型.
         /// </summary>
-        public const int DataSheetCheckIndex = 0;
-        //public const int DataSheetDesIndex = 1;
-        public const int DataSheetFieldIndex = 2;
-        public const int DataSheetTypeIndex = 3;
+        public const int DataSheetFieldIndex = 0;
+        public const int DataSheetCheckIndex = 1;
+        //public const int DataSheetDesIndex = 2;
+        //public const int DataSheetTypeIndex = 3;
         public const int DataSheetDataStartIndex = 4;
         /// <summary>
         /// 数据类型定义起始符
@@ -97,19 +93,8 @@ namespace ConfigGen
         #endregion
     }
 
-    class Language
-    {
-        public const string Cs = "cs";
-        public const string Lua = "lua";
-        public const string Java = "java";
-        public const string Cpp = "cpp";
-    }
     class Group
     {
-        public const string Server = "server";
-        public const string Client = "client";
-        public const string Editor = "editor";
-        public const string All = "all";
-        public const string Xx = "xx";
+        
     }
 }

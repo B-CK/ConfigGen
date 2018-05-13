@@ -40,28 +40,21 @@ namespace ConfigGen.CmdUsage
 
             //数据及类型生成操作
             cmdLine = new CmdLine();
-            cmdLine.Cmd = "-csvDir";
-            cmdLine.CmdDes = "[选填]数据表导出数据存储路径,静态语言必填.";
+            cmdLine.Cmd = "-exportCsv";
+            cmdLine.CmdDes = "[选填]数据表导出数据存储路径.";
             Usage.CmdUsageList.Add(cmdLine);
 
             cmdLine = new CmdLine();
-            cmdLine.Cmd = "-language";
-            cmdDes = Util.ListStringSplit(Values.Languages, " ");
-            cmdLine.CmdDes = string.Format("[选填]数据表导出语言.动态语言无需数据路径,静态语言需要数据存储路径.可选[{0}] dir", cmdDes);
-            cmdLine.CmdArgs = new List<CmdArg>()
-            {
-                new CmdArg("dir","必填参数,数据类代码导出文件夹路径"),
-                new CmdArg("|符号", "多种语言同时使用时,用|符号分隔."),
-            };
+            cmdLine.Cmd = "-exportCSharp";
+            cmdLine.CmdDes = string.Format("[选填]数据表导出CSharp语言脚本路径.");
             Usage.CmdUsageList.Add(cmdLine);
 
             cmdLine = new CmdLine();
             cmdLine.Cmd = "-group";
-            cmdDes = Util.ListStringSplit(Values.Groups, " ");
-            cmdLine.CmdDes = string.Format("[选填]数据分组导出.默认导出所有.可选[{0}].", cmdDes);
+            cmdLine.CmdDes = string.Format("[选填]数据分组导出.默认导出所有all.分组可执行定义.");
             cmdLine.CmdArgs = new List<CmdArg>()
             {
-                new CmdArg("xx", "自定义组名"),
+                new CmdArg("xx", "自定义导出分组"),
                 new CmdArg("|符号", "多个组同时使用时,用|符号分隔."),
             };
             Usage.CmdUsageList.Add(cmdLine);

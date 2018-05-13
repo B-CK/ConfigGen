@@ -32,7 +32,7 @@ namespace ConfigGen.LocalInfo
         public List<EnumTypeInfo> EnumInfos { get; set; }
 
         [XmlIgnore]
-        public Dictionary<string, BaseTypeInfo> TypeInfoDict { get { return _typeInfoDict; } }
+        public Dictionary<string, BaseTypeInfo> TypeInfoDict { get { return _typeInfoDict; } set { _typeInfoDict = value; } }
         private Dictionary<string, BaseTypeInfo> _typeInfoDict = new Dictionary<string, BaseTypeInfo>();
 
         [XmlIgnore]
@@ -55,7 +55,7 @@ namespace ConfigGen.LocalInfo
             }
             for (int i = 0; i < EnumInfos.Count; i++)
             {
-                string type = EnumInfos[i].Name;
+                string type = EnumInfos[i].GetClassName();
                 if (!_enumInfoDict.ContainsKey(type))
                 {
                     _enumInfoDict.Add(type, EnumInfos[i]);
@@ -184,7 +184,7 @@ namespace ConfigGen.LocalInfo
             var typeDict = LocalInfoManager.Instance.TypeInfoLib.TypeInfoDict;
             if (typeDict.ContainsKey(type))
                 baseTypeInfo = typeDict[type];
-            else Util.LogErrorFormat("未定义{0}类型", type);
+            //else Util.LogErrorFormat("未定义{0}类型", type);
             return baseTypeInfo;
         }
 
@@ -250,16 +250,6 @@ namespace ConfigGen.LocalInfo
                 if (!_fieldInfoDict.ContainsKey(fieldName))
                     _fieldInfoDict.Add(fieldName, Fields[i]);
             }
-        }
-        public ClassTypeInfo Clone()
-        {
-            ClassTypeInfo newClassInfo = new ClassTypeInfo();
-            newClassInfo.RelPath = RelPath;
-            newClassInfo.NamespaceName = NamespaceName;
-            newClassInfo.Name = Name;
-            newClassInfo.Group = Group;
-            newClassInfo.Fields = new List<FieldInfo>(Fields.ToArray());
-            return newClassInfo;
         }
     }
     [XmlInclude(typeof(ListTypeInfo))]

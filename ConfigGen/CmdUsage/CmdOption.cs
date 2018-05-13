@@ -66,35 +66,25 @@ namespace ConfigGen.CmdUsage
                             break;
                         case "-optMode":
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            if (CheckArg(cmd.Value[0]))
+                            if (string.IsNullOrWhiteSpace(cmd.Value[0]))
                                 Values.IsOptPart = "part".Equals(cmd.Value[0]);
                             break;
-                        case "-language"://null不做语言类导出
+                        case "-exportCSharp"://null不做语言类导出
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ExportLanguage = cmd.Value[0];
-                            bool isExist = true;
-                            string[] lans = Values.ExportLanguage.Split("|".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                            for (int i = 0; i < lans.Length; i++)
-                            {
-                                if (!Values.Languages.Contains(lans[i]))
-                                {
-                                    Util.LogErrorFormat("[{0}]当前导出语言不存在{1}", cmdName, Values.ExportLanguage);
-                                    isExist = false;
-                                }
-                            }
-                            if (!isExist)
-                                Values.ExportLanguage = null;
+                            Values.ExportCSharp = cmd.Value[0];
+                            if (string.IsNullOrWhiteSpace(Values.ExportCSharp))
+                                Values.ExportCSharp = null;
                             break;
-                        case "-csvDir"://null不导出csv
+                        case "-exportCsv"://null不导出csv
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ExportCsvDir = cmd.Value[0];
-                            if (CheckArg(Values.ExportCsvDir))
-                                Values.ExportCsvDir = null;
+                            Values.ExportCsv = cmd.Value[0];
+                            if (string.IsNullOrWhiteSpace(Values.ExportCsv))
+                                Values.ExportCsv = null;
                             break;
                         case "-group"://默认导出所有分组
                             Values.ExportGroup = cmd.Value[0];
-                            if (CheckArg(Values.ExportCsvDir))
-                                Values.ExportGroup = Group.All;
+                            if (string.IsNullOrWhiteSpace(Values.ExportGroup))
+                                Values.ExportGroup = null;
                             break;
                         case "-replace":
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
@@ -119,7 +109,7 @@ namespace ConfigGen.CmdUsage
 
         private bool CheckArg(string arg)
         {
-            if (string.IsNullOrEmpty(arg) || string.IsNullOrWhiteSpace(arg))
+            if (string.IsNullOrEmpty(arg) || 
                 return false;
             return true;
         }

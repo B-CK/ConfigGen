@@ -79,6 +79,9 @@ namespace ConfigGen.LocalInfo
         //---------------------------------------数据检查
         public static bool ParseCheckRule(TableFieldInfo tableFieldInfo)
         {
+            if (string.IsNullOrWhiteSpace(tableFieldInfo.Check))
+                return false;
+
             string[] checks = tableFieldInfo.Check.Split(Values.CheckRuleSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             string refFlag = "ref";
             string defineFlag = "define";

@@ -155,6 +155,10 @@ namespace ConfigGen
 
             return result;
         }
+        public static string GetErrorSite(string relPath,int c, int r)
+        {
+            return string.Format("错误位置:{0}[{1}{2}]", relPath, GetColumnName(c), r);
+        }
         /// <summary>
         /// Xml反序列化
         /// </summary>
@@ -243,9 +247,9 @@ namespace ConfigGen
         {
             return string.Format(@"{0}{1}", Values.ConfigDir, relPath);
         }
-        public static string Combine(string nameSpace, string className)
+        public static string Combine(string nameSpace, string name)
         {
-            return string.Format("{0}.{1}", nameSpace, className);
+            return string.Format("{0}.{1}", nameSpace, name);
         }
 
         public static string ListStringSplit(string[] array, string split = ",")
@@ -290,7 +294,7 @@ namespace ConfigGen
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(format, errorString);
-            Values.LogContent.AppendLine(ListStringSplit(errorString, "\r\n"));
+            Values.LogContent.AppendLine(ListStringSplit(errorString, "\r\n"));          
         }
 
         static Stopwatch _sw = new Stopwatch();

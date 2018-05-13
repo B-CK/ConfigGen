@@ -32,39 +32,21 @@ namespace ConfigGen.LocalInfo
         }
         public abstract bool Exist(string content);
         public abstract bool Replace(string arg1, string arg2);
-        public abstract bool Analyze();
+        public abstract void Analyze();
     }
     //---数据定义表
     class TableDataInfo : TableInfo
     {
-        public TableDataInfo(string relPath, DataTable data, string className)
+        public TableDataInfo(string relPath, DataTable data, ClassTypeInfo classType)
             : base(relPath, data)
         {//className: 首张define表信息中类的名字
             SType = SheetType.Data;
             DataFields = new List<TableFieldInfo>();
 
-            DataTable dt = TableDataSet;
-            DataClassInfo = new ClassTypeInfo();
-            DataClassInfo.NamespaceName = TypeInfo.GetNamespaceName(RelPath);
-            string checkRule = dt.Rows[Values.DataSheetCheckIndex][0].ToString();
-            string ruleRef = CheckRuleType.Define.ToString();
-            int startIndex = checkRule.IndexOf(ruleRef, StringComparison.OrdinalIgnoreCase);
-            if (startIndex > -1)
-            {
-                //注:[define:type]数据表引用类型一般是在同命名空间下,字段引用类型可不在同一命名空间下.
-                int endIndex = checkRule.IndexOf(Values.CheckRuleSplitFlag, startIndex);
-                startIndex += ruleRef.Length;
-                DataClassInfo.Name = checkRule.Substring(startIndex, endIndex - startIndex);
-            }
+            if (classType != null)
+                DataClassInfo = classType;
             else
-            {
-                if (!string.IsNullOrWhiteSpace(className))
-                    DataClassInfo.Name = className;
-                else
-                {
-                    Util.LogErrorFormat("数据类型解析时,无法找到正确的类型定义,文件名:{0}", RelPath);
-                }
-            }
+                Util.LogErrorFormat("数据表结构没有指明类型,文件名:{0}", RelPath);
         }
 
         public string ClassName { get { return DataClassInfo.GetClassName(); } }
@@ -85,16 +67,11 @@ namespace ConfigGen.LocalInfo
             return false;
         }
 
-        public override bool Analyze()
+        public override void Analyze()
         {
-            bool isOK = true;
             try
             {
-                string type = DataClassInfo.GetClassName();
-                ClassTypeInfo define = TypeInfo.GetTypeInfo(type) as ClassTypeInfo;
-                DataClassInfo = define.Clone();
                 DataClassInfo.UpdateToDict();
-
                 DataTable dt = TableDataSet;
                 var dataFieldDict = new Dictionary<string, TableFieldInfo>();
                 var fieldInfoDict = DataClassInfo.GetFieldInfoDict();
@@ -103,9 +80,8 @@ namespace ConfigGen.LocalInfo
                 for (int i = 0; i < tableFields.Length; i++)
                 {
                     string field = tableFields[i].ToString();
-                    string fieldType = dt.Rows[Values.DataSheetTypeIndex][i].ToString();
-
-                    if (!string.IsNullOrWhiteSpace(field) && !string.IsNullOrWhiteSpace(fieldType))
+                    //string fieldType = dt.Rows[Values.DataSheetTypeIndex][i].ToString();
+                    if (!string.IsNullOrWhiteSpace(field))
                     {
                         TableFieldInfo tableFieldInfo = new TableFieldInfo();
                         if (fieldInfoDict.ContainsKey(field))
@@ -117,7 +93,7 @@ namespace ConfigGen.LocalInfo
                             tableFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Des, check, fieldInfo.Group, i);
 
                             //解析类字段数据
-                            i = AnalyzeField(dt, tableFieldInfo, out isOK);
+                            i = AnalyzeField(dt, tableFieldInfo);
 
                             if (!dataFieldDict.ContainsKey(tableFieldInfo.Name))
                                 dataFieldDict.Add(tableFieldInfo.Name, tableFieldInfo);
@@ -126,14 +102,12 @@ namespace ConfigGen.LocalInfo
                         {
                             Util.LogErrorFormat("在{0}类型的数据表中,{1}字段名与实际定义不一致,{2}",
                                 DataClassInfo.Name, field, GetErrorSite(i + 1, Values.DataSheetFieldIndex + 1));
-                            isOK = false;
                         }
                     }
                     else
                     {
                         Util.LogErrorFormat("在{0}类型的数据表中,解析异常,{1}",
                                 DataClassInfo.Name, GetErrorSite(i + 1, Values.DataSheetFieldIndex + 1));
-                        isOK = false;
                     }
                 }
 
@@ -143,12 +117,10 @@ namespace ConfigGen.LocalInfo
             {
                 Util.LogErrorFormat("{0}\n{1}", e.Message, e.StackTrace);
             }
-
-            return isOK;
         }
         private string GetErrorSite(int c, int r)
         {
-            return string.Format("错误位置{0}[{1}{2}]", RelPath, Util.GetColumnName(c), r);
+            return Util.GetErrorSite(RelPath, c, r);
         }
 
         /// <summary>
@@ -157,56 +129,47 @@ namespace ConfigGen.LocalInfo
         /// <param name="column">当前字段列号</param>
         /// <param name="fieldInfo">当前表字段信息</param>
         /// <returns>数值范围:当前列号,或者最后一个子字段列号</returns>
-        private int AnalyzeField(DataTable dt, TableFieldInfo fieldInfo, out bool isOK)
+        private int AnalyzeField(DataTable dt, TableFieldInfo fieldInfo)
         {
-            isOK = true;
             int column = fieldInfo.ColumnIndex;
-            //检查类型存在性
-            string error = TableChecker.CheckType(fieldInfo.Type);
-            if (string.IsNullOrWhiteSpace(error))
-            {
-                Util.LogErrorFormat("数据表中{0}字段不存在,{1}", fieldInfo.Name, GetErrorSite(column + 1, Values.DataSheetFieldIndex + 1));
-                isOK = false;
-                return column;
-            }
+            ////检查类型存在性
+            //string error = TableChecker.CheckType(fieldInfo.Type);
+            //if (string.IsNullOrWhiteSpace(error))
+            //{
+            //    Util.LogErrorFormat("数据表中{0}字段不存在,{1}", fieldInfo.Name, GetErrorSite(column + 1, Values.DataSheetFieldIndex + 1));
+            //    return column;
+            //}
             //解析检查规则
             if (TableChecker.ParseCheckRule(fieldInfo))
             {
-                Util.LogWarningFormat("在{0}类型的数据表中,规则填写错误,{1}",
-                    DataClassInfo.Name, GetErrorSite(column + 1, Values.DataSheetFieldIndex + 1));
+                Util.LogWarningFormat("在{0}类型的数据表中,{1}字段规则{2}填写错误,{3}",
+                    DataClassInfo.Name, fieldInfo.Name, fieldInfo.Check, GetErrorSite(column + 1, Values.DataSheetFieldIndex + 1));
             }
             BaseTypeInfo baseInfo = fieldInfo.BaseInfo;
             switch (baseInfo.TypeType)
             {
                 case TypeType.Base://单列
                 case TypeType.Enum:
-                    fieldInfo.Data = new List<object>(AnalyzeColumnData(dt, fieldInfo, out isOK));
+                    fieldInfo.Data = new List<object>(AnalyzeColumnData(dt, fieldInfo));
                     break;
                 case TypeType.Class://多列
-                    column = AnalyzeClassField(dt, fieldInfo, out isOK);
+                    column = AnalyzeClassField(dt, fieldInfo);
                     break;
                 case TypeType.List:
-                    column = AnalyzeListField(dt, fieldInfo, out isOK);
+                    column = AnalyzeListField(dt, fieldInfo);
                     break;
                 case TypeType.Dict:
-                    column = AnalyzeDictField(dt, fieldInfo, out isOK);
+                    column = AnalyzeDictField(dt, fieldInfo);
                     break;
                 case TypeType.None:
                 default:
                     Util.LogErrorFormat("数据表中{0}字段的类型{1}不合法", fieldInfo.Name, fieldInfo.Type);
                     break;
             }
-
-            if (!isOK)
-            {
-                Util.LogErrorFormat("数据表中{0}字段数据解析错误,{1}",
-                   fieldInfo.Name, GetErrorSite(column + 1, Values.DataSheetFieldIndex + 1));
-            }
             return column;
         }
-        private int AnalyzeClassField(DataTable dt, TableFieldInfo classFieldInfo, out bool isOk)
+        private int AnalyzeClassField(DataTable dt, TableFieldInfo classFieldInfo)
         {
-            isOk = true;
             int startColumn = classFieldInfo.ColumnIndex + 1;
             classFieldInfo.ChildFields = new List<TableFieldInfo>();
             ClassTypeInfo classInfo = classFieldInfo.BaseInfo as ClassTypeInfo;
@@ -221,7 +184,6 @@ namespace ConfigGen.LocalInfo
                     Util.LogErrorFormat("数据表中{0}类型{1}字段不包含{2}子字段,{3}",
                          classFieldInfo.Type, classFieldInfo.Name, fieldName,
                          GetErrorSite(startColumn + 1, Values.DataSheetFieldIndex + 1));
-                    isOk = false;
                 }
 
                 FieldInfo fieldInfo = classfieldDict[fieldName];
@@ -229,21 +191,14 @@ namespace ConfigGen.LocalInfo
                 string check = dt.Rows[Values.DataSheetCheckIndex][startColumn].ToString();
                 check = string.IsNullOrWhiteSpace(check) ? fieldInfo.Check : check;
                 childField.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Des, check, fieldInfo.Group, startColumn);
-                startColumn = AnalyzeField(dt, childField, out isOk);
-                if (!isOk)
-                {
-                    Util.LogErrorFormat("数据表中{0}类型的子字段{1}解析错误,{2}", classInfo.Name, fieldName,
-                   GetErrorSite(startColumn + 1, Values.DataSheetFieldIndex + 1));
-                    isOk = false;
-                }
+                startColumn = AnalyzeField(dt, childField);
                 classFieldInfo.ChildFields.Add(childField);
             }
 
             return startColumn;
         }
-        private int AnalyzeListField(DataTable dt, TableFieldInfo listFieldInfo, out bool isOK)
+        private int AnalyzeListField(DataTable dt, TableFieldInfo listFieldInfo)
         {
-            isOK = true;
             int startColumn = listFieldInfo.ColumnIndex + 1;
             listFieldInfo.ChildFields = new List<TableFieldInfo>();
             ListTypeInfo listTypeInfo = listFieldInfo.BaseInfo as ListTypeInfo;
@@ -262,14 +217,14 @@ namespace ConfigGen.LocalInfo
                         break;
                     case TypeType.Class:
                         elemInfo.AsChildSet(i.ToString(), elemTypeInfo.GetClassName(), startColumn - 1);
-                        startColumn = AnalyzeField(dt, elemInfo, out isOK);
+                        startColumn = AnalyzeField(dt, elemInfo);
                         break;
                     case TypeType.Base:
                     case TypeType.Enum:
                     case TypeType.None:
                     default:
                         elemInfo.AsChildSet(i.ToString(), elemTypeInfo.GetClassName(), startColumn);
-                        startColumn = AnalyzeField(dt, elemInfo, out isOK);
+                        startColumn = AnalyzeField(dt, elemInfo);
                         break;
                 }
                 listFieldInfo.ChildFields.Add(elemInfo);
@@ -279,9 +234,8 @@ namespace ConfigGen.LocalInfo
             }
             return startColumn;
         }
-        private int AnalyzeDictField(DataTable dt, TableFieldInfo dictFieldInfo, out bool isOK)
+        private int AnalyzeDictField(DataTable dt, TableFieldInfo dictFieldInfo)
         {
-            isOK = true;
             int startColumn = dictFieldInfo.ColumnIndex + 1;
             dictFieldInfo.ChildFields = new List<TableFieldInfo>();
             DictTypeInfo dictTypeInfo = dictFieldInfo.BaseInfo as DictTypeInfo;
@@ -296,7 +250,7 @@ namespace ConfigGen.LocalInfo
 
                 TableFieldInfo keyInfo = new TableFieldInfo();
                 keyInfo.AsChildSet("key", keyTypeInfo.GetClassName(), startColumn);
-                startColumn = AnalyzeField(dt, keyInfo, out isOK);
+                startColumn = AnalyzeField(dt, keyInfo);
 
                 startColumn = startColumn + 1;
 
@@ -311,14 +265,14 @@ namespace ConfigGen.LocalInfo
                         break;
                     case TypeType.Class:
                         valueInfo.AsChildSet("value", valueTypeInfo.GetClassName(), startColumn - 1);
-                        startColumn = AnalyzeField(dt, valueInfo, out isOK);
+                        startColumn = AnalyzeField(dt, valueInfo);
                         break;
                     case TypeType.Base:
                     case TypeType.Enum:
                     case TypeType.None:
                     default:
                         valueInfo.AsChildSet("value", valueTypeInfo.GetClassName(), startColumn);
-                        startColumn = AnalyzeField(dt, valueInfo, out isOK);
+                        startColumn = AnalyzeField(dt, valueInfo);
                         break;
                 }
                 pair.ChildFields.Add(keyInfo);
@@ -337,9 +291,8 @@ namespace ConfigGen.LocalInfo
         /// <param name="dt">数据表Sheet</param>
         /// <param name="tableFieldInfo">当前字段信息</param>
         /// <returns></returns>
-        private List<object> AnalyzeColumnData(DataTable dt, TableFieldInfo fieldInfo, out bool isOK)
+        private List<object> AnalyzeColumnData(DataTable dt, TableFieldInfo fieldInfo)
         {
-            isOK = true;
             List<object> columnData = new List<object>();
             for (int i = Values.DataSheetDataStartIndex; i < dt.Rows.Count; i++)
             {
@@ -351,7 +304,6 @@ namespace ConfigGen.LocalInfo
                 {
                     Util.LogErrorFormat("{0},数据错误位置[{1}{2}]", error,
                        Util.GetColumnName(fieldInfo.ColumnIndex + 1), i.ToString());
-                    isOK = false;
                     return new List<object>();
                 }
             }
@@ -371,25 +323,6 @@ namespace ConfigGen.LocalInfo
         public Dictionary<string, ClassTypeInfo> ClassInfoDict { get; private set; }
         public Dictionary<string, EnumTypeInfo> EnumInfoDict { get; private set; }
 
-        public string GetFirstName()
-        {
-            string firstName = null;
-            DataTable dt = TableDataSet;
-            for (int i = 0; i < dt.Rows.Count; i++)
-            {
-                string firstColumn = dt.Rows[i][0].ToString();
-                if (!firstColumn.StartsWith(Values.DefineTypeFlag)) continue;
-
-                string defineTypeStr = firstColumn.TrimStart(Values.DefineTypeFlag.ToCharArray());
-                if (defineTypeStr.Equals("class"))
-                {
-                    firstName = dt.Rows[i][1].ToString();
-                    break;
-                }
-            }
-            return firstName;
-        }
-
 
         /// <summary>
         /// 只查询定义表中类型信息
@@ -405,100 +338,89 @@ namespace ConfigGen.LocalInfo
         {
             return false;
         }
-        public override bool Analyze()
+        public override void Analyze()
         {
-            bool isOK = true;
             DataTable dt = TableDataSet;
             string defineTypeStr = "";
             string name = "";
-            try
+            for (int i = 0; i < dt.Rows.Count; i++)
             {
-                for (int i = 0; i < dt.Rows.Count; i++)
+                string firstColumn = dt.Rows[i][0].ToString();
+                if (!IsEndClassOrEnum(firstColumn)) continue;
+
+                //开始定义类型
+                defineTypeStr = firstColumn.TrimStart(Values.DefineTypeFlag.ToCharArray());
+                string nameSpace = TypeInfo.GetNamespaceName(RelPath);
+                name = dt.Rows[i][1].ToString();
+                if (defineTypeStr.Equals("class"))
                 {
-                    string firstColumn = dt.Rows[i][0].ToString();
-                    if (!firstColumn.StartsWith(Values.DefineTypeFlag)) continue;
+                    string inherit = dt.Rows[i][2].ToString();
+                    string dataTable = dt.Rows[i][3].ToString();
+                    string group = dt.Rows[i][4].ToString();
+                    ClassTypeInfo classInfo = new ClassTypeInfo();
+                    classInfo.RelPath = RelPath;
+                    classInfo.Name = name;
+                    classInfo.NamespaceName = FilterEmptyOrNull(nameSpace);
+                    classInfo.Inherit = FilterEmptyOrNull(inherit);
+                    classInfo.DataTable = FilterEmptyOrNull(dataTable);
+                    classInfo.Group = FilterEmptyOrNull(group);
+                    classInfo.TypeType = TypeType.Class;
+                    classInfo.Fields = new List<FieldInfo>();
 
-                    //开始定义类型
-                    defineTypeStr = firstColumn.TrimStart(Values.DefineTypeFlag.ToCharArray());
-                    string nameSpace = TypeInfo.GetNamespaceName(RelPath);
-                    name = dt.Rows[i][1].ToString();
-                    if (defineTypeStr.Equals("class"))
+                    int j = i += 2;
+                    for (; j < dt.Rows.Count; j++)
                     {
-                        string inherit = dt.Rows[i][2].ToString();
-                        string dataTable = dt.Rows[i][3].ToString();
-                        string group = dt.Rows[i][4].ToString();
-                        ClassTypeInfo classInfo = new ClassTypeInfo();
-                        classInfo.RelPath = RelPath;
-                        classInfo.Name = name;
-                        classInfo.NamespaceName = FilterEmptyOrNull(nameSpace);
-                        classInfo.Inherit = FilterEmptyOrNull(inherit);
-                        classInfo.DataTable = FilterEmptyOrNull(dataTable);
-                        classInfo.Group = FilterEmptyOrNull(group);
-                        classInfo.TypeType = TypeType.Class;
-                        classInfo.Fields = new List<FieldInfo>();
+                        if (IsEndClassOrEnum(dt.Rows[j][0].ToString()))
+                            break;
 
-                        int j = i += 2;
-                        for( ; j < dt.Rows.Count; j++)
-                        {
-                            if (IsEndClassOrEnum(dt.Rows[j][0].ToString()))
-                                break;
+                        FieldInfo fieldInfo = new FieldInfo();
+                        fieldInfo.Name = dt.Rows[j][0].ToString();
+                        string fieldType = dt.Rows[j][1].ToString();
+                        fieldInfo.Type = fieldType;
+                        fieldInfo.Des = FilterEmptyOrNull(dt.Rows[j][2].ToString());
+                        fieldInfo.Check = FilterEmptyOrNull(dt.Rows[j][3].ToString());
+                        fieldInfo.Group = FilterEmptyOrNull(dt.Rows[j][4].ToString());
+                        classInfo.Fields.Add(fieldInfo);
 
-                            FieldInfo fieldInfo = new FieldInfo();
-                            fieldInfo.Name = dt.Rows[j][0].ToString();
-                            string fieldType = dt.Rows[j][1].ToString();
-                            fieldInfo.Type = fieldType;
-                            fieldInfo.Des = FilterEmptyOrNull(dt.Rows[j][2].ToString());
-                            fieldInfo.Check = FilterEmptyOrNull(dt.Rows[j][3].ToString());
-                            fieldInfo.Group = FilterEmptyOrNull(dt.Rows[j][4].ToString());
-                            classInfo.Fields.Add(fieldInfo);      
-                            
-                            //子类型未知,必须在检查修正子类型前预存子类型数据
-                            //TODO
-                        }
-                        i = j - 1;
-                        ClassInfoDict.Add(name, classInfo);
-                        LocalInfoManager.Instance.TypeInfoLib.Add(classInfo);
                     }
-                    else if (defineTypeStr.Equals("enum"))
+                    i = j - 1;
+                    ClassInfoDict.Add(name, classInfo);
+                    LocalInfoManager.Instance.TypeInfoLib.Add(classInfo);
+                }
+                else if (defineTypeStr.Equals("enum"))
+                {
+                    EnumTypeInfo enumInfo = new EnumTypeInfo();
+                    enumInfo.RelPath = RelPath;
+                    enumInfo.Name = name;
+                    enumInfo.NamespaceName = FilterEmptyOrNull(TypeInfo.GetNamespaceName(RelPath));
+                    enumInfo.Group = FilterEmptyOrNull(dt.Rows[i][2].ToString());
+                    enumInfo.TypeType = TypeType.Enum;
+                    enumInfo.KeyValuePair = new List<EnumKeyValue>();
+                    int j = i += 2;
+                    for (; j < dt.Rows.Count; j++)
                     {
-                        EnumTypeInfo enumInfo = new EnumTypeInfo();
-                        enumInfo.RelPath = RelPath;
-                        enumInfo.Name = name;
-                        enumInfo.NamespaceName = FilterEmptyOrNull(TypeInfo.GetNamespaceName(RelPath));
-                        enumInfo.Group = FilterEmptyOrNull(dt.Rows[i][2].ToString());
-                        enumInfo.TypeType = TypeType.Enum;
-                        enumInfo.KeyValuePair = new List<EnumKeyValue>();
-                        int j = i += 2;
-                        for (; j < dt.Rows.Count; j++)
-                        {
-                            if (IsEndClassOrEnum(dt.Rows[j][0].ToString()))
-                                break;
+                        if (IsEndClassOrEnum(dt.Rows[j][0].ToString()))
+                            break;
 
-                            EnumKeyValue kv = new EnumKeyValue();
-                            kv.Key = dt.Rows[j][0].ToString();
-                            kv.Value = dt.Rows[j][1].ToString();
-                            kv.Des = dt.Rows[j][2].ToString();
-                            enumInfo.KeyValuePair.Add(kv);
-                        }
-                        i = j - 1;
-                        EnumInfoDict.Add(name, enumInfo);
-                        LocalInfoManager.Instance.TypeInfoLib.Add(enumInfo);
+                        EnumKeyValue kv = new EnumKeyValue();
+                        kv.Key = dt.Rows[j][0].ToString();
+                        kv.Value = dt.Rows[j][1].ToString();
+                        kv.Des = dt.Rows[j][2].ToString();
+                        enumInfo.KeyValuePair.Add(kv);
                     }
-                    else
-                    {
-                        Util.LogErrorFormat("当前定义只能是class,enum等类型,Type:{0}", defineTypeStr);
-                        isOK = false;
-                    }
+                    i = j - 1;
+                    EnumInfoDict.Add(name, enumInfo);
+                    LocalInfoManager.Instance.TypeInfoLib.Add(enumInfo);
+                }
+                else
+                {
+                    Util.LogErrorFormat("只能是##class,##enum等类型,Type:{0},错误位置:{1}",
+                        defineTypeStr, Util.GetErrorSite(RelPath, 1, i + 1));
                 }
             }
-            catch (Exception e)
-            {
-                Util.LogErrorFormat("类型定义表解析{0} {1}异常.错误位置{2}\n{3}\n{4}", defineTypeStr, name, RelPath, e.Message, e.StackTrace);
-                isOK = false;
-            }
-
-            return isOK;
         }
+
+
         string FilterEmptyOrNull(string str)
         {
             return string.IsNullOrWhiteSpace(str) ? null : str;
