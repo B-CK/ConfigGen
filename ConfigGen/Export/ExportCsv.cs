@@ -84,69 +84,53 @@ namespace ConfigGen.Export
         {
             StringBuilder builder = new StringBuilder();
             var fields = fieldInfo.ChildFields;
+            int count = 0;
             for (int i = 0; i < fields.Count; i++)
             {
-                string value = null;
-                if (fields[i].BaseInfo.TypeType == TypeType.Class)
-                    value = ParseChildClass(fields[i], row);
-                else
-                    value = ParseField(fields[i], row);
-                if (i + 1 == fields.Count)
-                    builder.Append(value);
-                else
+                string value = ParseField(fields[i], row, true);
+                if (!value.Equals(Values.DataSetEndFlag))
                 {
-                    string next = ParseField(fields[i + 1], row);
-                    if (next.Equals(Values.DataSetEndFlag))
-                    {
+                    if (i + 1 == fields.Count)
                         builder.Append(value);
-                        return builder.ToString();
-                    }
                     else
                         builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
                 }
+                else
+                {
+                    if (builder.Length > 0)
+                        builder.Remove(builder.Length - 1, 1);
+                    break;
+                }
+
+                count++;
             }
+            builder.Insert(0,count == 0 ? count.ToString() : count + Values.CsvSplitFlag);
             return builder.ToString();
         }
         private static string ParseDict(TableFieldInfo fieldInfo, int row)
         {
             StringBuilder builder = new StringBuilder();
             var fields = fieldInfo.ChildFields;
+            int count = 0;
             for (int i = 0; i < fields.Count; i++)
             {
                 string pair = ParsePair(fields[i], row);
-                if (i + 1 == fields.Count)
-                    builder.Append(pair);
-                else
+                if (!pair.Equals(Values.DataSetEndFlag))
                 {
-                    string pairNext = ParsePair(fields[i + 1], row);
-                    if (pairNext.Equals(Values.DataSetEndFlag))
-                    {
+                    if (i + 1 == fields.Count)
                         builder.Append(pair);
-                        return builder.ToString();
-                    }
                     else
                         builder.AppendFormat("{0}{1}", pair, Values.CsvSplitFlag);
                 }
-            }
-            return builder.ToString();
-        }
-        /// <summary>
-        /// 集合类型中包含Class类型
-        /// </summary>
-        private static string ParseChildClass(TableFieldInfo fieldInfo, int row)
-        {
-            StringBuilder builder = new StringBuilder();
-            var fields = fieldInfo.ChildFields;
-            for (int i = 0; i < fields.Count; i++)
-            {
-                string value = ParseField(fields[i], row);
-                if (value.Equals(Values.DataSetEndFlag))
-                    return Values.DataSetEndFlag;
-                if (i + 1 == fields.Count)
-                    builder.Append(value);
                 else
-                    builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
+                {
+                    if (builder.Length > 0)
+                        builder.Remove(builder.Length - 1, 1);
+                    break;
+                }
+                count++;
             }
+            builder.Insert(0, count == 0 ? count.ToString() : count + Values.CsvSplitFlag);
             return builder.ToString();
         }
         private static string ParsePair(TableFieldInfo fieldInfo, int row)
@@ -155,7 +139,7 @@ namespace ConfigGen.Export
             TableFieldInfo key = pair.ChildFields[0];
             TableFieldInfo value = pair.ChildFields[1];
             string k = ParseField(key, row);
-            string v = ParseField(value, row);
+            string v = ParseField(value, row, true);
             if (k.Equals(Values.DataSetEndFlag)
                 || v.Equals(Values.DataSetEndFlag))
                 return Values.DataSetEndFlag;
