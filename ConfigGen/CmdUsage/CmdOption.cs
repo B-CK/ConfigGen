@@ -66,8 +66,13 @@ namespace ConfigGen.CmdUsage
                             break;
                         case "-optMode":
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            if (string.IsNullOrWhiteSpace(cmd.Value[0]))
-                                Values.IsOptPart = "part".Equals(cmd.Value[0]);
+                            bool isNormal = "part".Equals(cmd.Value[0]) || "all".Equals(cmd.Value[0]);
+                            if (!isNormal)
+                            {
+                                Util.LogErrorFormat("-optMode 参数异常!可选参数为all,part.错误:{0}", cmd.Value[0]);
+                                return false;
+                            }
+                            Values.IsOptPart = "part".Equals(cmd.Value[0]);
                             break;
                         case "-exportCSharp"://null不做语言类导出
                             if (!CheckArgList(cmdName, cmd.Value)) return false;

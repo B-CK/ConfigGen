@@ -115,13 +115,15 @@ namespace ConfigGen.LocalInfo
                 case TypeType.List:
                 case TypeType.Dict:
                     ClassTypeInfo classInfo = info as ClassTypeInfo;
-                    if (_classInfoDict.ContainsKey(classInfo.Name))
-                        _classInfoDict.Remove(classInfo.Name);
+                    string className = classInfo.GetClassName();
+                    if (_classInfoDict.ContainsKey(className))
+                        _classInfoDict.Remove(className);
                     break;
                 case TypeType.Enum:
                     EnumTypeInfo enumInfo = info as EnumTypeInfo;
-                    if (_enumInfoDict.ContainsKey(enumInfo.Name))
-                        _enumInfoDict.Remove(enumInfo.Name);
+                    string enumName = enumInfo.GetClassName();
+                    if (_enumInfoDict.ContainsKey(enumName))
+                        _enumInfoDict.Remove(enumName);
                     break;
                 case TypeType.None:
                 default:
@@ -133,6 +135,44 @@ namespace ConfigGen.LocalInfo
                 string type = "";
                 if (TypeInfoDict.ContainsKey(type))
                     TypeInfoDict.Remove(type);
+            }
+        }
+        public void Clear(List<string> parts)
+        {
+            HashSet<string> hash = new HashSet<string>(parts);
+            List<string> ls = new List<string>();
+            foreach (var item in _classInfoDict)
+            {
+                if (hash.Contains(item.Value.RelPath))
+                {
+                    if (!item.Value.IsExist)
+                        ls.Add(item.Key);
+                }
+                else if (item.Value.TypeType == TypeType.List
+                   || item.Value.TypeType == TypeType.Dict)
+                {
+                    if (!item.Value.IsExist)
+                        ls.Add(item.Key);
+                }
+            }
+            foreach (var item in _enumInfoDict)
+            {
+                if (hash.Contains(item.Value.RelPath))
+                {
+                    if (!item.Value.IsExist)
+                        ls.Add(item.Key);
+                }
+                if (item.Value.TypeType == TypeType.List
+                   || item.Value.TypeType == TypeType.Dict)
+                {
+                    if (!item.Value.IsExist)
+                        ls.Add(item.Key);
+                }
+            }
+            for (int i = 0; i < ls.Count; i++)
+            {
+                BaseTypeInfo baseType = TypeInfoDict[ls[i]];
+                Remove(baseType);
             }
         }
         public void UpdateList()
@@ -162,9 +202,9 @@ namespace ConfigGen.LocalInfo
             TypeType typeType = TypeType.None;
             if (BaseType.Contains(type))
                 typeType = TypeType.Base;
-            else if (type.StartsWith(TypeType.List.ToString().ToLower()))
+            else if (type.StartsWith("list<"))
                 typeType = TypeType.List;
-            else if (type.StartsWith(TypeType.Dict.ToString().ToLower()))
+            else if (type.StartsWith("dict<"))
                 typeType = TypeType.Dict;
             else if (LocalInfoManager.Instance.TypeInfoLib.ClassInfoDict.ContainsKey(type))
                 typeType = TypeType.Class;
@@ -213,14 +253,21 @@ namespace ConfigGen.LocalInfo
         [XmlAttribute]
         public string Group { get; set; }
 
+        [XmlIgnore]
+        public bool IsExist { get; set; }
+
+        private string _className;       
         public string GetClassName()
         {
-            string className = null;
-            if (string.IsNullOrWhiteSpace(NamespaceName))
-                className = Name;
-            else
-                className = string.Format("{0}.{1}", NamespaceName, Name);
-            return className;
+            if (_className == null)
+            {
+                if (string.IsNullOrWhiteSpace(NamespaceName))
+                    _className = Name;
+                else
+                    _className = string.Format("{0}.{1}", NamespaceName, Name);
+            }
+       
+            return _className;
         }
     }
 

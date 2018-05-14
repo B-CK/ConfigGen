@@ -306,8 +306,8 @@ namespace ConfigGen
         }
         public static void Stop(string msg)
         {
-            string seconds = (_sw.ElapsedMilliseconds / 1000).ToString();
-            Util.LogFormat("{0} 耗时 {1}s", msg, seconds);
+            string seconds = (_sw.ElapsedMilliseconds / 1000f).ToString();
+            LogFormat("{0} 耗时 {1:N3}s", msg, seconds);
         }
 
     }

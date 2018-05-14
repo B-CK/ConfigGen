@@ -44,11 +44,6 @@ namespace ConfigGen
         public static StringBuilder LogContent = new StringBuilder();
 
         #region 常量
-        /// <summary>
-        /// excel类数据库文件
-        /// 路径与应用路径相同
-        /// </summary>
-        public const string ExcelInfoDB = "excelInfo.ei";
         public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
         /// <summary>
         /// 导出所有分组
@@ -86,11 +81,8 @@ namespace ConfigGen
         /// 单个检查功能内存在多个参数时,用:符号分离
         /// </summary>
         public const string CheckRunleArgsSplitFlag = ":";
+        public const string CsvSplitFlag = "▃";
+        public const string CsvFileExt = ".xml";
         #endregion
-    }
-
-    class Group
-    {
-        
     }
 }

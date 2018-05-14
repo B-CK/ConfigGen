@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace ConfigGen.LocalInfo
 {
-    enum LocalInfoType
+    public enum LocalInfoType
     {
         FileInfo,
         TypeInfo,
@@ -21,7 +21,7 @@ namespace ConfigGen.LocalInfo
         void Save();
     }
 
-    class LocalInfoManager
+    public class LocalInfoManager
     {
         public static LocalInfoManager Instance
         {
@@ -253,13 +253,11 @@ namespace ConfigGen.LocalInfo
             }
             try
             {
-                //解析类定义
-                Util.Log("==>>解析定义");
+                //解析类定义                
                 foreach (var define in DefineInfoDict)
                     define.Value.Analyze();
-                Util.Log("");
+                Util.Log("==>>解析定义完毕\n");
                 //检查类定义并且修正集合类型中的泛型
-                Util.Log("==>>检查类定义并且修正集合类型中的泛型");
                 var infoDict = new Dictionary<string, BaseTypeInfo>(TypeInfoLib.TypeInfoDict);
                 foreach (var item in infoDict)
                 {
@@ -327,12 +325,13 @@ namespace ConfigGen.LocalInfo
                                 default:
                                     continue;
                             }
+                            baseType.IsExist = true;
                             TypeInfoLib.Add(baseType);
                         }
                     }
                 }
-                TypeInfoLib.TypeInfoDict = infoDict;
-                Util.Log("");
+                TypeInfoLib.Clear(_diffRelPath);
+                Util.Log("==>>检查类定义并且修正集合类型中的泛型完毕\n");
             }
             catch (Exception e)
             {
@@ -340,7 +339,6 @@ namespace ConfigGen.LocalInfo
             }
 
             //解析数据定义和检查规则
-            Util.Log("==>>解析数据定义和检查规则");
             foreach (var define in TypeInfoLib.ClassInfoDict)
             {
                 Util.Start();
@@ -371,7 +369,8 @@ namespace ConfigGen.LocalInfo
             }
 
             TypeInfoLib.Save();
-            Util.Stop("==>>更新类型/数据信息完毕");
+            Util.Stop("==>>更新类型和解析/检查数据完毕");
+            Util.Log("");
         }
         private string CorrectType(string type, BaseTypeInfo baseType, string name)
         {

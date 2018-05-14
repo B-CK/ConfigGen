@@ -16,7 +16,7 @@ namespace ConfigGen.LocalInfo
     /// <summary>
     /// Sheet数据内容
     /// </summary>
-    abstract class TableInfo
+    public abstract class TableInfo
     {
         public SheetType SType { get; protected set; }
         /// <summary>
@@ -35,7 +35,7 @@ namespace ConfigGen.LocalInfo
         public abstract void Analyze();
     }
     //---数据定义表
-    class TableDataInfo : TableInfo
+    public class TableDataInfo : TableInfo
     {
         public TableDataInfo(string relPath, DataTable data, ClassTypeInfo classType)
             : base(relPath, data)
@@ -51,6 +51,7 @@ namespace ConfigGen.LocalInfo
 
         public string ClassName { get { return DataClassInfo.GetClassName(); } }
         public ClassTypeInfo DataClassInfo { get; private set; }
+        public int DataLength { get { return TableDataSet.Rows.Count - Values.DataSheetDataStartIndex; } }
         public List<TableFieldInfo> DataFields { get; private set; }
         /// <summary>
         /// 只查询数据表中类型定义
@@ -296,7 +297,7 @@ namespace ConfigGen.LocalInfo
             List<object> columnData = new List<object>();
             for (int i = Values.DataSheetDataStartIndex; i < dt.Rows.Count; i++)
             {
-                object value = dt.Rows[i][fieldInfo.ColumnIndex];
+                object value = dt.Rows[i][fieldInfo.ColumnIndex];              
                 string error = TableChecker.CheckFieldData(fieldInfo, value);
                 if (string.IsNullOrWhiteSpace(error))
                     columnData.Add(value);
@@ -304,14 +305,14 @@ namespace ConfigGen.LocalInfo
                 {
                     Util.LogErrorFormat("{0},数据错误位置[{1}{2}]", error,
                        Util.GetColumnName(fieldInfo.ColumnIndex + 1), i.ToString());
-                    return new List<object>();
+                    return columnData;
                 }
             }
             return columnData;
         }
     }
     //---类型定义表
-    class TableDefineInfo : TableInfo
+    public class TableDefineInfo : TableInfo
     {
         public TableDefineInfo(string relPath, DataTable data)
             : base(relPath, data)
@@ -366,6 +367,7 @@ namespace ConfigGen.LocalInfo
                     classInfo.Group = FilterEmptyOrNull(group);
                     classInfo.TypeType = TypeType.Class;
                     classInfo.Fields = new List<FieldInfo>();
+                    classInfo.IsExist = true;
 
                     int j = i += 2;
                     for (; j < dt.Rows.Count; j++)
@@ -396,6 +398,8 @@ namespace ConfigGen.LocalInfo
                     enumInfo.Group = FilterEmptyOrNull(dt.Rows[i][2].ToString());
                     enumInfo.TypeType = TypeType.Enum;
                     enumInfo.KeyValuePair = new List<EnumKeyValue>();
+                    enumInfo.IsExist = true;
+
                     int j = i += 2;
                     for (; j < dt.Rows.Count; j++)
                     {
@@ -436,13 +440,13 @@ namespace ConfigGen.LocalInfo
     /// <summary>
     /// 字段信息及数据信息
     /// </summary>
-    class TableFieldInfo : FieldInfo
+    public class TableFieldInfo : FieldInfo
     {
         /// <summary>
         /// 基础/枚举类型单列数据存储在Data
-        /// Class类型多列数据存储在ChildFields
-        /// List类型多列数据存储在ChildFields
-        /// Dict类型多列数据key/value存储在ChildFields
+        /// <para>Class类型多列数据存储在ChildFields</para>
+        /// <para>List类型多列数据存储在ChildFields,以下表为索引</para>
+        /// <para>Dict类型多列数据pair存储在ChildFields,以下表为索引;key/value存储在pair,pair[0]:key,pair[1]:value</para>
         /// </summary>
         public List<object> Data { get; set; }
         /// <summary>
@@ -483,11 +487,6 @@ namespace ConfigGen.LocalInfo
         {
             int endIndex = Type.LastIndexOf('.');
             return Type.Substring(endIndex);
-        }
-
-        public string WriteCsv()
-        {
-            return null;
         }
     }
 }

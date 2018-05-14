@@ -13,10 +13,6 @@ namespace ConfigGen.LocalInfo
         /// 引用枚举
         /// </summary>
         Ref,
-        /// <summary>
-        /// 为数据表格指定类型,检查类型信息是否匹配
-        /// </summary>
-        Define,
 
         /// <summary>
         /// 内容范围检查
@@ -84,7 +80,6 @@ namespace ConfigGen.LocalInfo
 
             string[] checks = tableFieldInfo.Check.Split(Values.CheckRuleSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             string refFlag = "ref";
-            string defineFlag = "define";
             string[] rangeFlags = { "[", "]", "(", ")" };
             string noEmptyFlag = "noEmpty";
             string uniqueFlag = "unique";
@@ -105,18 +100,6 @@ namespace ConfigGen.LocalInfo
                 {
                     ruleType = CheckRuleType.Ref;
                     ruleArgs.AddRange(check.Replace(refFlag, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
-                        StringSplitOptions.RemoveEmptyEntries));
-                }
-                else if (check.StartsWith(defineFlag))
-                {
-                    ruleType = CheckRuleType.Define;
-                    ruleArgs.AddRange(check.Replace(defineFlag, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
-                        StringSplitOptions.RemoveEmptyEntries));
-                }
-                else if (check.StartsWith(defineFlag))
-                {
-                    ruleType = CheckRuleType.Range;
-                    ruleArgs.AddRange(check.Replace(defineFlag, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
                 }
                 else if (check.StartsWith(noEmptyFlag))
@@ -181,9 +164,6 @@ namespace ConfigGen.LocalInfo
                         break;
                     case CheckRuleType.Ref:
                         errorString = CheckRef(ruleArgs, data);
-                        break;
-                    case CheckRuleType.Define:
-                        errorString = CheckDefine(ruleArgs, data);
                         break;
                     case CheckRuleType.Range:
                         errorString = CheckRange(ruleArgs, data);

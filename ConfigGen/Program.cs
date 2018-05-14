@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using ConfigGen.LocalInfo;
 using ConfigGen.CmdUsage;
+using ConfigGen.Export;
 
 
 namespace ConfigGen
@@ -22,8 +23,8 @@ namespace ConfigGen
 
             //构建本地数据库
             var infoTypes = new List<LocalInfoType>() { LocalInfoType.FileInfo };
-            if (CmdOption.Instance.CmdArgs.ContainsKey("-language")
-                || CmdOption.Instance.CmdArgs.ContainsKey("-csvDir"))
+            if (CmdOption.Instance.CmdArgs.ContainsKey("-exportCSharp")
+                || CmdOption.Instance.CmdArgs.ContainsKey("-exportCsv"))
                 infoTypes.Add(LocalInfoType.TypeInfo);
             if (CmdOption.Instance.CmdArgs.ContainsKey("-replace")
                 || CmdOption.Instance.CmdArgs.ContainsKey("-find"))
@@ -32,7 +33,20 @@ namespace ConfigGen
             LocalInfoManager.Instance.Update();
 
             //导出数据
-            
+            if (!string.IsNullOrWhiteSpace(Values.ExportCsv))
+            {
+                Util.Start();
+                ExportCsv.Export();
+                Util.Stop("==>>Csv数据导出完毕");
+                Util.Log("");
+            }
+            if (!string.IsNullOrWhiteSpace(Values.ExportCSharp))
+            {
+                Util.Start();
+                ExportCSharp.Export();
+                Util.Stop("==>>CSharp类导出完毕");
+                Util.Log("");
+            }
 
 
             //重新存储文件信息及类型信息

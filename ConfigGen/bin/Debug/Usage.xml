@@ -24,30 +24,20 @@
       </CmdArgs>
     </CmdLine>
     <CmdLine>
-      <Cmd>-csvDir</Cmd>
-      <CmdDes>[选填]数据表导出数据存储路径,静态语言必填.</CmdDes>
+      <Cmd>-exportCsv</Cmd>
+      <CmdDes>[选填]数据表导出数据存储路径.</CmdDes>
     </CmdLine>
     <CmdLine>
-      <Cmd>-language</Cmd>
-      <CmdDes>[选填]数据表导出语言.动态语言无需数据路径,静态语言需要数据存储路径.可选[cs lua java cpp] dir</CmdDes>
-      <CmdArgs>
-        <CmdArg>
-          <Arg>dir</Arg>
-          <ArgDes>必填参数,数据类代码导出文件夹路径</ArgDes>
-        </CmdArg>
-        <CmdArg>
-          <Arg>|符号</Arg>
-          <ArgDes>多种语言同时使用时,用|符号分隔.</ArgDes>
-        </CmdArg>
-      </CmdArgs>
+      <Cmd>-exportCSharp</Cmd>
+      <CmdDes>[选填]数据表导出CSharp语言脚本路径.</CmdDes>
     </CmdLine>
     <CmdLine>
       <Cmd>-group</Cmd>
-      <CmdDes>[选填]数据分组导出.默认导出所有.可选[server client editor all xx].</CmdDes>
+      <CmdDes>[选填]数据分组导出.默认导出所有all.分组可执行定义.</CmdDes>
       <CmdArgs>
         <CmdArg>
           <Arg>xx</Arg>
-          <ArgDes>自定义组名</ArgDes>
+          <ArgDes>自定义导出分组</ArgDes>
         </CmdArg>
         <CmdArg>
           <Arg>|符号</Arg>
