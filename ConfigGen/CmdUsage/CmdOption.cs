@@ -107,12 +107,6 @@ namespace ConfigGen.CmdUsage
             return true;
         }
 
-        private bool CheckArg(string arg)
-        {
-            if (string.IsNullOrEmpty(arg) || 
-                return false;
-            return true;
-        }
         private bool CheckArgList(string cmdName, List<string> list)
         {
             if (list.Count == 0)

@@ -16,7 +16,6 @@ namespace ConfigGen.CmdUsage
         {
             Usage = new CmdUsage();
             Usage.CmdUsageList = new List<CmdLine>();
-            string cmdDes = "";
 
             CmdLine cmdLine = new CmdLine();
             cmdLine.Cmd = "-configDir";

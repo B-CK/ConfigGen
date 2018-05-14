@@ -25,10 +25,6 @@ namespace ConfigGen
         /// </summary>
         public static string ExportGroup { get; set; }
         /// <summary>
-        /// 生成本地数据类型信息
-        /// </summary>
-        public static string GenTypeDB { get; set; }
-        /// <summary>
         /// 是否只对已修改文件进行操作
         /// </summary>
         public static bool IsOptPart { get; set; }

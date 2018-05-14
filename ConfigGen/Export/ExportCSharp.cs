@@ -7,5 +7,9 @@ namespace ConfigGen.Export
 {
     class ExportCSharp
     {
+        public static void Export()
+        {
+
+        }
     }
 }
