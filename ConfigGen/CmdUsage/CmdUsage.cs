@@ -49,6 +49,11 @@ namespace ConfigGen.CmdUsage
             Usage.CmdUsageList.Add(cmdLine);
 
             cmdLine = new CmdLine();
+            cmdLine.Cmd = "-exportCsXml";
+            cmdLine.CmdDes = string.Format("[选填]数据表导出CSharp语言的Xml操作类文件路径.");
+            Usage.CmdUsageList.Add(cmdLine);
+
+            cmdLine = new CmdLine();
             cmdLine.Cmd = "-group";
             cmdLine.CmdDes = string.Format("[选填]数据分组导出.默认导出所有all.分组可执行定义.");
             cmdLine.CmdArgs = new List<CmdArg>()

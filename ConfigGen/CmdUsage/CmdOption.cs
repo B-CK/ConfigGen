@@ -74,17 +74,23 @@ namespace ConfigGen.CmdUsage
                             }
                             Values.IsOptPart = "part".Equals(cmd.Value[0]);
                             break;
+                        case "-exportCsv"://null不导出csv
+                            if (!CheckArgList(cmdName, cmd.Value)) return false;
+                            Values.ExportCsv = cmd.Value[0];
+                            if (string.IsNullOrWhiteSpace(Values.ExportCsv))
+                                Values.ExportCsv = null;
+                            break;
                         case "-exportCSharp"://null不做语言类导出
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
                             Values.ExportCSharp = cmd.Value[0];
                             if (string.IsNullOrWhiteSpace(Values.ExportCSharp))
                                 Values.ExportCSharp = null;
                             break;
-                        case "-exportCsv"://null不导出csv
+                        case "-exportCsXml"://null不做语言类导出
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ExportCsv = cmd.Value[0];
-                            if (string.IsNullOrWhiteSpace(Values.ExportCsv))
-                                Values.ExportCsv = null;
+                            Values.ExportCsXml = cmd.Value[0];
+                            if (string.IsNullOrWhiteSpace(Values.ExportCsXml))
+                                Values.ExportCsXml = null;
                             break;
                         case "-group"://默认导出所有分组
                             Values.ExportGroup = cmd.Value[0];

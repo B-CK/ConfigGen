@@ -22,7 +22,7 @@ namespace ConfigGen.Export
                 {
                     for (int column = 0; column < data.Count; column++)//列
                     {
-                        string v = ParseField(data[column], row);
+                        string v = AnalyzeField(data[column], row);
                         if (column + 1 == data.Count)
                             builder.AppendLine(v);
                         else
@@ -37,7 +37,7 @@ namespace ConfigGen.Export
             }
         }
         //isNesting - 是否为嵌套Class类型
-        private static string ParseField(TableFieldInfo fieldInfo, int row, bool isNesting = false)
+        private static string AnalyzeField(TableFieldInfo fieldInfo, int row, bool isNesting = false)
         {
             string v = "";
             BaseTypeInfo typeInfo = fieldInfo.BaseInfo;
@@ -47,16 +47,16 @@ namespace ConfigGen.Export
                 case TypeType.Enum:
                     v = fieldInfo.Data[row].ToString().Trim();
                     if (fieldInfo.Type.Equals("bool"))
-                        v = ParseBool(v);
+                        v = AnalyzeBool(v);
                     break;
                 case TypeType.Class:
-                    v = ParseClass(fieldInfo, row, isNesting);
+                    v = AnalyzeClass(fieldInfo, row, isNesting);
                     break;
                 case TypeType.List:
-                    v = ParseList(fieldInfo, row);
+                    v = AnalyzeList(fieldInfo, row);
                     break;
                 case TypeType.Dict:
-                    v = ParseDict(fieldInfo, row);
+                    v = AnalyzeDict(fieldInfo, row);
                     break;
                 case TypeType.None:
                 default:
@@ -64,13 +64,13 @@ namespace ConfigGen.Export
             }
             return v;
         }
-        private static string ParseClass(TableFieldInfo fieldInfo, int row, bool isNesting = false)
+        private static string AnalyzeClass(TableFieldInfo fieldInfo, int row, bool isNesting = false)
         {
             StringBuilder builder = new StringBuilder();
             var fields = fieldInfo.ChildFields;
             for (int i = 0; i < fields.Count; i++)
             {
-                string value = ParseField(fields[i], row);
+                string value = AnalyzeField(fields[i], row);
                 if (isNesting && value.Equals(Values.DataSetEndFlag))
                     return Values.DataSetEndFlag;
                 if (i + 1 == fields.Count)
@@ -80,14 +80,14 @@ namespace ConfigGen.Export
             }
             return builder.ToString();
         }
-        private static string ParseList(TableFieldInfo fieldInfo, int row)
+        private static string AnalyzeList(TableFieldInfo fieldInfo, int row)
         {
             StringBuilder builder = new StringBuilder();
             var fields = fieldInfo.ChildFields;
             int count = 0;
             for (int i = 0; i < fields.Count; i++)
             {
-                string value = ParseField(fields[i], row, true);
+                string value = AnalyzeField(fields[i], row, true);
                 if (!value.Equals(Values.DataSetEndFlag))
                 {
                     if (i + 1 == fields.Count)
@@ -107,14 +107,14 @@ namespace ConfigGen.Export
             builder.Insert(0,count == 0 ? count.ToString() : count + Values.CsvSplitFlag);
             return builder.ToString();
         }
-        private static string ParseDict(TableFieldInfo fieldInfo, int row)
+        private static string AnalyzeDict(TableFieldInfo fieldInfo, int row)
         {
             StringBuilder builder = new StringBuilder();
             var fields = fieldInfo.ChildFields;
             int count = 0;
             for (int i = 0; i < fields.Count; i++)
             {
-                string pair = ParsePair(fields[i], row);
+                string pair = AnalyzePair(fields[i], row);
                 if (!pair.Equals(Values.DataSetEndFlag))
                 {
                     if (i + 1 == fields.Count)
@@ -133,19 +133,19 @@ namespace ConfigGen.Export
             builder.Insert(0, count == 0 ? count.ToString() : count + Values.CsvSplitFlag);
             return builder.ToString();
         }
-        private static string ParsePair(TableFieldInfo fieldInfo, int row)
+        private static string AnalyzePair(TableFieldInfo fieldInfo, int row)
         {
             TableFieldInfo pair = fieldInfo;
             TableFieldInfo key = pair.ChildFields[0];
             TableFieldInfo value = pair.ChildFields[1];
-            string k = ParseField(key, row);
-            string v = ParseField(value, row, true);
+            string k = AnalyzeField(key, row);
+            string v = AnalyzeField(value, row, true);
             if (k.Equals(Values.DataSetEndFlag)
                 || v.Equals(Values.DataSetEndFlag))
                 return Values.DataSetEndFlag;
             return string.Format("{0}{1}{2}", k, Values.CsvSplitFlag, v);
         }
-        private static string ParseBool(string str)
+        private static string AnalyzeBool(string str)
         {
             return str.ToLower().Equals("true") ? "1" : "0";
         }

@@ -57,7 +57,8 @@
   <ItemGroup>
     <Compile Include="CmdUsage\CmdOption.cs" />
     <Compile Include="CmdUsage\CmdUsage.cs" />
-    <Compile Include="Export\ExportCSharp.cs" />
+    <Compile Include="Export\ExportCSharp.XmlOp.cs" />
+    <Compile Include="Export\ExportCSharp.CsvOp.cs" />
     <Compile Include="Export\ExportCsv.cs" />
     <Compile Include="LocalInfo\FileInfo.cs" />
     <Compile Include="LocalInfo\FindInfo.cs" />

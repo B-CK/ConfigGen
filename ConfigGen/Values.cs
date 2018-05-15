@@ -17,6 +17,10 @@ namespace ConfigGen
         /// </summary>
         public static string ExportCSharp { get; set; }
         /// <summary>
+        /// 导出CSharp类型
+        /// </summary>
+        public static string ExportCsXml { get; set; }
+        /// <summary>
         /// 导出csv存储路径
         /// </summary>
         public static string ExportCsv { get; set; }
