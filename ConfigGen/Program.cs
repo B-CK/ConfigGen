@@ -43,7 +43,14 @@ namespace ConfigGen
             if (!string.IsNullOrWhiteSpace(Values.ExportCSharp))
             {
                 Util.Start();
-                ExportCSharp.Export();
+                ExportCSharp.Export_CsvOp();
+                Util.Stop("==>>CSharp类导出完毕");
+                Util.Log("");
+            }
+            if (!string.IsNullOrWhiteSpace(Values.ExportCsXml))
+            {
+                Util.Start();
+                ExportCSharp.Export_XmlOp();
                 Util.Stop("==>>CSharp类导出完毕");
                 Util.Log("");
             }

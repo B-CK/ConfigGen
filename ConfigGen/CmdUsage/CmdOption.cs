@@ -58,8 +58,10 @@ namespace ConfigGen.CmdUsage
                             if (!Directory.Exists(Values.ConfigDir))
                             {
                                 Util.LogErrorFormat("[{0}]Config文件夹不在此路径{1}", cmdName, Values.ConfigDir);
+                                Values.ConfigDir = null;
                                 return false;
                             }
+                            Values.ConfigRootNode = Path.GetFileName(Path.GetDirectoryName(Values.ConfigDir));
                             break;
                         case "-help":
                             Help();

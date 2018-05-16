@@ -17,7 +17,7 @@ namespace ConfigGen
         /// </summary>
         public static string ExportCSharp { get; set; }
         /// <summary>
-        /// 导出CSharp类型
+        /// 导出CSharp类型Xml操作类
         /// </summary>
         public static string ExportCsXml { get; set; }
         /// <summary>
@@ -32,14 +32,10 @@ namespace ConfigGen
         /// 是否只对已修改文件进行操作
         /// </summary>
         public static bool IsOptPart { get; set; }
-        ///// <summary>
-        ///// 替换内容参数
-        ///// </summary>
-        //public static string ReplaceArgs { get; set; }
-        ///// <summary>
-        ///// 查找内容参数
-        ///// </summary>
-        //public static string FindArgs { get; set; }
+        /// <summary>
+        /// 配置文件根节点
+        /// </summary>
+        public static string ConfigRootNode { get; set; }
 
 
         /// <summary>

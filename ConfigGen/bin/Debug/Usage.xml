@@ -32,6 +32,10 @@
       <CmdDes>[选填]数据表导出CSharp语言脚本路径.</CmdDes>
     </CmdLine>
     <CmdLine>
+      <Cmd>-exportCsXml</Cmd>
+      <CmdDes>[选填]数据表导出CSharp语言的Xml操作类文件路径.</CmdDes>
+    </CmdLine>
+    <CmdLine>
       <Cmd>-group</Cmd>
       <CmdDes>[选填]数据分组导出.默认导出所有all.分组可执行定义.</CmdDes>
       <CmdArgs>

@@ -256,7 +256,10 @@ namespace ConfigGen.LocalInfo
         [XmlIgnore]
         public bool IsExist { get; set; }
 
-        private string _className;       
+        private string _className;    
+        /// <summary>
+        /// 相对根的目录的命名空间,不包含根节点
+        /// </summary>
         public string GetClassName()
         {
             if (_className == null)
@@ -283,6 +286,9 @@ namespace ConfigGen.LocalInfo
         public string DataTable { get; set; }
         [XmlElement("Field")]
         public List<FieldInfo> Fields { get; set; }
+
+        [XmlIgnore]
+        public string IndexType { get; set; }
 
         Dictionary<string, FieldInfo> _fieldInfoDict = new Dictionary<string, FieldInfo>();
         public Dictionary<string, FieldInfo> GetFieldInfoDict()

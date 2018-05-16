@@ -72,10 +72,12 @@ namespace ConfigGen.LocalInfo
         {
             try
             {
-                DataClassInfo.UpdateToDict();
                 DataTable dt = TableDataSet;
+                DataClassInfo.UpdateToDict();
                 var dataFieldDict = new Dictionary<string, TableFieldInfo>();
                 var fieldInfoDict = DataClassInfo.GetFieldInfoDict();
+                string fieldIndex = dt.Rows[Values.DataSheetFieldIndex].ToString();
+                DataClassInfo.IndexType = fieldInfoDict[fieldIndex].Type;
                 //解析检查类定义
                 object[] tableFields = dt.Rows[Values.DataSheetFieldIndex].ItemArray;
                 for (int i = 0; i < tableFields.Length; i++)
