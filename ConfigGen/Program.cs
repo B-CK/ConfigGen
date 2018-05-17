@@ -1,21 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using ConfigGen.LocalInfo;
-using ConfigGen.CmdUsage;
+using System.Linq;
 using ConfigGen.Export;
+using ConfigGen.CmdUsage;
+using ConfigGen.LocalInfo;
+using System.Collections.Generic;
 
 
 namespace ConfigGen
 {
     class Program
     {
-        //注:新增集合类型不会再后续生产中删除,只会越来越多,但不重复.
+        //未完成内容
+        //4.CSharp Xml写
+        //3.Xml读
+        //5.查找和替换功能
+        //1.字段检查,自定义检查规则
+        //2.导出lua 数据,类
 
-        //测试内容
-        //1.表中数据是int还是string类型;HashSet中int=1和string=1是两种不同值
-        //
+
         static void Main(string[] args)
         {
             //命令行参数解析
@@ -31,7 +35,7 @@ namespace ConfigGen
                 infoTypes.Add(LocalInfoType.FindInfo);
             LocalInfoManager.Instance.Init(infoTypes);
             LocalInfoManager.Instance.Update();
-            
+
             //导出数据
             if (!string.IsNullOrWhiteSpace(Values.ExportCsv))
             {
@@ -54,13 +58,34 @@ namespace ConfigGen
                 Util.Stop("==>>CSharp类导出完毕");
                 Util.Log("");
             }
-
-
-            //重新存储文件信息及类型信息
-            //刷新数据库
-            //TODO
-            //查找内容/替换内容/导出类文件/导出csv
+    
             Console.ReadKey();
         }
+
+        //static void TEST()
+        //{
+        //    var subTypeQuery = from t in System.Reflection.Assembly.GetExecutingAssembly().GetTypes()
+        //                       where IsSubClassOf(t, Type.GetType("Base"))
+        //                       select t;
+
+        //    foreach (var type in subTypeQuery)
+        //    {
+        //        Console.WriteLine(type);
+        //    }
+        //}
+
+        //static bool IsSubClassOf(Type type, Type baseType)
+        //{
+        //    var b = type.BaseType;
+        //    while (b != null)
+        //    {
+        //        if (b.Equals(baseType))
+        //        {
+        //            return true;
+        //        }
+        //        b = b.BaseType;
+        //    }
+        //    return false;
+        //}
     }
 }

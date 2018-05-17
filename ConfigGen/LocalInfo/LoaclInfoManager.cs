@@ -251,6 +251,7 @@ namespace ConfigGen.LocalInfo
                 if (dataInfo != null && !_dataTableDict.ContainsKey(relPath))
                     _dataTableDict.Add(relPath, dataInfo);
             }
+
             try
             {
                 //解析类定义                
@@ -258,152 +259,47 @@ namespace ConfigGen.LocalInfo
                     define.Value.Analyze();
                 Util.Log("==>>解析定义完毕\n");
                 //检查类定义并且修正集合类型中的泛型
-                var infoDict = new Dictionary<string, BaseTypeInfo>(TypeInfoLib.TypeInfoDict);
-                foreach (var item in infoDict)
+                TypeInfoLib.CorrectTypeInfo(_diffRelPath);
+                Util.Log("==>>类型修正完毕\n");
+
+                //解析数据定义和检查规则
+                foreach (var define in TypeInfoLib.ClassInfoDict)
                 {
-                    BaseTypeInfo typeInfo = item.Value;
-                    if (typeInfo.TypeType == TypeType.Class
-                        || typeInfo.TypeType == TypeType.Enum)
+                    Util.Start();
+                    ClassTypeInfo classType = define.Value;
+                    if (string.IsNullOrWhiteSpace(classType.DataTable))
+                        continue;
+                    string type = classType.GetClassName();
+                    string dataTablePath = null;
+                    string combine = string.Format("{0}\\{1}", classType.NamespaceName, classType.DataTable);
+                    if (!_dataTableDict.ContainsKey(combine))
                     {
-                        string error = TableChecker.CheckType(item.Key);
-                        if (!string.IsNullOrWhiteSpace(error))
+                        if (!_dataTableDict.ContainsKey(classType.DataTable))
                         {
-                            Util.LogErrorFormat("{0}类型不存在,错误位置{1}", item.Key, item.Value.RelPath);
+                            Util.LogWarningFormat("{0}类型的数据表表不存在,错误位置:{1}",
+                                type, classType.DataTable);
                             continue;
                         }
-
-                        ClassTypeInfo classType = typeInfo as ClassTypeInfo;
-                        for (int i = 0; classType != null && i < classType.Fields.Count; i++)
-                        {
-                            FieldInfo fieldInfo = classType.Fields[i];
-                            TypeType typeType = TypeInfo.GetTypeType(fieldInfo.Type);
-                            if (typeType == TypeType.None)
-                            {
-                                string combine = Util.Combine(classType.NamespaceName, fieldInfo.Type);
-                                typeType = TypeInfo.GetTypeType(combine);
-                            }
-                            BaseTypeInfo baseType = null;
-                            switch (typeType)
-                            {
-                                case TypeType.Class:
-                                case TypeType.Enum:
-                                    fieldInfo.Type = CorrectType(fieldInfo.Type, classType, fieldInfo.Name);
-                                    continue;
-                                case TypeType.List:
-                                    ListTypeInfo listType = new ListTypeInfo();
-                                    listType.TypeType = typeType;
-                                    string type = fieldInfo.Type.Replace("list<", "").Replace(">", "");
-                                    listType.ItemType = CorrectType(type, classType, fieldInfo.Name);
-                                    fieldInfo.Type = string.Format("list<{0}>", listType.ItemType);
-                                    listType.Name = fieldInfo.Type;
-                                    baseType = listType;
-                                    break;
-                                case TypeType.Dict:
-                                    DictTypeInfo dictType = new DictTypeInfo();
-                                    dictType.TypeType = typeType;
-                                    string[] kv = fieldInfo.Type.Replace("dict<", "").Replace(">", "").Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                                    if (kv.Length != 2)
-                                    {
-                                        Util.LogErrorFormat("{0}类中字段{1}的dict类型格式错误,错误位置{2}",
-                                            classType.GetClassName(), fieldInfo.Name, classType.RelPath);
-                                        continue;
-                                    }
-                                    string key = CorrectType(kv[0], classType, fieldInfo.Name);
-                                    error = TableChecker.CheckDictKey(key);
-                                    if (!string.IsNullOrWhiteSpace(error))
-                                    {
-                                        Util.LogErrorFormat("{0}类中字段{1}定义dict key类型错误,错误位置{2}",
-                                            classType.GetClassName(), fieldInfo.Name, classType.RelPath);
-                                        continue;
-                                    }
-                                    dictType.KeyType = key;
-                                    dictType.ValueType = CorrectType(kv[1], classType, fieldInfo.Name);
-                                    fieldInfo.Type = string.Format("dict<{0}, {1}>", dictType.KeyType, dictType.ValueType);
-                                    dictType.Name = fieldInfo.Type;
-                                    baseType = dictType;
-                                    break;
-                                default:
-                                    continue;
-                            }
-                            baseType.IsExist = true;
-                            TypeInfoLib.Add(baseType);
-                        }
+                        else
+                            dataTablePath = classType.DataTable;
                     }
+                    else
+                        dataTablePath = combine;
+                    TableDataInfo data = new TableDataInfo(classType.DataTable, _dataTableDict[dataTablePath], classType);
+                    data.Analyze();
+                    if (!DataInfoDict.ContainsKey(type))
+                        DataInfoDict.Add(type, data);
+                    Util.Stop(string.Format("解析数据:{0}", data.RelPath));
                 }
-                TypeInfoLib.Clear(_diffRelPath);
-                Util.Log("==>>检查类定义并且修正集合类型中的泛型完毕\n");
+
+                TypeInfoLib.Save();
+                Util.Stop("==>>更新类型和解析/检查数据完毕");
+                Util.Log("");
             }
             catch (Exception e)
             {
-                Util.LogError(e.StackTrace);
+                Util.LogErrorFormat("Excel,Xml解析异常.\n{0}\n{1}", e.Message, e.StackTrace);
             }
-
-            //解析数据定义和检查规则
-            foreach (var define in TypeInfoLib.ClassInfoDict)
-            {
-                Util.Start();
-                ClassTypeInfo classType = define.Value;
-                if (string.IsNullOrWhiteSpace(classType.DataTable))
-                    continue;
-                string type = classType.GetClassName();
-                string dataTablePath = null;
-                string combine = string.Format("{0}\\{1}", classType.NamespaceName, classType.DataTable);
-                if (!_dataTableDict.ContainsKey(combine))
-                {
-                    if (!_dataTableDict.ContainsKey(classType.DataTable))
-                    {
-                        Util.LogWarningFormat("{0}类型的数据表表不存在,错误位置:{1}",
-                            type, classType.DataTable);
-                        continue;
-                    }
-                    else
-                        dataTablePath = classType.DataTable;
-                }
-                else
-                    dataTablePath = combine;
-                TableDataInfo data = new TableDataInfo(classType.DataTable, _dataTableDict[dataTablePath], classType);
-                data.Analyze();
-                if (!DataInfoDict.ContainsKey(type))
-                    DataInfoDict.Add(type, data);
-                Util.Stop(string.Format("解析数据:{0}", data.RelPath));
-            }
-
-            TypeInfoLib.Save();
-            Util.Stop("==>>更新类型和解析/检查数据完毕");
-            Util.Log("");
-        }
-        private string CorrectType(string type, BaseTypeInfo baseType, string name)
-        {
-            string newType = null;
-            string combine = Util.Combine(baseType.NamespaceName, type);
-            string error = TableChecker.CheckType(combine);
-            if (!string.IsNullOrWhiteSpace(error))
-            {
-                error = TableChecker.CheckType(type);
-                if (!string.IsNullOrWhiteSpace(error))
-                    newType = null;
-                else
-                    newType = type;
-            }
-            else
-                newType = combine;
-
-            if (newType != null)
-            {
-                var newInfo = TypeInfo.GetTypeInfo(newType);
-                var info = TypeInfo.GetTypeInfo(type);
-                TypeInfoLib.Remove(info);
-                info = TypeInfo.GetTypeInfo(combine);
-                TypeInfoLib.Remove(info);
-                TypeInfoLib.Add(newInfo);
-            }
-            else
-            {
-                Util.LogErrorFormat("{0}类字段{1}类型{2}不存在,错误位置{3}",
-                   baseType.GetClassName(), name, type, baseType.RelPath);
-                throw new Exception();
-            }
-            return newType;
         }
         private void UpdateFindInfo()
         {

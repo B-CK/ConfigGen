@@ -137,7 +137,135 @@ namespace ConfigGen.LocalInfo
                     TypeInfoDict.Remove(type);
             }
         }
-        public void Clear(List<string> parts)
+        public void CorrectTypeInfo(List<string> part)
+        {
+            var infoDict = new Dictionary<string, BaseTypeInfo>(TypeInfoDict);
+            foreach (var item in infoDict)
+            {
+                BaseTypeInfo typeInfo = item.Value;
+                if (typeInfo.TypeType == TypeType.Class)
+                {
+                    string error = TableChecker.CheckType(item.Key);
+                    if (!string.IsNullOrWhiteSpace(error))
+                    {
+                        Util.LogErrorFormat("{0}类型不存在,错误位置{1}", item.Key, item.Value.RelPath);
+                        continue;
+                    }
+
+                    ClassTypeInfo classType = typeInfo as ClassTypeInfo;
+                    if (!string.IsNullOrWhiteSpace(classType.Inherit))
+                    {
+                        string newType = null;
+                        string combine = Util.Combine(classType.NamespaceName, classType.Inherit);
+                        error = TableChecker.CheckType(combine);
+                        if (!string.IsNullOrWhiteSpace(error))
+                        {
+                            error = TableChecker.CheckType(classType.Inherit);
+                            if (!string.IsNullOrWhiteSpace(error))
+                                newType = null;
+                            else
+                                newType = classType.Inherit;
+                        }
+                        else
+                            newType = combine;
+
+                        if (newType == null)
+                            throw new Exception(string.Format("{0}类的继承类型{1}不存在,错误位置{2}",
+                                    classType.GetClassName(), classType.Inherit, classType.RelPath));
+                        else
+                            classType.Inherit = newType;
+                    }
+                    for (int i = 0; i < classType.Fields.Count; i++)
+                    {
+                        FieldInfo fieldInfo = classType.Fields[i];
+                        TypeType typeType = TypeInfo.GetTypeType(fieldInfo.Type);
+                        if (typeType == TypeType.None)
+                        {
+                            string combine = Util.Combine(classType.NamespaceName, fieldInfo.Type);
+                            typeType = TypeInfo.GetTypeType(combine);
+                        }
+                        BaseTypeInfo baseType = null;
+                        switch (typeType)
+                        {
+                            case TypeType.Class:
+                            case TypeType.Enum:
+                                fieldInfo.Type = CorrectType(fieldInfo.Type, classType, fieldInfo.Name);
+                                continue;
+                            case TypeType.List:
+                                ListTypeInfo listType = new ListTypeInfo();
+                                listType.TypeType = typeType;
+                                string type = fieldInfo.Type.Replace("list<", "").Replace(">", "");
+                                listType.ItemType = CorrectType(type, classType, fieldInfo.Name);
+                                fieldInfo.Type = string.Format("list<{0}>", listType.ItemType);
+                                listType.Name = fieldInfo.Type;
+                                baseType = listType;
+                                break;
+                            case TypeType.Dict:
+                                DictTypeInfo dictType = new DictTypeInfo();
+                                dictType.TypeType = typeType;
+                                string[] kv = fieldInfo.Type.Replace("dict<", "").Replace(">", "").Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                                if (kv.Length != 2)
+                                {
+                                    Util.LogErrorFormat("{0}类中字段{1}的dict类型格式错误,错误位置{2}",
+                                        classType.GetClassName(), fieldInfo.Name, classType.RelPath);
+                                    continue;
+                                }
+                                string key = CorrectType(kv[0], classType, fieldInfo.Name);
+                                error = TableChecker.CheckDictKey(key);
+                                if (!string.IsNullOrWhiteSpace(error))
+                                {
+                                    Util.LogErrorFormat("{0}类中字段{1}定义dict key类型错误,错误位置{2}",
+                                        classType.GetClassName(), fieldInfo.Name, classType.RelPath);
+                                    continue;
+                                }
+                                dictType.KeyType = key;
+                                dictType.ValueType = CorrectType(kv[1], classType, fieldInfo.Name);
+                                fieldInfo.Type = string.Format("dict<{0}, {1}>", dictType.KeyType, dictType.ValueType);
+                                dictType.Name = fieldInfo.Type;
+                                baseType = dictType;
+                                break;
+                            default:
+                                continue;
+                        }
+                        baseType.IsExist = true;
+                        Add(baseType);
+                    }
+                }
+            }
+            Clear(part);
+        }
+        private string CorrectType(string type, BaseTypeInfo baseType, string name)
+        {
+            string newType = null;
+            string combine = Util.Combine(baseType.NamespaceName, type);
+            string error = TableChecker.CheckType(combine);
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                error = TableChecker.CheckType(type);
+                if (!string.IsNullOrWhiteSpace(error))
+                    newType = null;
+                else
+                    newType = type;
+            }
+            else
+                newType = combine;
+
+            if (newType != null)
+            {
+                var newInfo = TypeInfo.GetTypeInfo(newType);
+                var oldInfo = TypeInfo.GetTypeInfo(type);
+                Remove(oldInfo);
+                Add(newInfo);
+            }
+            else
+            {
+                Util.LogErrorFormat("{0}类字段{1}类型{2}不存在,错误位置{3}",
+                   baseType.GetClassName(), name, type, baseType.RelPath);
+                throw new Exception();
+            }
+            return newType;
+        }
+        private void Clear(List<string> parts)
         {
             HashSet<string> hash = new HashSet<string>(parts);
             List<string> ls = new List<string>();
@@ -175,7 +303,7 @@ namespace ConfigGen.LocalInfo
                 Remove(baseType);
             }
         }
-        public void UpdateList()
+        private void UpdateList()
         {
             //基础类型信息
             foreach (var item in BaseType)
@@ -190,7 +318,6 @@ namespace ConfigGen.LocalInfo
             ClassInfos = new List<ClassTypeInfo>(ClassInfoDict.Values);
             EnumInfos = new List<EnumTypeInfo>(EnumInfoDict.Values);
         }
-
 
         [XmlIgnore]
         static readonly HashSet<string> BaseType = new HashSet<string>() { "int", "long", "bool", "float", "string" };
@@ -256,7 +383,7 @@ namespace ConfigGen.LocalInfo
         [XmlIgnore]
         public bool IsExist { get; set; }
 
-        private string _className;    
+        private string _className;
         /// <summary>
         /// 相对根的目录的命名空间,不包含根节点
         /// </summary>
@@ -269,7 +396,7 @@ namespace ConfigGen.LocalInfo
                 else
                     _className = string.Format("{0}.{1}", NamespaceName, Name);
             }
-       
+
             return _className;
         }
     }
@@ -290,6 +417,7 @@ namespace ConfigGen.LocalInfo
         [XmlIgnore]
         public FieldInfo IndexField { get; set; }
 
+
         Dictionary<string, FieldInfo> _fieldInfoDict = new Dictionary<string, FieldInfo>();
         public Dictionary<string, FieldInfo> GetFieldInfoDict()
         {
@@ -303,6 +431,17 @@ namespace ConfigGen.LocalInfo
                 if (!_fieldInfoDict.ContainsKey(fieldName))
                     _fieldInfoDict.Add(fieldName, Fields[i]);
             }
+        }
+        public ClassTypeInfo GetInheritTypeInfo()
+        {
+            ClassTypeInfo classType = null;
+            Dictionary<string, ClassTypeInfo> classInfoDict = LocalInfoManager.Instance.TypeInfoLib.ClassInfoDict;
+            if (classInfoDict.ContainsKey(Inherit))
+                classType = classInfoDict[Inherit];
+            else
+                throw new Exception(string.Format("{0}类型的继承类型{1}不存在,错误位置{2}", 
+                    GetClassName(), Inherit, RelPath));
+            return classType;
         }
     }
     [XmlInclude(typeof(ListTypeInfo))]

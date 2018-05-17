@@ -6,13 +6,28 @@ namespace Csv.Card
 {
 	public sealed class Card : CfgObject
 	{
+		/// <summary>
+		/// ID编号
+		/// <summary>
 		public readonly int ID;
+		/// <summary>
+		/// 名字
+		/// <summary>
 		public readonly string Name;
+		/// <summary>
+		/// 卡牌类型
+		/// <summary>
 		public readonly int CardType;
+		/// <summary>
+		/// 费用
+		/// <summary>
 		public readonly long Cost;
+		/// <summary>
+		/// 元素数据
+		/// <summary>
 		public readonly Dictionary<int, long> Elements = new Dictionary<int, long>();
 
-		public Card(DataStream data)
+		pubilic Card(DataStream data)
 		{
 			this.ID = data.GetInt();
 			this.Name = data.GetString();

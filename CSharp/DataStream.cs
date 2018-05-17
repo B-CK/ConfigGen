@@ -8,6 +8,9 @@ namespace Csv
 	{
 		public DataStream(string path, Encoding encoding)
 		{
+			_rows = File.ReadAllLines(path);
+			_rIndex = _cIndex = 0;
+			_columns = _rows[_rIndex].Split("▃",  StringSplitOptions.RemoveEmptyEntries);
 		}
 
 		public int GetInt()
@@ -30,7 +33,9 @@ namespace Csv
 		}
 		public bool GetBool()
 		{
-			return !Next().Equals("0");
+			string v = Next();
+			if (string.IsNullOrEmpty(v)) return false;
+			return !v.Equals("0");
 		}
 		public string GetString()
 		{
@@ -40,17 +45,22 @@ namespace Csv
 
 		private int _rIndex;
 		private int _cIndex;
-		private int _maxRow;
-		private int _maxcolumn;
 		private string[] _rows;
 		private string[] _columns;
 
 		private void NextRow()
 		{
+			if(_rIndex >= _rows.Length) return;
+			_rIndex++;
+			_cIndex = 0;
+			_columns = _rows[_rIndex].Split("▃",  StringSplitOptions.RemoveEmptyEntries);
 		}
 
 		private string Next()
 		{
+			if(_cIndex >= _columns.Length) return string.Empty;
+			_cIndex++;
+			return _columns[_rIndex];
 		}
 
 	}
