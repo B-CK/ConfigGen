@@ -20,7 +20,7 @@ namespace ConfigGen.LocalInfo
             else
                 Util.LogErrorFormat("数据表结构没有指明类型,文件名:{0}", RelPath);
         }
- 
+
         public ClassTypeInfo DataClassInfo { get; private set; }
         public int DataLength { get { return TableDataSet.Rows.Count - Values.DataSheetDataStartIndex; } }
         public List<TableFieldInfo> DataFields { get; private set; }
@@ -41,56 +41,49 @@ namespace ConfigGen.LocalInfo
 
         public override void Analyze()
         {
-            try
+            DataTable dt = TableDataSet;
+            DataClassInfo.UpdateToDict();
+            var dataFieldDict = new Dictionary<string, TableFieldInfo>();
+            var fieldInfoDict = DataClassInfo.GetFieldInfoDict();
+            string fieldIndex = dt.Rows[Values.DataSheetFieldIndex][0].ToString();
+            DataClassInfo.IndexField = fieldInfoDict[fieldIndex];
+            //解析检查类定义
+            object[] tableFields = dt.Rows[Values.DataSheetFieldIndex].ItemArray;
+            for (int i = 0; i < tableFields.Length; i++)
             {
-                DataTable dt = TableDataSet;
-                DataClassInfo.UpdateToDict();
-                var dataFieldDict = new Dictionary<string, TableFieldInfo>();
-                var fieldInfoDict = DataClassInfo.GetFieldInfoDict();
-                string fieldIndex = dt.Rows[Values.DataSheetFieldIndex][0].ToString();
-                DataClassInfo.IndexField = fieldInfoDict[fieldIndex];
-                //解析检查类定义
-                object[] tableFields = dt.Rows[Values.DataSheetFieldIndex].ItemArray;
-                for (int i = 0; i < tableFields.Length; i++)
+                string field = tableFields[i].ToString();
+                //string fieldType = dt.Rows[Values.DataSheetTypeIndex][i].ToString();
+                if (!string.IsNullOrWhiteSpace(field))
                 {
-                    string field = tableFields[i].ToString();
-                    //string fieldType = dt.Rows[Values.DataSheetTypeIndex][i].ToString();
-                    if (!string.IsNullOrWhiteSpace(field))
+                    TableFieldInfo tableFieldInfo = new TableFieldInfo();
+                    if (fieldInfoDict.ContainsKey(field))
                     {
-                        TableFieldInfo tableFieldInfo = new TableFieldInfo();
-                        if (fieldInfoDict.ContainsKey(field))
-                        {
-                            //解析数据类字段
-                            FieldInfo fieldInfo = fieldInfoDict[field];
-                            string check = dt.Rows[Values.DataSheetCheckIndex][i].ToString();
-                            check = string.IsNullOrWhiteSpace(check) ? fieldInfo.Check : check;
-                            tableFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Des, check, fieldInfo.Group, i);
+                        //解析数据类字段
+                        FieldInfo fieldInfo = fieldInfoDict[field];
+                        string check = dt.Rows[Values.DataSheetCheckIndex][i].ToString();
+                        check = string.IsNullOrWhiteSpace(check) ? fieldInfo.Check : check;
+                        tableFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Des, check, fieldInfo.Group, i);
 
-                            //解析类字段数据
-                            i = AnalyzeField(dt, tableFieldInfo);
+                        //解析类字段数据
+                        i = AnalyzeField(dt, tableFieldInfo);
 
-                            if (!dataFieldDict.ContainsKey(tableFieldInfo.Name))
-                                dataFieldDict.Add(tableFieldInfo.Name, tableFieldInfo);
-                        }
-                        else
-                        {
-                            Util.LogErrorFormat("在{0}类型的数据表中,{1}字段名与实际定义不一致,{2}",
-                                DataClassInfo.Name, field, GetErrorSite(i + 1, Values.DataSheetFieldIndex + 1));
-                        }
+                        if (!dataFieldDict.ContainsKey(tableFieldInfo.Name))
+                            dataFieldDict.Add(tableFieldInfo.Name, tableFieldInfo);
                     }
                     else
                     {
-                        Util.LogErrorFormat("在{0}类型的数据表中,解析异常,{1}",
-                                DataClassInfo.Name, GetErrorSite(i + 1, Values.DataSheetFieldIndex + 1));
+                        Util.LogErrorFormat("在{0}类型的数据表中,{1}字段名与实际定义不一致,{2}",
+                            DataClassInfo.Name, field, GetErrorSite(i + 1, Values.DataSheetFieldIndex + 1));
                     }
                 }
+                else
+                {
+                    Util.LogErrorFormat("在{0}类型的数据表中,解析异常,{1}",
+                            DataClassInfo.Name, GetErrorSite(i + 1, Values.DataSheetFieldIndex + 1));
+                }
+            }
 
-                DataFields.AddRange(dataFieldDict.Values);
-            }
-            catch (Exception e)
-            {
-                Util.LogErrorFormat("{0}\n{1}", e.Message, e.StackTrace);
-            }
+            DataFields.AddRange(dataFieldDict.Values);
         }
         private string GetErrorSite(int c, int r)
         {
@@ -147,6 +140,9 @@ namespace ConfigGen.LocalInfo
             int startColumn = classFieldInfo.ColumnIndex + 1;
             classFieldInfo.ChildFields = new List<TableFieldInfo>();
             ClassTypeInfo classInfo = classFieldInfo.BaseInfo as ClassTypeInfo;
+            if (classInfo.HasSubClass)
+                throw new Exception(string.Format("Excel中无法解析继承类型的数据,字段名:{0},{1}",
+                   classFieldInfo.Name, GetErrorSite(startColumn + 1, Values.DataSheetFieldIndex + 1)));
             classInfo.UpdateToDict();
             var classfieldDict = classInfo.GetFieldInfoDict();
             for (int i = 0; i < classfieldDict.Count; i++)
@@ -219,7 +215,6 @@ namespace ConfigGen.LocalInfo
             for (int i = 0; !flag.StartsWith(Values.DataSetEndFlag); i++)
             {
                 TableFieldInfo pair = new TableFieldInfo();
-                pair.Name = i.ToString();
                 pair.ChildFields = new List<TableFieldInfo>();
 
                 TableFieldInfo keyInfo = new TableFieldInfo();
@@ -259,6 +254,7 @@ namespace ConfigGen.LocalInfo
 
             return startColumn;
         }
+
         /// <summary>
         /// 解析字段列数据
         /// </summary>

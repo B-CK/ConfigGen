@@ -14,22 +14,25 @@ namespace Csv
 		public static readonly Dictionary<int, AllType.AllClass> AllClass = new Dictionary<int, AllType.AllClass>();
 		public static readonly Dictionary<int, Card.Card> Card = new Dictionary<int, Card.Card>();
 
-		public static List<T> Load<T>(string path, Encoding encoding)
+		/// <summary>
+		/// constructor参数为指定类型的构造函数
+		/// <summary>
+		public static List<T> Load<T>(string path, Func<DataStream, T> constructor)
 		{
-			DataStream data = new DataStream(path, encoding);
+			DataStream data = new DataStream(path, Encoding.UTF8);
 			List<T> list = new List<T>();
 			for (int i = 0; i < data.Count; i++)
 			{
-				list.Add(new T(data));
+				list.Add(constructor(data));
 			}
 			return list;
 		}
 
 		public static void LoadAll()
 		{
-			var allclasss = Load<AllType.AllClass>(ConfigDir + "AllType/AllClass.xml", Encoding.UTF8);
+			var allclasss = Load(ConfigDir + "AllType/AllClass.xml", (d) => new AllType.AllClass(d));
 			allclasss.ForEach(v => AllClass.Add(v.ID, v));
-			var cards = Load<Card.Card>(ConfigDir + "Card/Card.xml", Encoding.UTF8);
+			var cards = Load(ConfigDir + "Card/Card.xml", (d) => new Card.Card(d));
 			cards.ForEach(v => Card.Add(v.ID, v));
 		}
 

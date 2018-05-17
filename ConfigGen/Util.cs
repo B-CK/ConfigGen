@@ -155,7 +155,7 @@ namespace ConfigGen
 
             return result;
         }
-        public static string GetErrorSite(string relPath,int c, int r)
+        public static string GetErrorSite(string relPath, int c, int r)
         {
             return string.Format("错误位置:{0}[{1}{2}]", relPath, GetColumnName(c), r);
         }
@@ -166,7 +166,7 @@ namespace ConfigGen
         {
             object result = null;
             if (File.Exists(filePath))
-            {                
+            {
                 using (StreamReader streamReader = new StreamReader(filePath))
                 {
                     result = new XmlSerializer(type).Deserialize(streamReader);
@@ -294,20 +294,32 @@ namespace ConfigGen
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(format, errorString);
-            Values.LogContent.AppendLine(ListStringSplit(errorString, "\r\n"));          
+            Values.LogContent.AppendLine(ListStringSplit(errorString, "\r\n"));
         }
 
         static Stopwatch _sw = new Stopwatch();
-
+        static Stack<long> _timeStack = new Stack<long>();
         public static void Start()
         {
-            _sw.Reset();
-            _sw.Start();
+            if (!_sw.IsRunning)
+            {
+                _sw.Reset();
+                _sw.Start();
+            }
+
+            _timeStack.Push(_sw.ElapsedMilliseconds);
         }
         public static void Stop(string msg)
         {
-            string seconds = (_sw.ElapsedMilliseconds / 1000f).ToString();
+            if (_timeStack.Count <= 0) return;
+
+            long ms = _sw.ElapsedMilliseconds - _timeStack.Pop();
+            string seconds = (ms / 1000f).ToString();
             LogFormat("{0} 耗时 {1:N3}s", msg, seconds);
+        }
+        public static void PopTime()
+        {
+            _timeStack.Pop();
         }
 
     }

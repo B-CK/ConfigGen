@@ -132,12 +132,12 @@ namespace ConfigGen.LocalInfo
             }
             if (baseInfo.TypeType != TypeType.None)
             {
-                string type = "";
+                string type = baseInfo.GetClassName();
                 if (TypeInfoDict.ContainsKey(type))
                     TypeInfoDict.Remove(type);
             }
         }
-        public void CorrectTypeInfo(List<string> part)
+        public void CorrectClassInfo(List<string> part)
         {
             var infoDict = new Dictionary<string, BaseTypeInfo>(TypeInfoDict);
             foreach (var item in infoDict)
@@ -153,36 +153,14 @@ namespace ConfigGen.LocalInfo
                     }
 
                     ClassTypeInfo classType = typeInfo as ClassTypeInfo;
-                    if (!string.IsNullOrWhiteSpace(classType.Inherit))
-                    {
-                        string newType = null;
-                        string combine = Util.Combine(classType.NamespaceName, classType.Inherit);
-                        error = TableChecker.CheckType(combine);
-                        if (!string.IsNullOrWhiteSpace(error))
-                        {
-                            error = TableChecker.CheckType(classType.Inherit);
-                            if (!string.IsNullOrWhiteSpace(error))
-                                newType = null;
-                            else
-                                newType = classType.Inherit;
-                        }
-                        else
-                            newType = combine;
-
-                        if (newType == null)
-                            throw new Exception(string.Format("{0}类的继承类型{1}不存在,错误位置{2}",
-                                    classType.GetClassName(), classType.Inherit, classType.RelPath));
-                        else
-                            classType.Inherit = newType;
-                    }
                     for (int i = 0; i < classType.Fields.Count; i++)
                     {
                         FieldInfo fieldInfo = classType.Fields[i];
-                        TypeType typeType = TypeInfo.GetTypeType(fieldInfo.Type);
+                        TypeType typeType = GetTypeType(fieldInfo.Type);
                         if (typeType == TypeType.None)
                         {
                             string combine = Util.Combine(classType.NamespaceName, fieldInfo.Type);
-                            typeType = TypeInfo.GetTypeType(combine);
+                            typeType = GetTypeType(combine);
                         }
                         BaseTypeInfo baseType = null;
                         switch (typeType)
@@ -233,6 +211,38 @@ namespace ConfigGen.LocalInfo
                 }
             }
             Clear(part);
+            foreach (var item in TypeInfoDict)
+            {
+                BaseTypeInfo typeInfo = item.Value;
+                if (typeInfo.TypeType != TypeType.Class) continue;
+
+                ClassTypeInfo classType = typeInfo as ClassTypeInfo;
+                if (!string.IsNullOrWhiteSpace(classType.Inherit))
+                {
+                    string newType = null;
+                    string combine = Util.Combine(classType.NamespaceName, classType.Inherit);
+                    string error = TableChecker.CheckType(combine);
+                    if (!string.IsNullOrWhiteSpace(error))
+                    {
+                        error = TableChecker.CheckType(classType.Inherit);
+                        if (!string.IsNullOrWhiteSpace(error))
+                            newType = null;
+                        else
+                            newType = classType.Inherit;
+                    }
+                    else
+                        newType = combine;
+
+                    if (newType == null)
+                        throw new Exception(string.Format("{0}类的继承类型{1}不存在,错误位置{2}",
+                                classType.GetClassName(), classType.Inherit, classType.RelPath));
+                    else
+                        classType.Inherit = newType;
+
+                    ClassTypeInfo pClass = GetTypeInfo(newType) as ClassTypeInfo;
+                    pClass.HasSubClass = true;
+                }
+            }
         }
         private string CorrectType(string type, BaseTypeInfo baseType, string name)
         {
@@ -319,6 +329,7 @@ namespace ConfigGen.LocalInfo
             EnumInfos = new List<EnumTypeInfo>(EnumInfoDict.Values);
         }
 
+
         [XmlIgnore]
         static readonly HashSet<string> BaseType = new HashSet<string>() { "int", "long", "bool", "float", "string" };
         /// <summary>
@@ -380,6 +391,9 @@ namespace ConfigGen.LocalInfo
         [XmlAttribute]
         public string Group { get; set; }
 
+        /// <summary>
+        /// 类型信息是否任然存在
+        /// </summary>
         [XmlIgnore]
         public bool IsExist { get; set; }
 
@@ -416,7 +430,8 @@ namespace ConfigGen.LocalInfo
 
         [XmlIgnore]
         public FieldInfo IndexField { get; set; }
-
+        [XmlIgnore]
+        public bool HasSubClass { get; set; }
 
         Dictionary<string, FieldInfo> _fieldInfoDict = new Dictionary<string, FieldInfo>();
         public Dictionary<string, FieldInfo> GetFieldInfoDict()
@@ -439,7 +454,7 @@ namespace ConfigGen.LocalInfo
             if (classInfoDict.ContainsKey(Inherit))
                 classType = classInfoDict[Inherit];
             else
-                throw new Exception(string.Format("{0}类型的继承类型{1}不存在,错误位置{2}", 
+                throw new Exception(string.Format("{0}类型的继承类型{1}不存在,错误位置{2}",
                     GetClassName(), Inherit, RelPath));
             return classType;
         }

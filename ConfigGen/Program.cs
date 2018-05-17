@@ -6,7 +6,7 @@ using ConfigGen.Export;
 using ConfigGen.CmdUsage;
 using ConfigGen.LocalInfo;
 using System.Collections.Generic;
-
+using System.Diagnostics;
 
 namespace ConfigGen
 {
@@ -19,9 +19,13 @@ namespace ConfigGen
         //1.字段检查,自定义检查规则
         //2.导出lua 数据,类
 
+        //static Stopwatch stopwatch = new Stopwatch();
 
         static void Main(string[] args)
         {
+            Util.Start();
+            //stopwatch.Start();
+
             //命令行参数解析
             if (!CmdOption.Instance.Init(args)) return;
 
@@ -41,14 +45,14 @@ namespace ConfigGen
             {
                 Util.Start();
                 ExportCsv.Export();
-                Util.Stop("==>>Csv数据导出完毕");
+                Util.Stop("=================>> Csv数据导出完毕");
                 Util.Log("");
             }
             if (!string.IsNullOrWhiteSpace(Values.ExportCSharp))
             {
                 Util.Start();
                 ExportCSharp.Export_CsvOp();
-                Util.Stop("==>>CSharp类导出完毕");
+                Util.Stop("=================>> CSharp类导出完毕");
                 Util.Log("");
             }
             if (!string.IsNullOrWhiteSpace(Values.ExportCsXml))
@@ -58,7 +62,10 @@ namespace ConfigGen
                 Util.Stop("==>>CSharp类导出完毕");
                 Util.Log("");
             }
-    
+
+            Util.Log("\n\n\n");
+            Util.Stop("=================>> 总共");
+            //Console.WriteLine(stopwatch.ElapsedMilliseconds);
             Console.ReadKey();
         }
 

@@ -296,16 +296,6 @@ namespace ConfigGen.Export
             }
 
         }
-        private static string GetClassVarValue(BaseTypeInfo baseType, string type, string argName)
-        {
-            string value = "";
-            ClassTypeInfo classType = baseType as ClassTypeInfo;
-            if (string.IsNullOrWhiteSpace(classType.Inherit))
-                value = string.Format("new {0}({1});\n", type, argName);
-            else
-                value = string.Format("({0}){1}.GetObject({1}.GetString());\n", type, argName);
-            return value;
-        }
         private static void FillStart(StringBuilder builder)
         {
             FillIntervalLevel(builder);
@@ -332,6 +322,16 @@ namespace ConfigGen.Export
             FillIntervalLevel(builder);
             builder.AppendLine("/// <summary>");
         }
+        private static string GetClassVarValue(BaseTypeInfo baseType, string type, string argName)
+        {
+            string value = "";
+            ClassTypeInfo classType = baseType as ClassTypeInfo;
+            if (classType.HasSubClass == false)
+                value = string.Format("new {0}({1})", type, argName);
+            else
+                value = string.Format("({0}){1}.GetObject({1}.GetString())", type, argName);
+            return value;
+        }
 
         /// <summary>
         /// 数据流解析类,各种数据类型解析
@@ -339,7 +339,7 @@ namespace ConfigGen.Export
         private static void DefineDataStream()
         {
             StringBuilder builder = new StringBuilder();
-            List<string> NameSpaces = new List<string>() { "System", "System.Text", "System.IO" };
+            List<string> NameSpaces = new List<string>() { "System", "System.Text", "System.IO", "System.Reflection" };
 
             //构建Csv数据解析类DataStream.cs
             string path = Path.Combine(Values.ExportCSharp, CLASS_DATA_STREAM + ".cs");
@@ -355,7 +355,7 @@ namespace ConfigGen.Export
             string[] args = { "path", "encoding" };
             FillFunction(builder, "public", CLASS_DATA_STREAM, types, args);
             FillIntervalLevel(builder);
-            builder.AppendFormat("{0} = File.ReadAllLines({1});\n", fRows, args[0]);
+            builder.AppendFormat("{0} = File.ReadAllLines({1}, {2});\n", fRows, args[0], args[1]);
             FillIntervalLevel(builder);
             builder.AppendFormat("{0} = {1} = 0;\n", fRIndex, fCIndex);
             FillIntervalLevel(builder);
@@ -407,6 +407,23 @@ namespace ConfigGen.Export
             FillFunction(builder, "public string", "GetString", null, null);
             FillIntervalLevel(builder);
             builder.AppendLine("return Next();");
+            FillEnd(builder);
+
+            types = new string[] { "string" };
+            args = new string[] { "fullName" };
+            FillFunction(builder, "public " + CLASS_CFG_OBJECT, "GetObject", types, args);
+            FillIntervalLevel(builder);
+            builder.AppendFormat("Type type = Type.GetType({0});\n", args[0]);
+            FillIntervalLevel(builder);
+            builder.AppendFormat("if (type == null)\n");
+            FillStart(builder);
+            FillIntervalLevel(builder);
+            builder.AppendFormat("UnityEngine.Debug.LogErrorFormat(\"DataStream 解析{{0}}类型失败!\", {0});\n", args[0]);
+            FillEnd(builder);
+            FillIntervalLevel(builder);
+            builder.AppendFormat("ConstructorInfo constructor = type.GetConstructor(new Type[] {{ type }});\n");
+            FillIntervalLevel(builder);
+            builder.AppendFormat("return ({0})constructor.Invoke(new object[] {{ this }});\n", CLASS_CFG_OBJECT);
             FillEnd(builder);
             builder.AppendLine();
             builder.AppendLine();
@@ -481,18 +498,19 @@ namespace ConfigGen.Export
             builder.AppendLine();
 
             //加载单个配置
-            string[] types = { "string", "Encoding" };
-            string[] args = { "path", "encoding" };
+            string[] types = { "string", "Func<DataStream, T>" };
+            string[] args = { "path", "constructor" };
+            FillComments(builder, "constructor参数为指定类型的构造函数");
             FillFunction(builder, "public static List<T>", "Load<T>", types, args);
             FillIntervalLevel(builder);
-            builder.AppendFormat("{0} data = new {0}({1}, {2});\n", CLASS_DATA_STREAM, args[0], args[1]);
+            builder.AppendFormat("{0} data = new {0}({1}, Encoding.UTF8);\n", CLASS_DATA_STREAM, args[0]);
             FillIntervalLevel(builder);
             builder.AppendFormat("List<T> list = new List<T>();\n");
             FillIntervalLevel(builder);
             builder.AppendFormat("for (int i = 0; i < data.Count; i++)\n");
             FillStart(builder);
             FillIntervalLevel(builder);
-            builder.AppendFormat("list.Add(new T(data));\n");
+            builder.AppendFormat("list.Add({0}(data));\n", args[1]);
             FillEnd(builder);
             FillIntervalLevel(builder);
             builder.AppendFormat("return list;\n");
@@ -512,8 +530,8 @@ namespace ConfigGen.Export
 
                 FillIntervalLevel(builder);
                 string rel = classType.GetClassName().Replace(".", "/") + Values.CsvFileExt;
-                builder.AppendFormat("var {0}s = Load<{1}>({2} + \"{3}\", Encoding.UTF8);\n",
-                    classType.Name.ToLower(), classType.GetClassName(), FIELD_CONFIG_DIR, rel);
+                builder.AppendFormat("var {0}s = Load({1} + \"{2}\", (d) => new {3}(d));\n",
+                    classType.Name.ToLower(), FIELD_CONFIG_DIR, rel, classType.GetClassName());
                 FillIntervalLevel(builder);
                 builder.AppendFormat("{0}s.ForEach(v => {1}.Add(v.{2}, v));\n",
                     classType.Name.ToLower(), classType.Name, classType.IndexField.Name);
@@ -537,7 +555,7 @@ namespace ConfigGen.Export
 
         //仅限Xml格式
         //读 Csv - OK:是否有被继承
-        //写 Csv - OK:是否有继承类
+        //写 Csv - OK:是否有继承类,Excel中禁止使用被继承过的Class
         //读 Xml - OK:属性表达类型
         //写 Xml - OK:基类反射查询子类
     }

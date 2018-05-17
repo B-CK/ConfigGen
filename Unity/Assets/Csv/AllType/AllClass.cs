@@ -68,15 +68,13 @@ namespace Csv.AllType
 			this.VarBool = data.GetBool();
 			this.VarEnum = data.GetInt();
 			this.VarClass = new AllType.SingleClass(data);
-;
 			for (int n = data.GetInt(); n-- > 0; )
 			{
 				this.VarListBase.Add(data.GetString());
 			}
 			for (int n = data.GetInt(); n-- > 0; )
 			{
-				this.VarListClass.Add(new AllType.SingleClass(data);
-);
+				this.VarListClass.Add(new AllType.SingleClass(data));
 			}
 			for (int n = data.GetInt(); n-- > 0; )
 			{
@@ -96,7 +94,6 @@ namespace Csv.AllType
 			{
 				string k = data.GetString();
 				this.VarDictClass[k] = new AllType.SingleClass(data);
-;
 			}
 		}
 	}

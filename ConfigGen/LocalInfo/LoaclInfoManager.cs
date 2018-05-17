@@ -257,10 +257,11 @@ namespace ConfigGen.LocalInfo
                 //解析类定义                
                 foreach (var define in DefineInfoDict)
                     define.Value.Analyze();
-                Util.Log("==>>解析定义完毕\n");
+                //Util.Log("==>>解析定义完毕\n");
                 //检查类定义并且修正集合类型中的泛型
-                TypeInfoLib.CorrectTypeInfo(_diffRelPath);
-                Util.Log("==>>类型修正完毕\n");
+                TypeInfoLib.CorrectClassInfo(_diffRelPath);
+                //Util.Log("==>>类型修正完毕\n");
+
 
                 //解析数据定义和检查规则
                 foreach (var define in TypeInfoLib.ClassInfoDict)
@@ -268,7 +269,10 @@ namespace ConfigGen.LocalInfo
                     Util.Start();
                     ClassTypeInfo classType = define.Value;
                     if (string.IsNullOrWhiteSpace(classType.DataTable))
+                    {
+                        Util.PopTime();
                         continue;
+                    }
                     string type = classType.GetClassName();
                     string dataTablePath = null;
                     string combine = string.Format("{0}\\{1}", classType.NamespaceName, classType.DataTable);
@@ -278,6 +282,7 @@ namespace ConfigGen.LocalInfo
                         {
                             Util.LogWarningFormat("{0}类型的数据表表不存在,错误位置:{1}",
                                 type, classType.DataTable);
+                            Util.PopTime();
                             continue;
                         }
                         else
@@ -293,13 +298,14 @@ namespace ConfigGen.LocalInfo
                 }
 
                 TypeInfoLib.Save();
-                Util.Stop("==>>更新类型和解析/检查数据完毕");
-                Util.Log("");
             }
             catch (Exception e)
             {
                 Util.LogErrorFormat("Excel,Xml解析异常.\n{0}\n{1}", e.Message, e.StackTrace);
             }
+
+            Util.Stop("=================>> 更新类型和解析/检查数据完毕");
+            Util.Log("");
         }
         private void UpdateFindInfo()
         {

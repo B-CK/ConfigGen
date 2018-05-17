@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.IO;
+using System.Reflection;
 
 namespace Csv
 {
@@ -8,7 +9,7 @@ namespace Csv
 	{
 		public DataStream(string path, Encoding encoding)
 		{
-			_rows = File.ReadAllLines(path);
+			_rows = File.ReadAllLines(path, encoding);
 			_rIndex = _cIndex = 0;
 			_columns = _rows[_rIndex].Split("▃".ToCharArray(),  StringSplitOptions.RemoveEmptyEntries);
 		}
@@ -42,6 +43,16 @@ namespace Csv
 		public string GetString()
 		{
 			return Next();
+		}
+		public CfgObject GetObject(string fullName)
+		{
+			Type type = Type.GetType(fullName);
+			if (type == null)
+			{
+				UnityEngine.Debug.LogErrorFormat("DataStream 解析{0}类型失败!", fullName);
+			}
+			ConstructorInfo constructor = type.GetConstructor(new Type[] { type });
+			return (CfgObject)constructor.Invoke(new object[] { this });
 		}
 
 
