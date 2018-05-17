@@ -76,8 +76,8 @@ namespace ConfigGen.LocalInfo
                 DataClassInfo.UpdateToDict();
                 var dataFieldDict = new Dictionary<string, TableFieldInfo>();
                 var fieldInfoDict = DataClassInfo.GetFieldInfoDict();
-                string fieldIndex = dt.Rows[Values.DataSheetFieldIndex].ToString();
-                DataClassInfo.IndexType = fieldInfoDict[fieldIndex].Type;
+                string fieldIndex = dt.Rows[Values.DataSheetFieldIndex][0].ToString();
+                DataClassInfo.IndexField = fieldInfoDict[fieldIndex];
                 //解析检查类定义
                 object[] tableFields = dt.Rows[Values.DataSheetFieldIndex].ItemArray;
                 for (int i = 0; i < tableFields.Length; i++)

@@ -288,7 +288,7 @@ namespace ConfigGen.LocalInfo
         public List<FieldInfo> Fields { get; set; }
 
         [XmlIgnore]
-        public string IndexType { get; set; }
+        public FieldInfo IndexField { get; set; }
 
         Dictionary<string, FieldInfo> _fieldInfoDict = new Dictionary<string, FieldInfo>();
         public Dictionary<string, FieldInfo> GetFieldInfoDict()

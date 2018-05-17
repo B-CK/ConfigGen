@@ -31,7 +31,7 @@ namespace ConfigGen
                 infoTypes.Add(LocalInfoType.FindInfo);
             LocalInfoManager.Instance.Init(infoTypes);
             LocalInfoManager.Instance.Update();
-
+            
             //导出数据
             if (!string.IsNullOrWhiteSpace(Values.ExportCsv))
             {
