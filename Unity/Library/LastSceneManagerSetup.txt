@@ -1,1 +1,4 @@
-sceneSetups: []
+sceneSetups:
+- path: Assets/Plugins/Sirenix/Demos/Odin Attributes Overview/Odin Attributes Overview.unity
+  isLoaded: 1
+  isActive: 1
