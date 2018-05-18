@@ -16,6 +16,19 @@ namespace ConfigGen.Export
         }
     }
 
+    //Unity 可视化属性记录
+    //enum.value    -       直接定义成枚举
+    //func          -       可添加功能按钮[Button]
+
+    //字段内容限制(检查规则)
+    //int,long,float        -       范围限制
+    //文件资源              -       路径,名称前缀等限制[AssetList]
+    //读取文件路径          -       [FolderPath],
+    //组件数据关联          -       [InlineEditor]
+
+
+
+    //--------------------Xml形式
     //<fieldName>
     //	<pair>
     //		<key>1</key>

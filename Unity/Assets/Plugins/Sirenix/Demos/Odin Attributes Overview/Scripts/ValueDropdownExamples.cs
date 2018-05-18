@@ -6,6 +6,11 @@
 
     public class ValueDropdownExamples : MonoBehaviour
     {
+        private string[] asa = new string[] {"A" ,"B","C"};
+
+        [ValueDropdown("asa")]
+        public string ata = "N";
+
         public GameObject[] AvailablePrefabs;
 
         [ValueDropdown("AvailablePrefabs")]

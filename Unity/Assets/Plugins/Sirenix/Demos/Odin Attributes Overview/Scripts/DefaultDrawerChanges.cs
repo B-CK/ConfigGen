@@ -28,11 +28,12 @@
             "")]
         public UnityEngine.Object UnityObject;
 
+        [VerticalGroup("row1/left", PaddingTop = 10)]
         [Title("Small Facts")]
-        [VerticalGroup(PaddingTop = 10)]
         [InfoBox("- All properties now have a right-click context menu.\n" +
                  "- The state of what's expanded or collapsed in the inspector is stored in a cache file and saved across reloads.\n" +
                  "- You can configure the cache, as well as uncountable other settings and drawer configurations, through Odin's preferences window.")]
+        [HorizontalGroup("row1", 50),VerticalGroup("row1/right")]
         [Button(ButtonSizes.Large)]
         private void OpenGeneralDrawerSettings()
         {
