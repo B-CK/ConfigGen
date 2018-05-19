@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Plugins/Sirenix/Demos/Odin Attributes Overview/Odin Attributes Overview.unity
+- path: Assets/Plugins/Sirenix/Demos/Custom Drawer Examples/Custom Drawer Examples.unity
   isLoaded: 1
   isActive: 1

@@ -39,3 +39,5 @@ MonoBehaviour:
     - DrawnTypeName: UnityEngine.TestTools.TestRunner.Callbacks.RemoteTestResultSender,
         UnityEngine.TestRunner
       EditorTypeName: Sirenix.OdinInspector.Editor.OdinEditor, Sirenix.OdinInspector.Editor
+    - DrawnTypeName: Sirenix.OdinInspector.Demos.DisableContextMenuExamples, Assembly-CSharp-firstpass
+      EditorTypeName: Sirenix.OdinInspector.Editor.OdinEditor, Sirenix.OdinInspector.Editor
