@@ -16,6 +16,6 @@
         public string[,] StringMatrix = new string[4, 4];
 
         // And so on...
-        // Check out the TableMatrix examples for more customization options.
+        // Check out the TableMatrix examples for more customization options.       
     }
 }

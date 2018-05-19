@@ -5,7 +5,7 @@
     using Sirenix.OdinInspector;
 
     // Example script from the Unity asset store.
-    public class SerializeAnything : SerializedMonoBehaviour, ISomeInterface
+    public class SerializeAnything : SerializedMonoBehaviour
     {
         public System.Guid Guid;
 

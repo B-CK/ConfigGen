@@ -17,8 +17,9 @@ namespace ConfigGen.Export
     }
 
     //Unity 可视化属性记录
-    //enum.value    -       直接定义成枚举
+    //enum.value    -       直接定义成枚举,[ShowIf],[EnumToggleButtons]
     //func          -       可添加功能按钮[Button]
+    //dict          -       [DictionaryDrawerSettings]
 
     //字段内容限制(检查规则)
     //int,long,float        -       范围限制
