@@ -12,3 +12,5 @@ F:\__GitHub\ConfigGen\ConfigGen\obj\Debug\ConfigGen.csproj.CoreCompileInputs.cac
 F:\__GitHub\ConfigGen\ConfigGen\obj\Debug\ConfigGen.exe
 F:\__GitHub\ConfigGen\ConfigGen\obj\Debug\ConfigGen.pdb
 F:\__GitHub\ConfigGen\ConfigGen\obj\Debug\ConfigGen.csprojAssemblyReference.cache
+E:\C#Project\ConfigGen\ConfigGen\bin\Debug\LitJson.dll
+E:\C#Project\ConfigGen\ConfigGen\obj\Debug\ConfigGen.csproj.CopyComplete

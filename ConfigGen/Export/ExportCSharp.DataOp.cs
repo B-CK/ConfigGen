@@ -13,7 +13,16 @@ namespace ConfigGen.Export
         private const string CLASS_CFG_MANAGER = "CfgManager";
         private const string FIELD_CONFIG_DIR = "ConfigDir";
         private const string ARG_DATASTREAM = "data";
-        private static int _level = 0;
+
+        class Base
+        {
+            public const string Int = "int";
+            public const string Long = "long";
+            public const string Float = "float";
+            public const string Bool = "bool";
+            public const string String = "string";
+            public const string Void = "void";
+        }
 
         /// <summary>
         /// 导出CSharp类型Csv存储类
@@ -25,10 +34,10 @@ namespace ConfigGen.Export
 
             //构建Csv存储类基础类CfgObject.cs
             string path = Path.Combine(Values.ExportCSharp, CLASS_CFG_OBJECT + ".cs");
-            FillUsingNamespace(builder, NameSpaces);
-            FillNameSpace(builder, Values.ConfigRootNode);
-            FillClass(builder, "public abstract", CLASS_CFG_OBJECT);
-            FillEndAll(builder);
+            CodeWriter.UsingNamespace(builder, NameSpaces);
+            CodeWriter.NameSpace(builder, Values.ConfigRootNode);
+            CodeWriter.Class(builder, "public abstract", CLASS_CFG_OBJECT);
+            CodeWriter.EndAll(builder);
             Util.SaveFile(path, builder.ToString());
             builder.Clear();
             NameSpaces.Add(Values.ConfigRootNode);
@@ -43,37 +52,36 @@ namespace ConfigGen.Export
                 if (baseType.TypeType != TypeType.Class && baseType.TypeType != TypeType.Enum)
                     continue;
 
-                FillUsingNamespace(builder, NameSpaces);
-                FillNameSpace(builder, string.Format("{0}.{1}", Values.ConfigRootNode, baseType.NamespaceName));
+                CodeWriter.UsingNamespace(builder, NameSpaces);
+                CodeWriter.NameSpace(builder, string.Format("{0}.{1}", Values.ConfigRootNode, baseType.NamespaceName));
                 if (baseType.TypeType == TypeType.Class)
                 {
 
                     ClassTypeInfo classType = baseType as ClassTypeInfo;
                     bool isEmpty = string.IsNullOrWhiteSpace(classType.Inherit);
                     if (isEmpty)
-                        FillClass(builder, "public", classType.Name, CLASS_CFG_OBJECT);
+                        CodeWriter.Class(builder, CodeWriter.Public, classType.Name, CLASS_CFG_OBJECT);
                     else
-                        FillClass(builder, "public", classType.Name, classType.Inherit);
+                        CodeWriter.Class(builder, CodeWriter.Public, classType.Name, classType.Inherit);
 
-                    string sReadonly = "public readonly";
                     for (int j = 0; j < classType.Fields.Count; j++)
                     {
                         FieldInfo field = classType.Fields[j];
                         switch (field.BaseInfo.TypeType)
                         {
                             case TypeType.Base:
-                                FillComments(builder, field.Des);
-                                FillField(builder, sReadonly, field.Type, field.Name);
+                                CodeWriter.Comments(builder, field.Des);
+                                CodeWriter.Field(builder, CodeWriter.Public, CodeWriter.Readonly, field.Type, field.Name);
                                 break;
                             case TypeType.Class:
                                 {
-                                    FillComments(builder, field.Des);
-                                    FillField(builder, sReadonly, field.Type, field.Name);
+                                    CodeWriter.Comments(builder, field.Des);
+                                    CodeWriter.Field(builder, CodeWriter.Public, CodeWriter.Readonly, field.Type, field.Name);
                                 }
                                 break;
                             case TypeType.Enum:
-                                FillComments(builder, field.Des);
-                                FillField(builder, sReadonly, "int", field.Name);
+                                CodeWriter.Comments(builder, field.Des);
+                                CodeWriter.Field(builder, CodeWriter.Public, CodeWriter.Readonly, Base.Int, field.Name);
                                 break;
                             case TypeType.List:
                                 {
@@ -81,11 +89,11 @@ namespace ConfigGen.Export
                                     ListTypeInfo listType = field.BaseInfo as ListTypeInfo;
                                     TypeType typeType = TypeInfo.GetTypeType(listType.ItemType);
                                     if (typeType == TypeType.Enum)
-                                        type = type.Replace(listType.ItemType, "int");
+                                        type = type.Replace(listType.ItemType, Base.Int);
 
                                     string initValue = string.Format("new {0}()", type);
-                                    FillComments(builder, field.Des);
-                                    FillField(builder, sReadonly, type, field.Name, initValue);
+                                    CodeWriter.Comments(builder, field.Des);
+                                    CodeWriter.FieldInit(builder, CodeWriter.Public, CodeWriter.Readonly, type, field.Name, initValue);
                                     break;
                                 }
                             case TypeType.Dict:
@@ -93,14 +101,14 @@ namespace ConfigGen.Export
                                     string type = field.Type.Replace("dict", "Dictionary");
                                     DictTypeInfo dictType = field.BaseInfo as DictTypeInfo;
                                     if (TypeInfo.GetTypeType(dictType.KeyType) == TypeType.Enum)
-                                        type = type.Replace(dictType.KeyType, "int");
+                                        type = type.Replace(dictType.KeyType, Base.Int);
                                     TypeType typeType = TypeInfo.GetTypeType(dictType.ValueType);
                                     if (TypeInfo.GetTypeType(dictType.ValueType) == TypeType.Enum)
-                                        type = type.Replace(dictType.ValueType, "int");
+                                        type = type.Replace(dictType.ValueType, Base.Int);
 
                                     string initValue = string.Format("new {0}()", type);
-                                    FillComments(builder, field.Des);
-                                    FillField(builder, sReadonly, type, field.Name, initValue);
+                                    CodeWriter.Comments(builder, field.Des);
+                                    CodeWriter.FieldInit(builder, CodeWriter.Public, CodeWriter.Readonly, type, field.Name, initValue);
                                     break;
                                 }
                             case TypeType.None:
@@ -111,30 +119,31 @@ namespace ConfigGen.Export
 
                     builder.AppendLine();
                     if (isEmpty)
-                        FillFunction(builder, "public", classType.Name, new string[] { CLASS_DATA_STREAM }, new string[] { ARG_DATASTREAM });
+                        CodeWriter.Constructor(builder, CodeWriter.Public, classType.Name, new string[] { CLASS_DATA_STREAM }, new string[] { ARG_DATASTREAM });
                     else
                     {
                         string funcName = string.Format("{0} : base({1})", classType.Name, ARG_DATASTREAM);
-                        FillFunction(builder, "public", classType.Name, new string[] { CLASS_DATA_STREAM }, new string[] { ARG_DATASTREAM }, new string[] { ARG_DATASTREAM });
+                        string[] args = new string[] { ARG_DATASTREAM };
+                        CodeWriter.Constructor(builder, CodeWriter.Public, classType.Name, new string[] { CLASS_DATA_STREAM }, args, args);
                     }
                     for (int j = 0; j < classType.Fields.Count; j++)
                     {
                         FieldInfo field = classType.Fields[j];
-                        FillVariable(builder, field.BaseInfo, field.Type, field.Name, ARG_DATASTREAM);
+                        InitVariable(builder, field.BaseInfo, field.Type, field.Name, ARG_DATASTREAM);
                     }
                 }
                 else
                 {
-                    FillClass(builder, "public sealed", baseType.Name);
+                    CodeWriter.Class(builder, CodeWriter.Public, CodeWriter.Sealed, baseType.Name, null);
                     EnumTypeInfo enumType = baseType as EnumTypeInfo;
                     for (int j = 0; j < enumType.KeyValuePair.Count; j++)
                     {
                         EnumKeyValue keyValue = enumType.KeyValuePair[j];
-                        FillField(builder, "public const", "int", keyValue.Key, keyValue.Value);
+                        CodeWriter.FieldInit(builder, CodeWriter.Public, CodeWriter.Const, Base.Int, keyValue.Key, keyValue.Value);
                     }
                 }
 
-                FillEndAll(builder);
+                CodeWriter.EndAll(builder);
 
                 string relDir = Path.GetDirectoryName(baseType.RelPath);
                 path = Path.Combine(Values.ExportCSharp, relDir, baseType.Name + ".cs");
@@ -145,79 +154,9 @@ namespace ConfigGen.Export
             DefineDataStream();
             DefineCfgManager();
         }
-        private static void FillIntervalLevel(StringBuilder builder)
+        private static void InitVariable(StringBuilder builder, BaseTypeInfo typeInfo, string type, string varName, string argName)
         {
-            for (int i = 0; i < _level; i++)
-                builder.Append("\t");
-        }
-        private static void FillUsingNamespace(StringBuilder builder, List<string> vs)
-        {
-            for (int i = 0; i < vs.Count; i++)
-                builder.AppendFormat("using {0};\n", vs[i]);
-        }
-        private static void FillNameSpace(StringBuilder builder, string name)
-        {
-            builder.AppendLine();
-            builder.AppendFormat("namespace {0}\n", name);
-            FillStart(builder);
-        }
-        private static void FillClass(StringBuilder builder, string modifier, string className, string inhert = null)
-        {
-            FillIntervalLevel(builder);
-            if (string.IsNullOrWhiteSpace(inhert))
-                builder.AppendFormat("{0} class {1}\n", modifier, className);
-            else
-                builder.AppendFormat("{0} class {1} : {2}\n", modifier, className, inhert);
-            FillStart(builder);
-        }
-        private static void FillField(StringBuilder builder, string modifier, string type, string fieldName, string initValue = null)
-        {
-            FillIntervalLevel(builder);
-            if (!string.IsNullOrWhiteSpace(initValue))
-                builder.AppendFormat("{0} {1} {2} = {3};\n", modifier, type, fieldName, initValue);
-            else
-                builder.AppendFormat("{0} {1} {2};\n", modifier, type, fieldName);
-        }
-        private static void FillFunction(StringBuilder builder, string modifier, string funcName, string[] types, string[] args, string[] baseArgs = null)
-        {
-            StringBuilder strbuilder = new StringBuilder();
-            FillIntervalLevel(builder);
-            if (types == null || args == null || types.Length == 0 || args.Length == 0)
-                builder.AppendFormat("{0} {1}()", modifier, funcName);
-            else
-            {
-                string[] array = types.Length < args.Length ? types : args;
-                for (int i = 0; i < array.Length; i++)
-                {
-                    if (i == 0)
-                        strbuilder.AppendFormat("{0} {1}", types[i], args[i]);
-                    else
-                        strbuilder.AppendFormat(", {0} {1}", types[i], args[i]);
-                }
-                builder.AppendFormat("{0} {1}({2})", modifier, funcName, strbuilder.ToString());
-            }
-            if (baseArgs != null)
-            {
-                strbuilder.Clear();
-                for (int i = 0; baseArgs != null && i < baseArgs.Length; i++)
-                {
-                    if (i == 0)
-                        strbuilder.Append(baseArgs[i]);
-                    else
-                        strbuilder.AppendFormat(", {0}", baseArgs[i]);
-                }
-                builder.AppendFormat(" : base({0})\n", strbuilder.ToString());
-            }
-            else
-            {
-                builder.AppendFormat("\n");
-            }
-
-            FillStart(builder);
-        }
-        private static void FillVariable(StringBuilder builder, BaseTypeInfo typeInfo, string type, string varName, string argName)
-        {
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             TypeType typeType = typeInfo.TypeType;
             switch (typeType)
             {
@@ -233,8 +172,8 @@ namespace ConfigGen.Export
                     break;
                 case TypeType.List:
                     builder.AppendFormat("for (int n = {0}.GetInt(); n-- > 0; )\n", argName);
-                    FillStart(builder);
-                    FillIntervalLevel(builder);
+                    CodeWriter.Start(builder);
+                    CodeWriter.IntervalLevel(builder);
                     ListTypeInfo listType = typeInfo as ListTypeInfo;
                     BaseTypeInfo itemTypeInfo = TypeInfo.GetTypeInfo(listType.ItemType);
                     switch (itemTypeInfo.TypeType)
@@ -255,12 +194,12 @@ namespace ConfigGen.Export
                         default:
                             break;
                     }
-                    FillEnd(builder);
+                    CodeWriter.End(builder);
                     break;
                 case TypeType.Dict:
                     builder.AppendFormat("for (int n = {0}.GetInt(); n-- > 0;)\n", argName);
-                    FillStart(builder);
-                    FillIntervalLevel(builder);
+                    CodeWriter.Start(builder);
+                    CodeWriter.IntervalLevel(builder);
                     DictTypeInfo dictType = typeInfo as DictTypeInfo;
                     if (TypeInfo.GetTypeType(dictType.KeyType) == TypeType.Base)
                         builder.AppendFormat("{0} k = {1}.Get{2}{3}();\n", dictType.KeyType, argName,
@@ -268,7 +207,7 @@ namespace ConfigGen.Export
                     else if (TypeInfo.GetTypeType(dictType.KeyType) == TypeType.Enum)
                         builder.AppendFormat("{0} k = {1}.GetInt();\n", "int", argName);
 
-                    FillIntervalLevel(builder);
+                    CodeWriter.IntervalLevel(builder);
                     BaseTypeInfo vTypeInfo = TypeInfo.GetTypeInfo(dictType.ValueType);
                     switch (vTypeInfo.TypeType)
                     {
@@ -288,39 +227,13 @@ namespace ConfigGen.Export
                         default:
                             break;
                     }
-                    FillEnd(builder);
+                    CodeWriter.End(builder);
                     break;
                 case TypeType.None:
                 default:
                     break;
             }
 
-        }
-        private static void FillStart(StringBuilder builder)
-        {
-            FillIntervalLevel(builder);
-            builder.AppendLine("{");
-            _level++;
-        }
-        private static void FillEnd(StringBuilder builder)
-        {
-            _level--;
-            FillIntervalLevel(builder);
-            builder.AppendLine("}");
-        }
-        private static void FillEndAll(StringBuilder builder)
-        {
-            for (int i = 0; i <= _level + 1; i++)
-                FillEnd(builder);
-        }
-        private static void FillComments(StringBuilder builder, string comments)
-        {
-            FillIntervalLevel(builder);
-            builder.AppendLine("/// <summary>");
-            FillIntervalLevel(builder);
-            builder.AppendFormat("/// {0}\n", comments);
-            FillIntervalLevel(builder);
-            builder.AppendLine("/// <summary>");
         }
         private static string GetClassVarValue(BaseTypeInfo baseType, string type, string argName)
         {
@@ -343,120 +256,120 @@ namespace ConfigGen.Export
 
             //构建Csv数据解析类DataStream.cs
             string path = Path.Combine(Values.ExportCSharp, CLASS_DATA_STREAM + ".cs");
-            FillUsingNamespace(builder, NameSpaces);
-            FillNameSpace(builder, Values.ConfigRootNode);
-            FillClass(builder, "public", CLASS_DATA_STREAM);
+            CodeWriter.UsingNamespace(builder, NameSpaces);
+            CodeWriter.NameSpace(builder, Values.ConfigRootNode);
+            CodeWriter.Class(builder, CodeWriter.Public, CLASS_DATA_STREAM);
 
             string fRIndex = "_rIndex";
             string fCIndex = "_cIndex";
             string fRows = "_rows";
             string fColumns = "_columns";
-            string[] types = { "string", "Encoding" };
+            string[] types = { Base.String, "Encoding" };
             string[] args = { "path", "encoding" };
-            FillFunction(builder, "public", CLASS_DATA_STREAM, types, args);
-            FillIntervalLevel(builder);
+            CodeWriter.Constructor(builder, CodeWriter.Public, CLASS_DATA_STREAM, types, args);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("{0} = File.ReadAllLines({1}, {2});\n", fRows, args[0], args[1]);
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("{0} = {1} = 0;\n", fRIndex, fCIndex);
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("{0} = {1}[{2}].Split(\"{3}\".ToCharArray(),  StringSplitOptions.RemoveEmptyEntries);\n",
                 fColumns, fRows, fRIndex, Values.CsvSplitFlag);
-            FillEnd(builder);
+            CodeWriter.End(builder);
             builder.AppendLine();
 
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("public int Count {{ get {{ return {0}.Length; }} }}\n", fRows);
             builder.AppendLine();
 
-            FillFunction(builder, "public int", "GetInt", null, null);
-            FillIntervalLevel(builder);
+            CodeWriter.Function(builder, CodeWriter.Public, Base.Int, "GetInt");
+            CodeWriter.IntervalLevel(builder);
             builder.AppendLine("int result;");
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendLine("int.TryParse(Next(), out result);");
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendLine("return result;");
-            FillEnd(builder);
+            CodeWriter.End(builder);
 
-            FillFunction(builder, "public long", "GetLong", null, null);
-            FillIntervalLevel(builder);
+            CodeWriter.Function(builder, CodeWriter.Public, Base.Long, "GetLong");
+            CodeWriter.IntervalLevel(builder);
             builder.AppendLine("long result;");
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendLine("long.TryParse(Next(), out result);");
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendLine("return result;");
-            FillEnd(builder);
+            CodeWriter.End(builder);
 
-            FillFunction(builder, "public float", "GetFloat", null, null);
-            FillIntervalLevel(builder);
+            CodeWriter.Function(builder, CodeWriter.Public, Base.Float, "GetFloat");
+            CodeWriter.IntervalLevel(builder);
             builder.AppendLine("float result;");
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendLine("float.TryParse(Next(), out result);");
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendLine("return result;");
-            FillEnd(builder);
+            CodeWriter.End(builder);
 
-            FillFunction(builder, "public bool", "GetBool", null, null);
-            FillIntervalLevel(builder);
+            CodeWriter.Function(builder, CodeWriter.Public, Base.Bool, "GetBool");
+            CodeWriter.IntervalLevel(builder);
             builder.AppendLine("string v = Next();");
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendLine("if (string.IsNullOrEmpty(v)) return false;");
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendLine("return !v.Equals(\"0\");");
-            FillEnd(builder);
+            CodeWriter.End(builder);
 
-            FillFunction(builder, "public string", "GetString", null, null);
-            FillIntervalLevel(builder);
+            CodeWriter.Function(builder, CodeWriter.Public, Base.String, "GetString");
+            CodeWriter.IntervalLevel(builder);
             builder.AppendLine("return Next();");
-            FillEnd(builder);
+            CodeWriter.End(builder);
 
             types = new string[] { "string" };
             args = new string[] { "fullName" };
-            FillFunction(builder, "public " + CLASS_CFG_OBJECT, "GetObject", types, args);
-            FillIntervalLevel(builder);
+            CodeWriter.Function(builder, CodeWriter.Public, CLASS_CFG_OBJECT, "GetObject", types, args);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("Type type = Type.GetType({0});\n", args[0]);
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("if (type == null)\n");
-            FillStart(builder);
-            FillIntervalLevel(builder);
+            CodeWriter.Start(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("UnityEngine.Debug.LogErrorFormat(\"DataStream 解析{{0}}类型失败!\", {0});\n", args[0]);
-            FillEnd(builder);
-            FillIntervalLevel(builder);
+            CodeWriter.End(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("ConstructorInfo constructor = type.GetConstructor(new Type[] {{ type }});\n");
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("return ({0})constructor.Invoke(new object[] {{ this }});\n", CLASS_CFG_OBJECT);
-            FillEnd(builder);
+            CodeWriter.End(builder);
             builder.AppendLine();
             builder.AppendLine();
 
-            FillField(builder, "private", "int", fRIndex);
-            FillField(builder, "private", "int", fCIndex);
-            FillField(builder, "private", "string[]", fRows);
-            FillField(builder, "private", "string[]", fColumns);
+            CodeWriter.Field(builder, CodeWriter.Private, Base.Int, fRIndex);
+            CodeWriter.Field(builder, CodeWriter.Private, Base.Int, fCIndex);
+            CodeWriter.Field(builder, CodeWriter.Private, "string[]", fRows);
+            CodeWriter.Field(builder, CodeWriter.Private, "string[]", fColumns);
             builder.AppendLine();
-            FillFunction(builder, "private void", "NextRow", null, null);
-            FillIntervalLevel(builder);
+            CodeWriter.Function(builder, CodeWriter.Private, Base.Void, "NextRow");
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("if({0} >= {1}.Length) return;\n", fRIndex, fRows);
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("{0}++;\n", fRIndex);
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("{0} = 0;\n", fCIndex);
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("{0} = {1}[{2}].Split(\"{3}\".ToCharArray(),  StringSplitOptions.RemoveEmptyEntries);\n",
                 fColumns, fRows, fRIndex, Values.CsvSplitFlag);
-            FillEnd(builder);
+            CodeWriter.End(builder);
             builder.AppendLine();
 
-            FillFunction(builder, "private string", "Next", null, null);
-            FillIntervalLevel(builder);
+            CodeWriter.Function(builder, CodeWriter.Private, Base.String, "Next");
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("if({0} >= {1}.Length) return string.Empty;\n", fCIndex, fColumns);
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("{0}++;\n", fCIndex);
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("return {0}[{1}];\n", fColumns, fRIndex, Values.CsvSplitFlag);
-            FillEnd(builder);
+            CodeWriter.End(builder);
             builder.AppendLine();
 
-            FillEndAll(builder);
+            CodeWriter.EndAll(builder);
             Util.SaveFile(path, builder.ToString());
             builder.Clear();
         }
@@ -470,12 +383,12 @@ namespace ConfigGen.Export
 
             //构建Csv数据解析类DataStream.cs
             string path = Path.Combine(Values.ExportCSharp, CLASS_CFG_MANAGER + ".cs");
-            FillUsingNamespace(builder, NameSpaces);
-            FillNameSpace(builder, Values.ConfigRootNode);
-            FillClass(builder, "public", CLASS_CFG_MANAGER);
+            CodeWriter.UsingNamespace(builder, NameSpaces);
+            CodeWriter.NameSpace(builder, Values.ConfigRootNode);
+            CodeWriter.Class(builder, CodeWriter.Public, CLASS_CFG_MANAGER);
 
-            FillComments(builder, "配置文件文件夹路径");
-            FillField(builder, "public static", "string", FIELD_CONFIG_DIR);
+            CodeWriter.Comments(builder, "配置文件文件夹路径");
+            CodeWriter.Field(builder, CodeWriter.Public, CodeWriter.Static, Base.String, FIELD_CONFIG_DIR);
             builder.AppendLine();
 
             List<string> dictName = new List<string>();
@@ -490,7 +403,7 @@ namespace ConfigGen.Export
                 if (classType.IndexField == null || string.IsNullOrWhiteSpace(classType.IndexField.Type))
                     continue;
 
-                FillIntervalLevel(builder);
+                CodeWriter.IntervalLevel(builder);
                 builder.AppendFormat("public static readonly Dictionary<{0}, {1}> {2} = new Dictionary<{0}, {1}>();\n",
                     classType.IndexField.Type, classType.GetClassName(), classType.Name);
                 dictName.Add(classType.Name);
@@ -500,25 +413,25 @@ namespace ConfigGen.Export
             //加载单个配置
             string[] types = { "string", "Func<DataStream, T>" };
             string[] args = { "path", "constructor" };
-            FillComments(builder, "constructor参数为指定类型的构造函数");
-            FillFunction(builder, "public static List<T>", "Load<T>", types, args);
-            FillIntervalLevel(builder);
+            CodeWriter.Comments(builder, "constructor参数为指定类型的构造函数");
+            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, "List<T>", "Load<T>", types, args);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("{0} data = new {0}({1}, Encoding.UTF8);\n", CLASS_DATA_STREAM, args[0]);
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("List<T> list = new List<T>();\n");
-            FillIntervalLevel(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("for (int i = 0; i < data.Count; i++)\n");
-            FillStart(builder);
-            FillIntervalLevel(builder);
+            CodeWriter.Start(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("list.Add({0}(data));\n", args[1]);
-            FillEnd(builder);
-            FillIntervalLevel(builder);
+            CodeWriter.End(builder);
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("return list;\n");
-            FillEnd(builder);
+            CodeWriter.End(builder);
             builder.AppendLine();
 
             //加载所有配置
-            FillFunction(builder, "public static void", "LoadAll", null, null);
+            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "LoadAll");
             for (int i = 0; i < typeInfos.Count; i++)
             {
                 BaseTypeInfo baseType = typeInfos[i];
@@ -528,27 +441,27 @@ namespace ConfigGen.Export
                 if (classType.IndexField == null || string.IsNullOrWhiteSpace(classType.IndexField.Type))
                     continue;
 
-                FillIntervalLevel(builder);
+                CodeWriter.IntervalLevel(builder);
                 string rel = classType.GetClassName().Replace(".", "/") + Values.CsvFileExt;
                 builder.AppendFormat("var {0}s = Load({1} + \"{2}\", (d) => new {3}(d));\n",
                     classType.Name.ToLower(), FIELD_CONFIG_DIR, rel, classType.GetClassName());
-                FillIntervalLevel(builder);
+                CodeWriter.IntervalLevel(builder);
                 builder.AppendFormat("{0}s.ForEach(v => {1}.Add(v.{2}, v));\n",
                     classType.Name.ToLower(), classType.Name, classType.IndexField.Name);
             }
-            FillEnd(builder);
+            CodeWriter.End(builder);
             builder.AppendLine();
 
-            FillFunction(builder, "public static void", "Clear", null, null);
+            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "Clear");
             for (int i = 0; i < dictName.Count; i++)
             {
-                FillIntervalLevel(builder);
+                CodeWriter.IntervalLevel(builder);
                 builder.AppendFormat("{0}.Clear();\n", dictName[i]);
             }
-            FillEnd(builder);
+            CodeWriter.End(builder);
             builder.AppendLine();
 
-            FillEndAll(builder);
+            CodeWriter.EndAll(builder);
             Util.SaveFile(path, builder.ToString());
             builder.Clear();
         }
