@@ -16,36 +16,30 @@ namespace Csv
 
 		public int Count { get { return _rows.Length; } }
 
-		public int GetInt()
-		{
+		public int GetInt()		{
 			int result;
 			int.TryParse(Next(), out result);
 			return result;
 		}
-		public long GetLong()
-		{
+		public long GetLong()		{
 			long result;
 			long.TryParse(Next(), out result);
 			return result;
 		}
-		public float GetFloat()
-		{
+		public float GetFloat()		{
 			float result;
 			float.TryParse(Next(), out result);
 			return result;
 		}
-		public bool GetBool()
-		{
+		public bool GetBool()		{
 			string v = Next();
 			if (string.IsNullOrEmpty(v)) return false;
 			return !v.Equals("0");
 		}
-		public string GetString()
-		{
+		public string GetString()		{
 			return Next();
 		}
-		public CfgObject GetObject(string fullName)
-		{
+		public CfgObject GetObject(string fullName)		{
 			Type type = Type.GetType(fullName);
 			if (type == null)
 			{
@@ -61,16 +55,14 @@ namespace Csv
 		private string[] _rows;
 		private string[] _columns;
 
-		private void NextRow()
-		{
+		private void NextRow()		{
 			if(_rIndex >= _rows.Length) return;
 			_rIndex++;
 			_cIndex = 0;
 			_columns = _rows[_rIndex].Split("▃".ToCharArray(),  StringSplitOptions.RemoveEmptyEntries);
 		}
 
-		private string Next()
-		{
+		private string Next()		{
 			if(_cIndex >= _columns.Length) return string.Empty;
 			_cIndex++;
 			return _columns[_rIndex];

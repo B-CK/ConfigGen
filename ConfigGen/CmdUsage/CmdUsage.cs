@@ -49,8 +49,8 @@ namespace ConfigGen.CmdUsage
             Usage.CmdUsageList.Add(cmdLine);
 
             cmdLine = new CmdLine();
-            cmdLine.Cmd = "-exportCsXml";
-            cmdLine.CmdDes = string.Format("[选填]数据表导出CSharp语言的Xml操作类文件路径.");
+            cmdLine.Cmd = "-exportCsJson";
+            cmdLine.CmdDes = string.Format("[选填]数据表导出CSharp语言的Json操作类文件路径.");
             Usage.CmdUsageList.Add(cmdLine);
 
             cmdLine = new CmdLine();

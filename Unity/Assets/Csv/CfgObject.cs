@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Csv
 {
-	public abstract class CfgObject
+	public class CfgObject
 	{
 	}
 }

@@ -18,15 +18,18 @@
         [OdinSerialize, ShowInInspector]
         public MyCustomType2 UnitySerializedProperty2 { get; private set; }
 
+        public interface IBase { }
+
         [System.Serializable]
-        public class MyCustomType1
+        public class MyCustomType1 : IBase
         {
             public int Test;
         }
-
-        public class MyCustomType2
+        [System.Serializable]
+        public class MyCustomType2 : IBase
         {
-            public int Test;
+            public string str;
+            public bool bo;
         }
     }
 }

@@ -22,6 +22,10 @@
             public Quaternion SomeRotation;
             public GameObject SomePrefab;
         }
+        public class Spu: MyCustomType
+        {
+            public bool a;
+        }
 
         public enum SomeEnum
         {

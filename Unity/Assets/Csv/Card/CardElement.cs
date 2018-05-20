@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Card
 {
-	public sealed class CardElement
+	public class CardElement
 	{
 		public const int Attack = 0;
 		public const int Extract = 1;

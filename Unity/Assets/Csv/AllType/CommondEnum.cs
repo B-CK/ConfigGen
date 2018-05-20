@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.AllType
 {
-	public sealed class CommondEnum
+	public class CommondEnum
 	{
 		public const int Attack = 0;
 		public const int Extract = 1;

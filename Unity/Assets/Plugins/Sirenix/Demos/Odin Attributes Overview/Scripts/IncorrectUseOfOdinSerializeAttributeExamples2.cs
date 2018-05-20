@@ -16,5 +16,11 @@
         {
             public int Test;
         }
+        [System.Serializable]
+        public class MyCustomType2
+        {
+            public string str;
+            public bool bo;
+        }
     }
 }

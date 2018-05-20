@@ -90,9 +90,9 @@ namespace ConfigGen.CmdUsage
                             break;
                         case "-exportCsXml"://null不做语言类导出
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ExportCsXml = cmd.Value[0];
-                            if (string.IsNullOrWhiteSpace(Values.ExportCsXml))
-                                Values.ExportCsXml = null;
+                            Values.ExportCsJson = cmd.Value[0];
+                            if (string.IsNullOrWhiteSpace(Values.ExportCsJson))
+                                Values.ExportCsJson = null;
                             break;
                         case "-group"://默认导出所有分组
                             Values.ExportGroup = cmd.Value[0];

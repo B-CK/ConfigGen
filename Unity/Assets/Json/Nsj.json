@@ -1,0 +1,28 @@
+{
+  "_int": 1,
+  "_long": 123456789,
+  "list_test": [
+    {
+      "var1": 1,
+      "var2": 2
+    },
+    {
+      "$type": "TestA, Assembly-CSharp",
+      "var3": 5.0,
+      "var1": 3,
+      "var2": 4
+    },
+    {
+      "$type": "TestC, Assembly-CSharp",
+      "var5": "8",
+      "var1": 6,
+      "var2": 7
+    },
+    {
+      "$type": "TestB, Assembly-CSharp",
+      "var4": true,
+      "var1": 9,
+      "var2": 10
+    }
+  ]
+}

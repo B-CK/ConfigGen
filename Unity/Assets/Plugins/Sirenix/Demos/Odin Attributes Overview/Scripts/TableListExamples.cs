@@ -12,7 +12,7 @@
 
         [Space(10)]
         [TableList]
-        public List<D> CombineColumns = new List<D>();
+        public List<A> CombineColumns = new List<A>();
     }
 
     public class A

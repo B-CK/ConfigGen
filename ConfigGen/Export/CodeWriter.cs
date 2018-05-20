@@ -11,6 +11,7 @@ namespace ConfigGen.Export
         public const string Static = "static";
         public const string Const = "const";
         public const string Readonly = "readonly";
+        public const string Abstract = "abstract";
         public const string Sealed = "sealed";
 
         private static int _level = 0;
@@ -31,11 +32,19 @@ namespace ConfigGen.Export
             builder.AppendFormat("namespace {0}\n", name);
             Start(builder);
         }
-        public static void Class(StringBuilder builder, string modifier, string className)
+        public static void ClassBase(StringBuilder builder, string modifier, string className)
         {
-            Class(builder, modifier, "", className, null);
+            ClassChild(builder, modifier, "", className, null);
         }
-        public static void Class(StringBuilder builder, string modifier, string identification, string className, string inhert)
+        public static void ClassBase(StringBuilder builder, string modifier, string identification, string className)
+        {
+            ClassChild(builder, modifier, identification, className, null);
+        }
+        public static void ClassChild(StringBuilder builder, string modifier, string className, string inhert)
+        {
+            ClassChild(builder, modifier, "", className, inhert);
+        }
+        public static void ClassChild(StringBuilder builder, string modifier, string identification, string className, string inhert)
         {
             IntervalLevel(builder);
             if (string.IsNullOrWhiteSpace(inhert))

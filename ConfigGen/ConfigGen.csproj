@@ -46,8 +46,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LitJson">
-      <HintPath>.\LitJson.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -62,8 +63,9 @@
     <Compile Include="CmdUsage\CmdUsage.cs" />
     <Compile Include="Export\CodeWriter.cs" />
     <Compile Include="Export\ExportCSharp.DataOp.cs" />
-    <Compile Include="Export\ExportCSharp.XmlOp.cs" />
+    <Compile Include="Export\ExportCSharp.JsonOp.cs" />
     <Compile Include="Export\ExportCsv.cs" />
+    <Compile Include="Export\JsonDataReader.cs" />
     <Compile Include="LocalInfo\FileInfo.cs" />
     <Compile Include="LocalInfo\FindInfo.cs" />
     <Compile Include="LocalInfo\LoaclInfoManager.cs" />

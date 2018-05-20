@@ -13,6 +13,7 @@ namespace ConfigGen.Export
         private const string CLASS_CFG_MANAGER = "CfgManager";
         private const string FIELD_CONFIG_DIR = "ConfigDir";
         private const string ARG_DATASTREAM = "data";
+        private const string CONFIG_ROOT_NODE = "Csv";
 
         class Base
         {
@@ -35,12 +36,12 @@ namespace ConfigGen.Export
             //构建Csv存储类基础类CfgObject.cs
             string path = Path.Combine(Values.ExportCSharp, CLASS_CFG_OBJECT + ".cs");
             CodeWriter.UsingNamespace(builder, NameSpaces);
-            CodeWriter.NameSpace(builder, Values.ConfigRootNode);
-            CodeWriter.Class(builder, "public abstract", CLASS_CFG_OBJECT);
+            CodeWriter.NameSpace(builder, CONFIG_ROOT_NODE);
+            CodeWriter.ClassBase(builder, CodeWriter.Public, CodeWriter.Abstract, CLASS_CFG_OBJECT);
             CodeWriter.EndAll(builder);
             Util.SaveFile(path, builder.ToString());
             builder.Clear();
-            NameSpaces.Add(Values.ConfigRootNode);
+            NameSpaces.Add(CONFIG_ROOT_NODE);
 
             //构造自定义类型
             List<BaseTypeInfo> typeInfos = new List<BaseTypeInfo>();
@@ -53,16 +54,16 @@ namespace ConfigGen.Export
                     continue;
 
                 CodeWriter.UsingNamespace(builder, NameSpaces);
-                CodeWriter.NameSpace(builder, string.Format("{0}.{1}", Values.ConfigRootNode, baseType.NamespaceName));
+                CodeWriter.NameSpace(builder, string.Format("{0}.{1}", CONFIG_ROOT_NODE, baseType.NamespaceName));
                 if (baseType.TypeType == TypeType.Class)
                 {
 
                     ClassTypeInfo classType = baseType as ClassTypeInfo;
                     bool isEmpty = string.IsNullOrWhiteSpace(classType.Inherit);
                     if (isEmpty)
-                        CodeWriter.Class(builder, CodeWriter.Public, classType.Name, CLASS_CFG_OBJECT);
+                        CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, CLASS_CFG_OBJECT);
                     else
-                        CodeWriter.Class(builder, CodeWriter.Public, classType.Name, classType.Inherit);
+                        CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, classType.Inherit);
 
                     for (int j = 0; j < classType.Fields.Count; j++)
                     {
@@ -134,7 +135,7 @@ namespace ConfigGen.Export
                 }
                 else
                 {
-                    CodeWriter.Class(builder, CodeWriter.Public, CodeWriter.Sealed, baseType.Name, null);
+                    CodeWriter.ClassBase(builder, CodeWriter.Public, CodeWriter.Sealed, baseType.Name);
                     EnumTypeInfo enumType = baseType as EnumTypeInfo;
                     for (int j = 0; j < enumType.KeyValuePair.Count; j++)
                     {
@@ -257,8 +258,8 @@ namespace ConfigGen.Export
             //构建Csv数据解析类DataStream.cs
             string path = Path.Combine(Values.ExportCSharp, CLASS_DATA_STREAM + ".cs");
             CodeWriter.UsingNamespace(builder, NameSpaces);
-            CodeWriter.NameSpace(builder, Values.ConfigRootNode);
-            CodeWriter.Class(builder, CodeWriter.Public, CLASS_DATA_STREAM);
+            CodeWriter.NameSpace(builder, CONFIG_ROOT_NODE);
+            CodeWriter.ClassBase(builder, CodeWriter.Public, CLASS_DATA_STREAM);
 
             string fRIndex = "_rIndex";
             string fCIndex = "_cIndex";
@@ -384,8 +385,8 @@ namespace ConfigGen.Export
             //构建Csv数据解析类DataStream.cs
             string path = Path.Combine(Values.ExportCSharp, CLASS_CFG_MANAGER + ".cs");
             CodeWriter.UsingNamespace(builder, NameSpaces);
-            CodeWriter.NameSpace(builder, Values.ConfigRootNode);
-            CodeWriter.Class(builder, CodeWriter.Public, CLASS_CFG_MANAGER);
+            CodeWriter.NameSpace(builder, CONFIG_ROOT_NODE);
+            CodeWriter.ClassBase(builder, CodeWriter.Public, CLASS_CFG_MANAGER);
 
             CodeWriter.Comments(builder, "配置文件文件夹路径");
             CodeWriter.Field(builder, CodeWriter.Public, CodeWriter.Static, Base.String, FIELD_CONFIG_DIR);

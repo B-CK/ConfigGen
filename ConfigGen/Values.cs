@@ -19,7 +19,7 @@ namespace ConfigGen
         /// <summary>
         /// 导出CSharp类型Xml操作类
         /// </summary>
-        public static string ExportCsXml { get; set; }
+        public static string ExportCsJson { get; set; }
         /// <summary>
         /// 导出csv存储路径
         /// </summary>

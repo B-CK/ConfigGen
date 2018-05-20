@@ -55,7 +55,7 @@ namespace ConfigGen
                 Util.Stop("=================>> CSharp类导出完毕");
                 Util.Log("");
             }
-            if (!string.IsNullOrWhiteSpace(Values.ExportCsXml))
+            if (!string.IsNullOrWhiteSpace(Values.ExportCsJson))
             {
                 Util.Start();
                 ExportCSharp.Export_XmlOp();

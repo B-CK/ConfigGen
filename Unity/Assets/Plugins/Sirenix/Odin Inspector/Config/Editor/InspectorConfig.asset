@@ -12,32 +12,7 @@ MonoBehaviour:
   m_Name: InspectorConfig
   m_EditorClassIdentifier: 
   enableOdinInInspector: 1
-  defaultEditorBehaviour: 15
+  defaultEditorBehaviour: 11
   processMouseMoveInInspector: 1
   drawingConfig:
-    configs:
-    - DrawnTypeName: Sirenix.OdinInspector.Demos.OdinGettingStartedWizard, Assembly-CSharp-Editor-firstpass
-      EditorTypeName: Sirenix.OdinInspector.Editor.OdinEditor, Sirenix.OdinInspector.Editor
-    - DrawnTypeName: UnityEngine.Advertisements.CallbackExecutor, UnityEngine.Advertisements
-      EditorTypeName: Sirenix.OdinInspector.Editor.OdinEditor, Sirenix.OdinInspector.Editor
-    - DrawnTypeName: UnityEngine.Advertisements.Editor.Placeholder, UnityEngine.Advertisements
-      EditorTypeName: Sirenix.OdinInspector.Editor.OdinEditor, Sirenix.OdinInspector.Editor
-    - DrawnTypeName: UnityEngine.Experimental.Audio.Google.GvrAudioListenerExtension,
-        UnityEngine.GoogleAudioSpatializer
-      EditorTypeName: Sirenix.OdinInspector.Editor.OdinEditor, Sirenix.OdinInspector.Editor
-    - DrawnTypeName: UnityEngine.Experimental.Audio.Google.GvrAudioSoundfieldExtension,
-        UnityEngine.GoogleAudioSpatializer
-      EditorTypeName: Sirenix.OdinInspector.Editor.OdinEditor, Sirenix.OdinInspector.Editor
-    - DrawnTypeName: UnityEngine.Experimental.Audio.Google.GvrAudioSourceExtension,
-        UnityEngine.GoogleAudioSpatializer
-      EditorTypeName: Sirenix.OdinInspector.Editor.OdinEditor, Sirenix.OdinInspector.Editor
-    - DrawnTypeName: UnityEngine.TestTools.TestRunner.PlaymodeTestsController, UnityEngine.TestRunner
-      EditorTypeName: Sirenix.OdinInspector.Editor.OdinEditor, Sirenix.OdinInspector.Editor
-    - DrawnTypeName: UnityEngine.TestTools.TestRunner.Callbacks.PlayModeRunnerCallback,
-        UnityEngine.TestRunner
-      EditorTypeName: Sirenix.OdinInspector.Editor.OdinEditor, Sirenix.OdinInspector.Editor
-    - DrawnTypeName: UnityEngine.TestTools.TestRunner.Callbacks.RemoteTestResultSender,
-        UnityEngine.TestRunner
-      EditorTypeName: Sirenix.OdinInspector.Editor.OdinEditor, Sirenix.OdinInspector.Editor
-    - DrawnTypeName: Sirenix.OdinInspector.Demos.DisableContextMenuExamples, Assembly-CSharp-firstpass
-      EditorTypeName: Sirenix.OdinInspector.Editor.OdinEditor, Sirenix.OdinInspector.Editor
+    configs: []

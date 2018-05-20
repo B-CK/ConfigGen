@@ -13,9 +13,9 @@
 
         public MyGeneric<GameObject[]> MyGenericGameObjects;
 
-        public ISomeInterface SomeInterface;
-
         public Vector3? NullableVector3;
+        public ISomeInterface SomeInterface;
+        public ObjA Obj;
     }
 
     public interface ISomeInterface { }
@@ -35,4 +35,21 @@
     {
         public T SomeVariable;
     }
+
+    public abstract class ObjA
+    {
+        public string A;
+    }
+
+    public abstract class ObjB:ObjA
+    {
+        public string C;
+        public bool Cb;
+    }
+    public abstract class ObjC:ObjA
+    {
+        public string D;
+        public int Di;
+    }
+
 }
