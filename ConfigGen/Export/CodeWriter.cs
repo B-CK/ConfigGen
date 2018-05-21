@@ -28,8 +28,7 @@ namespace ConfigGen.Export
         }
         public static void NameSpace(StringBuilder builder, string name)
         {
-            builder.AppendLine();
-            builder.AppendFormat("namespace {0}\n", name);
+            builder.AppendFormat("namespace {0}", name);
             Start(builder);
         }
         public static void ClassBase(StringBuilder builder, string modifier, string className)
@@ -48,9 +47,9 @@ namespace ConfigGen.Export
         {
             IntervalLevel(builder);
             if (string.IsNullOrWhiteSpace(inhert))
-                builder.AppendFormat("{0} class {1}\n", modifier, className);
+                builder.AppendFormat("{0} class {1}", modifier, className);
             else
-                builder.AppendFormat("{0} class {1} : {2}\n", modifier, className, inhert);
+                builder.AppendFormat("{0} class {1} : {2}", modifier, className, inhert);
             Start(builder);
         }
         public static void Field(StringBuilder builder, string modifier, string type, string fieldName)
@@ -139,8 +138,23 @@ namespace ConfigGen.Export
 
             Start(builder);
         }
+        public static void Enum(StringBuilder builder, string modifier, string enumName)
+        {
+            IntervalLevel(builder);
+            builder.AppendFormat("{0} enum {1}", CodeWriter.Public, enumName);
+            Start(builder);
+        }
+        public static void EnumField(StringBuilder builder, string key, string value = null)
+        {
+            IntervalLevel(builder);
+            if (string.IsNullOrWhiteSpace(value))
+                builder.AppendFormat("{0},\n", key);
+            else
+                builder.AppendFormat("{0} = {1},\n", key, value);
+        }
         public static void Start(StringBuilder builder)
         {
+            builder.AppendLine();
             IntervalLevel(builder);
             builder.AppendLine("{");
             _level++;

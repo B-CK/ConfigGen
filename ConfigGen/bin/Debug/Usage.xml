@@ -32,8 +32,8 @@
       <CmdDes>[选填]数据表导出CSharp语言脚本路径.</CmdDes>
     </CmdLine>
     <CmdLine>
-      <Cmd>-exportCsXml</Cmd>
-      <CmdDes>[选填]数据表导出CSharp语言的Xml操作类文件路径.</CmdDes>
+      <Cmd>-exportCsJson</Cmd>
+      <CmdDes>[选填]数据表导出CSharp语言的Json操作类文件路径.</CmdDes>
     </CmdLine>
     <CmdLine>
       <Cmd>-group</Cmd>

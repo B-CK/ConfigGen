@@ -61,7 +61,6 @@ namespace ConfigGen.CmdUsage
                                 Values.ConfigDir = null;
                                 return false;
                             }
-                            Values.ConfigRootNode = Path.GetFileName(Path.GetDirectoryName(Values.ConfigDir));
                             break;
                         case "-help":
                             Help();
@@ -88,7 +87,7 @@ namespace ConfigGen.CmdUsage
                             if (string.IsNullOrWhiteSpace(Values.ExportCSharp))
                                 Values.ExportCSharp = null;
                             break;
-                        case "-exportCsXml"://null不做语言类导出
+                        case "-exportCsJson"://null不做语言类导出
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
                             Values.ExportCsJson = cmd.Value[0];
                             if (string.IsNullOrWhiteSpace(Values.ExportCsJson))

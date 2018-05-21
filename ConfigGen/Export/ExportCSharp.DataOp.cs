@@ -23,6 +23,7 @@ namespace ConfigGen.Export
             public const string Bool = "bool";
             public const string String = "string";
             public const string Void = "void";
+            public const string Object = "object";
         }
 
         /// <summary>
@@ -405,8 +406,14 @@ namespace ConfigGen.Export
                     continue;
 
                 CodeWriter.IntervalLevel(builder);
-                builder.AppendFormat("public static readonly Dictionary<{0}, {1}> {2} = new Dictionary<{0}, {1}>();\n",
-                    classType.IndexField.Type, classType.GetClassName(), classType.Name);
+                TypeType keyType = TypeInfo.GetTypeType(classType.IndexField.Type);
+                if (keyType == TypeType.Enum)
+                    builder.AppendFormat("public static readonly Dictionary<{0}, {1}> {2} = new Dictionary<{0}, {1}>();\n",
+                       Base.Int, classType.GetClassName(), classType.Name);
+                else
+                    builder.AppendFormat("public static readonly Dictionary<{0}, {1}> {2} = new Dictionary<{0}, {1}>();\n",
+                   classType.IndexField.Type, classType.GetClassName(), classType.Name);
+
                 dictName.Add(classType.Name);
             }
             builder.AppendLine();
@@ -466,11 +473,5 @@ namespace ConfigGen.Export
             Util.SaveFile(path, builder.ToString());
             builder.Clear();
         }
-
-        //仅限Xml格式
-        //读 Csv - OK:是否有被继承
-        //写 Csv - OK:是否有继承类,Excel中禁止使用被继承过的Class
-        //读 Xml - OK:属性表达类型
-        //写 Xml - OK:基类反射查询子类
     }
 }

@@ -64,6 +64,8 @@ namespace ConfigGen.LocalInfo
                     classInfo.Fields = new List<FieldInfo>();
                     classInfo.IsExist = true;
 
+
+
                     int j = i += 2;
                     for (; j < dt.Rows.Count; j++)
                     {
@@ -79,6 +81,10 @@ namespace ConfigGen.LocalInfo
                         fieldInfo.Check = FilterEmptyOrNull(dt.Rows[j][3].ToString());
                         fieldInfo.Group = FilterEmptyOrNull(dt.Rows[j][4].ToString());
                         classInfo.Fields.Add(fieldInfo);
+
+                        //数据索引-字段信息
+                        if (j == i + 2)
+                            classInfo.IndexField = fieldInfo;
                     }
                     i = j - 1;
                     ClassInfoDict.Add(name, classInfo);

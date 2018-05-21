@@ -32,10 +32,6 @@ namespace ConfigGen
         /// 是否只对已修改文件进行操作
         /// </summary>
         public static bool IsOptPart { get; set; }
-        /// <summary>
-        /// 配置文件根节点
-        /// </summary>
-        public static string ConfigRootNode { get; set; }
 
 
         /// <summary>
@@ -83,6 +79,10 @@ namespace ConfigGen
         public const string CheckRunleArgsSplitFlag = ":";
         public const string CsvSplitFlag = "▃";
         public const string CsvFileExt = ".xml";
+        /// <summary>
+        /// Lson类命名空间根节点
+        /// </summary>
+        public const string LsonNameSpace = "Lson";
         #endregion
     }
 }
