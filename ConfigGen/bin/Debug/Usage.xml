@@ -32,7 +32,7 @@
       <CmdDes>[选填]数据表导出CSharp语言脚本路径.</CmdDes>
     </CmdLine>
     <CmdLine>
-      <Cmd>-exportCsJson</Cmd>
+      <Cmd>-exportCsLson</Cmd>
       <CmdDes>[选填]数据表导出CSharp语言的Json操作类文件路径.</CmdDes>
     </CmdLine>
     <CmdLine>

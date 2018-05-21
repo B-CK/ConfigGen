@@ -71,7 +71,7 @@
     <Compile Include="LocalInfo\TableChecker.cs" />
     <Compile Include="LocalInfo\TableInfo.Data.cs" />
     <Compile Include="LocalInfo\TableInfo.Define.cs" />
-    <Compile Include="LocalInfo\TableInfo.Json.cs" />
+    <Compile Include="LocalInfo\TableInfo.Lson.cs" />
     <Compile Include="TableOption.cs" />
     <Compile Include="LocalInfo\TableInfo.cs" />
     <Compile Include="LocalInfo\TypeInfo.cs" />

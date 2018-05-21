@@ -55,6 +55,7 @@ namespace ConfigGen.Export
                     continue;
 
                 CodeWriter.UsingNamespace(builder, NameSpaces);
+                builder.AppendLine();
                 CodeWriter.NameSpace(builder, string.Format("{0}.{1}", CONFIG_ROOT_NODE, baseType.NamespaceName));
                 if (baseType.TypeType == TypeType.Class)
                 {
@@ -64,7 +65,10 @@ namespace ConfigGen.Export
                     if (isEmpty)
                         CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, CLASS_CFG_OBJECT);
                     else
-                        CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, classType.Inherit);
+                    {
+                        string fullType = CodeWriter.GetFullNamespace(CONFIG_ROOT_NODE, classType.Inherit);
+                        CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, fullType);
+                    }
 
                     for (int j = 0; j < classType.Fields.Count; j++)
                     {
@@ -78,7 +82,8 @@ namespace ConfigGen.Export
                             case TypeType.Class:
                                 {
                                     CodeWriter.Comments(builder, field.Des);
-                                    CodeWriter.Field(builder, CodeWriter.Public, CodeWriter.Readonly, field.Type, field.Name);
+                                    string fullType = CodeWriter.GetFullNamespace(CONFIG_ROOT_NODE, field.Type);
+                                    CodeWriter.Field(builder, CodeWriter.Public, fullType, field.Name);
                                 }
                                 break;
                             case TypeType.Enum:
@@ -92,6 +97,8 @@ namespace ConfigGen.Export
                                     TypeType typeType = TypeInfo.GetTypeType(listType.ItemType);
                                     if (typeType == TypeType.Enum)
                                         type = type.Replace(listType.ItemType, Base.Int);
+                                    string fullType = CodeWriter.GetFullNamespace(CONFIG_ROOT_NODE, listType.ItemType);
+                                    type = type.Replace(listType.ItemType, fullType);
 
                                     string initValue = string.Format("new {0}()", type);
                                     CodeWriter.Comments(builder, field.Des);
@@ -107,6 +114,11 @@ namespace ConfigGen.Export
                                     TypeType typeType = TypeInfo.GetTypeType(dictType.ValueType);
                                     if (TypeInfo.GetTypeType(dictType.ValueType) == TypeType.Enum)
                                         type = type.Replace(dictType.ValueType, Base.Int);
+
+                                    string fullType = CodeWriter.GetFullNamespace(CONFIG_ROOT_NODE, dictType.KeyType);
+                                    type = type.Replace(dictType.KeyType, fullType);
+                                    fullType = CodeWriter.GetFullNamespace(CONFIG_ROOT_NODE, dictType.ValueType);
+                                    type = type.Replace(dictType.ValueType, fullType);
 
                                     string initValue = string.Format("new {0}()", type);
                                     CodeWriter.Comments(builder, field.Des);
@@ -411,8 +423,11 @@ namespace ConfigGen.Export
                     builder.AppendFormat("public static readonly Dictionary<{0}, {1}> {2} = new Dictionary<{0}, {1}>();\n",
                        Base.Int, classType.GetClassName(), classType.Name);
                 else
+                {
+                    string fullType = CodeWriter.GetFullNamespace(CONFIG_ROOT_NODE, classType.GetClassName());
                     builder.AppendFormat("public static readonly Dictionary<{0}, {1}> {2} = new Dictionary<{0}, {1}>();\n",
-                   classType.IndexField.Type, classType.GetClassName(), classType.Name);
+                  classType.IndexField.Type, fullType, classType.Name);
+                }
 
                 dictName.Add(classType.Name);
             }

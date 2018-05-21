@@ -110,7 +110,7 @@ namespace ConfigGen
             }
             catch (Exception e)
             {
-                errorString = "错误：连接Excel失败，你可能尚未安装Office数据连接组件\n" + e.Message;
+                errorString = string.Format("{0}\n错误：连接Excel失败，你可能尚未安装Office数据连接组件\n{1}", filePath, e.Message);
                 return null;
             }
             finally

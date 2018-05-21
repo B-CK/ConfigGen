@@ -141,7 +141,7 @@ namespace ConfigGen.LocalInfo
                 {
                     case LocalInfoType.FileInfo:
                         List<string> diffRelPath = new List<string>();
-                        string[] files = Directory.GetFiles(Values.ConfigDir, "*", SearchOption.AllDirectories);
+                        string[] files = Directory.GetFiles(Values.ConfigDir, "*.xls", SearchOption.AllDirectories);
                         var fileDict = FileInfoLib.FileDict;
                         for (int j = 0; j < files.Length; j++)
                         {
@@ -179,6 +179,7 @@ namespace ConfigGen.LocalInfo
                             _diffRelPath.AddRange(diffRelPath);
                         else
                             _diffRelPath.AddRange(FileInfoLib.FileDict.Keys);
+                        _diffRelPath = _diffRelPath.FindAll(f => Path.GetExtension(f).Contains("*.xls"));
                         break;
                     case LocalInfoType.TypeInfo:
                         UpdateTypeInfo();

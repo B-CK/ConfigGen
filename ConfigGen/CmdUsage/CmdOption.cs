@@ -87,11 +87,11 @@ namespace ConfigGen.CmdUsage
                             if (string.IsNullOrWhiteSpace(Values.ExportCSharp))
                                 Values.ExportCSharp = null;
                             break;
-                        case "-exportCsJson"://null不做语言类导出
+                        case "-exportCsLson"://null不做语言类导出
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ExportCsJson = cmd.Value[0];
-                            if (string.IsNullOrWhiteSpace(Values.ExportCsJson))
-                                Values.ExportCsJson = null;
+                            Values.ExportCsLson = cmd.Value[0];
+                            if (string.IsNullOrWhiteSpace(Values.ExportCsLson))
+                                Values.ExportCsLson = null;
                             break;
                         case "-group"://默认导出所有分组
                             Values.ExportGroup = cmd.Value[0];

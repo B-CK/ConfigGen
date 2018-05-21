@@ -1,0 +1,85 @@
+[
+  {
+    "ID": 1,
+    "VarLong": 2,
+    "VarFloat": 3.3,
+    "VarString": "asdfasdfadsf",
+    "VarBool": true,
+    "VarEnum": 2,
+    "VarClass": {
+      "$type": "Lson.AllType.Inherit2, Assembly-CSharp",
+      "Var4": 3,
+      "Var1": "1",
+      "Var2": true
+    },
+    "VarListBase": [
+      "2",
+      "3",
+      "1"
+    ],
+    "VarListClass": [
+      {
+        "Var1": "1",
+        "Var2": true
+      }
+    ],
+    "VarListCardElem": [
+      0
+    ],
+    "VarDictBase": {
+      "1": null
+    },
+    "VarDictEnum": {
+      "2": 4
+    },
+    "VarDictClass": {
+      "1": {
+        "$type": "Lson.AllType.Inherit1, Assembly-CSharp",
+        "Var3": 3,
+        "Var1": "2",
+        "Var2": true
+      }
+    }
+  },
+  {
+    "ID": 2,
+    "VarLong": 3,
+    "VarFloat": 4.3,
+    "VarString": "jklhjklh",
+    "VarBool": true,
+    "VarEnum": 5,
+    "VarClass": {
+      "Var1": "wer",
+      "Var2": true
+    },
+    "VarListBase": [
+      "12"
+    ],
+    "VarListClass": [
+      {
+        "$type": "Lson.AllType.Inherit2, Assembly-CSharp",
+        "Var4": 34,
+        "Var1": "123",
+        "Var2": true
+      },
+      {
+        "Var1": "123134",
+        "Var2": true
+      }
+    ],
+    "VarListCardElem": [
+      4
+    ],
+    "VarDictBase": {
+      "234": "234",
+      "4": "123123123"
+    },
+    "VarDictEnum": {
+      "234": 2,
+      "123": 2,
+      "2334234": 0,
+      "234234234234": 2
+    },
+    "VarDictClass": {}
+  }
+]

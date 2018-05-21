@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Csv;
+
 namespace Csv.AllType
 {
 	public class SingleClass : CfgObject

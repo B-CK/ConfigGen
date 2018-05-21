@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Csv;
+
 namespace Csv.AllType
 {
 	public class AllClass : CfgObject
@@ -32,7 +33,7 @@ namespace Csv.AllType
 		/// <summary>
 		/// 类类型
 		/// <summary>
-		public readonly AllType.SingleClass VarClass;
+		public Csv.AllType.SingleClass VarClass;
 		/// <summary>
 		/// 字符串列表
 		/// <summary>
@@ -40,7 +41,7 @@ namespace Csv.AllType
 		/// <summary>
 		/// Class列表
 		/// <summary>
-		public readonly List<AllType.SingleClass> VarListClass = new List<AllType.SingleClass>();
+		public readonly List<Csv.AllType.SingleClass> VarListClass = new List<Csv.AllType.SingleClass>();
 		/// <summary>
 		/// Elem列表
 		/// <summary>
@@ -56,7 +57,7 @@ namespace Csv.AllType
 		/// <summary>
 		/// 类类型字典
 		/// <summary>
-		public readonly Dictionary<string, AllType.SingleClass> VarDictClass = new Dictionary<string, AllType.SingleClass>();
+		public readonly Dictionary<string, Csv.AllType.SingleClass> VarDictClass = new Dictionary<string, Csv.AllType.SingleClass>();
 
 		public AllClass(DataStream data)
 

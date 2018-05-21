@@ -9,14 +9,17 @@ using System.IO;
 using UnityEditor;
 using System;
 using Json.Test;
+using Lson.AllType;
+using Lson.Card;
+using Sirenix.Serialization;
 
 public class PaserJson : SerializedMonoBehaviour
 {
     public string RelPath = @"\Json\Nsj.json";
     public TextAsset asset;
     public Data data;
-
-    //public List<JsonObject> lstClass;
+    [OdinSerialize]
+    public AllClass datac;
 
     [Button(ButtonSizes.Medium)]
     void ReadJson()
@@ -26,7 +29,7 @@ public class PaserJson : SerializedMonoBehaviour
         {
             TypeNameHandling = TypeNameHandling.Auto
         });
-        var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(txt, new JsonSerializerSettings
+        datac = JsonConvert.DeserializeObject<AllClass>(txt, new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.Auto
         });
@@ -35,7 +38,7 @@ public class PaserJson : SerializedMonoBehaviour
     [Button(ButtonSizes.Medium)]
     void WriteJson()
     {
-        string d = JsonConvert.SerializeObject(data, Formatting.Indented, new JsonSerializerSettings
+        string d = JsonConvert.SerializeObject(datac, Formatting.Indented, new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.Auto
         });
@@ -43,6 +46,7 @@ public class PaserJson : SerializedMonoBehaviour
         AssetDatabase.Refresh();
     }
 }
+
 public enum EnumType
 {
     C_C = 1,
@@ -64,24 +68,20 @@ public class Data
 
 namespace Json.Test
 {
-    [System.Serializable]
     public class Test
     {
         public int var1;
         public long var2;
     }
-    [System.Serializable]
     public class TestA : Test
     {
         public float var3;
     }
-    [System.Serializable]
     public class TestB : Test
     {
         public bool var4;
     }
 
-    [System.Serializable]
     public class TestC : Test
     {
         public string var5;
@@ -157,54 +157,3 @@ namespace Json.Test
 //      {"Key": 1, "Value": 1.2},
 //      {"Key": 2, "Value": 2.3}
 //   ]
-
-public class LsonManager
-{
-    public static List<int> li = new List<int>();
-    //..
-    //..
-
-
-    public static T Deserialize<T>(string path)
-    {
-        string value = File.ReadAllText(path);
-        T data = JsonConvert.DeserializeObject<T>(value, new JsonSerializerSettings
-        {
-            TypeNameHandling = TypeNameHandling.Auto
-        });
-        return data;
-    }
-    public static void Serialize(string path, object data)
-    {
-        string value = JsonConvert.SerializeObject(data, Formatting.Indented, new JsonSerializerSettings
-        {
-            TypeNameHandling = TypeNameHandling.Auto
-        });
-        File.WriteAllText(path, value);
-    }
-    public static List<T> Load<T>(string dirPath)
-    {
-        List<T> list = new List<T>();
-        try
-        {
-            string[] fs = Directory.GetFiles(dirPath);
-            foreach (var f in fs)
-            {
-                list.Add(Deserialize<T>(f));
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogErrorFormat("文件夹路径不存在{0}\n{1}", dirPath, e.StackTrace);
-        }
-        return list;
-    }
-    public static void LoadAll()
-    {
-        li = Load<int>("");
-    }
-    public static void Clear()
-    {
-        li.Clear();
-    }
-}

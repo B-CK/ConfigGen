@@ -15,7 +15,8 @@ namespace ConfigGen.Export
         public const string Sealed = "sealed";
 
         private static int _level = 0;
-
+        public static void Reset() { _level = 0; }
+        public static void EndLevel() { _level--; }
         public static void IntervalLevel(StringBuilder builder)
         {
             for (int i = 0; i < _level; i++)
@@ -178,6 +179,14 @@ namespace ConfigGen.Export
             builder.AppendFormat("/// {0}\n", comments);
             IntervalLevel(builder);
             builder.AppendLine("/// <summary>");
+        }
+        public static string GetFullNamespace(string root, string relType)
+        {
+            string type = relType;
+            LocalInfo.TypeType typeType = LocalInfo.TypeInfo.GetTypeType(relType);
+            if (typeType == LocalInfo.TypeType.Enum || typeType == LocalInfo.TypeType.Class)
+                type = string.Format("{0}.{1}", root, relType);
+            return type;
         }
     }
 }

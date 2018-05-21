@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.AllType
 {
-	public class Inherit2 : AllType.SingleClass
+	public class Inherit2 : Csv.AllType.SingleClass
 	{
 		/// <summary>
 		/// Var4
@@ -12,6 +12,7 @@ namespace Csv.AllType
 		public readonly long Var4;
 
 		public Inherit2(DataStream data) : base(data)
+
 		{
 			this.Var4 = data.GetLong();
 		}

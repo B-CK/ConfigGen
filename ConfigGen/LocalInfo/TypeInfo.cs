@@ -262,16 +262,15 @@ namespace ConfigGen.LocalInfo
 
             if (newType != null)
             {
-                var newInfo = TypeInfo.GetTypeInfo(newType);
-                var oldInfo = TypeInfo.GetTypeInfo(type);
+                var newInfo = GetTypeInfo(newType);
+                var oldInfo = GetTypeInfo(type);
                 Remove(oldInfo);
                 Add(newInfo);
             }
             else
             {
-                Util.LogErrorFormat("{0}类字段{1}类型{2}不存在,错误位置{3}",
-                   baseType.GetClassName(), name, type, baseType.RelPath);
-                throw new Exception();
+                throw new Exception(string.Format("{0}类字段{1}类型{2}不存在,错误位置{3}",
+                   baseType.GetClassName(), name, type, baseType.RelPath));
             }
             return newType;
         }
