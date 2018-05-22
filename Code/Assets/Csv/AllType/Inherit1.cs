@@ -12,7 +12,6 @@ namespace Csv.AllType
 		public readonly int Var3;
 
 		public Inherit1(DataStream data) : base(data)
-
 		{
 			this.Var3 = data.GetInt();
 		}

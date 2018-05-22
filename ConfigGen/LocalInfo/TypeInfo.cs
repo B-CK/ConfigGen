@@ -240,7 +240,7 @@ namespace ConfigGen.LocalInfo
                         classType.Inherit = newType;
 
                     ClassTypeInfo pClass = GetTypeInfo(newType) as ClassTypeInfo;
-                    pClass.HasSubClass = true;
+                    pClass.SubClasses.Add(typeInfo.GetClassName());
                 }
             }
         }
@@ -430,7 +430,9 @@ namespace ConfigGen.LocalInfo
         [XmlIgnore]
         public FieldInfo IndexField { get; set; }
         [XmlIgnore]
-        public bool HasSubClass { get; set; }
+        public List<string> SubClasses = new List<string>();
+        [XmlIgnore]
+        public bool HasSubClass { get { return SubClasses != null && SubClasses.Count > 0; } }
 
         Dictionary<string, FieldInfo> _fieldInfoDict = new Dictionary<string, FieldInfo>();
         public Dictionary<string, FieldInfo> GetFieldInfoDict()

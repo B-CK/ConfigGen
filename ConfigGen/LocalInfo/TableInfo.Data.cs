@@ -12,7 +12,6 @@ namespace ConfigGen.LocalInfo
         public TableDataInfo(string relPath, DataTable data, ClassTypeInfo classType)
             : base(relPath, data)
         {//className: 首张define表信息中类的名字
-            SType = SheetType.Data;
             DataFields = new List<TableFieldInfo>();
 
             if (classType != null)

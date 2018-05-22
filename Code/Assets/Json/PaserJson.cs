@@ -8,86 +8,94 @@ using Newtonsoft.Json;
 using System.IO;
 using UnityEditor;
 using System;
-using Json.Test;
+//using Json.Test;
 using Lson.AllType;
 using Lson.Card;
 using Sirenix.Serialization;
+using Newtonsoft.Json.Linq;
 
 public class PaserJson : SerializedMonoBehaviour
 {
     public string RelPath = @"\Json\Nsj.json";
     public TextAsset asset;
-    public Data data;
-    [OdinSerialize]
-    public AllClass datac;
+    //public Data data;
+    //[OdinSerialize]
+    //public AllClass datac;
 
     [Button(ButtonSizes.Medium)]
     void ReadJson()
     {
         string txt = File.ReadAllText(Application.dataPath + RelPath);
-        data = JsonConvert.DeserializeObject<Data>(txt, new JsonSerializerSettings
-        {
-            TypeNameHandling = TypeNameHandling.Auto
-        });
-        datac = JsonConvert.DeserializeObject<AllClass>(txt, new JsonSerializerSettings
-        {
-            TypeNameHandling = TypeNameHandling.Auto
-        });
+        //var d = JsonConvert.DeserializeObject<Dictionary<string, object>>(txt, new JsonSerializerSettings
+        //{
+        //    TypeNameHandling = TypeNameHandling.Auto
+        //});
+        ////datac = JsonConvert.DeserializeObject<AllClass>(txt, new JsonSerializerSettings
+        ////{
+        ////    TypeNameHandling = TypeNameHandling.Auto
+        ////});
+        //JArray array = d["VarListBase"] as JArray;
+        //for (int i = 0; i < array.Count; i++)
+        //{
+        //    Debug.Log(array[i]);
+        //}
+        JObject js = JObject.Parse(txt);
+
         Debug.Log("");
     }
     [Button(ButtonSizes.Medium)]
     void WriteJson()
     {
-        string d = JsonConvert.SerializeObject(datac, Formatting.Indented, new JsonSerializerSettings
-        {
-            TypeNameHandling = TypeNameHandling.Auto
-        });
-        File.WriteAllText(Application.dataPath + RelPath, d);
-        AssetDatabase.Refresh();
+        //string d = JsonConvert.SerializeObject(datac, Formatting.Indented, new JsonSerializerSettings
+        //{
+        //    TypeNameHandling = TypeNameHandling.Auto
+        //});
+        //File.WriteAllText(Application.dataPath + RelPath, d);
+        //AssetDatabase.Refresh();
     }
 }
 
-public enum EnumType
-{
-    C_C = 1,
-    Coo,
-    DFC,
-}
+//public enum EnumType
+//{
+//    C_C = 1,
+//    Coo,
+//    DFC,
+//}
 
-public class Data
-{
-    [EnumToggleButtons]
-    public EnumType enumType;
+//public class Data
+//{
+//    [EnumToggleButtons]
+//    public EnumType enumType;
 
-    public int _int;
-    public long _long;
+//    public int _int;
+//    public long _long;
 
-    [TableList]
-    public List<Test> list_test;
-}
+//    [TableList]
+//    public List<Test> list_test;
+//}
 
-namespace Json.Test
-{
-    public class Test
-    {
-        public int var1;
-        public long var2;
-    }
-    public class TestA : Test
-    {
-        public float var3;
-    }
-    public class TestB : Test
-    {
-        public bool var4;
-    }
+//namespace Json.Test
+//{
+//    public class Test
+//    {
+//        public int var1;
+//        public long var2;
+//    }
+//    public class TestA : Test
+//    {
+//        public float var3;
+//    }
+//    public class TestB : Test
+//    {
+//        public bool var4;
+//    }
 
-    public class TestC : Test
-    {
-        public string var5;
-    }
-}
-
+//    public class TestC : Test
+//    {
+//        public string var5;
+//    }
+//}
+//---------------------------------------------
 //"list_class": [
 //  {
 //    "Type": "Test",

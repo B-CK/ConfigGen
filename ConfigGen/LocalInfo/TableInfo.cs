@@ -18,7 +18,6 @@ namespace ConfigGen.LocalInfo
     /// </summary>
     public abstract class TableInfo
     {
-        public SheetType SType { get; protected set; }
         /// <summary>
         /// 文件相对路径
         /// </summary>

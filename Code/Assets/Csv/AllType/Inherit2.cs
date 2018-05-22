@@ -12,7 +12,6 @@ namespace Csv.AllType
 		public readonly long Var4;
 
 		public Inherit2(DataStream data) : base(data)
-
 		{
 			this.Var4 = data.GetLong();
 		}

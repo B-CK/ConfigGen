@@ -33,7 +33,7 @@ namespace Csv.AllType
 		/// <summary>
 		/// 类类型
 		/// <summary>
-		public Csv.AllType.SingleClass VarClass;
+		public Csv.AllType.Inherit1 VarClass;
 		/// <summary>
 		/// 字符串列表
 		/// <summary>
@@ -60,7 +60,6 @@ namespace Csv.AllType
 		public readonly Dictionary<string, Csv.AllType.SingleClass> VarDictClass = new Dictionary<string, Csv.AllType.SingleClass>();
 
 		public AllClass(DataStream data)
-
 		{
 			this.ID = data.GetInt();
 			this.VarLong = data.GetLong();
@@ -68,36 +67,30 @@ namespace Csv.AllType
 			this.VarString = data.GetString();
 			this.VarBool = data.GetBool();
 			this.VarEnum = data.GetInt();
-			this.VarClass = (AllType.SingleClass)data.GetObject(data.GetString());
+			this.VarClass = new AllType.Inherit1(data);
 			for (int n = data.GetInt(); n-- > 0; )
-
 			{
 				this.VarListBase.Add(data.GetString());
 			}
 			for (int n = data.GetInt(); n-- > 0; )
-
 			{
 				this.VarListClass.Add((AllType.SingleClass)data.GetObject(data.GetString()));
 			}
 			for (int n = data.GetInt(); n-- > 0; )
-
 			{
 				this.VarListCardElem.Add(data.GetInt());
 			}
 			for (int n = data.GetInt(); n-- > 0;)
-
 			{
 				int k = data.GetInt();
 				this.VarDictBase[k] = data.GetString();
 			}
 			for (int n = data.GetInt(); n-- > 0;)
-
 			{
 				long k = data.GetLong();
 				this.VarDictEnum[k] = data.GetInt();
 			}
 			for (int n = data.GetInt(); n-- > 0;)
-
 			{
 				string k = data.GetString();
 				this.VarDictClass[k] = (AllType.SingleClass)data.GetObject(data.GetString());

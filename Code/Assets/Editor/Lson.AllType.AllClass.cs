@@ -32,7 +32,7 @@ namespace Lson.AllType
 		/// <summary>
 		/// 类类型
 		/// <summary>
-		public Lson.AllType.SingleClass VarClass;
+		public Lson.AllType.Inherit1 VarClass;
 		/// <summary>
 		/// 字符串列表
 		/// <summary>

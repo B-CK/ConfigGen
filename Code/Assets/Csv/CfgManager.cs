@@ -21,7 +21,6 @@ namespace Csv
 			DataStream data = new DataStream(path, Encoding.UTF8);
 			List<T> list = new List<T>();
 			for (int i = 0; i < data.Count; i++)
-
 			{
 				list.Add(constructor(data));
 			}

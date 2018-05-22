@@ -12,7 +12,6 @@ namespace ConfigGen.LocalInfo
         public TableDefineInfo(string relPath, DataTable data)
             : base(relPath, data)
         {
-            SType = SheetType.Define;
             ClassInfoDict = new Dictionary<string, ClassTypeInfo>();
             EnumInfoDict = new Dictionary<string, EnumTypeInfo>();
         }

@@ -16,7 +16,6 @@ namespace Csv.AllType
 		public readonly bool Var2;
 
 		public SingleClass(DataStream data)
-
 		{
 			this.Var1 = data.GetString();
 			this.Var2 = data.GetBool();

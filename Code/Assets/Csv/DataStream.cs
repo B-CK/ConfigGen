@@ -7,7 +7,6 @@ namespace Csv
 	public class DataStream
 	{
 		public DataStream(string path, Encoding encoding)
-
 		{
 			_rows = File.ReadAllLines(path, encoding);
 			_rIndex = _cIndex = 0;
@@ -44,6 +43,9 @@ namespace Csv
 		{
 			return Next();
 		}
+		/// <summary>
+		/// 支持多态,直接反射类型
+		/// <summary>
 		public CfgObject GetObject(string fullName)
 		{
 			Type type = Type.GetType(fullName);

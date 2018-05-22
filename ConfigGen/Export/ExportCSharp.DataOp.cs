@@ -59,7 +59,6 @@ namespace ConfigGen.Export
                 CodeWriter.NameSpace(builder, string.Format("{0}.{1}", CONFIG_ROOT_NODE, baseType.NamespaceName));
                 if (baseType.TypeType == TypeType.Class)
                 {
-
                     ClassTypeInfo classType = baseType as ClassTypeInfo;
                     bool isEmpty = string.IsNullOrWhiteSpace(classType.Inherit);
                     if (isEmpty)
@@ -185,7 +184,7 @@ namespace ConfigGen.Export
                     builder.AppendFormat("this.{0} = {1};\n", varName, GetClassVarValue(typeInfo, type, argName));
                     break;
                 case TypeType.List:
-                    builder.AppendFormat("for (int n = {0}.GetInt(); n-- > 0; )\n", argName);
+                    builder.AppendFormat("for (int n = {0}.GetInt(); n-- > 0; )", argName);
                     CodeWriter.Start(builder);
                     CodeWriter.IntervalLevel(builder);
                     ListTypeInfo listType = typeInfo as ListTypeInfo;
@@ -211,7 +210,7 @@ namespace ConfigGen.Export
                     CodeWriter.End(builder);
                     break;
                 case TypeType.Dict:
-                    builder.AppendFormat("for (int n = {0}.GetInt(); n-- > 0;)\n", argName);
+                    builder.AppendFormat("for (int n = {0}.GetInt(); n-- > 0;)", argName);
                     CodeWriter.Start(builder);
                     CodeWriter.IntervalLevel(builder);
                     DictTypeInfo dictType = typeInfo as DictTypeInfo;
@@ -338,6 +337,7 @@ namespace ConfigGen.Export
 
             types = new string[] { "string" };
             args = new string[] { "fullName" };
+            CodeWriter.Comments(builder, "支持多态,直接反射类型");
             CodeWriter.Function(builder, CodeWriter.Public, CLASS_CFG_OBJECT, "GetObject", types, args);
             CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("Type type = Type.GetType({0});\n", args[0]);
@@ -443,7 +443,7 @@ namespace ConfigGen.Export
             CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("List<T> list = new List<T>();\n");
             CodeWriter.IntervalLevel(builder);
-            builder.AppendFormat("for (int i = 0; i < data.Count; i++)\n");
+            builder.AppendFormat("for (int i = 0; i < data.Count; i++)");
             CodeWriter.Start(builder);
             CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("list.Add({0}(data));\n", args[1]);

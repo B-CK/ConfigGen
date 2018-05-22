@@ -102,13 +102,8 @@ namespace ConfigGen.Export
                     else
                         strbuilder.AppendFormat(", {0}", baseArgs[i]);
                 }
-                builder.AppendFormat(" : base({0})\n", strbuilder.ToString());
+                builder.AppendFormat(" : base({0})", strbuilder.ToString());
             }
-            else
-            {
-                builder.AppendFormat("\n");
-            }
-
             Start(builder);
         }
         public static void Function(StringBuilder builder, string modifier, string returnType, string funcName, string[] types = null, string[] args = null)
