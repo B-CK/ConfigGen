@@ -33,8 +33,8 @@ namespace ConfigGen.LocalInfo
         public abstract bool Replace(string arg1, string arg2);
         public abstract void Analyze();
     }
-  
-  
+
+
     /// <summary>
     /// 字段信息及数据信息
     /// </summary>
@@ -42,20 +42,34 @@ namespace ConfigGen.LocalInfo
     {
         /// <summary>
         /// 基础/枚举类型单列数据存储在Data
-        /// <para>Class类型多列数据存储在ChildFields</para>
-        /// <para>List类型多列数据存储在ChildFields,以下表为索引</para>
-        /// <para>Dict类型多列数据pair存储在ChildFields,以下表为索引;key/value存储在pair,pair[0]:key,pair[1]:value</para>
+        /// <para>Class类型多列数据存储在ChildFields
+        /// $type       -           多态类型标识,普通类型无此标识
+        ///             -           Data,中存储每一行所对应的类型
+        ///             -           ChildFields.中为每个子类字段信息,key-派生类型,value-派生类型信息
+        ///             -           派生字段以字段名索引字段数据
+        /// key         -           字段名
+        /// value       -           字段信息
+        /// </para>
+        /// <para>List类型多列数据存储在ChildFields
+        /// key         -           索引号
+        /// value       -           元素信息
+        /// </para>
+        /// <para>Dict类型多列数据pair存储在ChildFields
+        /// key         -           索引号
+        /// value       -           Pair信息
+        /// Pair中包含Key,Value,分别对应一个字段信息
+        /// KeyValue中数据均以kv形式存储
+        /// </para>
         /// </summary>
         public List<object> Data { get; set; }
         /// <summary>
         /// 子字段
         /// </summary>
-        public List<TableFieldInfo> ChildFields { get; set; }
+        public Dictionary<string, TableFieldInfo> ChildFields { get; set; }
         /// <summary>
         /// 列索引
         /// </summary>
         public int ColumnIndex { get; set; }
-
         public Dictionary<CheckRuleType, List<string>> RuleDict { get; set; }
 
         public TableFieldInfo()

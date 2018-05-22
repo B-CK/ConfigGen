@@ -9,7 +9,6 @@ namespace ConfigGen.LocalInfo
 {
     public class TableLsonInfo : TableInfo
     {
-        public const string TYPE = "$type";
         public ClassTypeInfo DataClassInfo { get; private set; }
         public List<TableFieldInfo> DataFields { get; private set; }
         private List<JObject> _datas = new List<JObject>();
@@ -29,6 +28,7 @@ namespace ConfigGen.LocalInfo
                 _datas.Add(jObject);
             }
         }
+        //json文件需要按索引排序,总是以固定顺序生成数据.
         public override void Analyze()
         {
             var dataFieldDict = new Dictionary<string, TableFieldInfo>();

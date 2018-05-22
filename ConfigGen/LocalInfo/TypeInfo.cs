@@ -493,7 +493,6 @@ namespace ConfigGen.LocalInfo
         public string Check { get; set; }
         [XmlAttribute]
         public string Group { get; set; }
-
         [XmlIgnore]
         public BaseTypeInfo BaseInfo
         {

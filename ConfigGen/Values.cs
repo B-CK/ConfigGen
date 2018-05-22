@@ -77,8 +77,18 @@ namespace ConfigGen
         /// 单个检查功能内存在多个参数时,用:符号分离
         /// </summary>
         public const string CheckRunleArgsSplitFlag = ":";
+        /// <summary>
+        /// Csv数据存储分隔符
+        /// </summary>
         public const string CsvSplitFlag = "▃";
-        public const string CsvFileExt = ".xml";    
+        /// <summary>
+        /// Csv数据文件扩展名
+        /// </summary>
+        public const string CsvFileExt = ".xml";
+        /// <summary>
+        /// 多态标识符
+        /// </summary>
+        public const string Polymorphism = "$type";
         #endregion
     }
 }

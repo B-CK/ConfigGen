@@ -8,12 +8,13 @@ namespace ConfigGen.Export
 {
     public partial class ExportCSharp
     {
+        public const string CONFIG_ROOT_NODE = "Csv";
+
         private const string CLASS_CFG_OBJECT = "CfgObject";
         private const string CLASS_DATA_STREAM = "DataStream";
         private const string CLASS_CFG_MANAGER = "CfgManager";
         private const string FIELD_CONFIG_DIR = "ConfigDir";
         private const string ARG_DATASTREAM = "data";
-        private const string CONFIG_ROOT_NODE = "Csv";
 
         class Base
         {

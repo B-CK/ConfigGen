@@ -45,7 +45,8 @@ namespace ConfigGen.Export
             {
                 case TypeType.Base:
                 case TypeType.Enum:
-                    v = fieldInfo.Data[row].ToString().Trim();
+                    object temp = fieldInfo.Data[row];
+                    v = temp.ToString().Trim();
                     if (fieldInfo.Type.Equals("bool"))
                         v = AnalyzeBool(v);
                     break;
@@ -68,15 +69,38 @@ namespace ConfigGen.Export
         {
             StringBuilder builder = new StringBuilder();
             var fields = fieldInfo.ChildFields;
-            for (int i = 0; i < fields.Count; i++)
+            TableFieldInfo polymorphism = null;
+            int count = 0;
+            foreach (var item in fields)
             {
-                string value = AnalyzeField(fields[i], row);
+                if (item.Key == Values.Polymorphism)
+                {//派生类中字段,key-派生类型,value-字段信息
+                    string polyType = item.Value.Data[row].ToString();
+                    polymorphism = item.Value.ChildFields[polyType];
+                    count++;
+                    continue;
+                }
+
+                string value = AnalyzeField(item.Value, row);
                 if (isNesting && value.Equals(Values.DataSetEndFlag))
                     return Values.DataSetEndFlag;
-                if (i + 1 == fields.Count)
-                    builder.Append(value);
+                if (polymorphism != null)
+                {
+                    string type = string.Format("{0}.{1}", ExportCSharp.CONFIG_ROOT_NODE, polymorphism.Type);
+                    string otherValue = AnalyzeField(polymorphism, row);
+                    if (count + 1 == fields.Count)
+                        builder.AppendFormat("{0}{1}{2}{3}{4}", type, Values.CsvSplitFlag, value, Values.CsvSplitFlag, otherValue);
+                    else
+                        builder.AppendFormat("{0}{1}{2}{3}{4}{5}", type, Values.CsvSplitFlag, value, Values.CsvSplitFlag, otherValue, Values.CsvSplitFlag);
+                }
                 else
-                    builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
+                {
+                    if (count + 1 == fields.Count)
+                        builder.Append(value);
+                    else
+                        builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
+                }
+                count++;
             }
             return builder.ToString();
         }
@@ -87,7 +111,7 @@ namespace ConfigGen.Export
             int count = 0;
             for (int i = 0; i < fields.Count; i++)
             {
-                string value = AnalyzeField(fields[i], row, true);
+                string value = AnalyzeField(fields[i.ToString()], row, true);
                 if (!value.Equals(Values.DataSetEndFlag))
                 {
                     if (i + 1 == fields.Count)
@@ -104,7 +128,7 @@ namespace ConfigGen.Export
 
                 count++;
             }
-            builder.Insert(0,count == 0 ? count.ToString() : count + Values.CsvSplitFlag);
+            builder.Insert(0, count == 0 ? count.ToString() : count + Values.CsvSplitFlag);
             return builder.ToString();
         }
         private static string AnalyzeDict(TableFieldInfo fieldInfo, int row)
@@ -114,7 +138,7 @@ namespace ConfigGen.Export
             int count = 0;
             for (int i = 0; i < fields.Count; i++)
             {
-                string pair = AnalyzePair(fields[i], row);
+                string pair = AnalyzePair(fields[i.ToString()], row);
                 if (!pair.Equals(Values.DataSetEndFlag))
                 {
                     if (i + 1 == fields.Count)
@@ -136,8 +160,8 @@ namespace ConfigGen.Export
         private static string AnalyzePair(TableFieldInfo fieldInfo, int row)
         {
             TableFieldInfo pair = fieldInfo;
-            TableFieldInfo key = pair.ChildFields[0];
-            TableFieldInfo value = pair.ChildFields[1];
+            TableFieldInfo key = pair.ChildFields["key"];
+            TableFieldInfo value = pair.ChildFields["value"];
             string k = AnalyzeField(key, row);
             string v = AnalyzeField(value, row, true);
             if (k.Equals(Values.DataSetEndFlag)

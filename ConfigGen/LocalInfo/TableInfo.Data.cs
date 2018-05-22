@@ -43,7 +43,7 @@ namespace ConfigGen.LocalInfo
             DataTable dt = TableDataSet;
             DataClassInfo.UpdateToDict();
             var dataFieldDict = new Dictionary<string, TableFieldInfo>();
-            var fieldInfoDict = DataClassInfo.GetFieldInfoDict();      
+            var fieldInfoDict = DataClassInfo.GetFieldInfoDict();
             //解析检查类定义
             object[] tableFields = dt.Rows[Values.DataSheetFieldIndex].ItemArray;
             for (int i = 0; i < tableFields.Length; i++)
@@ -135,7 +135,7 @@ namespace ConfigGen.LocalInfo
         private int AnalyzeClassField(DataTable dt, TableFieldInfo classFieldInfo)
         {
             int startColumn = classFieldInfo.ColumnIndex + 1;
-            classFieldInfo.ChildFields = new List<TableFieldInfo>();
+            classFieldInfo.ChildFields = new Dictionary<string, TableFieldInfo>();
             ClassTypeInfo classInfo = classFieldInfo.BaseInfo as ClassTypeInfo;
             if (classInfo.HasSubClass)
                 throw new Exception(string.Format("Excel中无法解析继承类型的数据,字段名:{0},{1}",
@@ -159,7 +159,7 @@ namespace ConfigGen.LocalInfo
                 check = string.IsNullOrWhiteSpace(check) ? fieldInfo.Check : check;
                 childField.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Des, check, fieldInfo.Group, startColumn);
                 startColumn = AnalyzeField(dt, childField);
-                classFieldInfo.ChildFields.Add(childField);
+                classFieldInfo.ChildFields.Add(childField.Name, childField);
             }
 
             return startColumn;
@@ -167,7 +167,7 @@ namespace ConfigGen.LocalInfo
         private int AnalyzeListField(DataTable dt, TableFieldInfo listFieldInfo)
         {
             int startColumn = listFieldInfo.ColumnIndex + 1;
-            listFieldInfo.ChildFields = new List<TableFieldInfo>();
+            listFieldInfo.ChildFields = new Dictionary<string, TableFieldInfo>();
             ListTypeInfo listTypeInfo = listFieldInfo.BaseInfo as ListTypeInfo;
             BaseTypeInfo elemTypeInfo = TypeInfo.GetTypeInfo(listTypeInfo.ItemType);
             string flag = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
@@ -194,7 +194,7 @@ namespace ConfigGen.LocalInfo
                         startColumn = AnalyzeField(dt, elemInfo);
                         break;
                 }
-                listFieldInfo.ChildFields.Add(elemInfo);
+                listFieldInfo.ChildFields.Add(i.ToString(), elemInfo);
 
                 startColumn = startColumn + 1;
                 flag = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
@@ -204,7 +204,7 @@ namespace ConfigGen.LocalInfo
         private int AnalyzeDictField(DataTable dt, TableFieldInfo dictFieldInfo)
         {
             int startColumn = dictFieldInfo.ColumnIndex + 1;
-            dictFieldInfo.ChildFields = new List<TableFieldInfo>();
+            dictFieldInfo.ChildFields = new Dictionary<string, TableFieldInfo>();
             DictTypeInfo dictTypeInfo = dictFieldInfo.BaseInfo as DictTypeInfo;
             BaseTypeInfo keyTypeInfo = TypeInfo.GetTypeInfo(dictTypeInfo.KeyType);
             BaseTypeInfo valueTypeInfo = TypeInfo.GetTypeInfo(dictTypeInfo.ValueType);
@@ -212,7 +212,7 @@ namespace ConfigGen.LocalInfo
             for (int i = 0; !flag.StartsWith(Values.DataSetEndFlag); i++)
             {
                 TableFieldInfo pair = new TableFieldInfo();
-                pair.ChildFields = new List<TableFieldInfo>();
+                pair.ChildFields = new Dictionary<string, TableFieldInfo>();
 
                 TableFieldInfo keyInfo = new TableFieldInfo();
                 keyInfo.AsChildSet("key", keyTypeInfo.GetClassName(), startColumn);
@@ -241,9 +241,9 @@ namespace ConfigGen.LocalInfo
                         startColumn = AnalyzeField(dt, valueInfo);
                         break;
                 }
-                pair.ChildFields.Add(keyInfo);
-                pair.ChildFields.Add(valueInfo);
-                dictFieldInfo.ChildFields.Add(pair);
+                pair.ChildFields.Add(keyInfo.Name, keyInfo);
+                pair.ChildFields.Add(valueInfo.Name, valueInfo);
+                dictFieldInfo.ChildFields.Add(i.ToString(), pair);
 
                 startColumn = startColumn + 1;
                 flag = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
