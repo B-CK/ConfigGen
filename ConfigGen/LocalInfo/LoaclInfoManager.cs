@@ -179,7 +179,7 @@ namespace ConfigGen.LocalInfo
                             _diffRelPath.AddRange(diffRelPath);
                         else
                             _diffRelPath.AddRange(FileInfoLib.FileDict.Keys);
-                        _diffRelPath = _diffRelPath.FindAll(f => Path.GetExtension(f).Contains("*.xls"));
+                        _diffRelPath = _diffRelPath.FindAll(f => Path.GetExtension(f).Contains(".xls"));
                         break;
                     case LocalInfoType.TypeInfo:
                         UpdateTypeInfo();

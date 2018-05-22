@@ -68,7 +68,7 @@ namespace Csv.AllType
 			this.VarString = data.GetString();
 			this.VarBool = data.GetBool();
 			this.VarEnum = data.GetInt();
-			this.VarClass = new AllType.SingleClass(data);
+			this.VarClass = (AllType.SingleClass)data.GetObject(data.GetString());
 			for (int n = data.GetInt(); n-- > 0; )
 
 			{
@@ -77,7 +77,7 @@ namespace Csv.AllType
 			for (int n = data.GetInt(); n-- > 0; )
 
 			{
-				this.VarListClass.Add(new AllType.SingleClass(data));
+				this.VarListClass.Add((AllType.SingleClass)data.GetObject(data.GetString()));
 			}
 			for (int n = data.GetInt(); n-- > 0; )
 
@@ -100,7 +100,7 @@ namespace Csv.AllType
 
 			{
 				string k = data.GetString();
-				this.VarDictClass[k] = new AllType.SingleClass(data);
+				this.VarDictClass[k] = (AllType.SingleClass)data.GetObject(data.GetString());
 			}
 		}
 	}

@@ -7,6 +7,8 @@ namespace Lson
 {
 	public class LsonManager
 	{
+		public static List<Lson.AllType.AllClass> AllClass = new List<AllType.AllClass>();
+		public static List<Lson.Card.Card> Card = new List<Card.Card>();
 
 		public static T Deserialize<T>(string path)
 		{
@@ -45,9 +47,13 @@ namespace Lson
 		}
 		public static void LoadAll()
 		{
+			AllClass = Load<Lson.AllType.AllClass>("E:/C#Project/ConfigGen/ConfigGen/bin/Debug/../../../Csv/所有Class类型.xlsx");
+			Card = Load<Lson.Card.Card>("E:/C#Project/ConfigGen/ConfigGen/bin/Debug/../../../Csv/卡牌_Card.xlsx");
 		}
 		public static void Clear()
 		{
+			AllClass.Clear();
+			Card.Clear();
 		}
 	}
 }

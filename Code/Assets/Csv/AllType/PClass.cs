@@ -7,19 +7,14 @@ namespace Csv.AllType
 	public class PClass : CfgObject
 	{
 		/// <summary>
-		/// Var1
+		/// Var5
 		/// <summary>
-		public readonly string Var1;
-		/// <summary>
-		/// Var2
-		/// <summary>
-		public readonly bool Var2;
+		public readonly long Var5;
 
 		public PClass(DataStream data)
 
 		{
-			this.Var1 = data.GetString();
-			this.Var2 = data.GetBool();
+			this.Var5 = data.GetLong();
 		}
 	}
 }
