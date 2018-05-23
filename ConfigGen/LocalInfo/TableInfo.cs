@@ -132,4 +132,22 @@ namespace ConfigGen.LocalInfo
             return Type.Substring(endIndex);
         }
     }
+    public class DataBaseInfo : FieldInfo
+    {//Name,Type,Check,Group
+        public List<object> Data { get; set; }
+          
+    }
+    public class DataClassInfo : FieldInfo
+    {
+        public Dictionary<string, FieldInfo> Fields { get; set; }
+        public List<string> Types { get; set; }//多态中标识数据类型,每条数据的类型
+    }
+    public class DataListInfo : FieldInfo
+    {
+        public List<FieldInfo> Elements { get; set; }
+    }
+    public class DataDictInfo : FieldInfo
+    {
+        public List<KeyValuePair<object, FieldInfo>> Pairs { get; set; }
+    }
 }

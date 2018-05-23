@@ -97,6 +97,14 @@ namespace ConfigGen
         /// 导出Csv数据读写类命名空间根节点
         /// </summary>
         public const string ConfigRootNode = "Csv";
+        /// <summary>
+        /// 字典Key命名
+        /// </summary>
+        public const string KEY = "key";
+        /// <summary>
+        /// 字典Value命名
+        /// </summary>
+        public const string VALUE = "vaue";
         #endregion
     }
 }

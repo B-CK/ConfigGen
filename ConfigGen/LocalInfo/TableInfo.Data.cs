@@ -11,18 +11,19 @@ namespace ConfigGen.LocalInfo
     {
         public TableDataInfo(string relPath, DataTable data, ClassTypeInfo classType)
             : base(relPath, data)
-        {//className: 首张define表信息中类的名字
-            DataFields = new List<TableFieldInfo>();
-
+        {
             if (classType != null)
-                DataClassInfo = classType;
+                ClassTypeInfo = classType;
             else
                 Util.LogErrorFormat("数据表结构没有指明类型,文件名:{0}", RelPath);
         }
 
-        public ClassTypeInfo DataClassInfo { get; protected set; }
+        public ClassTypeInfo ClassTypeInfo { get; protected set; }
+        /// <summary>
+        /// 数据行数
+        /// </summary>
         public int DataLength { get; protected set; }
-        public List<TableFieldInfo> DataFields { get; protected set; }
+        public DataClassInfo DataClassInfo { get; protected set; }
         /// <summary>
         /// 只查询数据表中类型定义
         /// </summary>
@@ -41,139 +42,116 @@ namespace ConfigGen.LocalInfo
         public override void Analyze()
         {
             DataTable dt = TableDataSet;
-            DataClassInfo.UpdateToDict();
-            var dataFieldDict = new Dictionary<string, TableFieldInfo>();
-            var fieldInfoDict = DataClassInfo.GetFieldInfoDict();
-            //解析检查类定义
-            object[] tableFields = dt.Rows[Values.DataSheetFieldIndex].ItemArray;
-            for (int i = 0; i < tableFields.Length; i++)
-            {
-                string field = tableFields[i].ToString();
-                if (!string.IsNullOrWhiteSpace(field))
-                {
-                    TableFieldInfo tableFieldInfo = new TableFieldInfo();
-                    if (fieldInfoDict.ContainsKey(field))
-                    {
-                        //解析数据类字段
-                        FieldInfo fieldInfo = fieldInfoDict[field];
-                        string check = dt.Rows[Values.DataSheetCheckIndex][i].ToString();
-                        check = string.IsNullOrWhiteSpace(check) ? fieldInfo.Check : check;
-                        tableFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Des, check, fieldInfo.Group, i);
+            DataClassInfo = new DataClassInfo();
+            DataClassInfo.Set(ClassTypeInfo.Name, ClassTypeInfo.GetClassName(), null, null);
 
-                        //解析类字段数据
-                        i = AnalyzeField(dt, tableFieldInfo);
-
-                        if (!dataFieldDict.ContainsKey(tableFieldInfo.Name))
-                            dataFieldDict.Add(tableFieldInfo.Name, tableFieldInfo);
-                    }
-                    else
-                    {
-                        Util.LogErrorFormat("在{0}类型的数据表中,{1}字段名与实际定义不一致,{2}",
-                            DataClassInfo.Name, field, GetErrorSite(i + 1, Values.DataSheetFieldIndex + 1));
-                    }
-                }
-                else
-                {
-                    Util.LogErrorFormat("在{0}类型的数据表中,解析异常,{1}",
-                            DataClassInfo.Name, GetErrorSite(i + 1, Values.DataSheetFieldIndex + 1));
-                }
-            }
-            DataLength = tableFields.Length - Values.DataSheetDataStartIndex;
-            DataFields.AddRange(dataFieldDict.Values);
+            AnalyzeClassField(dt, DataClassInfo, -1);
+            DataLength = dt.Rows.Count - Values.DataSheetDataStartIndex;
         }
         private string GetErrorSite(int c, int r)
         {
             return Util.GetErrorSite(RelPath, c, r);
         }
 
-        /// <summary>
-        /// 解析类字段数据
-        /// </summary>
-        /// <param name="column">当前字段列号</param>
-        /// <param name="fieldInfo">当前表字段信息</param>
-        /// <returns>数值范围:当前列号,或者最后一个子字段列号</returns>
-        private int AnalyzeField(DataTable dt, TableFieldInfo fieldInfo)
+        private int AnalyzeClassField(DataTable dt, DataClassInfo classFieldInfo, int index)
         {
-            int column = fieldInfo.ColumnIndex;
-            ////检查类型存在性
-            //string error = TableChecker.CheckType(fieldInfo.Type);
-            //if (string.IsNullOrWhiteSpace(error))
-            //{
-            //    Util.LogErrorFormat("数据表中{0}字段不存在,{1}", fieldInfo.Name, GetErrorSite(column + 1, Values.DataSheetFieldIndex + 1));
-            //    return column;
-            //}
-            //解析检查规则
-            if (TableChecker.ParseCheckRule(fieldInfo))
-            {
-                Util.LogWarningFormat("在{0}类型的数据表中,{1}字段规则{2}填写错误,{3}",
-                    DataClassInfo.Name, fieldInfo.Name, fieldInfo.Check, GetErrorSite(column + 1, Values.DataSheetFieldIndex + 1));
-            }
-            BaseTypeInfo baseInfo = fieldInfo.BaseInfo;
-            switch (baseInfo.TypeType)
-            {
-                case TypeType.Base://单列
-                case TypeType.Enum:
-                    fieldInfo.Data = new List<object>(AnalyzeColumnData(dt, fieldInfo));
-                    break;
-                case TypeType.Class://多列
-                    column = AnalyzeClassField(dt, fieldInfo);
-                    break;
-                case TypeType.List:
-                    column = AnalyzeListField(dt, fieldInfo);
-                    break;
-                case TypeType.Dict:
-                    column = AnalyzeDictField(dt, fieldInfo);
-                    break;
-                case TypeType.None:
-                default:
-                    Util.LogErrorFormat("数据表中{0}字段的类型{1}不合法", fieldInfo.Name, fieldInfo.Type);
-                    break;
-            }
-            return column;
-        }
-        private int AnalyzeClassField(DataTable dt, TableFieldInfo classFieldInfo)
-        {
-            int startColumn = classFieldInfo.ColumnIndex + 1;
-            classFieldInfo.ChildFields = new Dictionary<string, TableFieldInfo>();
+            int startColumn = index + 1;
+            classFieldInfo.Fields = new Dictionary<string, FieldInfo>();
             ClassTypeInfo classInfo = classFieldInfo.BaseInfo as ClassTypeInfo;
+            classInfo.UpdateToDict();
+            var classFieldDict = classInfo.GetFieldInfoDict();
             if (classInfo.HasSubClass)
                 throw new Exception(string.Format("Excel中无法解析继承类型的数据,字段名:{0},{1}",
                    classFieldInfo.Name, GetErrorSite(startColumn + 1, Values.DataSheetFieldIndex + 1)));
-            classInfo.UpdateToDict();
-            var classfieldDict = classInfo.GetFieldInfoDict();
-            for (int i = 0; i < classfieldDict.Count; i++)
+            for (int i = 0; i < classFieldDict.Count; i++)
             {
                 startColumn = startColumn + i;
                 string fieldName = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
-                if (!classfieldDict.ContainsKey(fieldName))
+                if (!classFieldDict.ContainsKey(fieldName))
                 {
-                    Util.LogErrorFormat("数据表中{0}类型{1}字段不包含{2}子字段,{3}",
-                         classFieldInfo.Type, classFieldInfo.Name, fieldName,
-                         GetErrorSite(startColumn + 1, Values.DataSheetFieldIndex + 1));
+                    throw new Exception(string.Format("在{0}类型的数据表中,{1}字段名与实际定义不一致,{2}",
+                            ClassTypeInfo.Name, fieldName, GetErrorSite(startColumn + 1, Values.DataSheetFieldIndex + 1)));
+                }
+                if (string.IsNullOrWhiteSpace(fieldName))
+                {
+                    throw new Exception(string.Format("数据表对应的类型字段名必须填写完整,{1}",
+                            GetErrorSite(startColumn + 1, Values.DataSheetFieldIndex + 1)));
                 }
 
-                FieldInfo fieldInfo = classfieldDict[fieldName];
-                TableFieldInfo childField = new TableFieldInfo();
+                //解析数据类字段
+                FieldInfo fieldInfo = classFieldDict[fieldName];
                 string check = dt.Rows[Values.DataSheetCheckIndex][startColumn].ToString();
                 check = string.IsNullOrWhiteSpace(check) ? fieldInfo.Check : check;
-                childField.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Des, check, fieldInfo.Group, startColumn);
-                startColumn = AnalyzeField(dt, childField);
-                classFieldInfo.ChildFields.Add(childField.Name, childField);
+
+                BaseTypeInfo baseType = fieldInfo.BaseInfo;
+                switch (baseType.TypeType)
+                {
+                    case TypeType.Base:
+                    case TypeType.Enum:
+                        DataBaseInfo baseFieldInfo = new DataBaseInfo();
+                        baseFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, check, fieldInfo.Group);
+                        classFieldInfo.Fields.Add(baseFieldInfo.Name, baseFieldInfo);
+                        startColumn = AnalyzeBaseField(dt, baseFieldInfo, startColumn);
+                        break;
+                    case TypeType.Class://类的检查规则需要自定义
+                        DataClassInfo subClassFieldInfo = new DataClassInfo();
+                        subClassFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, check, fieldInfo.Group);
+                        classFieldInfo.Fields.Add(subClassFieldInfo.Name, subClassFieldInfo);
+                        startColumn = AnalyzeClassField(dt, subClassFieldInfo, startColumn);
+                        break;
+                    case TypeType.List://集合中元素的规则可手动逐个重写
+                        DataListInfo listFieldInfo = new DataListInfo();
+                        listFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, check, fieldInfo.Group);
+                        classFieldInfo.Fields.Add(listFieldInfo.Name, listFieldInfo);
+                        startColumn = AnalyzeListField(dt, listFieldInfo, startColumn);
+                        break;
+                    case TypeType.Dict://集合中元素的规则可手动逐个重写
+                        DataDictInfo dictFieldInfo = new DataDictInfo();
+                        dictFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, check, fieldInfo.Group);
+                        classFieldInfo.Fields.Add(dictFieldInfo.Name, dictFieldInfo);
+                        startColumn = AnalyzeDictField(dt, dictFieldInfo, startColumn);
+                        break;
+                    case TypeType.None:
+                    default:
+                        break;
+                }
             }
 
             return startColumn;
         }
-        private int AnalyzeListField(DataTable dt, TableFieldInfo listFieldInfo)
+        private int AnalyzeBaseField(DataTable dt, DataBaseInfo fieldInfo, int index)
         {
-            int startColumn = listFieldInfo.ColumnIndex + 1;
-            listFieldInfo.ChildFields = new Dictionary<string, TableFieldInfo>();
+            int column = index;
+            if (TableChecker.ParseCheckRule(fieldInfo))
+            {
+                Util.LogWarningFormat("在{0}类型的数据表中,{1}字段规则{2}填写错误,{3}",
+                    ClassTypeInfo.Name, fieldInfo.Name, fieldInfo.Check, GetErrorSite(column + 1, Values.DataSheetFieldIndex + 1));
+            }
+            fieldInfo.Data = new List<object>();
+            for (int i = Values.DataSheetDataStartIndex; i < dt.Rows.Count; i++)
+            {
+                object value = dt.Rows[i][column];
+                string error = TableChecker.CheckFieldData(fieldInfo, value);
+                if (string.IsNullOrWhiteSpace(error))
+                    fieldInfo.Data.Add(value);
+                else
+                {
+                    Util.LogErrorFormat("{0},数据错误位置[{1}{2}]", error,
+                       Util.GetColumnName(column + 1), i.ToString());
+                    break;
+                }
+            }
+            return column;
+        }
+        private int AnalyzeListField(DataTable dt, DataListInfo listFieldInfo, int index)
+        {
+            int startColumn = index + 1;
+            listFieldInfo.Elements = new List<FieldInfo>();
             ListTypeInfo listTypeInfo = listFieldInfo.BaseInfo as ListTypeInfo;
             BaseTypeInfo elemTypeInfo = TypeInfo.GetTypeInfo(listTypeInfo.ItemType);
-            string flag = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
-            for (int i = 0; !flag.StartsWith(Values.DataSetEndFlag); i++)
+            string check = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
+            for (int i = 0; !check.StartsWith(Values.DataSetEndFlag); i++)
             {
-                TableFieldInfo elemInfo = new TableFieldInfo();
-
                 switch (elemTypeInfo.TypeType)
                 {
                     case TypeType.List:
@@ -182,45 +160,42 @@ namespace ConfigGen.LocalInfo
                             listFieldInfo.Name, GetErrorSite(startColumn + 1, Values.DataSheetFieldIndex + 1));
                         break;
                     case TypeType.Class:
-                        elemInfo.AsChildSet(i.ToString(), elemTypeInfo.GetClassName(), startColumn - 1);
-                        startColumn = AnalyzeField(dt, elemInfo);
+                        DataClassInfo classFieldInfo = new DataClassInfo();
+                        classFieldInfo.Set(elemTypeInfo.Name, elemTypeInfo.GetClassName(), check, listFieldInfo.Group);
+                        startColumn = AnalyzeClassField(dt, classFieldInfo, startColumn - 1);
+                        listFieldInfo.Elements.Add(classFieldInfo);
                         break;
                     case TypeType.Base:
                     case TypeType.Enum:
                     case TypeType.None:
                     default:
-                        elemInfo.AsChildSet(i.ToString(), elemTypeInfo.GetClassName(), startColumn);
-                        startColumn = AnalyzeField(dt, elemInfo);
+                        DataBaseInfo baseFieldInfo = new DataBaseInfo();
+                        baseFieldInfo.Set(i.ToString(), elemTypeInfo.GetClassName(), check, listFieldInfo.Group);
+                        startColumn = AnalyzeBaseField(dt, baseFieldInfo, startColumn);
+                        listFieldInfo.Elements.Add(baseFieldInfo);
                         break;
                 }
-                listFieldInfo.ChildFields.Add(i.ToString(), elemInfo);
 
-                startColumn = startColumn + 1;
-                flag = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
+                startColumn++;
+                check = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
             }
             return startColumn;
         }
-        private int AnalyzeDictField(DataTable dt, TableFieldInfo dictFieldInfo)
+        private int AnalyzeDictField(DataTable dt, DataDictInfo dictFieldInfo, int index)
         {
-            int startColumn = dictFieldInfo.ColumnIndex + 1;
-            dictFieldInfo.ChildFields = new Dictionary<string, TableFieldInfo>();
+            int startColumn = index + 1;
+            dictFieldInfo.Pairs = new List<KeyValuePair<object, FieldInfo>>();
             DictTypeInfo dictTypeInfo = dictFieldInfo.BaseInfo as DictTypeInfo;
             BaseTypeInfo keyTypeInfo = TypeInfo.GetTypeInfo(dictTypeInfo.KeyType);
             BaseTypeInfo valueTypeInfo = TypeInfo.GetTypeInfo(dictTypeInfo.ValueType);
-            string flag = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
-            for (int i = 0; !flag.StartsWith(Values.DataSetEndFlag); i++)
+            string check = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
+            for (int i = 0; !check.StartsWith(Values.DataSetEndFlag); i++)
             {
-                TableFieldInfo pair = new TableFieldInfo();
-                pair.ChildFields = new Dictionary<string, TableFieldInfo>();
-
-                TableFieldInfo keyInfo = new TableFieldInfo();
-                keyInfo.AsChildSet("key", keyTypeInfo.GetClassName(), startColumn);
-                startColumn = AnalyzeField(dt, keyInfo);
+                DataBaseInfo keyInfo = new DataBaseInfo();
+                keyInfo.Set(Values.KEY, keyTypeInfo.GetClassName(), check, dictTypeInfo.Group);
+                startColumn = AnalyzeBaseField(dt, keyInfo, startColumn);
 
                 startColumn = startColumn + 1;
-
-                TableFieldInfo valueInfo = new TableFieldInfo();
-                valueInfo.AsChildSet("value", valueTypeInfo.GetClassName(), startColumn);
                 switch (valueTypeInfo.TypeType)
                 {
                     case TypeType.List:
@@ -229,51 +204,31 @@ namespace ConfigGen.LocalInfo
                             dictFieldInfo.Name, GetErrorSite(startColumn + 1, Values.DataSheetFieldIndex + 1));
                         break;
                     case TypeType.Class:
-                        valueInfo.AsChildSet("value", valueTypeInfo.GetClassName(), startColumn - 1);
-                        startColumn = AnalyzeField(dt, valueInfo);
-                        break;
+                        {
+                            DataClassInfo valueInfo = new DataClassInfo();
+                            valueInfo.Set(Values.VALUE, valueTypeInfo.GetClassName(), check, dictTypeInfo.Group);
+                            startColumn = AnalyzeClassField(dt, valueInfo, startColumn - 1);
+                            dictFieldInfo.Pairs.Add(new KeyValuePair<object, FieldInfo>(keyInfo, valueInfo));
+                            break;
+                        }
                     case TypeType.Base:
                     case TypeType.Enum:
                     case TypeType.None:
                     default:
-                        valueInfo.AsChildSet("value", valueTypeInfo.GetClassName(), startColumn);
-                        startColumn = AnalyzeField(dt, valueInfo);
-                        break;
+                        {
+                            DataBaseInfo valueInfo = new DataBaseInfo();
+                            valueInfo.Set(Values.VALUE, valueTypeInfo.GetClassName(), check, dictTypeInfo.Group);
+                            startColumn = AnalyzeBaseField(dt, valueInfo, startColumn);
+                            dictFieldInfo.Pairs.Add(new KeyValuePair<object, FieldInfo>(keyInfo, valueInfo));
+                            break;
+                        }
                 }
-                pair.ChildFields.Add(keyInfo.Name, keyInfo);
-                pair.ChildFields.Add(valueInfo.Name, valueInfo);
-                dictFieldInfo.ChildFields.Add(i.ToString(), pair);
-
                 startColumn = startColumn + 1;
-                flag = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
+                check = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
             }
 
             return startColumn;
         }
-
-        /// <summary>
-        /// 解析字段列数据
-        /// </summary>
-        /// <param name="dt">数据表Sheet</param>
-        /// <param name="tableFieldInfo">当前字段信息</param>
-        /// <returns></returns>
-        private List<object> AnalyzeColumnData(DataTable dt, TableFieldInfo fieldInfo)
-        {
-            List<object> columnData = new List<object>();
-            for (int i = Values.DataSheetDataStartIndex; i < dt.Rows.Count; i++)
-            {
-                object value = dt.Rows[i][fieldInfo.ColumnIndex];
-                string error = TableChecker.CheckFieldData(fieldInfo, value);
-                if (string.IsNullOrWhiteSpace(error))
-                    columnData.Add(value);
-                else
-                {
-                    Util.LogErrorFormat("{0},数据错误位置[{1}{2}]", error,
-                       Util.GetColumnName(fieldInfo.ColumnIndex + 1), i.ToString());
-                    return columnData;
-                }
-            }
-            return columnData;
-        }
     }
+   
 }

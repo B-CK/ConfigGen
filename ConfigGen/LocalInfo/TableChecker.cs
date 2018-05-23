@@ -73,7 +73,7 @@ namespace ConfigGen.LocalInfo
         }
 
         //---------------------------------------数据检查
-        public static bool ParseCheckRule(TableFieldInfo tableFieldInfo)
+        public static bool ParseCheckRule(FieldInfo tableFieldInfo)
         {
             if (string.IsNullOrWhiteSpace(tableFieldInfo.Check))
                 return false;
@@ -152,7 +152,7 @@ namespace ConfigGen.LocalInfo
             }
             return isOK;
         }
-        public static string CheckFieldData(TableFieldInfo tableFieldInfo, object data)
+        public static string CheckFieldData(FieldInfo tableFieldInfo, object data)
         {
             string errorString = null;
             foreach (var checkRule in tableFieldInfo.RuleDict)

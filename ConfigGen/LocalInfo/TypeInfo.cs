@@ -14,8 +14,8 @@ namespace ConfigGen.LocalInfo
     {
         None,
         Base,
-        Class,
         Enum,
+        Class,
         List,
         Dict,
     }
@@ -493,6 +493,8 @@ namespace ConfigGen.LocalInfo
         public string Check { get; set; }
         [XmlAttribute]
         public string Group { get; set; }
+
+
         [XmlIgnore]
         public BaseTypeInfo BaseInfo
         {
@@ -504,6 +506,15 @@ namespace ConfigGen.LocalInfo
             }
         }
         private BaseTypeInfo _typeInfo;
+        [XmlIgnore]
+        public Dictionary<CheckRuleType, List<string>> RuleDict { get; set; }
+        public void Set(string name, string type, string check, string group)
+        {
+            Name = name;
+            Type = type;
+            Check = check;
+            Group = group;
+        }
     }
 
     /// <summary>
