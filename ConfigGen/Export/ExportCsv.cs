@@ -86,7 +86,7 @@ namespace ConfigGen.Export
                     return Values.DataSetEndFlag;
                 if (polymorphism != null)
                 {
-                    string type = string.Format("{0}.{1}", ExportCSharp.CONFIG_ROOT_NODE, polymorphism.Type);
+                    string type = string.Format("{0}.{1}", Values.ConfigRootNode, polymorphism.Type);
                     string otherValue = AnalyzeField(polymorphism, row);
                     if (count + 1 == fields.Count)
                         builder.AppendFormat("{0}{1}{2}{3}{4}", type, Values.CsvSplitFlag, value, Values.CsvSplitFlag, otherValue);

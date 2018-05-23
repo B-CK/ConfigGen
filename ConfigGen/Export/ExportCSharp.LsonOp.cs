@@ -10,7 +10,6 @@ namespace ConfigGen.Export
     public partial class ExportCSharp
     {
         private const string LSON_STREAM = "LsonManager";
-        private const string LSON_ROOT_SPACE = "Lson";
         private const string CLASS_LSON_OBJECT = "LsonObject";
 
         /// <summary>
@@ -24,7 +23,7 @@ namespace ConfigGen.Export
             //构建Lson存储类基础类LsonObject.cs
             string path = Path.Combine(Values.ExportCsLson, CLASS_LSON_OBJECT + ".cs");
             CodeWriter.UsingNamespace(builder, NameSpaces);
-            CodeWriter.NameSpace(builder, LSON_ROOT_SPACE);
+            CodeWriter.NameSpace(builder, Values.LsonRootNode);
             CodeWriter.ClassBase(builder, CodeWriter.Public, CodeWriter.Abstract, CLASS_LSON_OBJECT);
             CodeWriter.EndAll(builder);
             Util.SaveFile(path, builder.ToString());
@@ -37,7 +36,7 @@ namespace ConfigGen.Export
             {
                 CodeWriter.UsingNamespace(builder, NameSpaces);
                 builder.AppendLine();
-                CodeWriter.NameSpace(builder, string.Format("{0}.{1}", LSON_ROOT_SPACE, baseType.NamespaceName));
+                CodeWriter.NameSpace(builder, string.Format("{0}.{1}", Values.LsonRootNode, baseType.NamespaceName));
 
                 bool isWrited = false;
                 if (baseType.TypeType == TypeType.Class)
@@ -48,7 +47,7 @@ namespace ConfigGen.Export
                         CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, CLASS_LSON_OBJECT);
                     else
                     {
-                        string fullType = CodeWriter.GetFullNamespace(LSON_ROOT_SPACE, classType.Inherit);
+                        string fullType = CodeWriter.GetFullNamespace(Values.LsonRootNode, classType.Inherit);
                         CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, fullType);
                     }
 
@@ -62,14 +61,14 @@ namespace ConfigGen.Export
                             case TypeType.Enum:
                                 {
                                     CodeWriter.Comments(builder, field.Des);
-                                    string fullType = CodeWriter.GetFullNamespace(LSON_ROOT_SPACE, field.Type);
+                                    string fullType = CodeWriter.GetFullNamespace(Values.LsonRootNode, field.Type);
                                     CodeWriter.Field(builder, CodeWriter.Public, fullType, field.Name);
                                     break;
                                 }
                             case TypeType.Class:
                                 {
                                     CodeWriter.Comments(builder, field.Des);
-                                    string fullType = CodeWriter.GetFullNamespace(LSON_ROOT_SPACE, field.Type);
+                                    string fullType = CodeWriter.GetFullNamespace(Values.LsonRootNode, field.Type);
                                     CodeWriter.Field(builder, CodeWriter.Public, fullType, field.Name);
                                 }
                                 break;
@@ -80,7 +79,7 @@ namespace ConfigGen.Export
                                     string initValue = string.Format("new {0}()", type);
                                     CodeWriter.Comments(builder, field.Des);
                                     TypeType itemType = TypeInfo.GetTypeType(listType.ItemType);
-                                    string fullType = CodeWriter.GetFullNamespace(LSON_ROOT_SPACE, listType.ItemType);
+                                    string fullType = CodeWriter.GetFullNamespace(Values.LsonRootNode, listType.ItemType);
                                     type = type.Replace(listType.ItemType, fullType);
 
                                     CodeWriter.Field(builder, CodeWriter.Public, type, field.Name);
@@ -92,9 +91,9 @@ namespace ConfigGen.Export
                                     DictTypeInfo dictType = field.BaseInfo as DictTypeInfo;
                                     string initValue = string.Format("new {0}()", type);
                                     CodeWriter.Comments(builder, field.Des);
-                                    string fullType = CodeWriter.GetFullNamespace(LSON_ROOT_SPACE, dictType.KeyType);
+                                    string fullType = CodeWriter.GetFullNamespace(Values.LsonRootNode, dictType.KeyType);
                                     type = type.Replace(dictType.KeyType, fullType);
-                                    fullType = CodeWriter.GetFullNamespace(LSON_ROOT_SPACE, dictType.ValueType);
+                                    fullType = CodeWriter.GetFullNamespace(Values.LsonRootNode, dictType.ValueType);
                                     type = type.Replace(dictType.ValueType, fullType);
 
                                     CodeWriter.Field(builder, CodeWriter.Public, type, field.Name);
@@ -121,7 +120,7 @@ namespace ConfigGen.Export
 
                 if (isWrited)
                 {
-                    string file = string.Format("{0}.{1}.cs", LSON_ROOT_SPACE, baseType.GetClassName());
+                    string file = string.Format("{0}.{1}.cs", Values.LsonRootNode, baseType.GetClassName());
                     path = Path.Combine(Values.ExportCsLson, file);
                     Util.SaveFile(path, builder.ToString());
                 }
@@ -143,14 +142,14 @@ namespace ConfigGen.Export
 
             CodeWriter.UsingNamespace(builder, NameSpaces);
             builder.AppendLine();
-            CodeWriter.NameSpace(builder, LSON_ROOT_SPACE);
+            CodeWriter.NameSpace(builder, Values.LsonRootNode);
             CodeWriter.ClassBase(builder, CodeWriter.Public, CodeWriter.Abstract, LSON_STREAM);
             List<ClassTypeInfo> classes = LocalInfoManager.Instance.TypeInfoLib.ClassInfos;
             foreach (var info in classes)
             {
                 if (info.TypeType == TypeType.Class && !string.IsNullOrWhiteSpace(info.DataTable))
                 {
-                    string fullType = CodeWriter.GetFullNamespace(LSON_ROOT_SPACE, info.GetClassName());
+                    string fullType = CodeWriter.GetFullNamespace(Values.LsonRootNode, info.GetClassName());
                     string setType = string.Format("List<{0}>", fullType);
                     string initValue = string.Format("new List<{0}>()", info.GetClassName());
                     CodeWriter.FieldInit(builder, CodeWriter.Public, CodeWriter.Static, setType, info.Name, initValue);
@@ -209,7 +208,7 @@ namespace ConfigGen.Export
                 {
                     CodeWriter.IntervalLevel(builder);
                     string dirPath = string.Format(@"{0}{1}", Values.ConfigDir.Replace("\\", "/"), info.DataTable);
-                    string fullType = CodeWriter.GetFullNamespace(LSON_ROOT_SPACE, info.GetClassName());
+                    string fullType = CodeWriter.GetFullNamespace(Values.LsonRootNode, info.GetClassName());
                     builder.AppendFormat("{0} = Load<{1}>(\"{2}\");\n", info.Name, fullType, dirPath);
                 }
             }

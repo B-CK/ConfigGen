@@ -33,7 +33,7 @@ namespace Csv.AllType
 		/// <summary>
 		/// 类类型
 		/// <summary>
-		public Csv.AllType.Inherit1 VarClass;
+		public Csv.AllType.SingleClass VarClass;
 		/// <summary>
 		/// 字符串列表
 		/// <summary>
@@ -67,7 +67,7 @@ namespace Csv.AllType
 			this.VarString = data.GetString();
 			this.VarBool = data.GetBool();
 			this.VarEnum = data.GetInt();
-			this.VarClass = new AllType.Inherit1(data);
+			this.VarClass = (AllType.SingleClass)data.GetObject(data.GetString());
 			for (int n = data.GetInt(); n-- > 0; )
 			{
 				this.VarListBase.Add(data.GetString());

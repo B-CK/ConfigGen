@@ -25,55 +25,67 @@ namespace ConfigGen
 
         static void Main(string[] args)
         {
-            string path = @"E:\C#Project\ConfigGen\Csv\AllType\Lson数据\2.json";
-            string json = File.ReadAllText(path);
-            JObject jObject = JObject.Parse(json);
-            foreach (var item in jObject)
-            {
-                object value = null;
-                switch (item.Value.Type)
-                {
-                    case JTokenType.Undefined:
-                    case JTokenType.Guid:
-                    case JTokenType.TimeSpan:
-                    case JTokenType.Uri:
-                    case JTokenType.Bytes:
-                    case JTokenType.Raw:
-                    case JTokenType.Date:
-                    case JTokenType.Null:
-                    case JTokenType.None:
-                    case JTokenType.Object:
-                    case JTokenType.Constructor:
-                    case JTokenType.Property:
-                    case JTokenType.Comment:
-                        value = item.Value.Type;
-                        break;
-                    case JTokenType.Array:
-                        string s = "";
-                        foreach (var v in item.Value.Values())
-                            s += string.Format("{0},", (object)v);
-                        value = s;
-                        break;
-                    case JTokenType.Integer:
-                        value = (long)item.Value;
-                        break;
-                    case JTokenType.Float:
-                        value = item.Value.Value<float>();
-                        break;
-                    case JTokenType.String:
-                        value = item.Value.Value<string>();
-                        break;
-                    case JTokenType.Boolean:
-                        value = item.Value.Value<bool>();
-                        break;
-                    default:
-                        break;
-                }
-                Console.WriteLine(string.Format("{0} - {1} - {2}", item.Key, value, (object)item.Value));
-            }
+            //string path = @"E:\C#Project\ConfigGen\Csv\AllType\Lson数据\2.json";
+            //string json = File.ReadAllText(path);
+            //JObject jObject = JObject.Parse(json);
+            //foreach (var item in jObject)
+            //{
+            //    object value = null;
+            //    switch (item.Value.Type)
+            //    {
+            //        case JTokenType.Undefined:
+            //        case JTokenType.Guid:
+            //        case JTokenType.TimeSpan:
+            //        case JTokenType.Uri:
+            //        case JTokenType.Bytes:
+            //        case JTokenType.Raw:
+            //        case JTokenType.Date:
+            //        case JTokenType.Null:
+            //        case JTokenType.None:
+            //        case JTokenType.Constructor:
+            //        case JTokenType.Property:
+            //        case JTokenType.Comment:
+            //            value = item.Value.Type;
+            //            break;
+            //        case JTokenType.Array:
+            //            string s = "";
+            //            foreach (var v in item.Value.Values())
+            //                s += string.Format("{0},", (object)v);
+            //            value = s;
+            //            JArray jAry = item.Value as JArray;
+            //            break;
+            //        case JTokenType.Object:
+            //            value = item.Value.Type;
+            //            JObject jObj = item.Value as JObject;
+            //            if (item.Key.Contains("Dict"))
+            //            {
+            //                var properties = jObj.GetEnumerator();
+            //                while (properties.MoveNext())
+            //                {
+            //                    Console.WriteLine(string.Format("---------->{0} - {1}", properties.Current.Key, properties.Current.Value));
+            //                }
+            //            }
+            //            break;
+            //        case JTokenType.Integer:
+            //            value = (long)item.Value;
+            //            break;
+            //        case JTokenType.Float:
+            //            value = item.Value.Value<float>();
+            //            break;
+            //        case JTokenType.String:
+            //            value = item.Value.Value<string>();
+            //            break;
+            //        case JTokenType.Boolean:
+            //            value = item.Value.Value<bool>();
+            //            break;
+            //        default:
+            //            break;
+            //    }
+            //    Console.WriteLine(string.Format("{0} - {1} - {2}", item.Key, value, (object)item.Value));
+            //}
 
-            Console.ReadKey();
-            return;
+            //Console.ReadKey();
+            //return;
             Util.Start();
             //stopwatch.Start();
 

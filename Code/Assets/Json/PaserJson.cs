@@ -39,7 +39,6 @@ public class PaserJson : SerializedMonoBehaviour
         //{
         //    Debug.Log(array[i]);
         //}
-        JObject js = JObject.Parse(txt);
 
         Debug.Log("");
     }

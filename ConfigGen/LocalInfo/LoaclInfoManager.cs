@@ -198,7 +198,7 @@ namespace ConfigGen.LocalInfo
 
             Util.Start();
             Dictionary<string, DataTable> _dataTableDict = new Dictionary<string, DataTable>();
-            //填充基本信息
+            //填充基本信息,均为xlsx文件
             for (int i = 0; i < _diffRelPath.Count; i++)
             {
                 string relPath = _diffRelPath[i];
@@ -263,7 +263,6 @@ namespace ConfigGen.LocalInfo
                 TypeInfoLib.CorrectClassInfo(_diffRelPath);
                 //Util.Log("==>>类型修正完毕\n");
 
-
                 //解析数据定义和检查规则
                 foreach (var define in TypeInfoLib.ClassInfoDict)
                 {
@@ -275,27 +274,38 @@ namespace ConfigGen.LocalInfo
                         continue;
                     }
                     string type = classType.GetClassName();
-                    string dataTablePath = null;
+                    string excel = null, xml = null;
                     string combine = string.Format("{0}\\{1}", classType.NamespaceName, classType.DataTable);
-                    if (!_dataTableDict.ContainsKey(combine))
-                    {
-                        if (!_dataTableDict.ContainsKey(classType.DataTable))
-                        {
-                            Util.LogWarningFormat("{0}类型的数据表表不存在,错误位置:{1}",
-                                type, classType.DataTable);
-                            Util.PopTime();
-                            continue;
-                        }
-                        else
-                            dataTablePath = classType.DataTable;
-                    }
+                    if (_dataTableDict.ContainsKey(combine))
+                        excel = combine;
+                    else if (_dataTableDict.ContainsKey(classType.DataTable))
+                        excel = classType.DataTable;
                     else
-                        dataTablePath = combine;
-                    TableDataInfo data = new TableDataInfo(classType.DataTable, _dataTableDict[dataTablePath], classType);
+                    {
+                        string absDir1 = string.Format("{0}{1}", Values.ConfigDir, combine);
+                        string absDir2 = string.Format("{0}{1}", Values.ConfigDir, classType.DataTable);
+                        if (Directory.Exists(absDir1))
+                            xml = absDir1;
+                        else if (Directory.Exists(absDir2))
+                            xml = absDir2;
+                    }
+
+                    TableDataInfo data = null;
+                    if (!string.IsNullOrWhiteSpace(excel))
+                        data = new TableDataInfo(excel, _dataTableDict[excel], classType);
+                    else if (!string.IsNullOrWhiteSpace(xml))
+                        data = new TableLsonInfo(xml, classType);
+                    else
+                    {
+                        Util.LogErrorFormat("{0}类型的数据文件不存在,错误位置:{1}",
+                            type, classType.DataTable);
+                        Util.PopTime();
+                        continue;
+                    }
                     data.Analyze();
                     if (!DataInfoDict.ContainsKey(type))
                         DataInfoDict.Add(type, data);
-                    Util.Stop(string.Format("解析数据:{0}", data.RelPath));
+                    Util.Stop(string.Format("解析数据:{0}", classType.DataTable));
                 }
 
                 TypeInfoLib.Save();

@@ -47,8 +47,8 @@ namespace Lson
 		}
 		public static void LoadAll()
 		{
-			AllClass = Load<Lson.AllType.AllClass>("F:/__GitHub/ConfigGen/ConfigGen/bin/Debug/../../../Csv/所有Class类型.xlsx");
-			Card = Load<Lson.Card.Card>("F:/__GitHub/ConfigGen/ConfigGen/bin/Debug/../../../Csv/卡牌_Card.xlsx");
+			AllClass = Load<Lson.AllType.AllClass>("E:/C#Project/ConfigGen/ConfigGen/bin/Debug/../../../Csv/Lson数据");
+			Card = Load<Lson.Card.Card>("E:/C#Project/ConfigGen/ConfigGen/bin/Debug/../../../Csv/卡牌_Card.xlsx");
 		}
 		public static void Clear()
 		{

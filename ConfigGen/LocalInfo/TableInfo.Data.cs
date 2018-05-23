@@ -20,9 +20,9 @@ namespace ConfigGen.LocalInfo
                 Util.LogErrorFormat("数据表结构没有指明类型,文件名:{0}", RelPath);
         }
 
-        public ClassTypeInfo DataClassInfo { get; private set; }
-        public int DataLength { get { return TableDataSet.Rows.Count - Values.DataSheetDataStartIndex; } }
-        public List<TableFieldInfo> DataFields { get; private set; }
+        public ClassTypeInfo DataClassInfo { get; protected set; }
+        public int DataLength { get; protected set; }
+        public List<TableFieldInfo> DataFields { get; protected set; }
         /// <summary>
         /// 只查询数据表中类型定义
         /// </summary>
@@ -49,7 +49,6 @@ namespace ConfigGen.LocalInfo
             for (int i = 0; i < tableFields.Length; i++)
             {
                 string field = tableFields[i].ToString();
-                //string fieldType = dt.Rows[Values.DataSheetTypeIndex][i].ToString();
                 if (!string.IsNullOrWhiteSpace(field))
                 {
                     TableFieldInfo tableFieldInfo = new TableFieldInfo();
@@ -79,7 +78,7 @@ namespace ConfigGen.LocalInfo
                             DataClassInfo.Name, GetErrorSite(i + 1, Values.DataSheetFieldIndex + 1));
                 }
             }
-
+            DataLength = tableFields.Length - Values.DataSheetDataStartIndex;
             DataFields.AddRange(dataFieldDict.Values);
         }
         private string GetErrorSite(int c, int r)

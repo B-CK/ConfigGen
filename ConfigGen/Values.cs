@@ -89,6 +89,14 @@ namespace ConfigGen
         /// 多态标识符
         /// </summary>
         public const string Polymorphism = "$type";
+        /// <summary>
+        /// 导出Lson数据读写类命名空间根节点
+        /// </summary>
+        public const string LsonRootNode = "Lson";
+        /// <summary>
+        /// 导出Csv数据读写类命名空间根节点
+        /// </summary>
+        public const string ConfigRootNode = "Csv";
         #endregion
     }
 }

@@ -42,7 +42,9 @@ namespace ConfigGen.LocalInfo
     {
         /// <summary>
         /// 基础/枚举类型单列数据存储在Data
-        /// <para>Class类型多列数据存储在ChildFields
+        /// 
+        /// <para>Class
+        /// -->ChildFields
         /// $type       -           多态类型标识,普通类型无此标识
         ///             -           Data,中存储每一行所对应的类型
         ///             -           ChildFields.中为每个子类字段信息,key-派生类型,value-派生类型信息
@@ -50,15 +52,30 @@ namespace ConfigGen.LocalInfo
         /// key         -           字段名
         /// value       -           字段信息
         /// </para>
-        /// <para>List类型多列数据存储在ChildFields
+        /// 
+        /// <para>List
+        /// -->Data
+        /// 基础类型    -           直接存储在Data(包含枚举)
+        /// -->ChildFields
         /// key         -           索引号
-        /// value       -           元素信息
+        /// value       -           普通类或者派生类
+        ///             -->ChildFields
+        ///             key         -           字段名
+        ///             value       -           字段信息
         /// </para>
-        /// <para>Dict类型多列数据pair存储在ChildFields
+        /// 
+        /// <para>Dict
+        /// -->ChildFields
         /// key         -           索引号
         /// value       -           Pair信息
-        /// Pair中包含Key,Value,分别对应一个字段信息
-        /// KeyValue中数据均以kv形式存储
+        ///             -->ChildFields
+        ///             DictKey             -           类型为int,long,string,enum
+        ///             DictValue           -           value内容
+        ///                         -->Data
+        ///                         基础类型    -       直接存储在Data(包含枚举)
+        ///                         -->ChildFields
+        ///                         key         -       字段名
+        ///                         value       -       字段信息
         /// </para>
         /// </summary>
         public List<object> Data { get; set; }
@@ -67,7 +84,21 @@ namespace ConfigGen.LocalInfo
         /// </summary>
         public Dictionary<string, TableFieldInfo> ChildFields { get; set; }
         /// <summary>
-        /// 列索引
+        /// 列索引,下标号从0开始
+        /// 基础类型        -       当前列号
+        /// 
+        /// 类类型          -       普通类型/派生类型
+        ///                 普通类型        -       无类型标识,字段从下一个列号开始
+        ///                 派生类型        -       类型存在当前列,字段从下一个列号开始
+        ///                 
+        /// List            -       基础类型/类类型
+        ///                 基础类型        -       从下一个列号开始
+        ///                 类类型          -       从当前列号开始
+        ///                
+        /// Dict            -       key&value从下一列号
+        ///                 value           -       基础类型/类类型
+        ///                                 基础类型        -       从下一个列号开始
+        ///                                 类类型          -       从当前列号开始
         /// </summary>
         public int ColumnIndex { get; set; }
         public Dictionary<CheckRuleType, List<string>> RuleDict { get; set; }

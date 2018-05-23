@@ -8,8 +8,6 @@ namespace ConfigGen.Export
 {
     public partial class ExportCSharp
     {
-        public const string CONFIG_ROOT_NODE = "Csv";
-
         private const string CLASS_CFG_OBJECT = "CfgObject";
         private const string CLASS_DATA_STREAM = "DataStream";
         private const string CLASS_CFG_MANAGER = "CfgManager";
@@ -38,12 +36,12 @@ namespace ConfigGen.Export
             //构建Csv存储类基础类CfgObject.cs
             string path = Path.Combine(Values.ExportCSharp, CLASS_CFG_OBJECT + ".cs");
             CodeWriter.UsingNamespace(builder, NameSpaces);
-            CodeWriter.NameSpace(builder, CONFIG_ROOT_NODE);
+            CodeWriter.NameSpace(builder, Values.ConfigRootNode);
             CodeWriter.ClassBase(builder, CodeWriter.Public, CodeWriter.Abstract, CLASS_CFG_OBJECT);
             CodeWriter.EndAll(builder);
             Util.SaveFile(path, builder.ToString());
             builder.Clear();
-            NameSpaces.Add(CONFIG_ROOT_NODE);
+            NameSpaces.Add(Values.ConfigRootNode);
 
             //构造自定义类型
             List<BaseTypeInfo> typeInfos = new List<BaseTypeInfo>();
@@ -57,7 +55,7 @@ namespace ConfigGen.Export
 
                 CodeWriter.UsingNamespace(builder, NameSpaces);
                 builder.AppendLine();
-                CodeWriter.NameSpace(builder, string.Format("{0}.{1}", CONFIG_ROOT_NODE, baseType.NamespaceName));
+                CodeWriter.NameSpace(builder, string.Format("{0}.{1}", Values.ConfigRootNode, baseType.NamespaceName));
                 if (baseType.TypeType == TypeType.Class)
                 {
                     ClassTypeInfo classType = baseType as ClassTypeInfo;
@@ -66,7 +64,7 @@ namespace ConfigGen.Export
                         CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, CLASS_CFG_OBJECT);
                     else
                     {
-                        string fullType = CodeWriter.GetFullNamespace(CONFIG_ROOT_NODE, classType.Inherit);
+                        string fullType = CodeWriter.GetFullNamespace(Values.ConfigRootNode, classType.Inherit);
                         CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, fullType);
                     }
 
@@ -82,7 +80,7 @@ namespace ConfigGen.Export
                             case TypeType.Class:
                                 {
                                     CodeWriter.Comments(builder, field.Des);
-                                    string fullType = CodeWriter.GetFullNamespace(CONFIG_ROOT_NODE, field.Type);
+                                    string fullType = CodeWriter.GetFullNamespace(Values.ConfigRootNode, field.Type);
                                     CodeWriter.Field(builder, CodeWriter.Public, fullType, field.Name);
                                 }
                                 break;
@@ -97,7 +95,7 @@ namespace ConfigGen.Export
                                     TypeType typeType = TypeInfo.GetTypeType(listType.ItemType);
                                     if (typeType == TypeType.Enum)
                                         type = type.Replace(listType.ItemType, Base.Int);
-                                    string fullType = CodeWriter.GetFullNamespace(CONFIG_ROOT_NODE, listType.ItemType);
+                                    string fullType = CodeWriter.GetFullNamespace(Values.ConfigRootNode, listType.ItemType);
                                     type = type.Replace(listType.ItemType, fullType);
 
                                     string initValue = string.Format("new {0}()", type);
@@ -115,9 +113,9 @@ namespace ConfigGen.Export
                                     if (TypeInfo.GetTypeType(dictType.ValueType) == TypeType.Enum)
                                         type = type.Replace(dictType.ValueType, Base.Int);
 
-                                    string fullType = CodeWriter.GetFullNamespace(CONFIG_ROOT_NODE, dictType.KeyType);
+                                    string fullType = CodeWriter.GetFullNamespace(Values.ConfigRootNode, dictType.KeyType);
                                     type = type.Replace(dictType.KeyType, fullType);
-                                    fullType = CodeWriter.GetFullNamespace(CONFIG_ROOT_NODE, dictType.ValueType);
+                                    fullType = CodeWriter.GetFullNamespace(Values.ConfigRootNode, dictType.ValueType);
                                     type = type.Replace(dictType.ValueType, fullType);
 
                                     string initValue = string.Format("new {0}()", type);
@@ -271,7 +269,7 @@ namespace ConfigGen.Export
             //构建Csv数据解析类DataStream.cs
             string path = Path.Combine(Values.ExportCSharp, CLASS_DATA_STREAM + ".cs");
             CodeWriter.UsingNamespace(builder, NameSpaces);
-            CodeWriter.NameSpace(builder, CONFIG_ROOT_NODE);
+            CodeWriter.NameSpace(builder, Values.ConfigRootNode);
             CodeWriter.ClassBase(builder, CodeWriter.Public, CLASS_DATA_STREAM);
 
             string fRIndex = "_rIndex";
@@ -399,7 +397,7 @@ namespace ConfigGen.Export
             //构建Csv数据解析类DataStream.cs
             string path = Path.Combine(Values.ExportCSharp, CLASS_CFG_MANAGER + ".cs");
             CodeWriter.UsingNamespace(builder, NameSpaces);
-            CodeWriter.NameSpace(builder, CONFIG_ROOT_NODE);
+            CodeWriter.NameSpace(builder, Values.ConfigRootNode);
             CodeWriter.ClassBase(builder, CodeWriter.Public, CLASS_CFG_MANAGER);
 
             CodeWriter.Comments(builder, "配置文件文件夹路径");
@@ -425,7 +423,7 @@ namespace ConfigGen.Export
                        Base.Int, classType.GetClassName(), classType.Name);
                 else
                 {
-                    string fullType = CodeWriter.GetFullNamespace(CONFIG_ROOT_NODE, classType.GetClassName());
+                    string fullType = CodeWriter.GetFullNamespace(Values.ConfigRootNode, classType.GetClassName());
                     builder.AppendFormat("public static readonly Dictionary<{0}, {1}> {2} = new Dictionary<{0}, {1}>();\n",
                   classType.IndexField.Type, fullType, classType.Name);
                 }
