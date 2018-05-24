@@ -67,16 +67,17 @@ namespace ConfigGen
             //            }
             //            break;
             //        case JTokenType.Integer:
-            //            value = (long)item.Value;
-            //            break;
+            //            //value = (long)item.Value;
+            //            //break;
             //        case JTokenType.Float:
-            //            value = item.Value.Value<float>();
-            //            break;
+            //            //value = item.Value.Value<float>();
+            //            //break;
             //        case JTokenType.String:
-            //            value = item.Value.Value<string>();
-            //            break;
+            //            //value = item.Value.Value<string>();
+            //            //break;
             //        case JTokenType.Boolean:
-            //            value = item.Value.Value<bool>();
+            //            //value = item.Value.Value<bool>();
+            //            value = item.Value;
             //            break;
             //        default:
             //            break;

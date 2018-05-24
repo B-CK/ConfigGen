@@ -7,6 +7,10 @@ using Newtonsoft.Json.Linq;
 
 namespace ConfigGen.LocalInfo
 {
+    /// <summary>
+    /// List:集合中的元素无检查规则
+    /// Dict:集合中的元素无检查规则
+    /// </summary>
     public class TableLsonInfo : TableDataInfo
     {
         private List<JObject> _datas = new List<JObject>();
@@ -35,193 +39,273 @@ namespace ConfigGen.LocalInfo
 
             DataClassInfo.Fields = new Dictionary<string, FieldInfo>();
             ClassTypeInfo classInfo = DataClassInfo.BaseInfo as ClassTypeInfo;
+            //逐行数据存储..
             for (int colum = 0; colum < classInfo.Fields.Count; colum++)
             {
                 for (int row = 0; row < dt.Count; row++)
                 {
                     //解析数据类字段
+                    JObject jClass = dt[row];
                     FieldInfo fieldInfo = classInfo.Fields[colum];
-                    BaseTypeInfo baseType = fieldInfo.BaseInfo;
-                    switch (baseType.TypeType)
-                    {
-                        case TypeType.Base:
-                        case TypeType.Enum:
-                            DataBaseInfo baseFieldInfo = new DataBaseInfo();
-                            baseFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
-                            DataClassInfo.Fields.Add(baseFieldInfo.Name, baseFieldInfo);
-                            AnalyzeBaseField(dt, baseFieldInfo);
-                            break;
-                        case TypeType.Class://类的检查规则需要自定义
-                            DataClassInfo subClassFieldInfo = new DataClassInfo();
-                            subClassFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
-                            DataClassInfo.Fields.Add(subClassFieldInfo.Name, subClassFieldInfo);
-                            AnalyzeClassField(dt[row], subClassFieldInfo);
-                            break;
-                        case TypeType.List://集合中元素的规则统一指定,无法重写
-                            DataListInfo listFieldInfo = new DataListInfo();
-                            listFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
-                            DataClassInfo.Fields.Add(listFieldInfo.Name, listFieldInfo);
-                            AnalyzeListField(dt, listFieldInfo);
-                            break;
-                        case TypeType.Dict://集合中元素的规则统一指定,无法重写
-                            DataDictInfo dictFieldInfo = new DataDictInfo();
-                            dictFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
-                            DataClassInfo.Fields.Add(dictFieldInfo.Name, dictFieldInfo);
-                            AnalyzeDictField(dt, dictFieldInfo);
-                            break;
-                        case TypeType.None:
-                        default:
-                            break;
-                    }
-                }
-            }
 
-            for (int i = 0; i < dt.Count; i++)
-            {
-                AnalyzeClassField(dt[i], DataClassInfo);
+                    AnalyzeField(jClass, DataClassInfo, fieldInfo);
+                }
             }
             DataLength = dt.Count;
         }
-        private void AnalyzeClassField(JObject jObject, DataClassInfo classFieldInfo)
+
+        /// <summary>
+        /// 解析字段
+        /// </summary>
+        /// <param name="data">类的数据</param>
+        /// <param name="dataClass">类</param>
+        /// <param name="fieldInfo">类中字段</param>
+        private void AnalyzeField(JToken data, DataClassInfo dataClass, FieldInfo fieldInfo)
         {
-            
-            //----多态
-            if (jClass.ContainsKey(Values.Polymorphism))
+            BaseTypeInfo baseType = fieldInfo.BaseInfo;
+            switch (baseType.TypeType)
             {
-                string type = jClass[Values.Polymorphism].Value<string>();
-                type = type.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[0];
-                type = type.Replace(Values.LsonRootNode + ".", "");
-                ClassTypeInfo polyType = TypeInfo.GetTypeInfo(type) as ClassTypeInfo;
-                //startColumn = AnalyzeClass(classfieldInfo, polyType, jClass);
+                case TypeType.Base:
+                case TypeType.Enum:
+                    AnalyzeBaseField(dataClass, fieldInfo, data[fieldInfo.Name]);
+                    break;
+                case TypeType.Class://类的检查规则需要自定义
+                    AnalyzeClassField(dataClass, fieldInfo, data[fieldInfo.Name]);
+                    AnalyzePolyClassField(dataClass, fieldInfo, data[fieldInfo.Name]);
+                    break;
+                case TypeType.List://集合中元素的规则统一指定,无法重写                          
+                    AnalyzeListField(dataClass, fieldInfo, data[fieldInfo.Name]);
+                    break;
+                case TypeType.Dict://集合中元素的规则统一指定,无法重写
+                    AnalyzeDictField(dataClass, fieldInfo, data[fieldInfo.Name]);
+                    break;
+                case TypeType.None:
+                default:
+                    break;
             }
         }
-        private void AnalyzeBaseField(List<JObject> dt, DataBaseInfo baseFieldInfo)
+        //一下接受的均为指定字段的数据
+        private void AnalyzeBaseField(DataClassInfo dataClass, FieldInfo fieldInfo, JToken data)
         {
-            //BaseTypeInfo baseType = fieldInfo.BaseInfo;
-            //switch (baseType.TypeType)
-            //{
-            //    case TypeType.Enum:
-            //    case TypeType.Base:
-            //        {
-            //            AnalyzeData(fieldInfo, jObject[fieldInfo.Name]);
-            //            break;
-            //        }
-            //    case TypeType.Class:
-            //        {
-            //            JObject jClass = jObject[fieldInfo.Name] as JObject;
-            //            ClassTypeInfo classType = baseType as ClassTypeInfo;
-            //            fieldInfo.ChildFields = new Dictionary<string, TableFieldInfo>();
-            //            startColumn = AnalyzeClass(fieldInfo, classType, jClass);
-            //            break;
-            //        }
-            //    case TypeType.List:
-            //        {
-            //            fieldInfo.ChildFields = new Dictionary<string, TableFieldInfo>();
-            //            JArray jArray = jObject[fieldInfo.Name] as JArray;
-            //            ListTypeInfo listTypeInfo = baseType as ListTypeInfo;
-            //            BaseTypeInfo itemType = TypeInfo.GetTypeInfo(listTypeInfo.ItemType);
-            //            int count = 0;
-            //            for (int i = 0; i < jArray.Count; i++)
-            //            {
-            //                startColumn += count;
-            //                TableFieldInfo itemInfo = new TableFieldInfo();
-            //                itemInfo.AsChildSet(i.ToString(), itemType.GetClassName());
-            //                count++;
-            //                switch (itemType.TypeType)
-            //                {
-            //                    case TypeType.List:
-            //                    case TypeType.Dict:
-            //                        throw new Exception("Lson 数据List中禁止直接嵌套集合");
-            //                    case TypeType.Class:
-            //                        {
-            //                            ClassTypeInfo classType = itemType as ClassTypeInfo;
-            //                            JObject jClass = jArray[i] as JObject;
-            //                            startColumn = AnalyzeClass(fieldInfo, classType, jClass);
-            //                            break;
-            //                        }
-            //                    case TypeType.None:
-            //                    case TypeType.Enum:
-            //                    case TypeType.Base:
-            //                    default:
-            //                        AnalyzeData(itemInfo, jArray[i]);
-            //                        break;
-            //                }
-            //                fieldInfo.ChildFields.Add(i.ToString(), itemInfo);
-            //            }
-            //            break;
-            //        }
-            //    case TypeType.Dict:
-            //        {
-            //            fieldInfo.ChildFields = new Dictionary<string, TableFieldInfo>();
-            //            JObject jDict = jObject[fieldInfo.Name] as JObject;
-            //            DictTypeInfo dictTypeInfo = baseType as DictTypeInfo;
-            //            BaseTypeInfo keyType = TypeInfo.GetTypeInfo(dictTypeInfo.KeyType);
-            //            BaseTypeInfo valueType = TypeInfo.GetTypeInfo(dictTypeInfo.ValueType);
-            //            var properties = new List<JProperty>(jDict.Properties());
-            //            int count = 0;
-            //            for (int i = 0; i < properties.Count; i++)
-            //            {
-            //                var property = properties[i];
-            //                TableFieldInfo pair = new TableFieldInfo();
-            //                pair.ChildFields = new Dictionary<string, TableFieldInfo>();
-
-            //                startColumn += count++;
-            //                TableFieldInfo keyInfo = new TableFieldInfo();
-            //                keyInfo.AsChildSet("key", keyType.GetClassName());
-            //                AnalyzeData(keyInfo, property.Name);
-
-            //                startColumn += count++;
-            //                TableFieldInfo valueInfo = new TableFieldInfo();
-            //                valueInfo.AsChildSet("value", valueType.GetClassName());
-            //                switch (valueType.TypeType)
-            //                {
-            //                    case TypeType.List:
-            //                    case TypeType.Dict:
-            //                        throw new Exception("Lson 数据Dict中禁止直接嵌套集合");
-            //                    case TypeType.Class:
-            //                        {
-            //                            ClassTypeInfo classType = valueType as ClassTypeInfo;
-            //                            JObject jClass = property.Value as JObject;
-            //                            startColumn = AnalyzeClass(fieldInfo, classType, jClass);
-            //                            break;
-            //                        }
-            //                    case TypeType.None:
-            //                    case TypeType.Base:
-            //                    case TypeType.Enum:
-            //                    default:
-            //                        AnalyzeData(valueInfo, property.Value);
-            //                        break;
-            //                }
-
-            //                pair.ChildFields.Add(keyInfo.Name, keyInfo);
-            //                pair.ChildFields.Add(valueInfo.Name, valueInfo);
-            //                fieldInfo.ChildFields.Add(i.ToString(), pair);
-            //            }
-            //            break;
-            //        }
-            //    case TypeType.None:
-            //    default:
-            //        break;
-            //}
-        }
-        private void AnalyzeListField(List<JObject> dt, DataListInfo listFieldInfo)
-        {
-        }
-        private void AnalyzeDictField(List<JObject> dt, DataDictInfo dictFieldInfo)
-        {
-
-        }
-        private void AnalyzeData(TableFieldInfo fieldInfo, JToken token)
-        {
-            string error = TableChecker.CheckFieldData(fieldInfo, token);
-            if (string.IsNullOrWhiteSpace(error))
+            DataBaseInfo baseFieldInfo = null;
+            if (dataClass.Fields.ContainsKey(fieldInfo.Name))
             {
-                if (fieldInfo.Data == null)
-                    fieldInfo.Data = new List<object>();
-                fieldInfo.Data.Add(token);
+                baseFieldInfo = new DataBaseInfo();
+                baseFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
+                dataClass.Fields.Add(baseFieldInfo.Name, baseFieldInfo);
             }
             else
-                throw new Exception(string.Format("{0}类型字段{1}解析错误,{2}", fieldInfo.Type, fieldInfo.Name, error));
+            {
+                baseFieldInfo = dataClass.Fields[fieldInfo.Name] as DataBaseInfo;
+            }
+            baseFieldInfo.Data.Add(data);
+        }
+        private void AnalyzeClassField(DataClassInfo dataClass, FieldInfo fieldInfo, JToken data)
+        {
+            JObject jClass = data as JObject;
+            ClassTypeInfo classTypeInfo = fieldInfo.BaseInfo as ClassTypeInfo;
+            DataClassInfo classFieldInfo = null;
+            if (dataClass.Fields.ContainsKey(fieldInfo.Name))
+            {
+                classFieldInfo = new DataClassInfo();
+                classFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
+                dataClass.Fields.Add(classFieldInfo.Name, classFieldInfo);
+                if (classTypeInfo.HasSubClass)
+                    classFieldInfo.Types = new List<string>();
+            }
+            else
+            {
+                classFieldInfo = dataClass.Fields[fieldInfo.Name] as DataClassInfo;
+            }
+
+            for (int colum = 0; colum < classTypeInfo.Fields.Count; colum++)
+            {
+                FieldInfo field = classTypeInfo.Fields[colum];
+                AnalyzeField(jClass, classFieldInfo, field);
+            }
+        }
+        private void AnalyzePolyClassField(DataClassInfo dataClass, FieldInfo fieldInfo, JToken data)
+        {
+            ClassTypeInfo classType = fieldInfo.BaseInfo as ClassTypeInfo;
+            if (classType.HasSubClass)
+            {
+                DataClassInfo polyFieldInfo = dataClass.Fields[fieldInfo.Name] as DataClassInfo;
+                JObject jClass = data as JObject;
+                if (jClass.ContainsKey(Values.Polymorphism))
+                {
+                    string type = jClass[Values.Polymorphism].Value<string>();
+                    type = type.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[0];
+                    type = type.Replace(Values.LsonRootNode + ".", "");
+                    ClassTypeInfo polyType = TypeInfo.GetTypeInfo(type) as ClassTypeInfo;
+                    polyFieldInfo.Types.Add(type);
+                    for (int colum = 0; colum < polyType.Fields.Count; colum++)
+                    {
+                        FieldInfo field = polyType.Fields[colum];
+                        AnalyzeField(jClass, polyFieldInfo, field);
+                    }
+                }
+                else
+                    polyFieldInfo.Types.Add(fieldInfo.Type);
+            }
+        }
+        private void AnalyzeListField(DataClassInfo dataClass, FieldInfo fieldInfo, JToken data)
+        {
+            JArray array = data as JArray;
+            ListTypeInfo listTypeInfo = fieldInfo.BaseInfo as ListTypeInfo;
+            DataListInfo listFieldInfo = null;
+            if (DataClassInfo.Fields.ContainsKey(fieldInfo.Name))
+            {
+                listFieldInfo = new DataListInfo();
+                listFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
+                DataClassInfo.Fields.Add(listFieldInfo.Name, listFieldInfo);
+            }
+            else
+            {
+                listFieldInfo = dataClass.Fields[fieldInfo.Name] as DataListInfo;
+            }
+
+            BaseTypeInfo elemType = TypeInfo.GetTypeInfo(listTypeInfo.GetClassName());
+            for (int i = 0; i < array.Count; i++)
+            {
+                FieldInfo field = listFieldInfo.Elements.Find(e => e.Name == i.ToString());
+                switch (elemType.TypeType)
+                {
+                    case TypeType.List:
+                    case TypeType.Dict:
+                        throw new Exception("Lson 数据List中禁止直接嵌套集合");
+                    case TypeType.Class:
+                        {
+                            DataClassInfo elemClass = null;
+                            if (field == null)
+                            {
+                                elemClass = new DataClassInfo();
+                                elemClass.Set(i.ToString(), elemType.GetClassName(), null, elemType.Group);
+                                field = elemClass;
+                            }
+                            else
+                            {
+                                elemClass = field as DataClassInfo;
+                            }
+                            ClassTypeInfo classType = elemType as ClassTypeInfo;
+                            for (int j = 0; j < classType.Fields.Count; j++)
+                                AnalyzeField(array[i], elemClass, classType.Fields[j]);
+                            break;
+                        }
+                    case TypeType.None:
+                    case TypeType.Enum:
+                    case TypeType.Base:
+                    default:
+                        {
+                            DataBaseInfo element = null;
+                            if (field == null)
+                            {
+                                element = new DataBaseInfo();
+                                element.Set(i.ToString(), elemType.GetClassName(), null, elemType.Group);
+                                element.Data = new List<object>();
+                                field = element;
+                            }
+                            else
+                            {
+                                element = field as DataBaseInfo;
+                            }
+                            element.Data.Add(array[i]);
+                            break;
+                        }
+                }
+                listFieldInfo.Elements.Add(field);
+            }
+        }
+        private void AnalyzeDictField(DataClassInfo dataClass, FieldInfo fieldInfo, JToken data)
+        {
+            JObject jDict = data as JObject;
+            DictTypeInfo dictTypeInfo = fieldInfo.BaseInfo as DictTypeInfo;
+            DataDictInfo dictFieldInfo = null;
+            if (dataClass.Fields.ContainsKey(fieldInfo.Name))
+            {
+                dictFieldInfo = new DataDictInfo();
+                dictFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
+                dataClass.Fields.Add(dictFieldInfo.Name, dictFieldInfo);
+            }
+            else
+            {
+                dictFieldInfo = dataClass.Fields[fieldInfo.Name] as DataDictInfo;
+            }
+
+            BaseTypeInfo keyType = TypeInfo.GetTypeInfo(dictTypeInfo.KeyType);
+            BaseTypeInfo valueType = TypeInfo.GetTypeInfo(dictTypeInfo.ValueType);
+            var properties = new List<JProperty>(jDict.Properties());
+            for (int i = 0; i < properties.Count; i++)
+            {
+                var property = properties[i];
+                KeyValuePair<DataBaseInfo, FieldInfo> pair;
+                if (i < dictFieldInfo.Pairs.Count)
+                    pair = dictFieldInfo.Pairs[i];
+                else
+                {
+                    pair = new KeyValuePair<DataBaseInfo, FieldInfo>();
+                    dictFieldInfo.Pairs.Add(pair);
+                }
+
+                DataBaseInfo keyData = null;
+                if (pair.Key == null)
+                {
+                    keyData = new DataBaseInfo();
+                    keyData.Set(Values.KEY, keyType.GetClassName(), null, keyType.Group);
+                    keyData.Data = new List<object>();
+                }
+                else
+                {
+                    keyData = pair.Key;
+                }
+                keyData.Data.Add(property.Name);
+
+                switch (valueType.TypeType)
+                {
+                    case TypeType.List:
+                    case TypeType.Dict:
+                        throw new Exception("Lson 数据List中禁止直接嵌套集合");
+                    case TypeType.Class:
+                        {
+                            DataClassInfo valueData = null;
+                            if (pair.Value == null)
+                            {
+                                valueData = new DataClassInfo();
+                                valueData.Set(Values.VALUE, valueType.GetClassName(), null, valueType.Group);
+                            }
+                            else
+                            {
+                                valueData = pair.Value as DataClassInfo;
+                            }
+
+                            ClassTypeInfo valueClass = valueType as ClassTypeInfo;
+                            for (int j = 0; j < valueClass.Fields.Count; j++)
+                                AnalyzeField(property.Value, valueData, valueClass.Fields[j]);
+                            pair = new KeyValuePair<DataBaseInfo, FieldInfo>(keyData, valueData);
+                            break;
+                        }
+                    case TypeType.None:
+                    case TypeType.Enum:
+                    case TypeType.Base:
+                    default:
+                        {
+                            DataBaseInfo valueData = null;
+                            if (pair.Value == null)
+                            {
+                                valueData = new DataBaseInfo();
+                                valueData.Set(Values.VALUE, valueType.GetClassName(), null, valueType.Group);
+                                valueData.Data = new List<object>();
+                            }
+                            else
+                            {
+                                valueData = pair.Value as DataBaseInfo;
+                            }
+                            valueData.Data.Add(property.Value);
+                            pair = new KeyValuePair<DataBaseInfo, FieldInfo>(keyData, valueData);
+                            break;
+                        }
+                }
+                dictFieldInfo.Pairs[i] = pair;
+            }
         }
 
         public override bool Exist(string content)

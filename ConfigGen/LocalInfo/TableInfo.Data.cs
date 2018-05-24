@@ -161,7 +161,7 @@ namespace ConfigGen.LocalInfo
                         break;
                     case TypeType.Class:
                         DataClassInfo classFieldInfo = new DataClassInfo();
-                        classFieldInfo.Set(elemTypeInfo.Name, elemTypeInfo.GetClassName(), check, listFieldInfo.Group);
+                        classFieldInfo.Set(i.ToString(), elemTypeInfo.GetClassName(), check, listFieldInfo.Group);
                         startColumn = AnalyzeClassField(dt, classFieldInfo, startColumn - 1);
                         listFieldInfo.Elements.Add(classFieldInfo);
                         break;
@@ -184,13 +184,14 @@ namespace ConfigGen.LocalInfo
         private int AnalyzeDictField(DataTable dt, DataDictInfo dictFieldInfo, int index)
         {
             int startColumn = index + 1;
-            dictFieldInfo.Pairs = new List<KeyValuePair<object, FieldInfo>>();
+            dictFieldInfo.Pairs = new List<KeyValuePair<DataBaseInfo, FieldInfo>>();
             DictTypeInfo dictTypeInfo = dictFieldInfo.BaseInfo as DictTypeInfo;
             BaseTypeInfo keyTypeInfo = TypeInfo.GetTypeInfo(dictTypeInfo.KeyType);
             BaseTypeInfo valueTypeInfo = TypeInfo.GetTypeInfo(dictTypeInfo.ValueType);
             string check = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
             for (int i = 0; !check.StartsWith(Values.DataSetEndFlag); i++)
             {
+                //键需要做唯一性检查...
                 DataBaseInfo keyInfo = new DataBaseInfo();
                 keyInfo.Set(Values.KEY, keyTypeInfo.GetClassName(), check, dictTypeInfo.Group);
                 startColumn = AnalyzeBaseField(dt, keyInfo, startColumn);
@@ -208,7 +209,7 @@ namespace ConfigGen.LocalInfo
                             DataClassInfo valueInfo = new DataClassInfo();
                             valueInfo.Set(Values.VALUE, valueTypeInfo.GetClassName(), check, dictTypeInfo.Group);
                             startColumn = AnalyzeClassField(dt, valueInfo, startColumn - 1);
-                            dictFieldInfo.Pairs.Add(new KeyValuePair<object, FieldInfo>(keyInfo, valueInfo));
+                            dictFieldInfo.Pairs.Add(new KeyValuePair<DataBaseInfo, FieldInfo>(keyInfo, valueInfo));
                             break;
                         }
                     case TypeType.Base:
@@ -219,7 +220,7 @@ namespace ConfigGen.LocalInfo
                             DataBaseInfo valueInfo = new DataBaseInfo();
                             valueInfo.Set(Values.VALUE, valueTypeInfo.GetClassName(), check, dictTypeInfo.Group);
                             startColumn = AnalyzeBaseField(dt, valueInfo, startColumn);
-                            dictFieldInfo.Pairs.Add(new KeyValuePair<object, FieldInfo>(keyInfo, valueInfo));
+                            dictFieldInfo.Pairs.Add(new KeyValuePair<DataBaseInfo, FieldInfo>(keyInfo, valueInfo));
                             break;
                         }
                 }

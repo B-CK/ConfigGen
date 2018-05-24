@@ -17,13 +17,13 @@ namespace ConfigGen.Export
             foreach (var item in LocalInfoManager.Instance.DataInfoDict)
             {
                 TableDataInfo table = item.Value;
-                List<TableFieldInfo> data = table.DataFields;
+                DataClassInfo data = table.DataClassInfo;
                 for (int row = 0; row < table.DataLength; row++)//行
                 {
-                    for (int column = 0; column < data.Count; column++)//列
+                    for (int column = 0; column < data.Fields.Count; column++)//列
                     {
-                        string v = AnalyzeField(data[column], row);
-                        if (column + 1 == data.Count)
+                        string v = AnalyzeField(data.Fields[column], row);
+                        if (column + 1 == data.Fields.Count)
                             builder.AppendLine(v);
                         else
                             builder.AppendFormat("{0}{1}", v, Values.CsvSplitFlag);
@@ -37,7 +37,7 @@ namespace ConfigGen.Export
             }
         }
         //isNesting - 是否为嵌套Class类型
-        private static string AnalyzeField(TableFieldInfo fieldInfo, int row, bool isNesting = false)
+        private static string AnalyzeField(FieldInfo fieldInfo, int row, bool isNesting = false)
         {
             string v = "";
             BaseTypeInfo typeInfo = fieldInfo.BaseInfo;
@@ -45,7 +45,8 @@ namespace ConfigGen.Export
             {
                 case TypeType.Base:
                 case TypeType.Enum:
-                    object temp = fieldInfo.Data[row];
+                    DataBaseInfo dataBase = fieldInfo as DataBaseInfo;
+                    object temp = dataBase.Data[row];
                     v = temp.ToString().Trim();
                     if (fieldInfo.Type.Equals("bool"))
                         v = AnalyzeBool(v);

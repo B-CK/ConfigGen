@@ -32,14 +32,14 @@ namespace ConfigGen.LocalInfo
         public List<EnumTypeInfo> EnumInfos { get; set; }
 
         [XmlIgnore]
-        public Dictionary<string, BaseTypeInfo> TypeInfoDict { get { return _typeInfoDict; } set { _typeInfoDict = value; } }
+        public Dictionary<string, BaseTypeInfo> TypeInfoDict { get => _typeInfoDict; set => _typeInfoDict = value; }
         private Dictionary<string, BaseTypeInfo> _typeInfoDict = new Dictionary<string, BaseTypeInfo>();
 
         [XmlIgnore]
-        public Dictionary<string, ClassTypeInfo> ClassInfoDict { get { return _classInfoDict; } }
+        public Dictionary<string, ClassTypeInfo> ClassInfoDict { get => _classInfoDict; }
         private Dictionary<string, ClassTypeInfo> _classInfoDict = new Dictionary<string, ClassTypeInfo>();
         [XmlIgnore]
-        public Dictionary<string, EnumTypeInfo> EnumInfoDict { get { return _enumInfoDict; } }
+        public Dictionary<string, EnumTypeInfo> EnumInfoDict { get => _enumInfoDict; }
         private Dictionary<string, EnumTypeInfo> _enumInfoDict = new Dictionary<string, EnumTypeInfo>();
 
         public void Init()
@@ -461,13 +461,13 @@ namespace ConfigGen.LocalInfo
         }
     }
     [XmlInclude(typeof(ListTypeInfo))]
-    public class ListTypeInfo : ClassTypeInfo
+    public class ListTypeInfo : BaseTypeInfo
     {
         [XmlAttribute]
         public string ItemType { get; set; }
     }
     [XmlInclude(typeof(DictTypeInfo))]
-    public class DictTypeInfo : ClassTypeInfo
+    public class DictTypeInfo : BaseTypeInfo
     {
         [XmlAttribute]
         public string KeyType { get; set; }
@@ -507,7 +507,8 @@ namespace ConfigGen.LocalInfo
         }
         private BaseTypeInfo _typeInfo;
         [XmlIgnore]
-        public Dictionary<CheckRuleType, List<string>> RuleDict { get; set; }
+        public Dictionary<CheckRuleType, List<string>> RuleDict { get => _ruleDict; set => _ruleDict = value; }
+        private Dictionary<CheckRuleType, List<string>> _ruleDict = new Dictionary<CheckRuleType, List<string>>();
         public void Set(string name, string type, string check, string group)
         {
             Name = name;
