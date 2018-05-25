@@ -6,7 +6,7 @@
   "VarBool": true,
   "VarEnum": 9,
   "VarClass": {
-    "$type": "Lson.AllType.Inherit1, Assembly-CSharp",
+    "$type": "Lson.AllType.LInherit1, Assembly-CSharp",
     "Var3": 9999,
     "Var1": "999",
     "Var2": true
@@ -35,7 +35,7 @@
   },
   "VarDictClass": {
     "9999": {
-      "$type": "Lson.AllType.Inherit1, Assembly-CSharp",
+      "$type": "Lson.AllType.LInherit1, Assembly-CSharp",
       "Var3": 9999,
       "Var1": "99",
       "Var2": true

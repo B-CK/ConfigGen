@@ -87,7 +87,7 @@ namespace ConfigGen.LocalInfo
                     }
                     i = j - 1;
                     ClassInfoDict.Add(name, classInfo);
-                    LocalInfoManager.Instance.TypeInfoLib.Add(classInfo);
+                    Local.Instance.TypeInfoLib.Add(classInfo);
                 }
                 else if (defineTypeStr.Equals("enum"))
                 {
@@ -115,7 +115,7 @@ namespace ConfigGen.LocalInfo
                     }
                     i = j - 1;
                     EnumInfoDict.Add(name, enumInfo);
-                    LocalInfoManager.Instance.TypeInfoLib.Add(enumInfo);
+                    Local.Instance.TypeInfoLib.Add(enumInfo);
                 }
                 else
                 {

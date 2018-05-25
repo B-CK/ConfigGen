@@ -151,6 +151,7 @@ namespace ConfigGen.LocalInfo
             string check = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
             for (int i = 0; !check.StartsWith(Values.DataSetEndFlag); i++)
             {
+                check = dt.Rows[Values.DataSheetCheckIndex][startColumn].ToString();
                 switch (elemTypeInfo.TypeType)
                 {
                     case TypeType.List:
@@ -159,7 +160,7 @@ namespace ConfigGen.LocalInfo
                             listFieldInfo.Name, GetErrorSite(startColumn + 1, Values.DataSheetFieldIndex + 1));
                         break;
                     case TypeType.Class:
-                        DataClassInfo classFieldInfo = new DataClassInfo();
+                        DataClassInfo classFieldInfo = new DataClassInfo();                        
                         classFieldInfo.Set(i.ToString(), elemTypeInfo.GetClassName(), check, listFieldInfo.Group);
                         startColumn = AnalyzeClassField(dt, classFieldInfo, startColumn - 1);
                         listFieldInfo.Elements.Add(classFieldInfo);
@@ -192,10 +193,12 @@ namespace ConfigGen.LocalInfo
             {
                 //键需要做唯一性检查...
                 DataBaseInfo keyInfo = new DataBaseInfo();
+                check = dt.Rows[Values.DataSheetCheckIndex][startColumn].ToString();
                 keyInfo.Set(Values.KEY, keyTypeInfo.GetClassName(), check, dictTypeInfo.Group);
                 startColumn = AnalyzeBaseField(dt, keyInfo, startColumn);
 
                 startColumn = startColumn + 1;
+                check = dt.Rows[Values.DataSheetCheckIndex][startColumn].ToString();
                 switch (valueTypeInfo.TypeType)
                 {
                     case TypeType.List:

@@ -54,7 +54,7 @@ namespace ConfigGen.LocalInfo
         public static string CheckType(string typeName)
         {
             string error = null;
-            if (!LocalInfoManager.Instance.TypeInfoLib.TypeInfoDict.ContainsKey(typeName))
+            if (!Local.Instance.TypeInfoLib.TypeInfoDict.ContainsKey(typeName))
                 error = string.Format("类型{0}不存在", typeName);
             return error;
         }

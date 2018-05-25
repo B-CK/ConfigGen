@@ -317,6 +317,15 @@ namespace ConfigGen
             string seconds = (ms / 1000f).ToString();
             LogFormat("{0} 耗时 {1:N3}s", msg, seconds);
         }
+        public static void Stopln(string msg)
+        {
+            if (_timeStack.Count <= 0) return;
+
+            long ms = _sw.ElapsedMilliseconds - _timeStack.Pop();
+            string seconds = (ms / 1000f).ToString();
+            LogFormat("{0} 耗时 {1:N3}s", msg, seconds);
+        }
+
         public static void PopTime()
         {
             _timeStack.Pop();

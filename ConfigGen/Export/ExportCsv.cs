@@ -14,7 +14,7 @@ namespace ConfigGen.Export
         public static void Export()
         {
             StringBuilder builder = new StringBuilder();
-            foreach (var item in LocalInfoManager.Instance.DataInfoDict)
+            foreach (var item in LocalInfo.Local.Instance.DataInfoDict)
             {
                 TableDataInfo table = item.Value;
                 DataClassInfo data = table.DataClassInfo;

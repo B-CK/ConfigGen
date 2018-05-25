@@ -26,7 +26,29 @@ namespace ConfigGen.LocalInfo
         [XmlIgnore]
         public Dictionary<string, FileState> FileDict { get { return _fileDict; } }
         private Dictionary<string, FileState> _fileDict = new Dictionary<string, FileState>();
-        public void Init()
+
+        public static FileInfo Create()
+        {
+            FileInfo fileInfo = new FileInfo();
+            string path = Local.GetInfoPath(LocalInfoType.FileInfo);
+            if (File.Exists(path))
+            {
+                string txt = File.ReadAllText(path);
+                if (string.IsNullOrWhiteSpace(txt))
+                {
+                    File.Delete(path);
+                    fileInfo.Save();
+                }
+            }
+            else
+            {
+                fileInfo.Save();
+            }
+            fileInfo = Util.Deserialize(path, typeof(FileInfo)) as FileInfo;
+            fileInfo.Init();
+            return fileInfo;
+        }
+        private void Init()
         {
             for (int i = 0; i < FileStates.Count; i++)
             {
@@ -52,7 +74,7 @@ namespace ConfigGen.LocalInfo
         public void Save()
         {
             UpdateList();
-            string path = LocalInfoManager.GetInfoPath(LocalInfoType.FileInfo);
+            string path = Local.GetInfoPath(LocalInfoType.FileInfo);
             Util.Serialize(path, this);
         }
     }

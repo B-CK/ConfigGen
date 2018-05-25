@@ -13,7 +13,28 @@ namespace ConfigGen.LocalInfo
 
         private const int MaxValue = 20;
         private HashSet<string> _findStates = new HashSet<string>();
-        public void Init()
+        public static FindInfo Create()
+        {
+            FindInfo findInfo = new FindInfo();
+            string path = Local.GetInfoPath(LocalInfoType.FindInfo);
+            if (File.Exists(path))
+            {
+                string txt = File.ReadAllText(path);
+                if (string.IsNullOrWhiteSpace(txt))
+                {
+                    File.Delete(path);
+                    findInfo.Save();
+                }
+            }
+            else
+            {
+                findInfo.Save();
+            }
+            findInfo = Util.Deserialize(path, typeof(FindInfo)) as FindInfo;
+            findInfo.Init();
+            return findInfo;
+        }
+        private void Init()
         {
             if (FindStates == null || FindStates.Count == 0)
             {
@@ -45,13 +66,13 @@ namespace ConfigGen.LocalInfo
         public void Remove(object info) { }
         public void UpdateList()
         {
-             
+
         }
 
         public void Save()
         {
             UpdateList();
-            string path = LocalInfoManager.GetInfoPath(LocalInfoType.FindInfo);
+            string path = Local.GetInfoPath(LocalInfoType.FindInfo);
             Util.Serialize(path, this);
         }
     }

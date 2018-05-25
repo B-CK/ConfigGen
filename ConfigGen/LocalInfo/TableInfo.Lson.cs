@@ -35,6 +35,7 @@ namespace ConfigGen.LocalInfo
         {
             List<JObject> dt = _datas;
             DataClassInfo = new DataClassInfo();
+            DataClassInfo.Fields = new Dictionary<string, FieldInfo>();
             DataClassInfo.Set(ClassTypeInfo.Name, ClassTypeInfo.GetClassName(), null, null);
 
             DataClassInfo.Fields = new Dictionary<string, FieldInfo>();
@@ -111,9 +112,9 @@ namespace ConfigGen.LocalInfo
                 classFieldInfo = new DataClassInfo();
                 classFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
                 classFieldInfo.Fields = new Dictionary<string, FieldInfo>();
-                dataClass.Fields.Add(classFieldInfo.Name, classFieldInfo);
                 if (classTypeInfo.HasSubClass)
                     classFieldInfo.Types = new List<string>();
+                dataClass.Fields.Add(classFieldInfo.Name, classFieldInfo);
             }
             else
             {
@@ -178,20 +179,21 @@ namespace ConfigGen.LocalInfo
                         throw new Exception("Lson 数据List中禁止直接嵌套集合");
                     case TypeType.Class:
                         {
+                            ClassTypeInfo classType = elemType as ClassTypeInfo;
                             DataClassInfo elemClass = null;
                             if (field == null)
                             {
                                 elemClass = new DataClassInfo();
                                 elemClass.Set(i.ToString(), elemType.GetClassName(), null, elemType.Group);
                                 elemClass.Fields = new Dictionary<string, FieldInfo>();
-                                elemClass.Types = new List<string>();
+                                if (classType.HasSubClass)
+                                    elemClass.Types = new List<string>();
                                 listFieldInfo.Elements.Add(elemClass);
                             }
                             else
                             {
                                 elemClass = field as DataClassInfo;
                             }
-                            ClassTypeInfo classType = elemType as ClassTypeInfo;
                             for (int j = 0; j < classType.Fields.Count; j++)
                                 AnalyzeField(array[i], elemClass, classType.Fields[j]);
                             break;

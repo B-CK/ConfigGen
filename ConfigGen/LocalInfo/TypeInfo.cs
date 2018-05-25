@@ -42,10 +42,10 @@ namespace ConfigGen.LocalInfo
         public Dictionary<string, EnumTypeInfo> EnumInfoDict { get => _enumInfoDict; }
         private Dictionary<string, EnumTypeInfo> _enumInfoDict = new Dictionary<string, EnumTypeInfo>();
 
-        public static BaseInfo Create()
+        public static TypeInfo Create()
         {
             TypeInfo typeInfo = new TypeInfo();
-            string path = LocalInfoManager.GetInfoPath(LocalInfoType.TypeInfo);
+            string path = Local.GetInfoPath(LocalInfoType.TypeInfo);
             if (File.Exists(path))
             {
                 string txt = File.ReadAllText(path);
@@ -60,8 +60,12 @@ namespace ConfigGen.LocalInfo
                 typeInfo.Save();
             }
             typeInfo = Util.Deserialize(path, typeof(TypeInfo)) as TypeInfo;
+            typeInfo.Init();
 
-            var classInfos = typeInfo.ClassInfos;
+            return typeInfo;
+        }
+        private void Init()
+        {
             for (int i = 0; i < ClassInfos.Count; i++)
             {
                 string type = ClassInfos[i].GetClassName();
@@ -80,9 +84,7 @@ namespace ConfigGen.LocalInfo
                     _typeInfoDict.Add(type, EnumInfos[i]);
                 }
             }
-            return typeInfo;
         }
-
         public void Add(object info)
         {
             BaseTypeInfo baseInfo = info as BaseTypeInfo;
@@ -165,6 +167,7 @@ namespace ConfigGen.LocalInfo
                 if (typeInfo.TypeType == TypeType.Class)
                 {
                     ClassTypeInfo classType = typeInfo as ClassTypeInfo;
+                    if (!classType.IsExist) continue;
                     for (int i = 0; i < classType.Fields.Count; i++)
                     {
                         FieldInfo fieldInfo = classType.Fields[i];
@@ -226,6 +229,7 @@ namespace ConfigGen.LocalInfo
                     typeInfo.IsExist = true;
                 }
             }
+            infoDict = new Dictionary<string, BaseTypeInfo>(TypeInfoDict);
             foreach (var item in infoDict)
             {
                 if (!item.Value.IsExist)
@@ -325,9 +329,9 @@ namespace ConfigGen.LocalInfo
                 typeType = TypeType.List;
             else if (type.StartsWith("dict<"))
                 typeType = TypeType.Dict;
-            else if (LocalInfoManager.Instance.TypeInfoLib.ClassInfoDict.ContainsKey(type))
+            else if (Local.Instance.TypeInfoLib.ClassInfoDict.ContainsKey(type))
                 typeType = TypeType.Class;
-            else if (LocalInfoManager.Instance.TypeInfoLib.EnumInfoDict.ContainsKey(type))
+            else if (Local.Instance.TypeInfoLib.EnumInfoDict.ContainsKey(type))
                 typeType = TypeType.Enum;
 
             return typeType;
@@ -340,7 +344,7 @@ namespace ConfigGen.LocalInfo
         public static BaseTypeInfo GetTypeInfo(string type)
         {
             BaseTypeInfo baseTypeInfo = null;
-            var typeDict = LocalInfoManager.Instance.TypeInfoLib.TypeInfoDict;
+            var typeDict = Local.Instance.TypeInfoLib.TypeInfoDict;
             if (typeDict.ContainsKey(type))
                 baseTypeInfo = typeDict[type];
             //else Util.LogErrorFormat("未定义{0}类型", type);
@@ -351,7 +355,7 @@ namespace ConfigGen.LocalInfo
         public void Save()
         {
             UpdateList();
-            string path = LocalInfoManager.GetInfoPath(LocalInfoType.TypeInfo);
+            string path = Local.GetInfoPath(LocalInfoType.TypeInfo);
             Util.Serialize(path, this);
         }
     }
@@ -433,7 +437,7 @@ namespace ConfigGen.LocalInfo
         public ClassTypeInfo GetInheritTypeInfo()
         {
             ClassTypeInfo classType = null;
-            Dictionary<string, ClassTypeInfo> classInfoDict = LocalInfoManager.Instance.TypeInfoLib.ClassInfoDict;
+            Dictionary<string, ClassTypeInfo> classInfoDict = Local.Instance.TypeInfoLib.ClassInfoDict;
             if (classInfoDict.ContainsKey(Inherit))
                 classType = classInfoDict[Inherit];
             else

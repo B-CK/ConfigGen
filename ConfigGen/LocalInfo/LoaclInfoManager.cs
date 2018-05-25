@@ -15,185 +15,97 @@ namespace ConfigGen.LocalInfo
 
     interface BaseInfo
     {
-        BaseInfo Create();
         void Add(object info);
         void Remove(object info);
         void Save();
     }
 
-    public class LocalInfoManager
+    public class Local
     {
-        public static LocalInfoManager Instance
+        public static Local Instance
         {
             get
             {
                 if (_instance == null)
-                    _instance = new LocalInfoManager();
+                    _instance = new Local();
                 return _instance;
             }
         }
-        private static LocalInfoManager _instance;
-        private LocalInfoManager() { }
+        private static Local _instance;
+        private Local() { }
 
         /// <summary>
         /// 文件信息
         /// </summary>
-        public FileInfo FileInfoLib { get; private set; }
+        public FileInfo FileInfoLib { get; set; }
         /// <summary>
         /// 数据类型信息
         /// </summary>
-        public TypeInfo TypeInfoLib { get; private set; }
+        public TypeInfo TypeInfoLib { get; set; }
         /// <summary>
         /// 查询操作信息
         /// </summary>
-        public FindInfo FindInfoLib { get; private set; }
+        public FindInfo FindInfoLib { get; set; }
 
         /// <summary>
         /// key:表文件路径
         /// value:数据表信息
         /// </summary>
-        public Dictionary<string, TableDataInfo> DataInfoDict { get; private set; }
+        public Dictionary<string, TableDataInfo> DataInfoDict { get; set; }
         /// <summary>
         /// key:表文件路径
         /// value:定义表信息
         /// </summary>
-        public Dictionary<string, TableDefineInfo> DefineInfoDict { get; private set; }
+        public Dictionary<string, TableDefineInfo> DefineInfoDict { get; set; }
 
-        private List<LocalInfoType> _infoTypes = new List<LocalInfoType>();
         private List<string> _diffRelPath = new List<string>();
         private const string _ext = "lfi";
-        private bool _isInit = false;
-        public void Init(List<LocalInfoType> infos)
+
+        public void UpdateFileInfo()
         {
-            if (_isInit) return;
-            _isInit = true;
-            _infoTypes = infos;
-            for (int i = 0; i < infos.Count; i++)
+            List<string> diffRelPath = new List<string>();
+            string[] files = Directory.GetFiles(Values.ConfigDir, "*.xls", SearchOption.AllDirectories);
+            var fileDict = FileInfoLib.FileDict;
+            for (int j = 0; j < files.Length; j++)
             {
-                LocalInfoType type = infos[i];
-                
-                switch (type)
+                string relPath = Util.GetConfigRelPath(files[j]);
+                string md5 = Util.GetMD5HashFromFile(files[j]);
+                if (string.IsNullOrWhiteSpace(md5)) return;
+                if (fileDict.ContainsKey(relPath))
                 {
-                    case LocalInfoType.FileInfo:
-                        {
-                            if (File.Exists(path))
-                            {
-                                string txt = File.ReadAllText(path);
-                                if (string.IsNullOrWhiteSpace(txt))
-                                {
-                                    File.Delete(path);
-                                    FileInfoLib = new FileInfo();
-                                    FileInfoLib.Save();
-                                }
-                            }
-                            else
-                            {
-                                FileInfoLib = new FileInfo();
-                                FileInfoLib.Save();
-                            }
-                            FileInfoLib = Util.Deserialize(path, typeof(FileInfo)) as FileInfo;
-                            FileInfoLib.Init();
-                            break;
-                        }
-                    case LocalInfoType.TypeInfo:
-                        {
-                            
-                            TypeInfoLib = 
-                            DefineInfoDict = new Dictionary<string, TableDefineInfo>();
-                            DataInfoDict = new Dictionary<string, TableDataInfo>();
-                            break;
-                        }
-                    case LocalInfoType.FindInfo:
-                        {
-                            if (File.Exists(path))
-                            {
-                                string txt = File.ReadAllText(path);
-                                if (string.IsNullOrWhiteSpace(txt))
-                                {
-                                    File.Delete(path);
-                                    FindInfoLib = new FindInfo();
-                                    FindInfoLib.Save();
-                                }
-                            }
-                            else
-                            {
-                                FindInfoLib = new FindInfo();
-                                FindInfoLib.Save();
-                            }
-                            FindInfoLib = Util.Deserialize(path, typeof(FindInfo)) as FindInfo;
-                            FindInfoLib.Init();
-                            break;
-                        }
-                    default:
-                        break;
+                    if (fileDict[relPath].MD5Hash != md5)
+                    {
+                        fileDict[relPath].MD5Hash = md5;
+                        diffRelPath.Add(relPath);
+                    }
+                }
+                else
+                {
+                    FileState fileState = new FileState();
+                    fileState.RelPath = relPath;
+                    fileState.MD5Hash = md5;
+                    FileInfoLib.Add(fileState);
+                    diffRelPath.Add(relPath);
                 }
             }
-        }
-        public void Update()
-        {
-            for (int i = 0; i < _infoTypes.Count; i++)
+            if (diffRelPath.Count > 0)
             {
-                LocalInfoType type = _infoTypes[i];
-                switch (type)
+                FileInfoLib.Save();
+                for (int k = 0; k < diffRelPath.Count; k++)
                 {
-                    case LocalInfoType.FileInfo:
-                        List<string> diffRelPath = new List<string>();
-                        string[] files = Directory.GetFiles(Values.ConfigDir, "*.xls", SearchOption.AllDirectories);
-                        var fileDict = FileInfoLib.FileDict;
-                        for (int j = 0; j < files.Length; j++)
-                        {
-                            string relPath = Util.GetConfigRelPath(files[j]);
-                            string md5 = Util.GetMD5HashFromFile(files[j]);
-                            if (string.IsNullOrWhiteSpace(md5)) return;
-                            if (fileDict.ContainsKey(relPath))
-                            {
-                                if (fileDict[relPath].MD5Hash != md5)
-                                {
-                                    fileDict[relPath].MD5Hash = md5;
-                                    diffRelPath.Add(relPath);
-                                }
-                            }
-                            else
-                            {
-                                FileState fileState = new FileState();
-                                fileState.RelPath = relPath;
-                                fileState.MD5Hash = md5;
-                                FileInfoLib.Add(fileState);
-                                diffRelPath.Add(relPath);
-                            }
-                        }
-                        if (diffRelPath.Count > 0)
-                        {
-                            FileInfoLib.Save();
-                            for (int k = 0; k < diffRelPath.Count; k++)
-                            {
-                                Util.LogFormat(">修改文件:{0}", diffRelPath[k]);
-                            }
-                        }
-
-                        Util.LogFormat("\r\n==>>修改文件数{0}个\n", diffRelPath.Count.ToString());
-                        if (Values.IsOptPart)
-                            _diffRelPath.AddRange(diffRelPath);
-                        else
-                            _diffRelPath.AddRange(FileInfoLib.FileDict.Keys);
-                        _diffRelPath = _diffRelPath.FindAll(f => Path.GetExtension(f).Contains(".xls"));
-                        break;
-                    case LocalInfoType.TypeInfo:
-                        UpdateTypeInfo();
-                        break;
-                    case LocalInfoType.FindInfo:
-                        UpdateFindInfo();
-                        break;
-                    default:
-                        break;
+                    Util.LogFormat(">修改文件:{0}", diffRelPath[k]);
                 }
             }
-        }
-        private void UpdateTypeInfo()
-        {
-            if (TypeInfoLib == null) return;
 
-            Util.Start();
+            Util.LogFormat("\r\n==>>修改文件数{0}个\n", diffRelPath.Count.ToString());
+            if (Values.IsOptPart)
+                _diffRelPath.AddRange(diffRelPath);
+            else
+                _diffRelPath.AddRange(FileInfoLib.FileDict.Keys);
+            _diffRelPath = _diffRelPath.FindAll(f => Path.GetExtension(f).Contains(".xls"));
+        }
+        public void UpdateTypeInfo()
+        {
             Dictionary<string, DataTable> _dataTableDict = new Dictionary<string, DataTable>();
             //填充基本信息,均为xlsx文件
             for (int i = 0; i < _diffRelPath.Count; i++)
@@ -261,60 +173,57 @@ namespace ConfigGen.LocalInfo
                 TypeInfoLib.Save();
                 //Util.Log("==>>类型修正完毕\n");
 
-                ////解析数据定义和检查规则
-                //foreach (var define in TypeInfoLib.ClassInfoDict)
-                //{
-                //    Util.Start();
-                //    ClassTypeInfo classType = define.Value;
-                //    if (string.IsNullOrWhiteSpace(classType.DataTable))
-                //    {
-                //        Util.PopTime();
-                //        continue;
-                //    }
-                //    string type = classType.GetClassName();
-                //    string excel = null, xml = null;
-                //    string combine = string.Format("{0}\\{1}", classType.NamespaceName, classType.DataTable);
-                //    if (_dataTableDict.ContainsKey(combine))
-                //        excel = combine;
-                //    else if (_dataTableDict.ContainsKey(classType.DataTable))
-                //        excel = classType.DataTable;
-                //    else
-                //    {
-                //        string absDir1 = string.Format("{0}{1}", Values.ConfigDir, combine);
-                //        string absDir2 = string.Format("{0}{1}", Values.ConfigDir, classType.DataTable);
-                //        if (Directory.Exists(absDir1))
-                //            xml = absDir1;
-                //        else if (Directory.Exists(absDir2))
-                //            xml = absDir2;
-                //    }
+                //解析数据定义和检查规则
+                foreach (var define in TypeInfoLib.ClassInfoDict)
+                {
+                    Util.Start();
+                    ClassTypeInfo classType = define.Value;
+                    if (string.IsNullOrWhiteSpace(classType.DataTable))
+                    {
+                        Util.PopTime();
+                        continue;
+                    }
+                    string type = classType.GetClassName();
+                    string excel = null, xml = null;
+                    string combine = string.Format("{0}\\{1}", classType.NamespaceName, classType.DataTable);
+                    if (_dataTableDict.ContainsKey(combine))
+                        excel = combine;
+                    else if (_dataTableDict.ContainsKey(classType.DataTable))
+                        excel = classType.DataTable;
+                    else
+                    {
+                        string absDir1 = string.Format("{0}{1}", Values.ConfigDir, combine);
+                        string absDir2 = string.Format("{0}{1}", Values.ConfigDir, classType.DataTable);
+                        if (Directory.Exists(absDir1))
+                            xml = absDir1;
+                        else if (Directory.Exists(absDir2))
+                            xml = absDir2;
+                    }
 
-                //    TableDataInfo data = null;
-                //    if (!string.IsNullOrWhiteSpace(excel))
-                //        data = new TableDataInfo(excel, _dataTableDict[excel], classType);
-                //    else if (!string.IsNullOrWhiteSpace(xml))
-                //        data = new TableLsonInfo(xml, classType);
-                //    else
-                //    {
-                //        Util.LogErrorFormat("{0}类型的数据文件不存在,错误位置:{1}",
-                //            type, classType.DataTable);
-                //        Util.PopTime();
-                //        continue;
-                //    }
-                //    data.Analyze();
-                //    if (!DataInfoDict.ContainsKey(type))
-                //        DataInfoDict.Add(type, data);
-                //    Util.Stop(string.Format("解析数据:{0}", classType.DataTable));
-                //}
+                    TableDataInfo data = null;
+                    if (!string.IsNullOrWhiteSpace(excel))
+                        data = new TableDataInfo(excel, _dataTableDict[excel], classType);
+                    else if (!string.IsNullOrWhiteSpace(xml))
+                        data = new TableLsonInfo(xml, classType);
+                    else
+                    {
+                        Util.LogErrorFormat("{0}类型的数据文件不存在,错误位置:{1}",
+                            type, classType.DataTable);
+                        Util.PopTime();
+                        continue;
+                    }
+                    data.Analyze();
+                    if (!DataInfoDict.ContainsKey(type))
+                        DataInfoDict.Add(type, data);
+                    Util.Stop(string.Format("解析数据:{0}", classType.DataTable));
+                }
             }
             catch (Exception e)
             {
                 Util.LogErrorFormat("Excel,Xml解析异常.\n{0}\n{1}", e.Message, e.StackTrace);
             }
-
-            Util.Stop("=================>> 更新类型和解析/检查数据完毕");
-            Util.Log("");
         }
-        private void UpdateFindInfo()
+        public void UpdateFindInfo()
         {
             if (FindInfoLib == null) return;
 

@@ -45,8 +45,8 @@ namespace ConfigGen.Export
 
             //构造自定义类型
             List<BaseTypeInfo> typeInfos = new List<BaseTypeInfo>();
-            typeInfos.AddRange(LocalInfoManager.Instance.TypeInfoLib.ClassInfos);
-            typeInfos.AddRange(LocalInfoManager.Instance.TypeInfoLib.EnumInfos);
+            typeInfos.AddRange(LocalInfo.Local.Instance.TypeInfoLib.ClassInfos);
+            typeInfos.AddRange(LocalInfo.Local.Instance.TypeInfoLib.EnumInfos);
             for (int i = 0; i < typeInfos.Count; i++)
             {
                 BaseTypeInfo baseType = typeInfos[i];
@@ -406,7 +406,7 @@ namespace ConfigGen.Export
 
             List<string> dictName = new List<string>();
             List<BaseTypeInfo> typeInfos = new List<BaseTypeInfo>();
-            typeInfos.AddRange(LocalInfoManager.Instance.TypeInfoLib.ClassInfos);
+            typeInfos.AddRange(LocalInfo.Local.Instance.TypeInfoLib.ClassInfos);
             for (int i = 0; i < typeInfos.Count; i++)
             {
                 BaseTypeInfo baseType = typeInfos[i];

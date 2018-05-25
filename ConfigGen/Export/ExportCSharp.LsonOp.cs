@@ -30,8 +30,8 @@ namespace ConfigGen.Export
             builder.Clear();
 
             List<BaseTypeInfo> typeInfos = new List<BaseTypeInfo>();
-            typeInfos.AddRange(LocalInfoManager.Instance.TypeInfoLib.ClassInfos);
-            typeInfos.AddRange(LocalInfoManager.Instance.TypeInfoLib.EnumInfos);
+            typeInfos.AddRange(LocalInfo.Local.Instance.TypeInfoLib.ClassInfos);
+            typeInfos.AddRange(LocalInfo.Local.Instance.TypeInfoLib.EnumInfos);
             foreach (BaseTypeInfo baseType in typeInfos)
             {
                 CodeWriter.UsingNamespace(builder, NameSpaces);
@@ -144,7 +144,7 @@ namespace ConfigGen.Export
             builder.AppendLine();
             CodeWriter.NameSpace(builder, Values.LsonRootNode);
             CodeWriter.ClassBase(builder, CodeWriter.Public, CodeWriter.Abstract, LSON_STREAM);
-            List<ClassTypeInfo> classes = LocalInfoManager.Instance.TypeInfoLib.ClassInfos;
+            List<ClassTypeInfo> classes = LocalInfo.Local.Instance.TypeInfoLib.ClassInfos;
             foreach (var info in classes)
             {
                 if (info.TypeType == TypeType.Class && !string.IsNullOrWhiteSpace(info.DataTable))

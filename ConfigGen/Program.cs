@@ -24,69 +24,7 @@ namespace ConfigGen
         //static Stopwatch stopwatch = new Stopwatch();
 
         static void Main(string[] args)
-        {
-            //string path = @"E:\C#Project\ConfigGen\Csv\AllType\Lson数据\2.json";
-            //string json = File.ReadAllText(path);
-            //JObject jObject = JObject.Parse(json);
-            //foreach (var item in jObject)
-            //{
-            //    object value = null;
-            //    switch (item.Value.Type)
-            //    {
-            //        case JTokenType.Undefined:
-            //        case JTokenType.Guid:
-            //        case JTokenType.TimeSpan:
-            //        case JTokenType.Uri:
-            //        case JTokenType.Bytes:
-            //        case JTokenType.Raw:
-            //        case JTokenType.Date:
-            //        case JTokenType.Null:
-            //        case JTokenType.None:
-            //        case JTokenType.Constructor:
-            //        case JTokenType.Property:
-            //        case JTokenType.Comment:
-            //            value = item.Value.Type;
-            //            break;
-            //        case JTokenType.Array:
-            //            string s = "";
-            //            foreach (var v in item.Value.Values())
-            //                s += string.Format("{0},", (object)v);
-            //            value = s;
-            //            JArray jAry = item.Value as JArray;
-            //            break;
-            //        case JTokenType.Object:
-            //            value = item.Value.Type;
-            //            JObject jObj = item.Value as JObject;
-            //            if (item.Key.Contains("Dict"))
-            //            {
-            //                var properties = jObj.GetEnumerator();
-            //                while (properties.MoveNext())
-            //                {
-            //                    Console.WriteLine(string.Format("---------->{0} - {1}", properties.Current.Key, properties.Current.Value));
-            //                }
-            //            }
-            //            break;
-            //        case JTokenType.Integer:
-            //            //value = (long)item.Value;
-            //            //break;
-            //        case JTokenType.Float:
-            //            //value = item.Value.Value<float>();
-            //            //break;
-            //        case JTokenType.String:
-            //            //value = item.Value.Value<string>();
-            //            //break;
-            //        case JTokenType.Boolean:
-            //            //value = item.Value.Value<bool>();
-            //            value = item.Value;
-            //            break;
-            //        default:
-            //            break;
-            //    }
-            //    Console.WriteLine(string.Format("{0} - {1} - {2}", item.Key, value, (object)item.Value));
-            //}
-
-            //Console.ReadKey();
-            //return;
+        {   
             Util.Start();
             //stopwatch.Start();
 
@@ -94,37 +32,43 @@ namespace ConfigGen
             if (!CmdOption.Instance.Init(args)) return;
 
             //构建本地数据库
-            var infoTypes = new List<LocalInfoType>() { LocalInfoType.FileInfo };
+            Local.Instance.FileInfoLib = LocalInfo.FileInfo.Create();
+            Local.Instance.UpdateFileInfo();
             if (CmdOption.Instance.CmdArgs.ContainsKey("-exportCSharp")
                 || CmdOption.Instance.CmdArgs.ContainsKey("-exportCsv"))
-                infoTypes.Add(LocalInfoType.TypeInfo);
+            {
+                Util.Start();
+                Local.Instance.TypeInfoLib = TypeInfo.Create();
+                Local.Instance.DefineInfoDict = new Dictionary<string, TableDefineInfo>();
+                Local.Instance.DataInfoDict = new Dictionary<string, TableDataInfo>();
+                Local.Instance.UpdateTypeInfo();
+                Util.Stopln("=================>> 更新类型和解析/检查数据完毕");
+            }
             if (CmdOption.Instance.CmdArgs.ContainsKey("-replace")
                 || CmdOption.Instance.CmdArgs.ContainsKey("-find"))
-                infoTypes.Add(LocalInfoType.FindInfo);
-            LocalInfoManager.Instance.Init(infoTypes);
-            LocalInfoManager.Instance.Update();
-
+            {
+                Local.Instance.FindInfoLib = FindInfo.Create();
+                Local.Instance.UpdateFindInfo();
+            }
+            
             //导出数据
             if (!string.IsNullOrWhiteSpace(Values.ExportCsv))
             {
                 Util.Start();
                 ExportCsv.Export();
-                Util.Stop("=================>> Csv数据导出完毕");
-                Util.Log("");
+                Util.Stopln("=================>> Csv数据导出完毕");
             }
             if (!string.IsNullOrWhiteSpace(Values.ExportCSharp))
             {
                 Util.Start();
-                ExportCSharp.Export_CsvOp();
-                Util.Stop("=================>> CSharp类导出完毕");
-                Util.Log("");
+                //ExportCSharp.Export_CsvOp();
+                Util.Stopln("=================>> CSharp类导出完毕");
             }
             if (!string.IsNullOrWhiteSpace(Values.ExportCsLson))
             {
                 Util.Start();
-                ExportCSharp.Export_LsonOp();
-                Util.Stop("==>>CSharp类导出完毕");
-                Util.Log("");
+                //ExportCSharp.Export_LsonOp();
+                Util.Stopln("==>>CSharp类导出完毕");
             }
 
             Util.Log("\n\n\n");
@@ -158,5 +102,68 @@ namespace ConfigGen
         //    }
         //    return false;
         //}
+
+        //string path = @"E:\C#Project\ConfigGen\Csv\AllType\Lson数据\2.json";
+        //string json = File.ReadAllText(path);
+        //JObject jObject = JObject.Parse(json);
+        //foreach (var item in jObject)
+        //{
+        //    object value = null;
+        //    switch (item.Value.Type)
+        //    {
+        //        case JTokenType.Undefined:
+        //        case JTokenType.Guid:
+        //        case JTokenType.TimeSpan:
+        //        case JTokenType.Uri:
+        //        case JTokenType.Bytes:
+        //        case JTokenType.Raw:
+        //        case JTokenType.Date:
+        //        case JTokenType.Null:
+        //        case JTokenType.None:
+        //        case JTokenType.Constructor:
+        //        case JTokenType.Property:
+        //        case JTokenType.Comment:
+        //            value = item.Value.Type;
+        //            break;
+        //        case JTokenType.Array:
+        //            string s = "";
+        //            foreach (var v in item.Value.Values())
+        //                s += string.Format("{0},", (object)v);
+        //            value = s;
+        //            JArray jAry = item.Value as JArray;
+        //            break;
+        //        case JTokenType.Object:
+        //            value = item.Value.Type;
+        //            JObject jObj = item.Value as JObject;
+        //            if (item.Key.Contains("Dict"))
+        //            {
+        //                var properties = jObj.GetEnumerator();
+        //                while (properties.MoveNext())
+        //                {
+        //                    Console.WriteLine(string.Format("---------->{0} - {1}", properties.Current.Key, properties.Current.Value));
+        //                }
+        //            }
+        //            break;
+        //        case JTokenType.Integer:
+        //            //value = (long)item.Value;
+        //            //break;
+        //        case JTokenType.Float:
+        //            //value = item.Value.Value<float>();
+        //            //break;
+        //        case JTokenType.String:
+        //            //value = item.Value.Value<string>();
+        //            //break;
+        //        case JTokenType.Boolean:
+        //            //value = item.Value.Value<bool>();
+        //            value = item.Value;
+        //            break;
+        //        default:
+        //            break;
+        //    }
+        //    Console.WriteLine(string.Format("{0} - {1} - {2}", item.Key, value, (object)item.Value));
+        //}
+
+        //Console.ReadKey();
+        //return;
     }
 }
