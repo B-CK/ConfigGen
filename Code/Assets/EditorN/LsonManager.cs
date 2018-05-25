@@ -9,6 +9,7 @@ namespace Lson
 	{
 		public static List<Lson.AllType.AllClass> AllClass = new List<AllType.AllClass>();
 		public static List<Lson.Card.Card> Card = new List<Card.Card>();
+		public static List<Lson.AllType.LsonAllClass> LsonAllClass = new List<AllType.LsonAllClass>();
 
 		public static T Deserialize<T>(string path)
 		{
@@ -47,13 +48,15 @@ namespace Lson
 		}
 		public static void LoadAll()
 		{
-			AllClass = Load<Lson.AllType.AllClass>("E:/C#Project/ConfigGen/ConfigGen/bin/Debug/../../../Csv/Lson数据");
+			AllClass = Load<Lson.AllType.AllClass>("E:/C#Project/ConfigGen/ConfigGen/bin/Debug/../../../Csv/Data所有Class类型.xlsx");
 			Card = Load<Lson.Card.Card>("E:/C#Project/ConfigGen/ConfigGen/bin/Debug/../../../Csv/卡牌_Card.xlsx");
+			LsonAllClass = Load<Lson.AllType.LsonAllClass>("E:/C#Project/ConfigGen/ConfigGen/bin/Debug/../../../Csv/Lson数据");
 		}
 		public static void Clear()
 		{
 			AllClass.Clear();
 			Card.Clear();
+			LsonAllClass.Clear();
 		}
 	}
 }

@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.AllType
 {
-	public class AllClass : CfgObject
+	public class LsonAllClass : CfgObject
 	{
 		/// <summary>
 		/// ID
@@ -33,7 +33,7 @@ namespace Csv.AllType
 		/// <summary>
 		/// 类类型
 		/// <summary>
-		public Csv.AllType.SingleClass VarClass;
+		public Csv.AllType.LSingleClass VarClass;
 		/// <summary>
 		/// 字符串列表
 		/// <summary>
@@ -41,7 +41,7 @@ namespace Csv.AllType
 		/// <summary>
 		/// Class列表
 		/// <summary>
-		public readonly List<Csv.AllType.SingleClass> VarListClass = new List<Csv.AllType.SingleClass>();
+		public readonly List<Csv.AllType.LSingleClass> VarListClass = new List<Csv.AllType.LSingleClass>();
 		/// <summary>
 		/// Elem列表
 		/// <summary>
@@ -57,9 +57,9 @@ namespace Csv.AllType
 		/// <summary>
 		/// 类类型字典
 		/// <summary>
-		public readonly Dictionary<string, Csv.AllType.SingleClass> VarDictClass = new Dictionary<string, Csv.AllType.SingleClass>();
+		public readonly Dictionary<string, Csv.AllType.LSingleClass> VarDictClass = new Dictionary<string, Csv.AllType.LSingleClass>();
 
-		public AllClass(DataStream data)
+		public LsonAllClass(DataStream data)
 		{
 			this.ID = data.GetInt();
 			this.VarLong = data.GetLong();
@@ -67,14 +67,14 @@ namespace Csv.AllType
 			this.VarString = data.GetString();
 			this.VarBool = data.GetBool();
 			this.VarEnum = data.GetInt();
-			this.VarClass = new AllType.SingleClass(data);
+			this.VarClass = new AllType.LSingleClass(data);
 			for (int n = data.GetInt(); n-- > 0; )
 			{
 				this.VarListBase.Add(data.GetString());
 			}
 			for (int n = data.GetInt(); n-- > 0; )
 			{
-				this.VarListClass.Add(new AllType.SingleClass(data));
+				this.VarListClass.Add(new AllType.LSingleClass(data));
 			}
 			for (int n = data.GetInt(); n-- > 0; )
 			{
@@ -93,7 +93,7 @@ namespace Csv.AllType
 			for (int n = data.GetInt(); n-- > 0;)
 			{
 				string k = data.GetString();
-				this.VarDictClass[k] = new AllType.SingleClass(data);
+				this.VarDictClass[k] = new AllType.LSingleClass(data);
 			}
 		}
 	}

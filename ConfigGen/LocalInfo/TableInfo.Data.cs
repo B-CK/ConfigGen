@@ -63,9 +63,8 @@ namespace ConfigGen.LocalInfo
             if (classInfo.HasSubClass)
                 throw new Exception(string.Format("Excel中无法解析继承类型的数据,字段名:{0},{1}",
                    classFieldInfo.Name, GetErrorSite(startColumn + 1, Values.DataSheetFieldIndex + 1)));
-            for (int i = 0; i < classFieldDict.Count; i++)
+            for (int i = 0; i < classFieldDict.Count; i++, startColumn++)
             {
-                startColumn = startColumn + i;
                 string fieldName = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
                 if (!classFieldDict.ContainsKey(fieldName))
                 {
@@ -117,7 +116,7 @@ namespace ConfigGen.LocalInfo
                 }
             }
 
-            return startColumn;
+            return startColumn - 1;
         }
         private int AnalyzeBaseField(DataTable dt, DataBaseInfo fieldInfo, int index)
         {
@@ -230,6 +229,25 @@ namespace ConfigGen.LocalInfo
 
             return startColumn;
         }
+        //private List<object> AnalyzeData(DataTable dt, FieldInfo fieldInfo, int index)
+        //{
+        //    int column = index;
+        //    List<object> list = new List<object>();
+        //    for (int i = Values.DataSheetDataStartIndex; i < dt.Rows.Count; i++)
+        //    {
+        //        object value = dt.Rows[i][column];
+        //        string error = TableChecker.CheckFieldData(fieldInfo, value);
+        //        if (string.IsNullOrWhiteSpace(error))
+        //            list.Add(value);
+        //        else
+        //        {
+        //            Util.LogErrorFormat("{0},数据错误位置[{1}{2}]", error,
+        //               Util.GetColumnName(column + 1), i.ToString());
+        //            break;
+        //        }
+        //    }
+        //    return list;
+        //}
     }
-   
+
 }

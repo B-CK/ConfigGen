@@ -15,7 +15,7 @@ namespace ConfigGen.LocalInfo
 
     interface BaseInfo
     {
-        void Init();
+        BaseInfo Create();
         void Add(object info);
         void Remove(object info);
         void Save();
@@ -71,7 +71,7 @@ namespace ConfigGen.LocalInfo
             for (int i = 0; i < infos.Count; i++)
             {
                 LocalInfoType type = infos[i];
-                string path = GetInfoPath(type);
+                
                 switch (type)
                 {
                     case LocalInfoType.FileInfo:
@@ -80,7 +80,11 @@ namespace ConfigGen.LocalInfo
                             {
                                 string txt = File.ReadAllText(path);
                                 if (string.IsNullOrWhiteSpace(txt))
+                                {
                                     File.Delete(path);
+                                    FileInfoLib = new FileInfo();
+                                    FileInfoLib.Save();
+                                }
                             }
                             else
                             {
@@ -93,19 +97,8 @@ namespace ConfigGen.LocalInfo
                         }
                     case LocalInfoType.TypeInfo:
                         {
-                            if (File.Exists(path))
-                            {
-                                string txt = File.ReadAllText(path);
-                                if (string.IsNullOrWhiteSpace(txt))
-                                    File.Delete(path);
-                            }
-                            else
-                            {
-                                TypeInfoLib = new TypeInfo();
-                                TypeInfoLib.Save();
-                            }
-                            TypeInfoLib = Util.Deserialize(path, typeof(TypeInfo)) as TypeInfo;
-                            TypeInfoLib.Init();
+                            
+                            TypeInfoLib = 
                             DefineInfoDict = new Dictionary<string, TableDefineInfo>();
                             DataInfoDict = new Dictionary<string, TableDataInfo>();
                             break;
@@ -116,7 +109,11 @@ namespace ConfigGen.LocalInfo
                             {
                                 string txt = File.ReadAllText(path);
                                 if (string.IsNullOrWhiteSpace(txt))
+                                {
                                     File.Delete(path);
+                                    FindInfoLib = new FindInfo();
+                                    FindInfoLib.Save();
+                                }
                             }
                             else
                             {
@@ -260,55 +257,54 @@ namespace ConfigGen.LocalInfo
                     define.Value.Analyze();
                 //Util.Log("==>>解析定义完毕\n");
                 //检查类定义并且修正集合类型中的泛型
-                TypeInfoLib.CorrectClassInfo(_diffRelPath);
+                TypeInfoLib.CorrectClassInfo();
+                TypeInfoLib.Save();
                 //Util.Log("==>>类型修正完毕\n");
 
-                //解析数据定义和检查规则
-                foreach (var define in TypeInfoLib.ClassInfoDict)
-                {
-                    Util.Start();
-                    ClassTypeInfo classType = define.Value;
-                    if (string.IsNullOrWhiteSpace(classType.DataTable))
-                    {
-                        Util.PopTime();
-                        continue;
-                    }
-                    string type = classType.GetClassName();
-                    string excel = null, xml = null;
-                    string combine = string.Format("{0}\\{1}", classType.NamespaceName, classType.DataTable);
-                    if (_dataTableDict.ContainsKey(combine))
-                        excel = combine;
-                    else if (_dataTableDict.ContainsKey(classType.DataTable))
-                        excel = classType.DataTable;
-                    else
-                    {
-                        string absDir1 = string.Format("{0}{1}", Values.ConfigDir, combine);
-                        string absDir2 = string.Format("{0}{1}", Values.ConfigDir, classType.DataTable);
-                        if (Directory.Exists(absDir1))
-                            xml = absDir1;
-                        else if (Directory.Exists(absDir2))
-                            xml = absDir2;
-                    }
+                ////解析数据定义和检查规则
+                //foreach (var define in TypeInfoLib.ClassInfoDict)
+                //{
+                //    Util.Start();
+                //    ClassTypeInfo classType = define.Value;
+                //    if (string.IsNullOrWhiteSpace(classType.DataTable))
+                //    {
+                //        Util.PopTime();
+                //        continue;
+                //    }
+                //    string type = classType.GetClassName();
+                //    string excel = null, xml = null;
+                //    string combine = string.Format("{0}\\{1}", classType.NamespaceName, classType.DataTable);
+                //    if (_dataTableDict.ContainsKey(combine))
+                //        excel = combine;
+                //    else if (_dataTableDict.ContainsKey(classType.DataTable))
+                //        excel = classType.DataTable;
+                //    else
+                //    {
+                //        string absDir1 = string.Format("{0}{1}", Values.ConfigDir, combine);
+                //        string absDir2 = string.Format("{0}{1}", Values.ConfigDir, classType.DataTable);
+                //        if (Directory.Exists(absDir1))
+                //            xml = absDir1;
+                //        else if (Directory.Exists(absDir2))
+                //            xml = absDir2;
+                //    }
 
-                    TableDataInfo data = null;
-                    if (!string.IsNullOrWhiteSpace(excel))
-                        data = new TableDataInfo(excel, _dataTableDict[excel], classType);
-                    else if (!string.IsNullOrWhiteSpace(xml))
-                        data = new TableLsonInfo(xml, classType);
-                    else
-                    {
-                        Util.LogErrorFormat("{0}类型的数据文件不存在,错误位置:{1}",
-                            type, classType.DataTable);
-                        Util.PopTime();
-                        continue;
-                    }
-                    data.Analyze();
-                    if (!DataInfoDict.ContainsKey(type))
-                        DataInfoDict.Add(type, data);
-                    Util.Stop(string.Format("解析数据:{0}", classType.DataTable));
-                }
-
-                TypeInfoLib.Save();
+                //    TableDataInfo data = null;
+                //    if (!string.IsNullOrWhiteSpace(excel))
+                //        data = new TableDataInfo(excel, _dataTableDict[excel], classType);
+                //    else if (!string.IsNullOrWhiteSpace(xml))
+                //        data = new TableLsonInfo(xml, classType);
+                //    else
+                //    {
+                //        Util.LogErrorFormat("{0}类型的数据文件不存在,错误位置:{1}",
+                //            type, classType.DataTable);
+                //        Util.PopTime();
+                //        continue;
+                //    }
+                //    data.Analyze();
+                //    if (!DataInfoDict.ContainsKey(type))
+                //        DataInfoDict.Add(type, data);
+                //    Util.Stop(string.Format("解析数据:{0}", classType.DataTable));
+                //}
             }
             catch (Exception e)
             {

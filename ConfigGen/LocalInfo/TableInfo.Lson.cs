@@ -88,11 +88,12 @@ namespace ConfigGen.LocalInfo
         private void AnalyzeBaseField(DataClassInfo dataClass, FieldInfo fieldInfo, JToken data)
         {
             DataBaseInfo baseFieldInfo = null;
-            if (dataClass.Fields.ContainsKey(fieldInfo.Name))
+            if (!dataClass.Fields.ContainsKey(fieldInfo.Name))
             {
                 baseFieldInfo = new DataBaseInfo();
                 baseFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
                 dataClass.Fields.Add(baseFieldInfo.Name, baseFieldInfo);
+                baseFieldInfo.Data = new List<object>();
             }
             else
             {
@@ -105,10 +106,11 @@ namespace ConfigGen.LocalInfo
             JObject jClass = data as JObject;
             ClassTypeInfo classTypeInfo = fieldInfo.BaseInfo as ClassTypeInfo;
             DataClassInfo classFieldInfo = null;
-            if (dataClass.Fields.ContainsKey(fieldInfo.Name))
+            if (!dataClass.Fields.ContainsKey(fieldInfo.Name))
             {
                 classFieldInfo = new DataClassInfo();
                 classFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
+                classFieldInfo.Fields = new Dictionary<string, FieldInfo>();
                 dataClass.Fields.Add(classFieldInfo.Name, classFieldInfo);
                 if (classTypeInfo.HasSubClass)
                     classFieldInfo.Types = new List<string>();
@@ -153,18 +155,19 @@ namespace ConfigGen.LocalInfo
             JArray array = data as JArray;
             ListTypeInfo listTypeInfo = fieldInfo.BaseInfo as ListTypeInfo;
             DataListInfo listFieldInfo = null;
-            if (DataClassInfo.Fields.ContainsKey(fieldInfo.Name))
+            if (!dataClass.Fields.ContainsKey(fieldInfo.Name))
             {
                 listFieldInfo = new DataListInfo();
                 listFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
-                DataClassInfo.Fields.Add(listFieldInfo.Name, listFieldInfo);
+                listFieldInfo.Elements = new List<FieldInfo>();
+                dataClass.Fields.Add(listFieldInfo.Name, listFieldInfo);
             }
             else
             {
                 listFieldInfo = dataClass.Fields[fieldInfo.Name] as DataListInfo;
             }
 
-            BaseTypeInfo elemType = TypeInfo.GetTypeInfo(listTypeInfo.GetClassName());
+            BaseTypeInfo elemType = TypeInfo.GetTypeInfo(listTypeInfo.ItemType);
             for (int i = 0; i < array.Count; i++)
             {
                 FieldInfo field = listFieldInfo.Elements.Find(e => e.Name == i.ToString());
@@ -180,7 +183,9 @@ namespace ConfigGen.LocalInfo
                             {
                                 elemClass = new DataClassInfo();
                                 elemClass.Set(i.ToString(), elemType.GetClassName(), null, elemType.Group);
-                                field = elemClass;
+                                elemClass.Fields = new Dictionary<string, FieldInfo>();
+                                elemClass.Types = new List<string>();
+                                listFieldInfo.Elements.Add(elemClass);
                             }
                             else
                             {
@@ -202,7 +207,7 @@ namespace ConfigGen.LocalInfo
                                 element = new DataBaseInfo();
                                 element.Set(i.ToString(), elemType.GetClassName(), null, elemType.Group);
                                 element.Data = new List<object>();
-                                field = element;
+                                listFieldInfo.Elements.Add(element);
                             }
                             else
                             {
@@ -212,7 +217,6 @@ namespace ConfigGen.LocalInfo
                             break;
                         }
                 }
-                listFieldInfo.Elements.Add(field);
             }
         }
         private void AnalyzeDictField(DataClassInfo dataClass, FieldInfo fieldInfo, JToken data)
@@ -220,10 +224,11 @@ namespace ConfigGen.LocalInfo
             JObject jDict = data as JObject;
             DictTypeInfo dictTypeInfo = fieldInfo.BaseInfo as DictTypeInfo;
             DataDictInfo dictFieldInfo = null;
-            if (dataClass.Fields.ContainsKey(fieldInfo.Name))
+            if (!dataClass.Fields.ContainsKey(fieldInfo.Name))
             {
                 dictFieldInfo = new DataDictInfo();
                 dictFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
+                dictFieldInfo.Pairs = new List<KeyValuePair<DataBaseInfo, FieldInfo>>();
                 dataClass.Fields.Add(dictFieldInfo.Name, dictFieldInfo);
             }
             else
@@ -271,6 +276,8 @@ namespace ConfigGen.LocalInfo
                             {
                                 valueData = new DataClassInfo();
                                 valueData.Set(Values.VALUE, valueType.GetClassName(), null, valueType.Group);
+                                valueData.Fields = new Dictionary<string, FieldInfo>();
+                                valueData.Types = new List<string>();
                             }
                             else
                             {

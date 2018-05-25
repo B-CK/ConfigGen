@@ -141,12 +141,6 @@ namespace ConfigGen.LocalInfo
                         }
                     }
                 }
-
-                if (isNullOrWhiteSpace == false)
-                {
-                    Util.LogWarningFormat("{0}字段检查规则{1}不存在", tableFieldInfo.Name, check);
-                    continue;
-                }
                 if (!tableFieldInfo.RuleDict.ContainsKey(ruleType))
                     tableFieldInfo.RuleDict.Add(ruleType, ruleArgs);
             }

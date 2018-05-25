@@ -20,10 +20,12 @@ namespace ConfigGen.Export
                 DataClassInfo data = table.DataClassInfo;
                 for (int row = 0; row < table.DataLength; row++)//行
                 {
-                    for (int column = 0; column < data.Fields.Count; column++)//列
+                    List<FieldInfo> fields = (data.BaseInfo as ClassTypeInfo).Fields;
+                    for (int column = 0; column < fields.Count; column++)//列
                     {
-                        string v = AnalyzeField(data.Fields[column], row);
-                        if (column + 1 == data.Fields.Count)
+                        string fieldName = fields[column].Name;
+                        string v = AnalyzeField(data.Fields[fieldName], row);
+                        if (column + 1 == fields.Count)
                             builder.AppendLine(v);
                         else
                             builder.AppendFormat("{0}{1}", v, Values.CsvSplitFlag);
@@ -49,16 +51,19 @@ namespace ConfigGen.Export
                     object temp = dataBase.Data[row];
                     v = temp.ToString().Trim();
                     if (fieldInfo.Type.Equals("bool"))
-                        v = AnalyzeBool(v);
+                        v = v.ToLower().Equals("true") ? "1" : "0";
                     break;
                 case TypeType.Class:
-                    v = AnalyzeClass(fieldInfo, row, isNesting);
+                    DataClassInfo dataClass = fieldInfo as DataClassInfo;
+                    v = AnalyzeClass(dataClass, row, isNesting);
                     break;
                 case TypeType.List:
-                    v = AnalyzeList(fieldInfo, row);
+                    DataListInfo dataList = fieldInfo as DataListInfo;
+                    v = AnalyzeList(dataList, row);
                     break;
                 case TypeType.Dict:
-                    v = AnalyzeDict(fieldInfo, row);
+                    DataDictInfo dataDict = fieldInfo as DataDictInfo;
+                    v = AnalyzeDict(dataDict, row);
                     break;
                 case TypeType.None:
                 default:
@@ -66,56 +71,59 @@ namespace ConfigGen.Export
             }
             return v;
         }
-        private static string AnalyzeClass(TableFieldInfo fieldInfo, int row, bool isNesting = false)
+        private static string AnalyzeClass(DataClassInfo dataClass, int row, bool isNesting = false)
         {
             StringBuilder builder = new StringBuilder();
-            var fields = fieldInfo.ChildFields;
-            TableFieldInfo polymorphism = null;
-            int count = 0;
-            foreach (var item in fields)
+            ClassTypeInfo baseClassType = dataClass.BaseInfo as ClassTypeInfo;
+            if (baseClassType.HasSubClass)
             {
-                if (item.Key == Values.Polymorphism)
-                {//派生类中字段,key-派生类型,value-字段信息
-                    string polyType = item.Value.Data[row].ToString();
-                    polymorphism = item.Value.ChildFields[polyType];
-                    count++;
-                    continue;
-                }
+                for (int i = 0; i < dataClass.Types.Count; i++)
+                {
+                    string polyType = dataClass.Types[i];
+                    builder.AppendFormat("{0}{1}", polyType, Values.CsvSplitFlag);
+                    ClassTypeInfo polyClassType = TypeInfo.GetTypeInfo(polyType) as ClassTypeInfo;
+                    for (int j = 0; j < polyClassType.Fields.Count; j++)
+                    {
+                        FieldInfo fieldInfo = polyClassType.Fields[j];
+                        string value = AnalyzeField(fieldInfo, row);
+                        if (isNesting && value.Equals(Values.DataSetEndFlag))
+                            return Values.DataSetEndFlag;
 
-                string value = AnalyzeField(item.Value, row);
-                if (isNesting && value.Equals(Values.DataSetEndFlag))
-                    return Values.DataSetEndFlag;
-                if (polymorphism != null)
-                {
-                    string type = string.Format("{0}.{1}", Values.ConfigRootNode, polymorphism.Type);
-                    string otherValue = AnalyzeField(polymorphism, row);
-                    if (count + 1 == fields.Count)
-                        builder.AppendFormat("{0}{1}{2}{3}{4}", type, Values.CsvSplitFlag, value, Values.CsvSplitFlag, otherValue);
-                    else
-                        builder.AppendFormat("{0}{1}{2}{3}{4}{5}", type, Values.CsvSplitFlag, value, Values.CsvSplitFlag, otherValue, Values.CsvSplitFlag);
+                        if (j + 1 == baseClassType.Fields.Count)
+                            builder.AppendFormat(value);
+                        else
+                            builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
+                    }
                 }
-                else
+            }
+            else
+            {
+                for (int j = 0; j < baseClassType.Fields.Count; j++)
                 {
-                    if (count + 1 == fields.Count)
-                        builder.Append(value);
+                    FieldInfo fieldInfo = baseClassType.Fields[j];
+                    string value = AnalyzeField(fieldInfo, row);
+                    if (isNesting && value.Equals(Values.DataSetEndFlag))
+                        return Values.DataSetEndFlag;
+                    if (j + 1 == baseClassType.Fields.Count)
+                        builder.AppendFormat(value);
                     else
                         builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
                 }
-                count++;
             }
+
             return builder.ToString();
         }
-        private static string AnalyzeList(TableFieldInfo fieldInfo, int row)
+        private static string AnalyzeList(DataListInfo dataList, int row)
         {
             StringBuilder builder = new StringBuilder();
-            var fields = fieldInfo.ChildFields;
             int count = 0;
-            for (int i = 0; i < fields.Count; i++)
+            var elements = dataList.Elements;
+            for (int i = 0; i < elements.Count; i++)
             {
-                string value = AnalyzeField(fields[i.ToString()], row, true);
+                string value = AnalyzeField(elements[i], row, true);
                 if (!value.Equals(Values.DataSetEndFlag))
                 {
-                    if (i + 1 == fields.Count)
+                    if (i + 1 == elements.Count)
                         builder.Append(value);
                     else
                         builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
@@ -132,17 +140,22 @@ namespace ConfigGen.Export
             builder.Insert(0, count == 0 ? count.ToString() : count + Values.CsvSplitFlag);
             return builder.ToString();
         }
-        private static string AnalyzeDict(TableFieldInfo fieldInfo, int row)
+        private static string AnalyzeDict(DataDictInfo dataDict, int row)
         {
             StringBuilder builder = new StringBuilder();
-            var fields = fieldInfo.ChildFields;
             int count = 0;
-            for (int i = 0; i < fields.Count; i++)
+            var pairs = dataDict.Pairs;
+            for (int i = 0; i < pairs.Count; i++)
             {
-                string pair = AnalyzePair(fields[i.ToString()], row);
+                string key = AnalyzeField(pairs[i].Key, row);
+                string value = AnalyzeField(pairs[i].Value, row);
+                if (key.Equals(Values.DataSetEndFlag)
+                    || value.Equals(Values.DataSetEndFlag))
+                    return Values.DataSetEndFlag;
+                string pair = string.Format("{0}{1}{2}", key, Values.CsvSplitFlag, value);
                 if (!pair.Equals(Values.DataSetEndFlag))
                 {
-                    if (i + 1 == fields.Count)
+                    if (i + 1 == pairs.Count)
                         builder.Append(pair);
                     else
                         builder.AppendFormat("{0}{1}", pair, Values.CsvSplitFlag);
@@ -157,22 +170,6 @@ namespace ConfigGen.Export
             }
             builder.Insert(0, count == 0 ? count.ToString() : count + Values.CsvSplitFlag);
             return builder.ToString();
-        }
-        private static string AnalyzePair(TableFieldInfo fieldInfo, int row)
-        {
-            TableFieldInfo pair = fieldInfo;
-            TableFieldInfo key = pair.ChildFields["key"];
-            TableFieldInfo value = pair.ChildFields["value"];
-            string k = AnalyzeField(key, row);
-            string v = AnalyzeField(value, row, true);
-            if (k.Equals(Values.DataSetEndFlag)
-                || v.Equals(Values.DataSetEndFlag))
-                return Values.DataSetEndFlag;
-            return string.Format("{0}{1}{2}", k, Values.CsvSplitFlag, v);
-        }
-        private static string AnalyzeBool(string str)
-        {
-            return str.ToLower().Equals("true") ? "1" : "0";
         }
     }
 }

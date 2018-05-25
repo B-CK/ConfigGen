@@ -42,8 +42,26 @@ namespace ConfigGen.LocalInfo
         public Dictionary<string, EnumTypeInfo> EnumInfoDict { get => _enumInfoDict; }
         private Dictionary<string, EnumTypeInfo> _enumInfoDict = new Dictionary<string, EnumTypeInfo>();
 
-        public void Init()
+        public static BaseInfo Create()
         {
+            TypeInfo typeInfo = new TypeInfo();
+            string path = LocalInfoManager.GetInfoPath(LocalInfoType.TypeInfo);
+            if (File.Exists(path))
+            {
+                string txt = File.ReadAllText(path);
+                if (string.IsNullOrWhiteSpace(txt))
+                {
+                    File.Delete(path);
+                    typeInfo.Save();
+                }
+            }
+            else
+            {
+                typeInfo.Save();
+            }
+            typeInfo = Util.Deserialize(path, typeof(TypeInfo)) as TypeInfo;
+
+            var classInfos = typeInfo.ClassInfos;
             for (int i = 0; i < ClassInfos.Count; i++)
             {
                 string type = ClassInfos[i].GetClassName();
@@ -62,6 +80,7 @@ namespace ConfigGen.LocalInfo
                     _typeInfoDict.Add(type, EnumInfos[i]);
                 }
             }
+            return typeInfo;
         }
 
         public void Add(object info)
@@ -137,7 +156,7 @@ namespace ConfigGen.LocalInfo
                     TypeInfoDict.Remove(type);
             }
         }
-        public void CorrectClassInfo(List<string> part)
+        public void CorrectClassInfo()
         {
             var infoDict = new Dictionary<string, BaseTypeInfo>(TypeInfoDict);
             foreach (var item in infoDict)
@@ -145,13 +164,6 @@ namespace ConfigGen.LocalInfo
                 BaseTypeInfo typeInfo = item.Value;
                 if (typeInfo.TypeType == TypeType.Class)
                 {
-                    string error = TableChecker.CheckType(item.Key);
-                    if (!string.IsNullOrWhiteSpace(error))
-                    {
-                        Util.LogErrorFormat("{0}类型不存在,错误位置{1}", item.Key, item.Value.RelPath);
-                        continue;
-                    }
-
                     ClassTypeInfo classType = typeInfo as ClassTypeInfo;
                     for (int i = 0; i < classType.Fields.Count; i++)
                     {
@@ -189,7 +201,7 @@ namespace ConfigGen.LocalInfo
                                     continue;
                                 }
                                 string key = CorrectType(kv[0], classType, fieldInfo.Name);
-                                error = TableChecker.CheckDictKey(key);
+                                string error = TableChecker.CheckDictKey(key);
                                 if (!string.IsNullOrWhiteSpace(error))
                                 {
                                     Util.LogErrorFormat("{0}类中字段{1}定义dict key类型错误,错误位置{2}",
@@ -209,8 +221,16 @@ namespace ConfigGen.LocalInfo
                         Add(baseType);
                     }
                 }
+                else if (typeInfo.TypeType == TypeType.Base)
+                {
+                    typeInfo.IsExist = true;
+                }
             }
-            Clear(part);
+            foreach (var item in infoDict)
+            {
+                if (!item.Value.IsExist)
+                    Remove(item.Value);
+            }
             foreach (var item in TypeInfoDict)
             {
                 BaseTypeInfo typeInfo = item.Value;
@@ -273,44 +293,6 @@ namespace ConfigGen.LocalInfo
                    baseType.GetClassName(), name, type, baseType.RelPath));
             }
             return newType;
-        }
-        private void Clear(List<string> parts)
-        {
-            HashSet<string> hash = new HashSet<string>(parts);
-            List<string> ls = new List<string>();
-            foreach (var item in _classInfoDict)
-            {
-                if (hash.Contains(item.Value.RelPath))
-                {
-                    if (!item.Value.IsExist)
-                        ls.Add(item.Key);
-                }
-                else if (item.Value.TypeType == TypeType.List
-                   || item.Value.TypeType == TypeType.Dict)
-                {
-                    if (!item.Value.IsExist)
-                        ls.Add(item.Key);
-                }
-            }
-            foreach (var item in _enumInfoDict)
-            {
-                if (hash.Contains(item.Value.RelPath))
-                {
-                    if (!item.Value.IsExist)
-                        ls.Add(item.Key);
-                }
-                if (item.Value.TypeType == TypeType.List
-                   || item.Value.TypeType == TypeType.Dict)
-                {
-                    if (!item.Value.IsExist)
-                        ls.Add(item.Key);
-                }
-            }
-            for (int i = 0; i < ls.Count; i++)
-            {
-                BaseTypeInfo baseType = TypeInfoDict[ls[i]];
-                Remove(baseType);
-            }
         }
         private void UpdateList()
         {
@@ -461,13 +443,13 @@ namespace ConfigGen.LocalInfo
         }
     }
     [XmlInclude(typeof(ListTypeInfo))]
-    public class ListTypeInfo : BaseTypeInfo
+    public class ListTypeInfo : ClassTypeInfo
     {
         [XmlAttribute]
         public string ItemType { get; set; }
     }
     [XmlInclude(typeof(DictTypeInfo))]
-    public class DictTypeInfo : BaseTypeInfo
+    public class DictTypeInfo : ClassTypeInfo
     {
         [XmlAttribute]
         public string KeyType { get; set; }
