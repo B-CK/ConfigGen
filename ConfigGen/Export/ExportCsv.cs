@@ -74,24 +74,22 @@ namespace ConfigGen.Export
         {
             StringBuilder builder = new StringBuilder();
             ClassTypeInfo baseClassType = dataClass.BaseInfo as ClassTypeInfo;
-            for (int j = 0; j < baseClassType.Fields.Count; j++)
-            {
-                FieldInfo fieldInfo = baseClassType.Fields[j];
-                FieldInfo dataBase = dataClass.Fields[fieldInfo.Name];
-                string value = AnalyzeField(dataBase, row);
-                if (isNesting && value.Equals(Values.DataSetEndFlag))
-                    return Values.DataSetEndFlag;
-                if (j + 1 == baseClassType.Fields.Count)
-                    builder.AppendFormat(value);
-                else
-                    builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
-            }
             if (baseClassType.HasSubClass)
             {
                 for (int i = 0; i < dataClass.Types.Count; i++)
                 {
                     string polyType = dataClass.Types[i];
-                    builder.AppendFormat("{0}{1}{2}", Values.CsvSplitFlag, polyType, Values.CsvSplitFlag);
+                    builder.Append(polyType);
+                    for (int j = 0; j < baseClassType.Fields.Count; j++)
+                    {
+                        FieldInfo fieldInfo = baseClassType.Fields[j];
+                        FieldInfo dataBase = dataClass.Fields[fieldInfo.Name];
+                        string value = AnalyzeField(dataBase, row);
+                        if (isNesting && value.Equals(Values.DataSetEndFlag))
+                            return Values.DataSetEndFlag;
+
+                        builder.AppendFormat("{0}{1}", Values.CsvSplitFlag, value);
+                    }
                     ClassTypeInfo polyClassType = TypeInfo.GetTypeInfo(polyType) as ClassTypeInfo;
                     for (int j = 0; j < polyClassType.Fields.Count; j++)
                     {
@@ -101,14 +99,25 @@ namespace ConfigGen.Export
                         if (isNesting && value.Equals(Values.DataSetEndFlag))
                             return Values.DataSetEndFlag;
 
-                        if (j + 1 == baseClassType.Fields.Count)
-                            builder.AppendFormat(value);
-                        else
-                            builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
+                        builder.AppendFormat("{0}{1}", Values.CsvSplitFlag, value);
                     }
                 }
             }
-
+            else
+            {
+                for (int j = 0; j < baseClassType.Fields.Count; j++)
+                {
+                    FieldInfo fieldInfo = baseClassType.Fields[j];
+                    FieldInfo dataBase = dataClass.Fields[fieldInfo.Name];
+                    string value = AnalyzeField(dataBase, row);
+                    if (isNesting && value.Equals(Values.DataSetEndFlag))
+                        return Values.DataSetEndFlag;
+                    if (j + 1 == baseClassType.Fields.Count)
+                        builder.AppendFormat(value);
+                    else
+                        builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
+                }
+            }
             return builder.ToString();
         }
         private static string AnalyzeList(DataListInfo dataList, int row)
@@ -149,24 +158,12 @@ namespace ConfigGen.Export
                 string value = AnalyzeField(pairs[i].Value, row);
                 if (key.Equals(Values.DataSetEndFlag)
                     || value.Equals(Values.DataSetEndFlag))
-                    return Values.DataSetEndFlag;
-                string pair = string.Format("{0}{1}{2}", key, Values.CsvSplitFlag, value);
-                if (!pair.Equals(Values.DataSetEndFlag))
-                {
-                    if (i + 1 == pairs.Count)
-                        builder.Append(pair);
-                    else
-                        builder.AppendFormat("{0}{1}", pair, Values.CsvSplitFlag);
-                }
-                else
-                {
-                    if (builder.Length > 0)
-                        builder.Remove(builder.Length - 1, 1);
                     break;
-                }
+
+                builder.AppendFormat("{0}{1}{2}{3}", Values.CsvSplitFlag, key, Values.CsvSplitFlag, value);
                 count++;
             }
-            builder.Insert(0, count == 0 ? count.ToString() : count + Values.CsvSplitFlag);
+            builder.Insert(0, count.ToString());
             return builder.ToString();
         }
     }

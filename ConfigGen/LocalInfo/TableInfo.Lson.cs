@@ -73,7 +73,6 @@ namespace ConfigGen.LocalInfo
                     break;
                 case TypeType.Class://类的检查规则需要自定义
                     AnalyzeClassField(dataClass, fieldInfo, data[fieldInfo.Name]);
-                    AnalyzePolyClassField(dataClass, fieldInfo, data[fieldInfo.Name]);
                     break;
                 case TypeType.List://集合中元素的规则统一指定,无法重写                          
                     AnalyzeListField(dataClass, fieldInfo, data[fieldInfo.Name]);
@@ -127,14 +126,10 @@ namespace ConfigGen.LocalInfo
                 FieldInfo field = classTypeInfo.Fields[colum];
                 AnalyzeField(jClass, classFieldInfo, field);
             }
-        }
-        private void AnalyzePolyClassField(DataClassInfo dataClass, FieldInfo fieldInfo, JToken data)
-        {
-            ClassTypeInfo classType = fieldInfo.BaseInfo as ClassTypeInfo;
-            if (classType.HasSubClass)
+
+            if (classTypeInfo.HasSubClass)
             {
                 DataClassInfo polyFieldInfo = dataClass.Fields[fieldInfo.Name] as DataClassInfo;
-                JObject jClass = data as JObject;
                 if (jClass.ContainsKey(Values.Polymorphism))
                 {
                     string type = jClass[Values.Polymorphism].Value<string>();
@@ -196,7 +191,9 @@ namespace ConfigGen.LocalInfo
                                 elemClass = field as DataClassInfo;
                             }
                             for (int j = 0; j < classType.Fields.Count; j++)
-                                AnalyzeField(array[i], elemClass, classType.Fields[j]);
+                            {
+                                AnalyzeClassField(elemClass, classType.Fields[j], array[i]);
+                            }
                             break;
                         }
                     case TypeType.None:
@@ -317,6 +314,11 @@ namespace ConfigGen.LocalInfo
                 dictFieldInfo.Pairs[i] = pair;
             }
         }
+        private void AnalyzeClassInfo()
+        {
+
+        }
+
 
         public override bool Exist(string content)
         {

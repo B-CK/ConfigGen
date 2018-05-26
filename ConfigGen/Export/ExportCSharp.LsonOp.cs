@@ -30,8 +30,8 @@ namespace ConfigGen.Export
             builder.Clear();
 
             List<BaseTypeInfo> typeInfos = new List<BaseTypeInfo>();
-            typeInfos.AddRange(LocalInfo.Local.Instance.TypeInfoLib.ClassInfos);
-            typeInfos.AddRange(LocalInfo.Local.Instance.TypeInfoLib.EnumInfos);
+            typeInfos.AddRange(Local.Instance.TypeInfoLib.ClassInfos);
+            typeInfos.AddRange(Local.Instance.TypeInfoLib.EnumInfos);
             foreach (BaseTypeInfo baseType in typeInfos)
             {
                 CodeWriter.UsingNamespace(builder, NameSpaces);
