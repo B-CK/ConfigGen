@@ -16,9 +16,8 @@ namespace ConfigGen.Export
             StringBuilder builder = new StringBuilder();
             foreach (var item in LocalInfo.Local.Instance.DataInfoDict)
             {
-                TableDataInfo table = item.Value;
-                DataClassInfo data = table.DataClassInfo;
-                for (int row = 0; row < table.DataLength; row++)//行
+                DataClassInfo data = item.Value.DataClassInfo;
+                for (int row = 0; row < item.Value.DataLength; row++)//行
                 {
                     List<FieldInfo> fields = (data.BaseInfo as ClassTypeInfo).Fields;
                     for (int column = 0; column < fields.Count; column++)//列
@@ -32,7 +31,7 @@ namespace ConfigGen.Export
                     }
                 }
 
-                string fileName = Path.GetFileNameWithoutExtension(table.RelPath);
+                string fileName = Path.GetFileNameWithoutExtension(item.Value.RelPath);
                 string filePath = string.Format("{0}\\{1}{2}", Values.ExportCsv, fileName, Values.CsvFileExt);
                 Util.SaveFile(filePath, builder.ToString());
                 builder.Clear();
@@ -75,17 +74,30 @@ namespace ConfigGen.Export
         {
             StringBuilder builder = new StringBuilder();
             ClassTypeInfo baseClassType = dataClass.BaseInfo as ClassTypeInfo;
+            for (int j = 0; j < baseClassType.Fields.Count; j++)
+            {
+                FieldInfo fieldInfo = baseClassType.Fields[j];
+                FieldInfo dataBase = dataClass.Fields[fieldInfo.Name];
+                string value = AnalyzeField(dataBase, row);
+                if (isNesting && value.Equals(Values.DataSetEndFlag))
+                    return Values.DataSetEndFlag;
+                if (j + 1 == baseClassType.Fields.Count)
+                    builder.AppendFormat(value);
+                else
+                    builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
+            }
             if (baseClassType.HasSubClass)
             {
                 for (int i = 0; i < dataClass.Types.Count; i++)
                 {
                     string polyType = dataClass.Types[i];
-                    builder.AppendFormat("{0}{1}", polyType, Values.CsvSplitFlag);
+                    builder.AppendFormat("{0}{1}{2}", Values.CsvSplitFlag, polyType, Values.CsvSplitFlag);
                     ClassTypeInfo polyClassType = TypeInfo.GetTypeInfo(polyType) as ClassTypeInfo;
                     for (int j = 0; j < polyClassType.Fields.Count; j++)
                     {
                         FieldInfo fieldInfo = polyClassType.Fields[j];
-                        string value = AnalyzeField(fieldInfo, row);
+                        FieldInfo dataBase = dataClass.Fields[fieldInfo.Name];
+                        string value = AnalyzeField(dataBase, row);
                         if (isNesting && value.Equals(Values.DataSetEndFlag))
                             return Values.DataSetEndFlag;
 
@@ -94,20 +106,6 @@ namespace ConfigGen.Export
                         else
                             builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
                     }
-                }
-            }
-            else
-            {
-                for (int j = 0; j < baseClassType.Fields.Count; j++)
-                {
-                    FieldInfo fieldInfo = baseClassType.Fields[j];
-                    string value = AnalyzeField(fieldInfo, row);
-                    if (isNesting && value.Equals(Values.DataSetEndFlag))
-                        return Values.DataSetEndFlag;
-                    if (j + 1 == baseClassType.Fields.Count)
-                        builder.AppendFormat(value);
-                    else
-                        builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
                 }
             }
 

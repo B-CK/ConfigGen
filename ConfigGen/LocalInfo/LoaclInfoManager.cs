@@ -192,12 +192,12 @@ namespace ConfigGen.LocalInfo
                         excel = classType.DataTable;
                     else
                     {
-                        string absDir1 = string.Format("{0}{1}", Values.ConfigDir, combine);
-                        string absDir2 = string.Format("{0}{1}", Values.ConfigDir, classType.DataTable);
+                        string absDir1 = Util.GetConfigAbsPath(combine);
+                        string absDir2 = Util.GetConfigAbsPath(classType.DataTable);
                         if (Directory.Exists(absDir1))
-                            xml = absDir1;
+                            xml = combine;
                         else if (Directory.Exists(absDir2))
-                            xml = absDir2;
+                            xml = classType.DataTable;
                     }
 
                     TableDataInfo data = null;

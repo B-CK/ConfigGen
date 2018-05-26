@@ -298,6 +298,8 @@
     <Compile Include="Assets\Json\PaserJson.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Config\Data所有Class类型.xml" />
+    <None Include="Assets\Config\Lson数据.xml" />
     <None Include="Assets\Config\卡牌_Card.xml" />
     <None Include="Assets\Plugins\Sirenix\Assemblies\AOT\link.xml" />
     <None Include="Assets\Plugins\Sirenix\Assemblies\Sirenix.OdinInspector.Attributes.xml" />

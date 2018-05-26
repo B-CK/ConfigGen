@@ -22,7 +22,8 @@ namespace ConfigGen.LocalInfo
             else
                 Util.LogErrorFormat("Lson数据没有指明类型,文件夹名:{0}", RelPath);
 
-            string[] files = Directory.GetFiles(relPath);
+            string absPath = Util.GetConfigAbsPath(relPath);
+            string[] files = Directory.GetFiles(absPath);
             foreach (var f in files)
             {
                 string json = File.ReadAllText(f);
