@@ -15,16 +15,15 @@ namespace ConfigGen
     class Program
     {
         //未完成内容
-        //4.CSharp Xml写
-        //3.Xml读
-        //5.查找和替换功能
         //1.字段检查,自定义检查规则
-        //2.导出lua 数据,类
+        //2.分组导出功能
+        //5.查找和替换功能
+        //3.导出lua 数据,类
 
         //static Stopwatch stopwatch = new Stopwatch();
 
         static void Main(string[] args)
-        {   
+        {
             Util.Start();
             //stopwatch.Start();
 
@@ -50,7 +49,7 @@ namespace ConfigGen
                 Local.Instance.FindInfoLib = FindInfo.Create();
                 Local.Instance.UpdateFindInfo();
             }
-            
+
             //导出数据
             if (!string.IsNullOrWhiteSpace(Values.ExportCsv))
             {
@@ -61,13 +60,13 @@ namespace ConfigGen
             if (!string.IsNullOrWhiteSpace(Values.ExportCSharp))
             {
                 Util.Start();
-                //ExportCSharp.Export_CsvOp();
+                ExportCSharp.Export_CsvOp();
                 Util.Stopln("=================>> CSharp类导出完毕");
             }
             if (!string.IsNullOrWhiteSpace(Values.ExportCsLson))
             {
                 Util.Start();
-                //ExportCSharp.Export_LsonOp();
+                ExportCSharp.Export_LsonOp();
                 Util.Stopln("==>>CSharp类导出完毕");
             }
 
@@ -75,6 +74,40 @@ namespace ConfigGen
             Util.Stop("=================>> 总共");
             //Console.WriteLine(stopwatch.ElapsedMilliseconds);
             Console.ReadKey();
+        }
+
+        static void Ex()
+        {
+            int c = 10000;
+            List<object> ins = new List<object>();
+            for (int i = 0; i < c; i++)
+                ins.Add(i.ToString());
+
+            Util.Start();
+            HashSet<object> vs = new HashSet<object>(ins);
+            int result = 0;
+            for (int i = 0; i < c; i++)
+            {
+                if (vs.Contains(i.ToString()))
+                {
+                    result++;
+                }
+            }
+            Util.Stopln(result.ToString() + "  Hash Time : ");
+
+            Util.Start();
+            result = 0;
+            for (int i = 0; i < c; i++)
+            {
+                if (ins.Contains(i.ToString()))
+                {
+                    result++;
+                }
+            }
+            Util.Stopln(result.ToString() + "  List Time : ");
+
+
+
         }
 
         //static void TEST()

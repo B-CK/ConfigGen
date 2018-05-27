@@ -10,6 +10,9 @@ namespace Csv
 		/// <summary>
 		public static string ConfigDir;
 
+		public static readonly Dictionary<int, Csv.Card.Card> Card = new Dictionary<int, Csv.Card.Card>();
+		public static readonly Dictionary<int, Csv.AllType.AllClass> AllClass = new Dictionary<int, Csv.AllType.AllClass>();
+		public static readonly Dictionary<int, Csv.AllType.LsonAllClass> LsonAllClass = new Dictionary<int, Csv.AllType.LsonAllClass>();
 
 		/// <summary>
 		/// constructor参数为指定类型的构造函数
@@ -27,10 +30,19 @@ namespace Csv
 
 		public static void LoadAll()
 		{
+			var cards = Load(ConfigDir + "Card/Card.xml", (d) => new Card.Card(d));
+			cards.ForEach(v => Card.Add(v.ID, v));
+			var allclasss = Load(ConfigDir + "AllType/AllClass.xml", (d) => new AllType.AllClass(d));
+			allclasss.ForEach(v => AllClass.Add(v.ID, v));
+			var lsonallclasss = Load(ConfigDir + "AllType/LsonAllClass.xml", (d) => new AllType.LsonAllClass(d));
+			lsonallclasss.ForEach(v => LsonAllClass.Add(v.ID, v));
 		}
 
 		public static void Clear()
 		{
+			Card.Clear();
+			AllClass.Clear();
+			LsonAllClass.Clear();
 		}
 
 	}

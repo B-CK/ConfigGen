@@ -13,12 +13,12 @@ namespace Csv.AllType
 		/// <summary>
 		/// Var2
 		/// <summary>
-		public readonly bool Var2;
+		public readonly float Var2;
 
 		public SingleClass(DataStream data)
 		{
 			this.Var1 = data.GetString();
-			this.Var2 = data.GetBool();
+			this.Var2 = data.GetFloat();
 		}
 	}
 }

@@ -35,17 +35,7 @@ namespace ConfigGen.LocalInfo
     }
 
 
-    ///// <summary>
-    ///// 字段信息及数据信息
-    ///// </summary>
-    //public class TableFieldInfo : FieldInfo
-    //{
-    //    public List<object> Data { get; set; }
-    //    /// <summary>
-    //    /// 子字段
-    //    /// </summary>
-    //    public Dictionary<string, TableFieldInfo> ChildFields { get; set; }
-    //}
+ 
     public class DataBaseInfo : FieldInfo
     {//Name,Type,Check,Group
         public List<object> Data { get; set; }

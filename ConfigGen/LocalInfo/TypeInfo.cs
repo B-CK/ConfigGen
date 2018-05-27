@@ -416,7 +416,7 @@ namespace ConfigGen.LocalInfo
         [XmlIgnore]
         public FieldInfo IndexField { get; set; }
         [XmlIgnore]
-        public List<string> SubClasses = new List<string>();
+        public HashSet<string> SubClasses = new HashSet<string>();
         [XmlIgnore]
         public bool HasSubClass { get { return SubClasses != null && SubClasses.Count > 0; } }
 

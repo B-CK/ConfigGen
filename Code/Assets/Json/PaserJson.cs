@@ -1,56 +1,121 @@
-﻿using System.Collections;
-using Sirenix.Utilities.Editor;
-using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
-using System.Collections.Generic;
+﻿using Sirenix.OdinInspector;
 using UnityEngine;
 using Newtonsoft.Json;
 using System.IO;
-using UnityEditor;
 using System;
 //using Json.Test;
 using Lson.AllType;
-using Lson.Card;
 using Sirenix.Serialization;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 public class PaserJson : SerializedMonoBehaviour
 {
+    public string CsvDir = "";
     public string RelPath = @"\Json\Nsj.json";
     public TextAsset asset;
-    //public Data data;
-    //[OdinSerialize]
-    //public AllClass datac;
+    [OdinSerialize]
+    public LsonAllClass datac;
+
+    public int c = 1;
+    Stopwatch a = new Stopwatch();
+    Stopwatch b = new Stopwatch();
+    void Awake()
+    {
+        txt = c.ToString();
+        Screen.SetResolution(1280, 720, true);
+        a.Start();
+        for (int i = 0; i < c; i++)
+        {
+            var l = new Lson.AllType.LInherit1();
+        }
+        a.Stop();
+        UnityEngine.Debug.LogFormat("Normal : {0:N3}", a.ElapsedMilliseconds / 1000f);
+
+
+        b.Start();
+        Type type = Type.GetType("Lson.AllType.LInherit1");
+        for (int i = 0; i < c; i++)
+        {
+            var l = Activator.CreateInstance(type);
+        }
+        b.Stop();
+        UnityEngine.Debug.LogFormat("Reflect : {0:N3}", b.ElapsedMilliseconds / 1000f);
+    }
+
+
+
+    string txt = "";
+    private void OnGUI()
+    {
+        Rect rect = new Rect(Vector2.zero, new Vector2(300, 30));
+        txt = GUI.TextField(rect, txt);
+        int r = 0;
+        if (int.TryParse(txt, out r))
+            c = r;
+
+        rect.position += new Vector2(0, rect.size.y);
+        rect.size = new Vector2(300, 100);
+        if (GUI.Button(rect, "Run"))
+        {
+            a.Reset();
+            b.Reset();
+            Awake();
+        }
+
+        rect.position = new Vector2(0, rect.size.y);
+        rect.size = new Vector2(300, 30);
+        GUI.TextField(rect, string.Format("Normal : {0:N3}", a.ElapsedMilliseconds / 1000f));
+        rect.position += new Vector2(0, rect.size.y);
+        rect.size = new Vector2(300, 30);
+        GUI.TextField(rect, string.Format("Reflect : {0:N3}", b.ElapsedMilliseconds / 1000f));
+    }
+
+
+
+
+
+
 
     [Button(ButtonSizes.Medium)]
     void ReadJson()
     {
         string txt = File.ReadAllText(Application.dataPath + RelPath);
-        //var d = JsonConvert.DeserializeObject<Dictionary<string, object>>(txt, new JsonSerializerSettings
-        //{
-        //    TypeNameHandling = TypeNameHandling.Auto
-        //});
-        ////datac = JsonConvert.DeserializeObject<AllClass>(txt, new JsonSerializerSettings
-        ////{
-        ////    TypeNameHandling = TypeNameHandling.Auto
-        ////});
-        //JArray array = d["VarListBase"] as JArray;
-        //for (int i = 0; i < array.Count; i++)
-        //{
-        //    Debug.Log(array[i]);
-        //}
-
-        Debug.Log("");
+        datac = JsonConvert.DeserializeObject<LsonAllClass>(txt, new JsonSerializerSettings
+        {
+            TypeNameHandling = TypeNameHandling.Auto
+        });
     }
     [Button(ButtonSizes.Medium)]
     void WriteJson()
     {
-        //string d = JsonConvert.SerializeObject(datac, Formatting.Indented, new JsonSerializerSettings
-        //{
-        //    TypeNameHandling = TypeNameHandling.Auto
-        //});
-        //File.WriteAllText(Application.dataPath + RelPath, d);
-        //AssetDatabase.Refresh();
+        string d = JsonConvert.SerializeObject(datac, Formatting.Indented, new JsonSerializerSettings
+        {
+            TypeNameHandling = TypeNameHandling.Auto
+        });
+        File.WriteAllText(Application.dataPath + RelPath, d);
+#if UNITY_EDITOR
+        UnityEditor.AssetDatabase.Refresh();
+#endif
+    }
+
+
+    [Button(ButtonSizes.Medium)]
+    void ReadCsv()
+    {
+        Csv.CfgManager.ConfigDir = CsvDir;
+        Csv.CfgManager.LoadAll();
+        UnityEngine.Debug.Log("Ok");
+    }
+    [Button(ButtonSizes.Medium)]
+    void OutputCsv()
+    {
+
+    }
+    [Button(ButtonSizes.Medium)]
+    void ClearCsv()
+    {
+        Csv.CfgManager.Clear();
     }
 }
 

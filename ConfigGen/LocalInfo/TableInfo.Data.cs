@@ -121,24 +121,11 @@ namespace ConfigGen.LocalInfo
         private int AnalyzeBaseField(DataTable dt, DataBaseInfo fieldInfo, int index)
         {
             int column = index;
-            if (TableChecker.ParseCheckRule(fieldInfo))
-            {
-                Util.LogWarningFormat("在{0}类型的数据表中,{1}字段规则{2}填写错误,{3}",
-                    ClassTypeInfo.Name, fieldInfo.Name, fieldInfo.Check, GetErrorSite(column + 1, Values.DataSheetFieldIndex + 1));
-            }
             fieldInfo.Data = new List<object>();
             for (int i = Values.DataSheetDataStartIndex; i < dt.Rows.Count; i++)
             {
                 object value = dt.Rows[i][column];
-                string error = TableChecker.CheckFieldData(fieldInfo, value);
-                if (string.IsNullOrWhiteSpace(error))
-                    fieldInfo.Data.Add(value);
-                else
-                {
-                    Util.LogErrorFormat("{0},数据错误位置[{1}{2}]", error,
-                       Util.GetColumnName(column + 1), i.ToString());
-                    break;
-                }
+                fieldInfo.Data.Add(value);
             }
             return column;
         }
@@ -232,25 +219,7 @@ namespace ConfigGen.LocalInfo
 
             return startColumn;
         }
-        //private List<object> AnalyzeData(DataTable dt, FieldInfo fieldInfo, int index)
-        //{
-        //    int column = index;
-        //    List<object> list = new List<object>();
-        //    for (int i = Values.DataSheetDataStartIndex; i < dt.Rows.Count; i++)
-        //    {
-        //        object value = dt.Rows[i][column];
-        //        string error = TableChecker.CheckFieldData(fieldInfo, value);
-        //        if (string.IsNullOrWhiteSpace(error))
-        //            list.Add(value);
-        //        else
-        //        {
-        //            Util.LogErrorFormat("{0},数据错误位置[{1}{2}]", error,
-        //               Util.GetColumnName(column + 1), i.ToString());
-        //            break;
-        //        }
-        //    }
-        //    return list;
-        //}
+       
     }
 
 }

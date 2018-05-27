@@ -12,6 +12,6 @@ namespace Lson.AllType
 		/// <summary>
 		/// Var2
 		/// <summary>
-		public bool Var2;
+		public float Var2;
 	}
 }

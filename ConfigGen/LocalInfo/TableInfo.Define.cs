@@ -82,7 +82,7 @@ namespace ConfigGen.LocalInfo
                         classInfo.Fields.Add(fieldInfo);
 
                         //数据索引-字段信息
-                        if (j == i + 2)
+                        if (j == i)
                             classInfo.IndexField = fieldInfo;
                     }
                     i = j - 1;

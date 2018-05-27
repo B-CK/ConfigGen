@@ -121,31 +121,7 @@ namespace ConfigGen.LocalInfo
                 classFieldInfo = dataClass.Fields[fieldInfo.Name] as DataClassInfo;
             }
 
-            for (int colum = 0; colum < classTypeInfo.Fields.Count; colum++)
-            {
-                FieldInfo field = classTypeInfo.Fields[colum];
-                AnalyzeField(jClass, classFieldInfo, field);
-            }
-
-            if (classTypeInfo.HasSubClass)
-            {
-                DataClassInfo polyFieldInfo = dataClass.Fields[fieldInfo.Name] as DataClassInfo;
-                if (jClass.ContainsKey(Values.Polymorphism))
-                {
-                    string type = jClass[Values.Polymorphism].Value<string>();
-                    type = type.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[0];
-                    type = type.Replace(Values.LsonRootNode + ".", "");
-                    ClassTypeInfo polyType = TypeInfo.GetTypeInfo(type) as ClassTypeInfo;
-                    polyFieldInfo.Types.Add(type);
-                    for (int colum = 0; colum < polyType.Fields.Count; colum++)
-                    {
-                        FieldInfo field = polyType.Fields[colum];
-                        AnalyzeField(jClass, polyFieldInfo, field);
-                    }
-                }
-                else
-                    polyFieldInfo.Types.Add(fieldInfo.Type);
-            }
+            AnalyzeClassInfo(classFieldInfo, classTypeInfo, data);
         }
         private void AnalyzeListField(DataClassInfo dataClass, FieldInfo fieldInfo, JToken data)
         {
@@ -190,10 +166,8 @@ namespace ConfigGen.LocalInfo
                             {
                                 elemClass = field as DataClassInfo;
                             }
-                            for (int j = 0; j < classType.Fields.Count; j++)
-                            {
-                                AnalyzeClassField(elemClass, classType.Fields[j], array[i]);
-                            }
+
+                            AnalyzeClassInfo(elemClass, classType, array[i]);
                             break;
                         }
                     case TypeType.None:
@@ -271,22 +245,23 @@ namespace ConfigGen.LocalInfo
                         throw new Exception("Lson 数据List中禁止直接嵌套集合");
                     case TypeType.Class:
                         {
+                            ClassTypeInfo valueClass = valueType as ClassTypeInfo;
                             DataClassInfo valueData = null;
                             if (pair.Value == null)
                             {
                                 valueData = new DataClassInfo();
                                 valueData.Set(Values.VALUE, valueType.GetClassName(), null, valueType.Group);
                                 valueData.Fields = new Dictionary<string, FieldInfo>();
-                                valueData.Types = new List<string>();
+                                if (valueClass.HasSubClass)
+                                    valueData.Types = new List<string>();
                             }
                             else
                             {
                                 valueData = pair.Value as DataClassInfo;
                             }
 
-                            ClassTypeInfo valueClass = valueType as ClassTypeInfo;
-                            for (int j = 0; j < valueClass.Fields.Count; j++)
-                                AnalyzeField(property.Value, valueData, valueClass.Fields[j]);
+
+                            AnalyzeClassInfo(valueData, valueClass, property.Value);
                             pair = new KeyValuePair<DataBaseInfo, FieldInfo>(keyData, valueData);
                             break;
                         }
@@ -314,10 +289,36 @@ namespace ConfigGen.LocalInfo
                 dictFieldInfo.Pairs[i] = pair;
             }
         }
-        private void AnalyzeClassInfo()
+        private void AnalyzeClassInfo(DataClassInfo dataClass, ClassTypeInfo classType, JToken data)
         {
+            JObject jClass = data as JObject;
+            for (int colum = 0; colum < classType.Fields.Count; colum++)
+            {
+                FieldInfo field = classType.Fields[colum];
+                AnalyzeField(jClass, dataClass, field);
+            }
 
+            if (classType.HasSubClass)
+            {
+                DataClassInfo polyFieldInfo = dataClass;
+                if (jClass.ContainsKey(Values.Polymorphism))
+                {
+                    string type = jClass[Values.Polymorphism].Value<string>();
+                    type = type.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[0];
+                    type = type.Replace(Values.LsonRootNode + ".", "");
+                    ClassTypeInfo polyType = TypeInfo.GetTypeInfo(type) as ClassTypeInfo;
+                    polyFieldInfo.Types.Add(type);
+                    for (int colum = 0; colum < polyType.Fields.Count; colum++)
+                    {
+                        FieldInfo field = polyType.Fields[colum];
+                        AnalyzeField(jClass, polyFieldInfo, field);
+                    }
+                }
+                else
+                    polyFieldInfo.Types.Add(classType.GetClassName());
+            }
         }
+
 
 
         public override bool Exist(string content)

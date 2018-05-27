@@ -48,14 +48,12 @@ namespace Csv
 		/// <summary>
 		public CfgObject GetObject(string fullName)
 		{
-			Type type = Type.GetType(fullName);
+			Type type = Type.GetType("Csv." + fullName);
 			if (type == null)
-
 			{
 				UnityEngine.Debug.LogErrorFormat("DataStream 解析{0}类型失败!", fullName);
 			}
-			ConstructorInfo constructor = type.GetConstructor(new Type[] { type });
-			return (CfgObject)constructor.Invoke(new object[] { this });
+			return (CfgObject)Activator.CreateInstance(type, new object[] { this });
 		}
 
 
@@ -66,7 +64,7 @@ namespace Csv
 
 		private void NextRow()
 		{
-			if(_rIndex >= _rows.Length) return;
+			if (_rIndex >= _rows.Length) return;
 			_rIndex++;
 			_cIndex = 0;
 			_columns = _rows[_rIndex].Split("▃".ToCharArray(),  StringSplitOptions.RemoveEmptyEntries);
@@ -74,9 +72,8 @@ namespace Csv
 
 		private string Next()
 		{
-			if(_cIndex >= _columns.Length) return string.Empty;
-			_cIndex++;
-			return _columns[_rIndex];
+			if (_cIndex >= _columns.Length) NextRow();
+			return _columns[_cIndex++];
 		}
 
 	}

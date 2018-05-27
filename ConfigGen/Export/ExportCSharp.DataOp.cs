@@ -339,17 +339,15 @@ namespace ConfigGen.Export
             CodeWriter.Comments(builder, "支持多态,直接反射类型");
             CodeWriter.Function(builder, CodeWriter.Public, CLASS_CFG_OBJECT, "GetObject", types, args);
             CodeWriter.IntervalLevel(builder);
-            builder.AppendFormat("Type type = Type.GetType({0});\n", args[0]);
+            builder.AppendFormat("Type type = Type.GetType(\"{0}.\" + {1});\n", Values.ConfigRootNode, args[0]);
             CodeWriter.IntervalLevel(builder);
-            builder.AppendFormat("if (type == null)\n");
+            builder.AppendFormat("if (type == null)");
             CodeWriter.Start(builder);
             CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("UnityEngine.Debug.LogErrorFormat(\"DataStream 解析{{0}}类型失败!\", {0});\n", args[0]);
             CodeWriter.End(builder);
             CodeWriter.IntervalLevel(builder);
-            builder.AppendFormat("ConstructorInfo constructor = type.GetConstructor(new Type[] {{ type }});\n");
-            CodeWriter.IntervalLevel(builder);
-            builder.AppendFormat("return ({0})constructor.Invoke(new object[] {{ this }});\n", CLASS_CFG_OBJECT);
+            builder.AppendFormat("return ({0})Activator.CreateInstance(type, new object[] {{ this }});\n", CLASS_CFG_OBJECT);
             CodeWriter.End(builder);
             builder.AppendLine();
             builder.AppendLine();
@@ -361,7 +359,7 @@ namespace ConfigGen.Export
             builder.AppendLine();
             CodeWriter.Function(builder, CodeWriter.Private, Base.Void, "NextRow");
             CodeWriter.IntervalLevel(builder);
-            builder.AppendFormat("if({0} >= {1}.Length) return;\n", fRIndex, fRows);
+            builder.AppendFormat("if ({0} >= {1}.Length) return;\n", fRIndex, fRows);
             CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("{0}++;\n", fRIndex);
             CodeWriter.IntervalLevel(builder);
@@ -374,11 +372,9 @@ namespace ConfigGen.Export
 
             CodeWriter.Function(builder, CodeWriter.Private, Base.String, "Next");
             CodeWriter.IntervalLevel(builder);
-            builder.AppendFormat("if({0} >= {1}.Length) return string.Empty;\n", fCIndex, fColumns);
+            builder.AppendFormat("if ({0} >= {1}.Length) NextRow();\n", fCIndex, fColumns);
             CodeWriter.IntervalLevel(builder);
-            builder.AppendFormat("{0}++;\n", fCIndex);
-            CodeWriter.IntervalLevel(builder);
-            builder.AppendFormat("return {0}[{1}];\n", fColumns, fRIndex, Values.CsvSplitFlag);
+            builder.AppendFormat("return {0}[{1}++];\n", fColumns, fCIndex, Values.CsvSplitFlag);
             CodeWriter.End(builder);
             builder.AppendLine();
 
@@ -404,16 +400,19 @@ namespace ConfigGen.Export
             CodeWriter.Field(builder, CodeWriter.Public, CodeWriter.Static, Base.String, FIELD_CONFIG_DIR);
             builder.AppendLine();
 
-            List<string> dictName = new List<string>();
             List<BaseTypeInfo> typeInfos = new List<BaseTypeInfo>();
-            typeInfos.AddRange(LocalInfo.Local.Instance.TypeInfoLib.ClassInfos);
+            typeInfos.AddRange(Local.Instance.TypeInfoLib.ClassInfos);
+            StringBuilder loadAll = new StringBuilder();
+            StringBuilder clear = new StringBuilder();
             for (int i = 0; i < typeInfos.Count; i++)
             {
                 BaseTypeInfo baseType = typeInfos[i];
                 if (baseType.TypeType != TypeType.Class)
                     continue;
                 ClassTypeInfo classType = baseType as ClassTypeInfo;
-                if (classType.IndexField == null || string.IsNullOrWhiteSpace(classType.IndexField.Type))
+                if (classType.IndexField == null
+                    || string.IsNullOrWhiteSpace(classType.DataTable)
+                    || string.IsNullOrWhiteSpace(classType.IndexField.Type))
                     continue;
 
                 CodeWriter.IntervalLevel(builder);
@@ -428,7 +427,18 @@ namespace ConfigGen.Export
                   classType.IndexField.Type, fullType, classType.Name);
                 }
 
-                dictName.Add(classType.Name);
+                //加载所有配置-块内语句
+                CodeWriter.IntervalLevel(loadAll);
+                string rel = classType.GetClassName().Replace(".", "/") + Values.CsvFileExt;
+                loadAll.AppendFormat("\tvar {0}s = Load({1} + \"{2}\", (d) => new {3}(d));\n",
+                    classType.Name.ToLower(), FIELD_CONFIG_DIR, rel, classType.GetClassName());
+                CodeWriter.IntervalLevel(loadAll);
+                loadAll.AppendFormat("\t{0}s.ForEach(v => {1}.Add(v.{2}, v));\n",
+                    classType.Name.ToLower(), classType.Name, classType.IndexField.Name);
+
+                //清除所有配置-块内语句
+                CodeWriter.IntervalLevel(clear);
+                clear.AppendFormat("\t{0}.Clear();\n", classType.Name);
             }
             builder.AppendLine();
 
@@ -454,32 +464,12 @@ namespace ConfigGen.Export
 
             //加载所有配置
             CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "LoadAll");
-            for (int i = 0; i < typeInfos.Count; i++)
-            {
-                BaseTypeInfo baseType = typeInfos[i];
-                if (baseType.TypeType != TypeType.Class)
-                    continue;
-                ClassTypeInfo classType = baseType as ClassTypeInfo;
-                if (classType.IndexField == null || string.IsNullOrWhiteSpace(classType.IndexField.Type))
-                    continue;
-
-                CodeWriter.IntervalLevel(builder);
-                string rel = classType.GetClassName().Replace(".", "/") + Values.CsvFileExt;
-                builder.AppendFormat("var {0}s = Load({1} + \"{2}\", (d) => new {3}(d));\n",
-                    classType.Name.ToLower(), FIELD_CONFIG_DIR, rel, classType.GetClassName());
-                CodeWriter.IntervalLevel(builder);
-                builder.AppendFormat("{0}s.ForEach(v => {1}.Add(v.{2}, v));\n",
-                    classType.Name.ToLower(), classType.Name, classType.IndexField.Name);
-            }
+            builder.Append(loadAll);
             CodeWriter.End(builder);
             builder.AppendLine();
 
             CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "Clear");
-            for (int i = 0; i < dictName.Count; i++)
-            {
-                CodeWriter.IntervalLevel(builder);
-                builder.AppendFormat("{0}.Clear();\n", dictName[i]);
-            }
+            builder.Append(clear);
             CodeWriter.End(builder);
             builder.AppendLine();
 
