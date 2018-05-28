@@ -4,7 +4,7 @@
   "VarFloat": 9.9,
   "VarString": "9999",
   "VarBool": true,
-  "VarEnum": 9,
+  "VarEnum": 0,
   "VarClass": {
     "$type": "Lson.AllType.LInherit1, Assembly-CSharp",
     "Var3": 9999,

@@ -83,7 +83,12 @@ namespace ConfigGen.LocalInfo
 
                         //数据索引-字段信息
                         if (j == i)
+                        {
+                            string error = TableChecker.CheckDictKey(fieldInfo.Type);
+                            if (!string.IsNullOrWhiteSpace(error))
+                                Util.LogErrorFormat("表索引键类型只能为int,long,string,enum,错误位置{0}", classInfo.RelPath);
                             classInfo.IndexField = fieldInfo;
+                        }
                     }
                     i = j - 1;
                     ClassInfoDict.Add(name, classInfo);
@@ -113,6 +118,7 @@ namespace ConfigGen.LocalInfo
                         kv.Des = dt.Rows[j][2].ToString();
                         enumInfo.KeyValuePair.Add(kv);
                     }
+                    enumInfo.UpdateToDict();
                     i = j - 1;
                     EnumInfoDict.Add(name, enumInfo);
                     Local.Instance.TypeInfoLib.Add(enumInfo);

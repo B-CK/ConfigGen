@@ -122,9 +122,19 @@ namespace ConfigGen.LocalInfo
         {
             int column = index;
             fieldInfo.Data = new List<object>();
+            EnumTypeInfo enumType = fieldInfo.BaseInfo as EnumTypeInfo;
             for (int i = Values.DataSheetDataStartIndex; i < dt.Rows.Count; i++)
             {
                 object value = dt.Rows[i][column];
+                if (enumType != null)
+                {
+                    string key = value as string;
+                    if (enumType.EnumDict.ContainsKey(key))
+                        value = enumType.EnumDict[value as string];
+                    else
+                        Util.LogErrorFormat("{0}.{1}不存在,{2}", enumType.GetClassName(), key
+                            , GetErrorSite(column + 1, Values.DataSheetFieldIndex + 1));
+                }
                 fieldInfo.Data.Add(value);
             }
             return column;
@@ -147,7 +157,7 @@ namespace ConfigGen.LocalInfo
                             listFieldInfo.Name, GetErrorSite(startColumn + 1, Values.DataSheetFieldIndex + 1));
                         break;
                     case TypeType.Class:
-                        DataClassInfo classFieldInfo = new DataClassInfo();                        
+                        DataClassInfo classFieldInfo = new DataClassInfo();
                         classFieldInfo.Set(i.ToString(), elemTypeInfo.GetClassName(), check, listFieldInfo.Group);
                         startColumn = AnalyzeClassField(dt, classFieldInfo, startColumn - 1);
                         listFieldInfo.Elements.Add(classFieldInfo);
@@ -219,7 +229,7 @@ namespace ConfigGen.LocalInfo
 
             return startColumn;
         }
-       
+
     }
 
 }

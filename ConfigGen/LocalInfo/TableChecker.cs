@@ -8,6 +8,13 @@ namespace ConfigGen.LocalInfo
     public enum CheckRuleType
     {
         None,
+        //-----默认检查规则
+        /// <summary>
+        /// 枚举值存在性检查
+        /// </summary>
+        EnumValue,
+
+
         /// <summary>
         /// 检查该字段引用数据是否在指定范围内,例:引用其他表中数据,或者枚举类中值
         /// 引用类字段数据
@@ -74,6 +81,9 @@ namespace ConfigGen.LocalInfo
             foreach (var table in datas)
             {
                 DataClassInfo dataClass = table.Value.DataClassInfo;
+                ClassTypeInfo classType = dataClass.BaseInfo as ClassTypeInfo;
+                classType.IndexField.RuleDict.Add(CheckRuleType.Unique, null);
+                CheckField(classType.IndexField);//数据表键的唯一性检查
                 CheckField(dataClass);
             }
         }
@@ -126,6 +136,7 @@ namespace ConfigGen.LocalInfo
             DataDictInfo dataDict = info as DataDictInfo;
             foreach (var pair in dataDict.Pairs)
             {
+                pair.Key.RuleDict.Add(CheckRuleType.Unique, null);
                 CheckField(pair.Key);
                 CheckField(pair.Value);
             }

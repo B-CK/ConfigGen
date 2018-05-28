@@ -100,6 +100,15 @@ namespace ConfigGen.LocalInfo
             {
                 baseFieldInfo = dataClass.Fields[fieldInfo.Name] as DataBaseInfo;
             }
+            EnumTypeInfo enumType = baseFieldInfo.BaseInfo as EnumTypeInfo;
+            if (enumType != null)
+            {
+                string value = data.Value<string>();
+                if (enumType.EnumDict.ContainsValue(value))
+                    data = value;
+                else
+                    Util.LogErrorFormat("枚举{0}中不包含{1}值,字段名:{2},{3}", enumType.GetClassName(), fieldInfo.Name, RelPath);
+            }
             baseFieldInfo.Data.Add(data);
         }
         private void AnalyzeClassField(DataClassInfo dataClass, FieldInfo fieldInfo, JToken data)

@@ -1,24 +1,29 @@
 ﻿using System;
-using System.IO;
-using System.Text;
-using System.Linq;
 using ConfigGen.Export;
 using ConfigGen.CmdUsage;
 using ConfigGen.LocalInfo;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel;
+
 
 namespace ConfigGen
 {
     class Program
     {
         //未完成内容
-        //1.字段检查,自定义检查规则
+        //1.字段检查,自定义检查规则-完成-[表ID唯一性,字典Key唯一性,键(表/字典)类型限制为int,long,string,enum]
+        //                          a.枚举值存在性(Data检查key,Lson检查value)
+        //                          b.手动指定检查规则
         //2.分组导出功能
         //5.查找和替换功能
         //3.导出lua 数据,类
+
+        //问题!!!
+        //1.集合类型数据结束符##,仅在Excel中使用,解析时不做数据读取到程序中.导出Csv时不对##进行处理.Lson中无##符号
 
         //static Stopwatch stopwatch = new Stopwatch();
 

@@ -207,7 +207,7 @@ namespace ConfigGen.LocalInfo
                                 string error = TableChecker.CheckDictKey(key);
                                 if (!string.IsNullOrWhiteSpace(error))
                                 {
-                                    Util.LogErrorFormat("{0}类中字段{1}定义dict key类型错误,错误位置{2}",
+                                    Util.LogErrorFormat("{0}类中字段{1}定义dict key类型只能为int,long,string,enum,错误位置{2}",
                                         classType.GetClassName(), fieldInfo.Name, classType.RelPath);
                                     continue;
                                 }
@@ -413,6 +413,9 @@ namespace ConfigGen.LocalInfo
         [XmlElement("Field")]
         public List<FieldInfo> Fields { get; set; }
 
+        /// <summary>
+        /// 表索引键字段信息
+        /// </summary>
         [XmlIgnore]
         public FieldInfo IndexField { get; set; }
         [XmlIgnore]
@@ -512,6 +515,22 @@ namespace ConfigGen.LocalInfo
     {
         [XmlElement("Item")]
         public List<EnumKeyValue> KeyValuePair { get; set; }
+
+        [XmlIgnore]
+        public Dictionary<string, string> EnumDict { get => _enumDict; }
+        private Dictionary<string, string> _enumDict;
+        public void UpdateToDict()
+        {
+            _enumDict = new Dictionary<string, string>();
+            for (int i = 0; i < KeyValuePair.Count; i++)
+            {
+                EnumKeyValue keyValue = KeyValuePair[i];
+                if (_enumDict.ContainsKey(keyValue.Key))
+                    throw new Exception(string.Format("枚举{0}.{1}定义重复", GetClassName(), keyValue.Key));
+                else
+                    _enumDict.Add(keyValue.Key, keyValue.Value);
+            }
+        }
     }
     [XmlInclude(typeof(EnumKeyValue))]
     public class EnumKeyValue
