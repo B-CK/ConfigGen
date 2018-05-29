@@ -37,10 +37,8 @@ namespace ConfigGen.LocalInfo
         {
             List<JObject> dt = _datas;
             DataClassInfo = new DataClassInfo();
-            DataClassInfo.Fields = new Dictionary<string, FieldInfo>();
             DataClassInfo.Set(ClassTypeInfo.Name, ClassTypeInfo.GetClassName(), null, null);
 
-            DataClassInfo.Fields = new Dictionary<string, FieldInfo>();
             ClassTypeInfo classInfo = DataClassInfo.BaseInfo as ClassTypeInfo;
             //逐行数据存储..
             for (int colum = 0; colum < classInfo.Fields.Count; colum++)
@@ -121,9 +119,6 @@ namespace ConfigGen.LocalInfo
             {
                 classFieldInfo = new DataClassInfo();
                 classFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
-                classFieldInfo.Fields = new Dictionary<string, FieldInfo>();
-                if (classTypeInfo.HasSubClass)
-                    classFieldInfo.Types = new List<string>();
                 dataClass.Fields.Add(classFieldInfo.Name, classFieldInfo);
             }
             else
@@ -142,7 +137,6 @@ namespace ConfigGen.LocalInfo
             {
                 listFieldInfo = new DataListInfo();
                 listFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
-                listFieldInfo.Elements = new List<FieldInfo>();
                 dataClass.Fields.Add(listFieldInfo.Name, listFieldInfo);
             }
             else
@@ -160,17 +154,14 @@ namespace ConfigGen.LocalInfo
                     {
                         for (int i = 0; i < array.Count; i++)//i - 集合索引号,表中列号
                         {
-                            FieldInfo field = listFieldInfo.Elements.Find(e => e.Name == i.ToString());
+                            FieldInfo field = listFieldInfo.DataSet.Find(e => e.Name == i.ToString());
                             ClassTypeInfo classType = elemType as ClassTypeInfo;
                             DataClassInfo elemClass = null;
                             if (field == null)
                             {
                                 elemClass = new DataClassInfo();
                                 elemClass.Set(i.ToString(), elemType.GetClassName(), null, elemType.Group);
-                                elemClass.Fields = new Dictionary<string, FieldInfo>();
-                                if (classType.HasSubClass)
-                                    elemClass.Types = new List<string>();
-                                listFieldInfo.Elements.Add(elemClass);
+                                listFieldInfo.DataSet.Add(elemClass);
                             }
                             else
                             {
@@ -181,17 +172,14 @@ namespace ConfigGen.LocalInfo
                         }
                         if (array.Count == 0)
                         {
-                            FieldInfo field = listFieldInfo.Elements.Find(e => e.Name == "0");
+                            FieldInfo field = listFieldInfo.DataSet.Find(e => e.Name == "0");
                             ClassTypeInfo classType = elemType as ClassTypeInfo;
                             DataClassInfo elemClass = null;
                             if (field == null)
                             {
                                 elemClass = new DataClassInfo();
                                 elemClass.Set("0", elemType.GetClassName(), null, elemType.Group);
-                                elemClass.Fields = new Dictionary<string, FieldInfo>();
-                                if (classType.HasSubClass)
-                                    elemClass.Types = new List<string>();
-                                listFieldInfo.Elements.Add(elemClass);
+                                listFieldInfo.DataSet.Add(elemClass);
                             }
                             else
                             {
@@ -208,14 +196,13 @@ namespace ConfigGen.LocalInfo
                     {
                         for (int i = 0; i < array.Count; i++)//i - 集合索引号,表中列号
                         {
-                            FieldInfo field = listFieldInfo.Elements.Find(e => e.Name == i.ToString());
+                            FieldInfo field = listFieldInfo.DataSet.Find(e => e.Name == i.ToString());
                             DataBaseInfo element = null;
                             if (field == null)
                             {
                                 element = new DataBaseInfo();
                                 element.Set(i.ToString(), elemType.GetClassName(), null, elemType.Group);
-                                element.Data = new List<object>();
-                                listFieldInfo.Elements.Add(element);
+                                listFieldInfo.DataSet.Add(element);
                             }
                             else
                             {
@@ -225,14 +212,13 @@ namespace ConfigGen.LocalInfo
                         }
                         if (array.Count == 0)
                         {
-                            FieldInfo field = listFieldInfo.Elements.Find(e => e.Name == "0");
+                            FieldInfo field = listFieldInfo.DataSet.Find(e => e.Name == "0");
                             DataBaseInfo element = null;
                             if (field == null)
                             {
                                 element = new DataBaseInfo();
                                 element.Set("0", elemType.GetClassName(), null, elemType.Group);
-                                element.Data = new List<object>();
-                                listFieldInfo.Elements.Add(element);
+                                listFieldInfo.DataSet.Add(element);
                             }
                             else
                             {
@@ -253,7 +239,6 @@ namespace ConfigGen.LocalInfo
             {
                 dictFieldInfo = new DataDictInfo();
                 dictFieldInfo.Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
-                dictFieldInfo.Pairs = new List<KeyValuePair<DataBaseInfo, FieldInfo>>();
                 dataClass.Fields.Add(dictFieldInfo.Name, dictFieldInfo);
             }
             else
@@ -268,12 +253,12 @@ namespace ConfigGen.LocalInfo
             {
                 var property = properties[i];
                 KeyValuePair<DataBaseInfo, FieldInfo> pair;
-                if (i < dictFieldInfo.Pairs.Count)
-                    pair = dictFieldInfo.Pairs[i];
+                if (i < dictFieldInfo.DataSet.Count)
+                    pair = dictFieldInfo.DataSet[i];
                 else
                 {
                     pair = new KeyValuePair<DataBaseInfo, FieldInfo>();
-                    dictFieldInfo.Pairs.Add(pair);
+                    dictFieldInfo.DataSet.Add(pair);
                 }
 
                 DataBaseInfo keyData = null;
@@ -302,9 +287,6 @@ namespace ConfigGen.LocalInfo
                             {
                                 valueData = new DataClassInfo();
                                 valueData.Set(Values.VALUE, valueType.GetClassName(), null, valueType.Group);
-                                valueData.Fields = new Dictionary<string, FieldInfo>();
-                                if (valueClass.HasSubClass)
-                                    valueData.Types = new List<string>();
                             }
                             else
                             {
@@ -326,7 +308,6 @@ namespace ConfigGen.LocalInfo
                             {
                                 valueData = new DataBaseInfo();
                                 valueData.Set(Values.VALUE, valueType.GetClassName(), null, valueType.Group);
-                                valueData.Data = new List<object>();
                             }
                             else
                             {
@@ -337,7 +318,7 @@ namespace ConfigGen.LocalInfo
                             break;
                         }
                 }
-                dictFieldInfo.Pairs[i] = pair;
+                dictFieldInfo.DataSet[i] = pair;
             }
         }
         private void AnalyzeClassInfo(DataClassInfo dataClass, ClassTypeInfo classType, JToken data)
@@ -379,7 +360,6 @@ namespace ConfigGen.LocalInfo
                 {
                     dataBase = new DataBaseInfo();
                     dataBase.Set(field.Name, field.Type, field.Check, field.Group);
-                    dataBase.Data = new List<object>();                    
                 }
                 else
                 {

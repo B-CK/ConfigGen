@@ -128,13 +128,13 @@ namespace ConfigGen.LocalInfo
         static void CheckList(FieldInfo info)
         {
             DataListInfo dataList = info as DataListInfo;
-            for (int i = 0; i < dataList.Elements.Count; i++)
-                CheckField(dataList.Elements[i]);
+            for (int i = 0; i < dataList.DataSet.Count; i++)
+                CheckField(dataList.DataSet[i]);
         }
         static void CheckDict(FieldInfo info)
         {
             DataDictInfo dataDict = info as DataDictInfo;
-            foreach (var pair in dataDict.Pairs)
+            foreach (var pair in dataDict.DataSet)
             {
                 pair.Key.RuleDict.Add(CheckRuleType.Unique, null);
                 CheckField(pair.Key);

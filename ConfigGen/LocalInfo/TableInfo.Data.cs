@@ -53,10 +53,24 @@ namespace ConfigGen.LocalInfo
             return Util.GetErrorSite(RelPath, c, r);
         }
 
+
+        private object GetValueOrEnum(DataTable dt, int r, int c, EnumTypeInfo enumType)
+        {
+            object value = dt.Rows[r][c];
+            if (enumType != null)
+            {
+                string key = value as string;
+                if (enumType.EnumDict.ContainsKey(key))
+                    value = enumType.EnumDict[key];
+                else
+                    Util.LogErrorFormat("{0}.{1}不存在,{2}", enumType.GetClassName(), key
+                        , GetErrorSite(c + 1, r + 1));
+            }
+            return value;
+        }
         private int AnalyzeClassField(DataTable dt, DataClassInfo classFieldInfo, int index)
         {
             int startColumn = index + 1;
-            classFieldInfo.Fields = new Dictionary<string, FieldInfo>();
             ClassTypeInfo classInfo = classFieldInfo.BaseInfo as ClassTypeInfo;
             classInfo.UpdateToDict();
             var classFieldDict = classInfo.GetFieldInfoDict();
@@ -121,23 +135,10 @@ namespace ConfigGen.LocalInfo
         private int AnalyzeBaseField(DataTable dt, DataBaseInfo fieldInfo, int index)
         {
             int column = index;
-            fieldInfo.Data = new List<object>();
             EnumTypeInfo enumType = fieldInfo.BaseInfo as EnumTypeInfo;
             for (int i = Values.DataSheetDataStartIndex; i < dt.Rows.Count; i++)
             {
-                object value = dt.Rows[i][column];
-                if (enumType != null)
-                {
-                    string key = value as string;
-                    if (key != null && !key.Equals(Values.DataSetEndFlag))
-                    {
-                        if (enumType.EnumDict.ContainsKey(key))
-                            value = enumType.EnumDict[value as string];
-                        else
-                            Util.LogErrorFormat("{0}.{1}不存在,{2}", enumType.GetClassName(), key
-                                , GetErrorSite(column + 1, Values.DataSheetDataStartIndex + 1));
-                    }
-                }
+                object value = GetValueOrEnum(dt, i, column, enumType);
                 fieldInfo.Data.Add(value);
             }
             return column;
@@ -145,45 +146,56 @@ namespace ConfigGen.LocalInfo
         private int AnalyzeListField(DataTable dt, DataListInfo listFieldInfo, int index)
         {
             int startColumn = index + 1;
-            listFieldInfo.Elements = new List<FieldInfo>();
             ListTypeInfo listTypeInfo = listFieldInfo.BaseInfo as ListTypeInfo;
             BaseTypeInfo elemTypeInfo = TypeInfo.GetTypeInfo(listTypeInfo.ItemType);
+            EnumTypeInfo enumType = elemTypeInfo as EnumTypeInfo;
             string check = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
-            for (int i = 0; !check.StartsWith(Values.DataSetEndFlag); i++)
+            for (int j = Values.DataSheetDataStartIndex; j < dt.Rows.Count - Values.DataSheetDataStartIndex; j++)//行
             {
-                switch (elemTypeInfo.TypeType)
+                DataElementInfo dataElement = new DataElementInfo();
+                for (int i = 0; !check.StartsWith(Values.DataSetEndFlag); i++)//列
                 {
-                    case TypeType.List:
-                    case TypeType.Dict:
-                        Util.LogErrorFormat("数据表中{0}字段定义非法,List不允许直接嵌套集合,{1}",
-                            listFieldInfo.Name, GetErrorSite(startColumn + 1, Values.DataSheetFieldIndex + 1));
-                        break;
-                    case TypeType.Class:
-                        DataClassInfo classFieldInfo = new DataClassInfo();
-                        classFieldInfo.Set(i.ToString(), elemTypeInfo.GetClassName(), check, listFieldInfo.Group);
-                        startColumn = AnalyzeClassField(dt, classFieldInfo, startColumn - 1);
-                        listFieldInfo.Elements.Add(classFieldInfo);
-                        break;
-                    case TypeType.Base:
-                    case TypeType.Enum:
-                    case TypeType.None:
-                    default:
-                        DataBaseInfo baseFieldInfo = new DataBaseInfo();
-                        baseFieldInfo.Set(i.ToString(), elemTypeInfo.GetClassName(), check, listFieldInfo.Group);
-                        startColumn = AnalyzeBaseField(dt, baseFieldInfo, startColumn);
-                        listFieldInfo.Elements.Add(baseFieldInfo);
-                        break;
-                }
+                    int column = startColumn + i;
+                    switch (elemTypeInfo.TypeType)
+                    {
+                        case TypeType.List:
+                        case TypeType.Dict:
+                            Util.LogErrorFormat("数据表中{0}字段定义非法,List不允许直接嵌套集合,{1}",
+                                listFieldInfo.Name, GetErrorSite(startColumn + 1, Values.DataSheetFieldIndex + 1));
+                            break;
+                        case TypeType.Class:
+                            DataClassInfo classFieldInfo = new DataClassInfo();
+                            classFieldInfo.Set(i.ToString(), elemTypeInfo.GetClassName(), check, listFieldInfo.Group);
 
-                startColumn++;
-                check = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
+                            dataElement.Elements.Add(classFieldInfo);
+                            break;
+                        case TypeType.Base:
+                        case TypeType.Enum:
+                        case TypeType.None:
+                        default:
+                            object value = GetValueOrEnum(dt, j, column, enumType);
+                            string flag = value as string;
+                            if (flag == null || flag.Equals(Values.DataSetEndFlag))
+                                break;
+
+                            DataBaseInfo baseFieldInfo = new DataBaseInfo();
+                            baseFieldInfo.Set(i.ToString(), elemTypeInfo.GetClassName(), check, listFieldInfo.Group);
+                            baseFieldInfo.Data.Add(value);
+                            dataElement.Elements.Add(baseFieldInfo);
+                            break;
+                    }
+                }
+                listFieldInfo.DataSet.Add(dataElement);
+                if (dataElement.Elements.Count > listFieldInfo.MaxIndex)
+                    listFieldInfo.MaxIndex = dataElement.Elements.Count;
             }
+            startColumn = listFieldInfo.MaxIndex + 1;
+            check = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
             return startColumn;
         }
         private int AnalyzeDictField(DataTable dt, DataDictInfo dictFieldInfo, int index)
         {
             int startColumn = index + 1;
-            dictFieldInfo.Pairs = new List<KeyValuePair<DataBaseInfo, FieldInfo>>();
             DictTypeInfo dictTypeInfo = dictFieldInfo.BaseInfo as DictTypeInfo;
             BaseTypeInfo keyTypeInfo = TypeInfo.GetTypeInfo(dictTypeInfo.KeyType);
             BaseTypeInfo valueTypeInfo = TypeInfo.GetTypeInfo(dictTypeInfo.ValueType);
@@ -209,7 +221,7 @@ namespace ConfigGen.LocalInfo
                             DataClassInfo valueInfo = new DataClassInfo();
                             valueInfo.Set(Values.VALUE, valueTypeInfo.GetClassName(), check, dictTypeInfo.Group);
                             startColumn = AnalyzeClassField(dt, valueInfo, startColumn - 1);
-                            dictFieldInfo.Pairs.Add(new KeyValuePair<DataBaseInfo, FieldInfo>(keyInfo, valueInfo));
+                            dictFieldInfo.DataSet.Add(new KeyValuePair<DataBaseInfo, FieldInfo>(keyInfo, valueInfo));
                             break;
                         }
                     case TypeType.Base:
@@ -220,7 +232,7 @@ namespace ConfigGen.LocalInfo
                             DataBaseInfo valueInfo = new DataBaseInfo();
                             valueInfo.Set(Values.VALUE, valueTypeInfo.GetClassName(), check, dictTypeInfo.Group);
                             startColumn = AnalyzeBaseField(dt, valueInfo, startColumn);
-                            dictFieldInfo.Pairs.Add(new KeyValuePair<DataBaseInfo, FieldInfo>(keyInfo, valueInfo));
+                            dictFieldInfo.DataSet.Add(new KeyValuePair<DataBaseInfo, FieldInfo>(keyInfo, valueInfo));
                             break;
                         }
                 }

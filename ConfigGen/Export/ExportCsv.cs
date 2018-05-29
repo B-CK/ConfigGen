@@ -124,7 +124,7 @@ namespace ConfigGen.Export
         {
             StringBuilder builder = new StringBuilder();
             int count = 0;
-            var elements = dataList.Elements;
+            var elements = dataList.DataSet;
             for (int i = 0; i < elements.Count; i++)
             {
                 string value = AnalyzeField(elements[i], row, true);
@@ -151,7 +151,7 @@ namespace ConfigGen.Export
         {
             StringBuilder builder = new StringBuilder();
             int count = 0;
-            var pairs = dataDict.Pairs;
+            var pairs = dataDict.DataSet;
             for (int i = 0; i < pairs.Count; i++)
             {
                 string key = AnalyzeField(pairs[i].Key, row);

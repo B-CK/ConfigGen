@@ -35,27 +35,58 @@ namespace ConfigGen.LocalInfo
     }
 
 
- 
+
     public class DataBaseInfo : FieldInfo
     {//Name,Type,Check,Group
-        public List<object> Data { get; set; }
-          
+        public List<object> Data { get; set; }//多行数据
+        public DataBaseInfo()
+        {
+            Data = new List<object>();
+        }
     }
     public class DataClassInfo : FieldInfo
     {
-        public Dictionary<string, FieldInfo> Fields { get; set; }
+        public Dictionary<string, FieldInfo> Fields { get; set; }//多列数据
         public List<string> Types { get; set; }//多态中标识数据类型,每条数据的类型
+        public DataClassInfo()
+        {
+            Fields = new Dictionary<string, FieldInfo>();
+            Types = new List<string>();
+        }
     }
     public class DataListInfo : FieldInfo
     {
-        public List<FieldInfo> Elements { get; set; }
+        public int MaxIndex = 0;
+        public List<DataElementInfo> DataSet { get; set; }//多行数据
+        public DataListInfo()
+        {
+            DataSet = new List<DataElementInfo>();
+        }
+    }
+    //一行数据,无数据填充##结束符
+    public class DataElementInfo : FieldInfo
+    {
+        public List<FieldInfo> Elements { get; set; }//多列数据
+        public DataElementInfo()
+        {
+            Elements = new List<FieldInfo>();
+        }
     }
     public class DataDictInfo : FieldInfo
     {
-        /// <summary>
-        /// list    -   多条数据字典
-        /// dict    -   单条数据字典
-        /// </summary>
-        public List<KeyValuePair<DataBaseInfo, FieldInfo>> Pairs { get; set; }
+        public List<DataPairInfo> DataSet { get; set; }//多行数据
+        public DataDictInfo()
+        {
+            DataSet = new List<DataPairInfo>();
+        }
+    }
+    //一行数据,无数据填充##结束符
+    public class DataPairInfo : FieldInfo
+    {
+        public List<KeyValuePair<DataBaseInfo, FieldInfo>> Pairs { get; set; }//多列数据
+        public DataPairInfo()
+        {
+            Pairs = new List<KeyValuePair<DataBaseInfo, FieldInfo>>();
+        }
     }
 }
