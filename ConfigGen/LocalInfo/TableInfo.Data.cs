@@ -129,11 +129,14 @@ namespace ConfigGen.LocalInfo
                 if (enumType != null)
                 {
                     string key = value as string;
-                    if (enumType.EnumDict.ContainsKey(key))
-                        value = enumType.EnumDict[value as string];
-                    else
-                        Util.LogErrorFormat("{0}.{1}不存在,{2}", enumType.GetClassName(), key
-                            , GetErrorSite(column + 1, Values.DataSheetFieldIndex + 1));
+                    if (key != null && !key.Equals(Values.DataSetEndFlag))
+                    {
+                        if (enumType.EnumDict.ContainsKey(key))
+                            value = enumType.EnumDict[value as string];
+                        else
+                            Util.LogErrorFormat("{0}.{1}不存在,{2}", enumType.GetClassName(), key
+                                , GetErrorSite(column + 1, Values.DataSheetDataStartIndex + 1));
+                    }
                 }
                 fieldInfo.Data.Add(value);
             }
@@ -148,7 +151,6 @@ namespace ConfigGen.LocalInfo
             string check = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
             for (int i = 0; !check.StartsWith(Values.DataSetEndFlag); i++)
             {
-                check = dt.Rows[Values.DataSheetCheckIndex][startColumn].ToString();
                 switch (elemTypeInfo.TypeType)
                 {
                     case TypeType.List:
@@ -185,12 +187,11 @@ namespace ConfigGen.LocalInfo
             DictTypeInfo dictTypeInfo = dictFieldInfo.BaseInfo as DictTypeInfo;
             BaseTypeInfo keyTypeInfo = TypeInfo.GetTypeInfo(dictTypeInfo.KeyType);
             BaseTypeInfo valueTypeInfo = TypeInfo.GetTypeInfo(dictTypeInfo.ValueType);
-            string check = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
-            for (int i = 0; !check.StartsWith(Values.DataSetEndFlag); i++)
+            string checkField = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
+            for (int i = 0; !checkField.StartsWith(Values.DataSetEndFlag); i++)
             {
-                //键需要做唯一性检查...
                 DataBaseInfo keyInfo = new DataBaseInfo();
-                check = dt.Rows[Values.DataSheetCheckIndex][startColumn].ToString();
+                string check = dt.Rows[Values.DataSheetCheckIndex][startColumn].ToString();
                 keyInfo.Set(Values.KEY, keyTypeInfo.GetClassName(), check, dictTypeInfo.Group);
                 startColumn = AnalyzeBaseField(dt, keyInfo, startColumn);
 
@@ -224,12 +225,11 @@ namespace ConfigGen.LocalInfo
                         }
                 }
                 startColumn = startColumn + 1;
-                check = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
+                checkField = dt.Rows[Values.DataSheetFieldIndex][startColumn].ToString();
             }
 
             return startColumn;
         }
-
     }
 
 }

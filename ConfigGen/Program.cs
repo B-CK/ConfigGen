@@ -23,7 +23,8 @@ namespace ConfigGen
         //3.导出lua 数据,类
 
         //问题!!!
-        //1.集合类型数据结束符##,仅在Excel中使用,解析时不做数据读取到程序中.导出Csv时不对##进行处理.Lson中无##符号
+        //1.集合类型数据结束符##,仅在Excel中使用,解析时不做数据读取到程序中.导出Csv时不对##进行处理.Lson中无##符号.
+        //2.集合数据的长短不一,在数据导出时的问题,Lson和Data均异常
 
         //static Stopwatch stopwatch = new Stopwatch();
 

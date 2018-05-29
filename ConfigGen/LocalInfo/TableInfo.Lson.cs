@@ -32,6 +32,7 @@ namespace ConfigGen.LocalInfo
             }
         }
         //json文件需要按索引排序,总是以固定顺序生成数据.
+        //逐行读取数据,逐列填充,不填充空数据
         public override void Analyze()
         {
             List<JObject> dt = _datas;
@@ -150,16 +151,16 @@ namespace ConfigGen.LocalInfo
             }
 
             BaseTypeInfo elemType = TypeInfo.GetTypeInfo(listTypeInfo.ItemType);
-            for (int i = 0; i < array.Count; i++)
+            switch (elemType.TypeType)
             {
-                FieldInfo field = listFieldInfo.Elements.Find(e => e.Name == i.ToString());
-                switch (elemType.TypeType)
-                {
-                    case TypeType.List:
-                    case TypeType.Dict:
-                        throw new Exception("Lson 数据List中禁止直接嵌套集合");
-                    case TypeType.Class:
+                case TypeType.List:
+                case TypeType.Dict:
+                    throw new Exception("Lson 数据List中禁止直接嵌套集合");
+                case TypeType.Class:
+                    {
+                        for (int i = 0; i < array.Count; i++)//i - 集合索引号,表中列号
                         {
+                            FieldInfo field = listFieldInfo.Elements.Find(e => e.Name == i.ToString());
                             ClassTypeInfo classType = elemType as ClassTypeInfo;
                             DataClassInfo elemClass = null;
                             if (field == null)
@@ -177,13 +178,37 @@ namespace ConfigGen.LocalInfo
                             }
 
                             AnalyzeClassInfo(elemClass, classType, array[i]);
-                            break;
                         }
-                    case TypeType.None:
-                    case TypeType.Enum:
-                    case TypeType.Base:
-                    default:
+                        if (array.Count == 0)
                         {
+                            FieldInfo field = listFieldInfo.Elements.Find(e => e.Name == "0");
+                            ClassTypeInfo classType = elemType as ClassTypeInfo;
+                            DataClassInfo elemClass = null;
+                            if (field == null)
+                            {
+                                elemClass = new DataClassInfo();
+                                elemClass.Set("0", elemType.GetClassName(), null, elemType.Group);
+                                elemClass.Fields = new Dictionary<string, FieldInfo>();
+                                if (classType.HasSubClass)
+                                    elemClass.Types = new List<string>();
+                                listFieldInfo.Elements.Add(elemClass);
+                            }
+                            else
+                            {
+                                elemClass = field as DataClassInfo;
+                            }
+
+                        }
+                        break;
+                    }
+                case TypeType.None:
+                case TypeType.Enum:
+                case TypeType.Base:
+                default:
+                    {
+                        for (int i = 0; i < array.Count; i++)//i - 集合索引号,表中列号
+                        {
+                            FieldInfo field = listFieldInfo.Elements.Find(e => e.Name == i.ToString());
                             DataBaseInfo element = null;
                             if (field == null)
                             {
@@ -197,9 +222,26 @@ namespace ConfigGen.LocalInfo
                                 element = field as DataBaseInfo;
                             }
                             element.Data.Add(array[i]);
-                            break;
                         }
-                }
+                        if (array.Count == 0)
+                        {
+                            FieldInfo field = listFieldInfo.Elements.Find(e => e.Name == "0");
+                            DataBaseInfo element = null;
+                            if (field == null)
+                            {
+                                element = new DataBaseInfo();
+                                element.Set("0", elemType.GetClassName(), null, elemType.Group);
+                                element.Data = new List<object>();
+                                listFieldInfo.Elements.Add(element);
+                            }
+                            else
+                            {
+                                element = field as DataBaseInfo;
+                            }
+                            element.Data.Add(Values.DataSetEndFlag);
+                        }
+                        break;
+                    }
             }
         }
         private void AnalyzeDictField(DataClassInfo dataClass, FieldInfo fieldInfo, JToken data)
@@ -327,8 +369,24 @@ namespace ConfigGen.LocalInfo
                     polyFieldInfo.Types.Add(classType.GetClassName());
             }
         }
-
-
+        private void AddNullClassInfo(DataClassInfo dataClass, ClassTypeInfo classType)
+        {
+            for (int colum = 0; colum < classType.Fields.Count; colum++)
+            {
+                FieldInfo field = classType.Fields[colum];
+                DataBaseInfo dataBase = null;
+                if (!dataClass.Fields.ContainsKey(field.Name))
+                {
+                    dataBase = new DataBaseInfo();
+                    dataBase.Set(field.Name, field.Type, field.Check, field.Group);
+                    dataBase.Data = new List<object>();                    
+                }
+                else
+                {
+                    dataBase = field as DataBaseInfo;
+                }
+            }
+        }
 
         public override bool Exist(string content)
         {
