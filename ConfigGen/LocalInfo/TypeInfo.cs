@@ -423,13 +423,16 @@ namespace ConfigGen.LocalInfo
         [XmlIgnore]
         public bool HasSubClass { get { return SubClasses != null && SubClasses.Count > 0; } }
 
-        Dictionary<string, FieldInfo> _fieldInfoDict = new Dictionary<string, FieldInfo>();
+        Dictionary<string, FieldInfo> _fieldInfoDict;
         public Dictionary<string, FieldInfo> GetFieldInfoDict()
         {
             return _fieldInfoDict;
         }
         public void UpdateToDict()
         {
+            if (_fieldInfoDict != null) return;
+
+            _fieldInfoDict = new Dictionary<string, FieldInfo>();
             for (int i = 0; i < Fields.Count; i++)
             {
                 string fieldName = Fields[i].Name;
@@ -521,6 +524,8 @@ namespace ConfigGen.LocalInfo
         private Dictionary<string, string> _enumDict;
         public void UpdateToDict()
         {
+            if (KeyValuePair != null) return;
+
             _enumDict = new Dictionary<string, string>();
             for (int i = 0; i < KeyValuePair.Count; i++)
             {

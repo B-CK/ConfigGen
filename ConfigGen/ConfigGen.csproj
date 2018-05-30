@@ -68,7 +68,7 @@
     <Compile Include="LocalInfo\FileInfo.cs" />
     <Compile Include="LocalInfo\FindInfo.cs" />
     <Compile Include="LocalInfo\Local.cs" />
-    <Compile Include="LocalInfo\TableChecker.cs" />
+    <Compile Include="LocalInfo\TableInfo.Check.cs" />
     <Compile Include="LocalInfo\TableInfo.Data.cs" />
     <Compile Include="LocalInfo\TableInfo.Define.cs" />
     <Compile Include="LocalInfo\TableInfo.Lson.cs" />

@@ -89,4 +89,34 @@ namespace ConfigGen.LocalInfo
             Pairs = new List<KeyValuePair<DataBaseInfo, FieldInfo>>();
         }
     }
+
+
+    public class DataBase : FieldInfo
+    {
+        public object Data;
+    }
+    public class DataClass : FieldInfo
+    {
+        public Dictionary<string, FieldInfo> Fields;
+        public DataClass()
+        {
+            Fields = new Dictionary<string, FieldInfo>();
+        }
+    }
+    public class DataList : FieldInfo
+    {
+        public List<FieldInfo> Elements;
+        public DataList()
+        {
+            Elements = new List<FieldInfo>();
+        }
+    }
+    public class DataDict : FieldInfo
+    {
+        public List<KeyValuePair<DataBase, FieldInfo>> Pairs { get; set; }
+        public DataDict()
+        {
+            Pairs = new List<KeyValuePair<DataBase, FieldInfo>>();
+        }
+    }
 }

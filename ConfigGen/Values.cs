@@ -57,10 +57,10 @@ namespace ConfigGen
         /// 数据表前四行分别声明字段检查规则,字段描述,字段名,字段数据类型.
         /// </summary>
         public const int DataSheetFieldIndex = 0;
-        public const int DataSheetCheckIndex = 1;
+        //public const int DataSheetCheckIndex = 1;
         //public const int DataSheetDesIndex = 2;
         //public const int DataSheetTypeIndex = 3;
-        public const int DataSheetDataStartIndex = 4;
+        public const int DataSheetDataStartIndex = 3;
         /// <summary>
         /// 数据类型定义起始符
         /// </summary>

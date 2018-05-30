@@ -16,7 +16,7 @@ namespace ConfigGen.Export
             StringBuilder builder = new StringBuilder();
             foreach (var item in Local.Instance.DataInfoDict)
             {
-                DataClassInfo data = item.Value.DataClassInfo;
+                DataClassInfo data = item.Value.Datas;
                 for (int row = 0; row < item.Value.DataLength; row++)//行
                 {
                     List<FieldInfo> fields = (data.BaseInfo as ClassTypeInfo).Fields;
