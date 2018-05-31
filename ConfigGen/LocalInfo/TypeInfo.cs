@@ -199,7 +199,7 @@ namespace ConfigGen.LocalInfo
                                 string[] kv = fieldInfo.Type.Replace("dict<", "").Replace(">", "").Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                                 if (kv.Length != 2)
                                 {
-                                    Util.LogErrorFormat("{0}类中字段{1}的dict类型格式错误,错误位置{2}",
+                                    Util.LogErrorFormat("{0}.{1}的dict类型格式错误,错误位置{2}",
                                         classType.GetClassName(), fieldInfo.Name, classType.RelPath);
                                     continue;
                                 }
@@ -207,7 +207,7 @@ namespace ConfigGen.LocalInfo
                                 string error = TableChecker.CheckDictKey(key);
                                 if (!string.IsNullOrWhiteSpace(error))
                                 {
-                                    Util.LogErrorFormat("{0}类中字段{1}定义dict key类型只能为int,long,string,enum,错误位置{2}",
+                                    Util.LogErrorFormat("{0}.{1}定义dict key类型只能为int,long,string,enum,错误位置{2}",
                                         classType.GetClassName(), fieldInfo.Name, classType.RelPath);
                                     continue;
                                 }
@@ -293,7 +293,7 @@ namespace ConfigGen.LocalInfo
             }
             else
             {
-                throw new Exception(string.Format("{0}类字段{1}类型{2}不存在,错误位置{3}",
+                throw new Exception(string.Format("{0}.{1}的类型{2}不存在,错误位置{3}",
                    baseType.GetClassName(), name, type, baseType.RelPath));
             }
             return newType;
@@ -524,7 +524,7 @@ namespace ConfigGen.LocalInfo
         private Dictionary<string, string> _enumDict;
         public void UpdateToDict()
         {
-            if (KeyValuePair != null) return;
+            if (_enumDict != null) return;
 
             _enumDict = new Dictionary<string, string>();
             for (int i = 0; i < KeyValuePair.Count; i++)

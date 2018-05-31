@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace ConfigGen.LocalInfo
 {
+    //问题:list中类字段为##
+    //其实就是,集合中的##该如何表达结束
+
     //---数据定义表,Excel形式中数据类无继承形式[未定义继承解析]
     public class TableDataInfo : TableInfo
     {
@@ -40,10 +43,16 @@ namespace ConfigGen.LocalInfo
         {
             return false;
         }
-
+        /// <summary>
+        /// 字段列数据
+        /// </summary>
         public List<Data> GetDataColumn(string fieldName)
         {
             List<Data> dataColum = new List<Data>();
+            var fieldDict = ClassTypeInfo.GetFieldInfoDict();
+            if (!fieldDict.ContainsKey(fieldName))
+                return new List<Data>();
+
             if (DataColumnDict.ContainsKey(fieldName))
             {
                 dataColum = DataColumnDict[fieldName];
@@ -66,7 +75,8 @@ namespace ConfigGen.LocalInfo
             for (int row = Values.DataSheetDataStartIndex; row < dt.Rows.Count; row++)
             {
                 DataClass dataClass = new DataClass();
-                for (int column = 0; column < ClassTypeInfo.Fields.Count; column++)
+                int column = 0;
+                for (int i = 0; i < ClassTypeInfo.Fields.Count; i++, column++)
                 {
                     string fieldName = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
                     FieldInfo fieldInfo = fieldDict[fieldName];
@@ -81,7 +91,7 @@ namespace ConfigGen.LocalInfo
         {
             return Util.GetErrorSite(RelPath, c, r);
         }
-        
+
         private Data AnalyzeField(DataTable dt, FieldInfo info, int row, ref int column)
         {
             Data dataField = null;
@@ -114,6 +124,9 @@ namespace ConfigGen.LocalInfo
             DataBase dataBase = new DataBase();
             //dataBase.Set(info.Name, info.Type, info.Check, info.Group);
             dataBase.Data = dt.Rows[row][column];
+            string key = dataBase.Data as string;
+            if (key != null && key.Equals(Values.DataSetEndFlag))
+                return null;
             return dataBase;
         }
         private Data AnalyzeEnum(DataTable dt, FieldInfo info, int row, ref int column)
@@ -123,12 +136,18 @@ namespace ConfigGen.LocalInfo
             EnumTypeInfo enumType = info.BaseInfo as EnumTypeInfo;
             enumType.UpdateToDict();
             dataBase.Data = dt.Rows[row][column];
-            string key = dt.Rows[row][column] as string;
-            if (enumType.EnumDict.ContainsKey(key))
-                dataBase.Data = enumType.EnumDict[key];
+            string key = dataBase.Data as string;
+            if (key != null && !key.Equals(Values.DataSetEndFlag))
+            {
+                if (enumType.EnumDict.ContainsKey(key))
+                    dataBase.Data = enumType.EnumDict[key];
+                else
+                    Util.LogErrorFormat("{0}.{1}不存在,{2}", enumType.GetClassName(), key
+                        , GetErrorSite(column + 1, row + 1));
+            }
             else
-                Util.LogErrorFormat("{0}.{1}不存在,{2}", enumType.GetClassName(), key
-                    , GetErrorSite(column + 1, row + 1));
+                dataBase = null;
+
             return dataBase;
         }
         private Data AnalyzeClass(DataTable dt, FieldInfo info, int row, ref int column)
@@ -144,8 +163,11 @@ namespace ConfigGen.LocalInfo
                 string fieldName = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
                 FieldInfo fieldInfo = fieldDict[fieldName];
                 Data dataField = AnalyzeField(dt, fieldInfo, row, ref column);
+                if (dataField == null)
+                    Util.LogErrorFormat("类型{0}字段{1}数据为空,{2}", info.Type, info.Name, GetErrorSite(column + 1, row + 1));
                 dataClass.Fields.Add(fieldName, dataField);
             }
+            column--;
             return dataClass;
         }
         private Data AnalyzeList(DataTable dt, FieldInfo info, int row, ref int column)
@@ -158,12 +180,21 @@ namespace ConfigGen.LocalInfo
             string flag = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
             for (int i = 0; !flag.Equals(Values.DataSetEndFlag); i++)
             {
+                string dataFlag = dt.Rows[row][column].ToString();
+                if (dataFlag.Equals(Values.DataSetEndFlag))
+                {
+                    column++;
+                    continue;
+                }
                 FieldInfo element = new FieldInfo();
-                element.Set(i.ToString(), elementType.GetClassName(), null, null);
+                element.Set(Values.ELEMENT, elementType.GetClassName(), null, null);
                 Data dataField = AnalyzeField(dt, element, row, ref column);
-                dataList.Elements.Add(dataField);
-
+                if (dataField == null)
+                    Util.LogErrorFormat("类型{0}字段{1}数据为空,{2}", info.Type, info.Name, GetErrorSite(column + 1, row + 1));
+                else
+                    dataList.Elements.Add(dataField);
                 column++;
+
                 flag = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
             }
             return dataList;
@@ -176,23 +207,43 @@ namespace ConfigGen.LocalInfo
             BaseTypeInfo valueType = TypeInfo.GetTypeInfo(dictType.ValueType);
             DataDict dataDict = new DataDict();
             //dataDict.Set(info.Name, info.Type, info.Check, info.Group);
+            HashSet<object> hash = new HashSet<object>();
             string flag = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
             for (int i = 0; !flag.Equals(Values.DataSetEndFlag); i++)
             {
-                FieldInfo element = new FieldInfo();
-                element.Set(Values.KEY, keyType.GetClassName(), null, null);
-                DataBase dataKey = AnalyzeField(dt, element, row, ref column) as DataBase;
-
+                string dataFlag = dt.Rows[row][column].ToString();
+                if (dataFlag.Equals(Values.DataSetEndFlag))
+                {
+                    column++;
+                    break;
+                }
+                FieldInfo keyInfo = new FieldInfo();
+                keyInfo.Set(Values.KEY, keyType.GetClassName(), null, null);
+                DataBase dataKey = AnalyzeField(dt, keyInfo, row, ref column) as DataBase;
                 column++;
-                element.Set(Values.VALUE, valueType.GetClassName(), null, null);
-                Data dataValue = AnalyzeField(dt, element, row, ref column);
 
-                dataDict.Pairs.Add(new KeyValuePair<DataBase, Data>(dataKey, dataValue));
-
+                dataFlag = dt.Rows[row][column].ToString();
+                if (dataFlag.Equals(Values.DataSetEndFlag))
+                {
+                    column++;
+                    break;
+                }
+                FieldInfo valueInfo = new FieldInfo();
+                valueInfo.Set(Values.VALUE, valueType.GetClassName(), null, null);
+                Data dataValue = AnalyzeField(dt, valueInfo, row, ref column);
                 column++;
+                if (dataKey == null || dataValue == null)
+                    Util.LogErrorFormat("{0} {1} Key或者Value数据为空,{2}", info.Type, info.Name, GetErrorSite(column - 1, row + 1));
+                else if (hash.Contains(dataKey.Data))
+                    Util.LogErrorFormat("{0} {1} Key:{2}重复,{3}", info.Type, info.Name,
+                        dataKey.Data.ToString(), GetErrorSite(column - 1, row + 1));
+                else
+                {
+                    hash.Add(dataKey.Data);
+                    dataDict.Pairs.Add(new KeyValuePair<DataBase, Data>(dataKey, dataValue));
+                }
                 flag = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
             }
-
             return dataDict;
         }
 

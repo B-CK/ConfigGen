@@ -12,12 +12,13 @@ using System.ComponentModel;
 
 namespace ConfigGen
 {
+    /// 所有的路径均以应用为相对路径生成
     class Program
     {
         //未完成内容
         //1.字段检查,自定义检查规则-完成-[表ID唯一性,字典Key唯一性,键(表/字典)类型限制为int,long,string,enum]
-        //                          a.枚举值存在性(Data检查key,Lson检查value)
-        //                          b.手动指定检查规则
+        //                          a.枚举值存在性(Data检查key-已完成,Lson检查value)
+        //                          b.手动指定检查规则,ref,file未验证
         //2.分组导出功能
         //5.查找和替换功能
         //3.导出lua 数据,类
@@ -42,12 +43,10 @@ namespace ConfigGen
             if (CmdOption.Instance.CmdArgs.ContainsKey("-exportCSharp")
                 || CmdOption.Instance.CmdArgs.ContainsKey("-exportCsv"))
             {
-                Util.Start();
                 Local.Instance.TypeInfoLib = TypeInfo.Create();
                 Local.Instance.DefineInfoDict = new Dictionary<string, TableDefineInfo>();
                 Local.Instance.DataInfoDict = new Dictionary<string, TableDataInfo>();
                 Local.Instance.UpdateTypeInfo();
-                Util.Stopln("=================>> 更新类型和解析/检查数据完毕");
             }
             if (CmdOption.Instance.CmdArgs.ContainsKey("-replace")
                 || CmdOption.Instance.CmdArgs.ContainsKey("-find"))
@@ -61,19 +60,19 @@ namespace ConfigGen
             {
                 Util.Start();
                 ExportCsv.Export();
-                Util.Stopln("=================>> Csv数据导出完毕");
+                Util.Stopln("==>> Csv数据导出完毕");
             }
             if (!string.IsNullOrWhiteSpace(Values.ExportCSharp))
             {
                 Util.Start();
                 ExportCSharp.Export_CsvOp();
-                Util.Stopln("=================>> CSharp类导出完毕");
+                Util.Stopln("==>> CS Csv操作类导出完毕");
             }
             if (!string.IsNullOrWhiteSpace(Values.ExportCsLson))
             {
                 Util.Start();
                 ExportCSharp.Export_LsonOp();
-                Util.Stopln("==>>CSharp类导出完毕");
+                Util.Stopln("==>> CS Lson操作类导出完毕");
             }
 
             Util.Log("\n\n\n");

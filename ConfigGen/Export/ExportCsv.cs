@@ -122,7 +122,7 @@ namespace ConfigGen.Export
             StringBuilder builder = new StringBuilder();
             ListTypeInfo listInfo = info.BaseInfo as ListTypeInfo;
             FieldInfo elementInfo = new FieldInfo();
-            elementInfo.Set("List.Element", listInfo.GetClassName(), null, info.Group);
+            elementInfo.Set(Values.ELEMENT, listInfo.GetClassName(), null, info.Group);
             DataList dataList = data as DataList;
             int count = 0;
             var elements = dataList.Elements;
@@ -153,9 +153,9 @@ namespace ConfigGen.Export
             StringBuilder builder = new StringBuilder();
             DictTypeInfo dictInfo = info.BaseInfo as DictTypeInfo;
             FieldInfo keyInfo = new FieldInfo();
-            keyInfo.Set("Dict.Key", dictInfo.KeyType, null, info.Group);
+            keyInfo.Set(Values.KEY, dictInfo.KeyType, null, info.Group);
             FieldInfo valueInfo = new FieldInfo();
-            keyInfo.Set("Dict.Value", dictInfo.ValueType, null, info.Group);
+            valueInfo.Set(Values.VALUE, dictInfo.ValueType, null, info.Group);
             DataDict dataDict = data as DataDict;
             int count = 0;
             var pairs = dataDict.Pairs;

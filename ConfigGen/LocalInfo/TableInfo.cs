@@ -36,12 +36,21 @@ namespace ConfigGen.LocalInfo
 
     public class Data
     {
-       
+
     }
 
     public class DataBase : Data
     {
         public object Data;
+
+        public static implicit operator long(DataBase value)
+        {
+            return Convert.ToInt64(value.Data);
+        }
+        public static implicit operator string(DataBase value)
+        {
+            return value.Data as string;
+        }
     }
     public class DataClass : Data
     {

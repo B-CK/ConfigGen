@@ -6,6 +6,10 @@
       <CmdDes>[必填]数据表所在文件夹路径.</CmdDes>
     </CmdLine>
     <CmdLine>
+      <Cmd>-assetsDir</Cmd>
+      <CmdDes>[选填]资源文件夹路径.无此路径则无法使用file检查功能</CmdDes>
+    </CmdLine>
+    <CmdLine>
       <Cmd>-help</Cmd>
       <CmdDes>[选填]显示应用命令行帮助文档</CmdDes>
     </CmdLine>

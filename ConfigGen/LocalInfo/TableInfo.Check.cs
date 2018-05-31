@@ -9,10 +9,6 @@ namespace ConfigGen.LocalInfo
     {
         None,
         //-----默认检查规则
-        /// <summary>
-        /// 枚举值存在性检查
-        /// </summary>
-        EnumValue,
 
 
         /// <summary>
@@ -39,6 +35,7 @@ namespace ConfigGen.LocalInfo
         /// 文件存在性检查,file:path:ext;file:path
         /// </summary>
         FileExist,
+
     }
 
     class TableChecker
@@ -91,7 +88,7 @@ namespace ConfigGen.LocalInfo
 
                     //数据表键的唯一性检查
                     if (classType.IndexField.Name == info.Name)
-                        info.RuleDict.Add(CheckRuleType.Unique, null);
+                        info.Check += "|unique";
 
                     CheckField(info, dataColum);
                 }
@@ -112,7 +109,6 @@ namespace ConfigGen.LocalInfo
             {
                 case TypeType.Base:
                 case TypeType.Enum:
-
                     CheckBase(info, datas);
                     break;
                 case TypeType.Class:
@@ -221,6 +217,8 @@ namespace ConfigGen.LocalInfo
             string uniqueFlag = "unique";
             //string[] relOpFlags = { "<", ">", "<=", ">=", "==" };
             string fileExistFlags = "file";
+            string dictKey = "key";
+            string dictValue = "value";
 
             bool isOK = true;
             for (int i = 0; i < checks.Length; i++)
@@ -230,6 +228,13 @@ namespace ConfigGen.LocalInfo
                 List<string> ruleArgs = new List<string>();
                 bool isNullOrWhiteSpace = string.IsNullOrWhiteSpace(check);
                 if (isNullOrWhiteSpace) continue;
+
+                if (check.StartsWith(dictKey))
+                    ;
+                else if (check.StartsWith(dictValue))
+                {
+
+                }
 
 
                 if (check.StartsWith(refFlag))
@@ -252,6 +257,11 @@ namespace ConfigGen.LocalInfo
                 }
                 else if (check.StartsWith(fileExistFlags))
                 {
+                    if (string.IsNullOrWhiteSpace(Values.AssetsDir))
+                    {
+                        Util.LogWarningFormat("未配置资源目录路径无法使用file检查功能.错误位置:{0} {1}", ClassFullName, info.Name);
+                        continue;
+                    }
                     ruleType = CheckRuleType.FileExist;
                     ruleArgs.AddRange(check.Replace(fileExistFlags, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
@@ -277,8 +287,13 @@ namespace ConfigGen.LocalInfo
                     //    }
                     //}
                 }
+
                 if (!info.RuleDict.ContainsKey(ruleType))
                     info.RuleDict.Add(ruleType, ruleArgs);
+
+                if (!isNullOrWhiteSpace && ruleType == CheckRuleType.None)
+                    Util.LogWarningFormat("类:{0} 异常:检查规则{1}不存在", ClassFullName, check);
+
             }
             return isOK;
         }
@@ -315,7 +330,7 @@ namespace ConfigGen.LocalInfo
                 }
             }
             if (!string.IsNullOrWhiteSpace(error))
-                Util.LogErrorFormat("Check:{0} {1}\n{2}", ClassFullName, info.Name, error);
+                Util.LogErrorFormat("Check:{0}.{1}\n{2}", ClassFullName, info.Name, error);
         }
         static string CheckRef(List<string> args, List<Data> datas)
         {
@@ -327,31 +342,27 @@ namespace ConfigGen.LocalInfo
             string className = args[0].Substring(0, lastIndex);
             string fieldName = args[0].Substring(lastIndex);
 
-            for (int i = 0; i < datas.Count; i++)
+            var dataInfoDict = Local.Instance.DataInfoDict;
+            if (dataInfoDict.ContainsKey(className))
             {
-                object data = (datas[i] as DataBase).Data;
-
-                var dataInfoDict = Local.Instance.DataInfoDict;
-                if (dataInfoDict.ContainsKey(className))
+                List<Data> dataClass = Local.Instance.DataInfoDict[className].GetDataColumn(fieldName);
+                if (dataClass != null)
                 {
-                    //DataClassInfo dataClass = Local.Instance.DataInfoDict[className].GetDataColumn();
-                    //if (dataClass.Fields.ContainsKey(fieldName))
-                    //{
-                    //    DataBase dataBase = dataClass.Fields[fieldName] as DataBase;
-                    //    HashSet<object> hash = new HashSet<object>(dataBase.Data);
-                    //    for (int i = 0; i < datas.Count; i++)
-                    //    {
-                    //        if (!hash.Contains(datas[i]))
-                    //            error.AppendFormat("[ref]引用{0}类型{1}字段的第{2}行数据不存在\n",
-                    //                className, fieldName, i + Values.DataSheetDataStartIndex);
-                    //    }
-                    //}
-                    //else
-                    //    error.AppendFormat("[ref]引类型{0}中无{1}字段", className, fieldName);
+                    HashSet<object> hash = new HashSet<object>();
+                    for (int i = 0; i < datas.Count; i++)
+                    {
+                        object data = (datas[i] as DataBase).Data;
+                        if (!hash.Contains(data))
+                            error.AppendFormat("[ref]引用{0}.{1}数据不存在\n", className, fieldName);
+                        else
+                            hash.Add(data);
+                    }
                 }
                 else
-                    error.AppendFormat("[ref]引类型{0}不存在", className);
+                    error.AppendFormat("[ref]{引用{0}.{1}字段不存在", className, fieldName);
             }
+            else
+                error.AppendFormat("[ref]引用{0}类型不存在", className);
             return error.ToString();
         }
         static string CheckUnique(List<string> args, List<Data> datas)
@@ -362,31 +373,24 @@ namespace ConfigGen.LocalInfo
             {
                 object data = (datas[i] as DataBase).Data;
                 if (hash.Contains(data))
-                    error.AppendFormat("[unique]集合中数据{1}重复\n", data);
+                    error.AppendFormat("[unique]集合中数据{0}重复\n", data);
+                else
+                    hash.Add(data);
             }
             return error.ToString();
         }
         static string CheckNoEmpty(List<string> args, List<Data> datas)
         {
             StringBuilder error = new StringBuilder();
-            //List<object> datas = dataField.Data;
-            //string trim = args.Count > 0 ? args[0] : null;
-            //bool isString = dataField.Type.Equals("string");
-            //bool checkWhiteSpace = !string.IsNullOrWhiteSpace(trim);
-            //for (int i = 0; i < datas.Count; i++)
-            //{
-            //    string v = datas[i] as string;
-            //    if (isString)
-            //    {
-            //        if (checkWhiteSpace && string.IsNullOrWhiteSpace(v))
-            //            error.AppendFormat("[notEmpty:trim]第{0}行为空白字符\n", i + Values.DataSheetDataStartIndex);
-            //    }
-            //    else
-            //    {
-            //        if (string.IsNullOrWhiteSpace(v))
-            //            error.AppendFormat("[notEmpty]第{0}行未填数据\n", i + Values.DataSheetDataStartIndex);
-            //    }
-            //}
+            string trim = args.Count > 0 ? args[0] : null;
+            bool checkWhiteSpace = !string.IsNullOrWhiteSpace(trim);
+
+            for (int i = 0; i < datas.Count; i++)
+            {
+                string v = datas[i] as DataBase;
+                if (string.IsNullOrWhiteSpace(v))
+                    error.AppendFormat("[notEmpty]第{0}行未填数据\n", i + Values.DataSheetDataStartIndex + 1);
+            }
             return error.ToString();
         }
         static string CheckFileExist(List<string> args, List<Data> datas)
@@ -395,19 +399,19 @@ namespace ConfigGen.LocalInfo
                 return "[file]文件存在性检查规则未填写参数";
 
             StringBuilder error = new StringBuilder();
-            //List<object> datas = dataField.Data;
-            //int lastIndex = args[0].LastIndexOf('.');
-            //string dirPath = args[0].Substring(0, lastIndex);
-            //string ext = args[0].Substring(lastIndex);
 
-            //for (int i = 0; i < datas.Count; i++)
-            //{
-            //    string file = datas[i] as string;
-            //    if (!string.IsNullOrWhiteSpace(ext))
-            //        file = string.Format("{0}.{1}", file, ext);
-            //    if (!File.Exists(file))
-            //        error.AppendFormat("[file]文件{0}不存在\n", file);
-            //}
+            int lastIndex = args[0].LastIndexOf('.');
+            string dirPath = args[0].Substring(0, lastIndex);
+            string ext = args[0].Substring(lastIndex);
+
+            for (int i = 0; i < datas.Count; i++)
+            {
+                string file = datas[i] as DataBase;
+                if (!string.IsNullOrWhiteSpace(ext))
+                    file = string.Format("{0}\\{1}.{2}", Values.AssetsDir, file, ext);
+                if (!File.Exists(file))
+                    error.AppendFormat("[file]文件{0}不存在\n", file);
+            }
 
             return error.ToString();
         }
@@ -417,19 +421,20 @@ namespace ConfigGen.LocalInfo
                 return "[range]数值范围性检查规则参数填写错误";
 
             StringBuilder error = new StringBuilder();
-            //List<object> datas = dataField.Data;
-            //bool leftOpen = args[0][0].Equals('(');
-            //bool rightOpen = args[1][1].Equals(')');
-            //long start = Convert.ToInt64(args[0][1]);
-            //long end = Convert.ToInt64(args[1][0]);
-            //for (int i = 0; i < datas.Count; i++)
-            //{
-            //    long v = Convert.ToInt64(datas[i]);
-            //    bool leftResult = leftOpen ? start < v : start <= v;
-            //    bool rightResult = rightOpen ? v < end : v <= end;
-            //    if (!leftResult || !rightResult)
-            //        error.AppendFormat("[range]第{0}行数据不在范围内\n", i + Values.DataSheetDataStartIndex);
-            //}
+            bool leftOpen = args[0][0].Equals('(');
+            int rightLenght = args[1].Length;
+            bool rightOpen = args[1][rightLenght - 1].Equals(')');
+            long start, end;
+            start = long.Parse(args[0].Substring(1));
+            end = long.Parse(args[1].Substring(0, rightLenght - 1));
+            for (int i = 0; i < datas.Count; i++)
+            {
+                long v = datas[i] as DataBase;
+                bool leftResult = leftOpen ? start < v : start <= v;
+                bool rightResult = rightOpen ? v < end : v <= end;
+                if (!leftResult || !rightResult)
+                    error.AppendFormat("[range]{0}数据不在范围内\n", v);
+            }
 
             return error.ToString();
         }

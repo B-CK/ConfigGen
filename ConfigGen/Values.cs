@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 namespace ConfigGen
-{
+{    
     class Values
     {
         /// <summary>
@@ -32,6 +32,10 @@ namespace ConfigGen
         /// 是否只对已修改文件进行操作
         /// </summary>
         public static bool IsOptPart { get; set; }
+        /// <summary>
+        /// 资源文件夹路径,用于file检查功能
+        /// </summary>
+        public static string AssetsDir { get; set; }
 
 
         /// <summary>
@@ -98,13 +102,17 @@ namespace ConfigGen
         /// </summary>
         public const string ConfigRootNode = "Csv";
         /// <summary>
+        /// 列表元素命名
+        /// </summary>
+        public const string ELEMENT = "List.Element";
+        /// <summary>
         /// 字典Key命名
         /// </summary>
-        public const string KEY = "key";
+        public const string KEY = "Dict.Key";
         /// <summary>
         /// 字典Value命名
         /// </summary>
-        public const string VALUE = "vaue";
+        public const string VALUE = "Dict.Value";
         #endregion
     }
 }

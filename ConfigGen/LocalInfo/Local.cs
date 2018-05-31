@@ -217,11 +217,12 @@ namespace ConfigGen.LocalInfo
                         DataInfoDict.Add(type, data);
                     Util.Stop(string.Format("解析数据:{0}", classType.DataTable));
                 }
+                Util.Log("");
 
                 //依据检查规则检查数据
                 Util.Start();
                 TableChecker.CheckAllData();
-                Util.Stopln("->检查数据耗时");
+                Util.Stopln("==>> 检查数据耗时");
             }
             catch (Exception e)
             {
