@@ -77,14 +77,24 @@ namespace ConfigGen.LocalInfo
         /// </summary>
         public static void CheckAllData()
         {
-            Dictionary<string, TableDataInfo> datas = Local.Instance.DataInfoDict;
-            foreach (var table in datas)
+            foreach (var table in Local.Instance.DataInfoDict)
             {
-                DataClassInfo dataClass = table.Value.Datas;
-                ClassTypeInfo classType = dataClass.BaseInfo as ClassTypeInfo;
-                classType.IndexField.RuleDict.Add(CheckRuleType.Unique, null);
-                CheckField(classType.IndexField);//数据表键的唯一性检查
-                CheckField(dataClass);
+                List<DataClass> datas = table.Value.Datas;
+                ClassTypeInfo classType = table.Value.ClassTypeInfo;
+                List<FieldInfo> fields = table.Value.ClassTypeInfo.Fields;
+                for (int column = 0; column < fields.Count; column++)//列
+                {
+                    FieldInfo info = fields[column];
+                    List<FieldInfo> dataColum = new List<FieldInfo>();
+                    for (int row = 0; row < datas.Count; row++)//行
+                        dataColum.Add(datas[row].Fields[info.Name]);
+
+                    //数据表键的唯一性检查
+                    if (classType.IndexField.Name == info.Name)
+                    {
+                        
+                    }
+                }
             }
         }
         /// <summary>
@@ -115,26 +125,26 @@ namespace ConfigGen.LocalInfo
         }
         static void CheckBase(FieldInfo info)
         {
-            DataBaseInfo dataBase = info as DataBaseInfo;
+            DataBase dataBase = info as DataBase;
             AnalyzeCheckRule(dataBase);
             CheckFieldData(dataBase);
         }
         static void CheckClass(FieldInfo info)
         {
-            DataClassInfo dataClass = info as DataClassInfo;
+            DataClass dataClass = info as DataClass;
             foreach (var field in dataClass.Fields)
                 CheckField(field.Value);
         }
         static void CheckList(FieldInfo info)
         {
-            DataListInfo dataList = info as DataListInfo;
-            for (int i = 0; i < dataList.DataSet.Count; i++)
-                CheckField(dataList.DataSet[i]);
+            DataList dataList = info as DataList;
+            for (int i = 0; i < dataList.Elements.Count; i++)
+                CheckField(dataList.Elements[i]);
         }
         static void CheckDict(FieldInfo info)
         {
-            DataDictInfo dataDict = info as DataDictInfo;
-            foreach (var pair in dataDict.DataSet)
+            DataDict dataDict = info as DataDict;
+            foreach (var pair in dataDict.Pairs)
             {
                 pair.Key.RuleDict.Add(CheckRuleType.Unique, null);
                 CheckField(pair.Key);
@@ -142,10 +152,12 @@ namespace ConfigGen.LocalInfo
             }
         }
 
+        //一下均需要访问列数据..
+
         /// <summary>
         /// 解析检查规则
         /// </summary>
-        static bool AnalyzeCheckRule(DataBaseInfo tableFieldInfo)
+        static bool AnalyzeCheckRule(DataBase tableFieldInfo)
         {
             if (string.IsNullOrWhiteSpace(tableFieldInfo.Check))
                 return false;
@@ -221,7 +233,7 @@ namespace ConfigGen.LocalInfo
         /// <summary>
         /// 检查字段数据
         /// </summary>
-        static string CheckFieldData(DataBaseInfo dataField)
+        static string CheckFieldData(DataBase dataField)
         {
             string errorString = null;
             foreach (var checkRule in dataField.RuleDict)
@@ -255,116 +267,118 @@ namespace ConfigGen.LocalInfo
         }
         //hash效率是否比list块
         //object类型数据能否比较内容
-        static string CheckRef(List<string> args, DataBaseInfo dataField)
+        static string CheckRef(List<string> args, DataBase dataField)
         {
             if (args.Count == 0)
                 return "[ref]引用检查规则未填写参数";
 
-            List<object> datas = dataField.Data;
             StringBuilder error = new StringBuilder();
-            int lastIndex = args[0].LastIndexOf('.');
-            string className = args[0].Substring(0, lastIndex);
-            string fieldName = args[0].Substring(lastIndex);
+            object data = dataField.Data;
+            //int lastIndex = args[0].LastIndexOf('.');
+            //string className = args[0].Substring(0, lastIndex);
+            //string fieldName = args[0].Substring(lastIndex);
 
-            var dataInfoDict = Local.Instance.DataInfoDict;
-            if (dataInfoDict.ContainsKey(className))
-            {
-                DataClassInfo dataClass = Local.Instance.DataInfoDict[className].Datas;
-                if (dataClass.Fields.ContainsKey(fieldName))
-                {
-                    DataBaseInfo dataBase = dataClass.Fields[fieldName] as DataBaseInfo;
-                    HashSet<object> hash = new HashSet<object>(dataBase.Data);
-                    for (int i = 0; i < datas.Count; i++)
-                    {
-                        if (!hash.Contains(datas[i]))
-                            error.AppendFormat("[ref]引用{0}类型{1}字段的第{2}行数据不存在\n",
-                                className, fieldName, i + Values.DataSheetDataStartIndex);
-                    }
-                }
-                else
-                    error.AppendFormat("[ref]引类型{0}中无{1}字段", className, fieldName);
-            }
-            else
-                error.AppendFormat("[ref]引类型{0}不存在", className);
+            //var dataInfoDict = Local.Instance.DataInfoDict;
+            //if (dataInfoDict.ContainsKey(className))
+            //{
+            //    DataClassInfo dataClass = Local.Instance.DataInfoDict[className].Datas;
+            //    if (dataClass.Fields.ContainsKey(fieldName))
+            //    {
+            //        DataBase dataBase = dataClass.Fields[fieldName] as DataBase;
+            //        HashSet<object> hash = new HashSet<object>(dataBase.Data);
+            //        for (int i = 0; i < datas.Count; i++)
+            //        {
+            //            if (!hash.Contains(datas[i]))
+            //                error.AppendFormat("[ref]引用{0}类型{1}字段的第{2}行数据不存在\n",
+            //                    className, fieldName, i + Values.DataSheetDataStartIndex);
+            //        }
+            //    }
+            //    else
+            //        error.AppendFormat("[ref]引类型{0}中无{1}字段", className, fieldName);
+            //}
+            //else
+            //    error.AppendFormat("[ref]引类型{0}不存在", className);
 
             return error.ToString();
         }
-        static string CheckUnique(List<string> args, DataBaseInfo dataField)
+        //-----不能使用HashSet ,因为它会将重复内容排除在外
+        //将转化后的HashSet长度与List对比,长度不一致则说明有重复内容
+        static string CheckUnique(List<string> args, DataBase dataField)
         {
             StringBuilder error = new StringBuilder();
-            List<object> datas = dataField.Data;
-            HashSet<object> hash = new HashSet<object>(datas);
-            for (int i = 0; i < datas.Count; i++)
-            {
-                if (!hash.Contains(datas[i]))
-                    error.AppendFormat("[unique]数据列中{0}数据重复\n", datas[i]);
-            }
+            //List<object> datas = dataField.Data;
+            //HashSet<object> hash = new HashSet<object>(datas);
+            //for (int i = 0; i < datas.Count; i++)
+            //{
+            //    if (!hash.Contains(datas[i]))
+            //        error.AppendFormat("[unique]数据列中{0}数据重复\n", datas[i]);
+            //}
             return error.ToString();
         }
-        static string CheckNoEmpty(List<string> args, DataBaseInfo dataField)
+        static string CheckNoEmpty(List<string> args, DataBase dataField)
         {
             StringBuilder error = new StringBuilder();
-            List<object> datas = dataField.Data;
-            string trim = args.Count > 0 ? args[0] : null;
-            bool isString = dataField.Type.Equals("string");
-            bool checkWhiteSpace = !string.IsNullOrWhiteSpace(trim);
-            for (int i = 0; i < datas.Count; i++)
-            {
-                string v = datas[i] as string;
-                if (isString)
-                {
-                    if (checkWhiteSpace && string.IsNullOrWhiteSpace(v))
-                        error.AppendFormat("[notEmpty:trim]第{0}行为空白字符\n", i + Values.DataSheetDataStartIndex);
-                }
-                else
-                {
-                    if (string.IsNullOrWhiteSpace(v))
-                        error.AppendFormat("[notEmpty]第{0}行未填数据\n", i + Values.DataSheetDataStartIndex);
-                }
-            }
+            //List<object> datas = dataField.Data;
+            //string trim = args.Count > 0 ? args[0] : null;
+            //bool isString = dataField.Type.Equals("string");
+            //bool checkWhiteSpace = !string.IsNullOrWhiteSpace(trim);
+            //for (int i = 0; i < datas.Count; i++)
+            //{
+            //    string v = datas[i] as string;
+            //    if (isString)
+            //    {
+            //        if (checkWhiteSpace && string.IsNullOrWhiteSpace(v))
+            //            error.AppendFormat("[notEmpty:trim]第{0}行为空白字符\n", i + Values.DataSheetDataStartIndex);
+            //    }
+            //    else
+            //    {
+            //        if (string.IsNullOrWhiteSpace(v))
+            //            error.AppendFormat("[notEmpty]第{0}行未填数据\n", i + Values.DataSheetDataStartIndex);
+            //    }
+            //}
             return error.ToString();
         }
-        static string CheckFileExist(List<string> args, DataBaseInfo dataField)
+        static string CheckFileExist(List<string> args, DataBase dataField)
         {
             if (args.Count == 0)
                 return "[file]文件存在性检查规则未填写参数";
 
-            List<object> datas = dataField.Data;
             StringBuilder error = new StringBuilder();
-            int lastIndex = args[0].LastIndexOf('.');
-            string dirPath = args[0].Substring(0, lastIndex);
-            string ext = args[0].Substring(lastIndex);
+            //List<object> datas = dataField.Data;
+            //int lastIndex = args[0].LastIndexOf('.');
+            //string dirPath = args[0].Substring(0, lastIndex);
+            //string ext = args[0].Substring(lastIndex);
 
-            for (int i = 0; i < datas.Count; i++)
-            {
-                string file = datas[i] as string;
-                if (!string.IsNullOrWhiteSpace(ext))
-                    file = string.Format("{0}.{1}", file, ext);
-                if (!File.Exists(file))
-                    error.AppendFormat("[file]文件{0}不存在\n", file);
-            }
+            //for (int i = 0; i < datas.Count; i++)
+            //{
+            //    string file = datas[i] as string;
+            //    if (!string.IsNullOrWhiteSpace(ext))
+            //        file = string.Format("{0}.{1}", file, ext);
+            //    if (!File.Exists(file))
+            //        error.AppendFormat("[file]文件{0}不存在\n", file);
+            //}
 
             return error.ToString();
         }
-        static string CheckRange(List<string> args, DataBaseInfo dataField)
+        static string CheckRange(List<string> args, DataBase dataField)
         {
             if (args.Count != 2)
                 return "[range]数值范围性检查规则参数填写错误";
 
             StringBuilder error = new StringBuilder();
-            List<object> datas = dataField.Data;
-            bool leftOpen = args[0][0].Equals('(');
-            bool rightOpen = args[1][1].Equals(')');
-            long start = Convert.ToInt64(args[0][1]);
-            long end = Convert.ToInt64(args[1][0]);
-            for (int i = 0; i < datas.Count; i++)
-            {
-                long v = Convert.ToInt64(datas[i]);
-                bool leftResult = leftOpen ? start < v : start <= v;
-                bool rightResult = rightOpen ? v < end : v <= end;
-                if (!leftResult || !rightResult)
-                    error.AppendFormat("[range]第{0}行数据不在范围内\n", i + Values.DataSheetDataStartIndex);
-            }
+            //List<object> datas = dataField.Data;
+            //bool leftOpen = args[0][0].Equals('(');
+            //bool rightOpen = args[1][1].Equals(')');
+            //long start = Convert.ToInt64(args[0][1]);
+            //long end = Convert.ToInt64(args[1][0]);
+            //for (int i = 0; i < datas.Count; i++)
+            //{
+            //    long v = Convert.ToInt64(datas[i]);
+            //    bool leftResult = leftOpen ? start < v : start <= v;
+            //    bool rightResult = rightOpen ? v < end : v <= end;
+            //    if (!leftResult || !rightResult)
+            //        error.AppendFormat("[range]第{0}行数据不在范围内\n", i + Values.DataSheetDataStartIndex);
+            //}
 
             return error.ToString();
         }

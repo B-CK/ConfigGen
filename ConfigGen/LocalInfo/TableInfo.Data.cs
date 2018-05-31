@@ -19,10 +19,6 @@ namespace ConfigGen.LocalInfo
         }
 
         public ClassTypeInfo ClassTypeInfo { get; protected set; }
-        /// <summary>
-        /// 数据行数
-        /// </summary>
-        public int DataLength { get; protected set; }
         public List<DataClass> Datas { get; protected set; }
         /// <summary>
         /// 只查询数据表中类型定义
@@ -58,7 +54,6 @@ namespace ConfigGen.LocalInfo
                 Datas.Add(dataClass);
             }
 
-            DataLength = dt.Rows.Count - Values.DataSheetDataStartIndex;
         }
         private string GetErrorSite(int c, int r)
         {

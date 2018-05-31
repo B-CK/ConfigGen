@@ -34,89 +34,37 @@ namespace ConfigGen.LocalInfo
         public abstract void Analyze();
     }
 
-
-
-    public class DataBaseInfo : FieldInfo
-    {//Name,Type,Check,Group
-        public List<object> Data { get; set; }//多行数据
-        public DataBaseInfo()
-        {
-            Data = new List<object>();
-        }
-    }
-    public class DataClassInfo : FieldInfo
+    public class Data
     {
-        public Dictionary<string, FieldInfo> Fields { get; set; }//多列数据
-        public List<string> Types { get; set; }//多态中标识数据类型,每条数据的类型
-        public DataClassInfo()
-        {
-            Fields = new Dictionary<string, FieldInfo>();
-            Types = new List<string>();
-        }
-    }
-    public class DataListInfo : FieldInfo
-    {
-        public int MaxIndex = 0;
-        public List<DataElementInfo> DataSet { get; set; }//多行数据
-        public DataListInfo()
-        {
-            DataSet = new List<DataElementInfo>();
-        }
-    }
-    //一行数据,无数据填充##结束符
-    public class DataElementInfo : FieldInfo
-    {
-        public List<FieldInfo> Elements { get; set; }//多列数据
-        public DataElementInfo()
-        {
-            Elements = new List<FieldInfo>();
-        }
-    }
-    public class DataDictInfo : FieldInfo
-    {
-        public List<DataPairInfo> DataSet { get; set; }//多行数据
-        public DataDictInfo()
-        {
-            DataSet = new List<DataPairInfo>();
-        }
-    }
-    //一行数据,无数据填充##结束符
-    public class DataPairInfo : FieldInfo
-    {
-        public List<KeyValuePair<DataBaseInfo, FieldInfo>> Pairs { get; set; }//多列数据
-        public DataPairInfo()
-        {
-            Pairs = new List<KeyValuePair<DataBaseInfo, FieldInfo>>();
-        }
+       
     }
 
-
-    public class DataBase : FieldInfo
+    public class DataBase : Data
     {
         public object Data;
     }
-    public class DataClass : FieldInfo
+    public class DataClass : Data
     {
-        public Dictionary<string, FieldInfo> Fields;
+        public Dictionary<string, Data> Fields;
         public DataClass()
         {
-            Fields = new Dictionary<string, FieldInfo>();
+            Fields = new Dictionary<string, Data>();
         }
     }
-    public class DataList : FieldInfo
+    public class DataList : Data
     {
-        public List<FieldInfo> Elements;
+        public List<Data> Elements;
         public DataList()
         {
-            Elements = new List<FieldInfo>();
+            Elements = new List<Data>();
         }
     }
-    public class DataDict : FieldInfo
+    public class DataDict : Data
     {
-        public List<KeyValuePair<DataBase, FieldInfo>> Pairs { get; set; }
+        public List<KeyValuePair<DataBase, Data>> Pairs { get; set; }
         public DataDict()
         {
-            Pairs = new List<KeyValuePair<DataBase, FieldInfo>>();
+            Pairs = new List<KeyValuePair<DataBase, Data>>();
         }
     }
 }

@@ -63,7 +63,6 @@ namespace ConfigGen.LocalInfo
                 }
                 Datas.Add(dataClass);
             }
-            DataLength = dt.Count;
         }
 
         private FieldInfo AnalyzeField(JToken data, FieldInfo info)
@@ -147,13 +146,12 @@ namespace ConfigGen.LocalInfo
             DataList dataList = new DataList();
             dataList.Set(info.Name, info.Type, info.Check, info.Group);
 
-            for (int i = 0; i < jArray.Count; i++)//i - 集合索引号,表中列号
+            for (int i = 0; i < jArray.Count; i++)
             {
-                 
-            }
-            if (jArray.Count == 0)
-            {
-
+                FieldInfo element = new FieldInfo();
+                element.Set(i.ToString(), elemType.GetClassName(), null, null);
+                FieldInfo dataField = AnalyzeField(jArray[i], element);
+                dataList.Elements.Add(dataField);
             }
             return dataList;
         }
@@ -166,10 +164,22 @@ namespace ConfigGen.LocalInfo
 
             DataDict dataDict = new DataDict();
             dataDict.Set(info.Name, info.Type, info.Check, info.Group);
-         
+            var properties = new List<JProperty>(jDict.Properties());
+            for (int i = 0; i < properties.Count; i++)
+            {
+                JProperty property = properties[i];
+                FieldInfo element = new FieldInfo();
+                element.Set(i.ToString(), ketType.GetClassName(), null, null);
+                DataBase dataKey = AnalyzeField(property.Name, element) as DataBase;
+
+                element.Set(Values.VALUE, valueType.GetClassName(), null, null);
+                FieldInfo dataValue = AnalyzeField(property.Value, element);
+
+                dataDict.Pairs.Add(new KeyValuePair<DataBase, FieldInfo>(dataKey, dataValue));
+            }
 
             return dataDict;
-        }     
+        }
 
 
         ///// <summary>
