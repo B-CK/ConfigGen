@@ -45,6 +45,7 @@ namespace ConfigGen.LocalInfo
     }
     public class DataClass : Data
     {
+        public string Type { get; set; }
         public Dictionary<string, Data> Fields;
         public DataClass()
         {

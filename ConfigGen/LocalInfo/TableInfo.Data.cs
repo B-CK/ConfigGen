@@ -21,6 +21,12 @@ namespace ConfigGen.LocalInfo
         public ClassTypeInfo ClassTypeInfo { get; protected set; }
         public List<DataClass> Datas { get; protected set; }
         /// <summary>
+        /// 字段列数据字典
+        /// <para>key:字段名 value:数据列</para>
+        /// </summary>
+        public Dictionary<string, List<Data>> DataColumnDict = new Dictionary<string, List<Data>>();
+
+        /// <summary>
         /// 只查询数据表中类型定义
         /// </summary>
         public override bool Exist(string content)
@@ -33,6 +39,22 @@ namespace ConfigGen.LocalInfo
         public override bool Replace(string arg1, string arg2)
         {
             return false;
+        }
+
+        public List<Data> GetDataColumn(string fieldName)
+        {
+            List<Data> dataColum = new List<Data>();
+            if (DataColumnDict.ContainsKey(fieldName))
+            {
+                dataColum = DataColumnDict[fieldName];
+            }
+            else
+            {
+                for (int row = 0; row < Datas.Count; row++)//行
+                    dataColum.Add(Datas[row].Fields[fieldName]);
+                DataColumnDict.Add(fieldName, dataColum);
+            }
+            return dataColum;
         }
 
         public override void Analyze()
@@ -48,7 +70,7 @@ namespace ConfigGen.LocalInfo
                 {
                     string fieldName = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
                     FieldInfo fieldInfo = fieldDict[fieldName];
-                    FieldInfo dataField = AnalyzeField(dt, fieldInfo, row, ref column);
+                    Data dataField = AnalyzeField(dt, fieldInfo, row, ref column);
                     dataClass.Fields.Add(fieldName, dataField);
                 }
                 Datas.Add(dataClass);
@@ -59,10 +81,10 @@ namespace ConfigGen.LocalInfo
         {
             return Util.GetErrorSite(RelPath, c, r);
         }
-
-        private FieldInfo AnalyzeField(DataTable dt, FieldInfo info, int row, ref int column)
+        
+        private Data AnalyzeField(DataTable dt, FieldInfo info, int row, ref int column)
         {
-            FieldInfo dataField = null;
+            Data dataField = null;
             BaseTypeInfo baseType = info.BaseInfo;
             switch (baseType.TypeType)
             {
@@ -87,17 +109,17 @@ namespace ConfigGen.LocalInfo
             }
             return dataField;
         }
-        private DataBase AnalyzeBase(DataTable dt, FieldInfo info, int row, ref int column)
+        private Data AnalyzeBase(DataTable dt, FieldInfo info, int row, ref int column)
         {
             DataBase dataBase = new DataBase();
-            dataBase.Set(info.Name, info.Type, info.Check, info.Group);
+            //dataBase.Set(info.Name, info.Type, info.Check, info.Group);
             dataBase.Data = dt.Rows[row][column];
             return dataBase;
         }
-        private DataBase AnalyzeEnum(DataTable dt, FieldInfo info, int row, ref int column)
+        private Data AnalyzeEnum(DataTable dt, FieldInfo info, int row, ref int column)
         {
             DataBase dataBase = new DataBase();
-            dataBase.Set(info.Name, info.Type, info.Check, info.Group);
+            //dataBase.Set(info.Name, info.Type, info.Check, info.Group);
             EnumTypeInfo enumType = info.BaseInfo as EnumTypeInfo;
             enumType.UpdateToDict();
             dataBase.Data = dt.Rows[row][column];
@@ -109,36 +131,36 @@ namespace ConfigGen.LocalInfo
                     , GetErrorSite(column + 1, row + 1));
             return dataBase;
         }
-        private DataClass AnalyzeClass(DataTable dt, FieldInfo info, int row, ref int column)
+        private Data AnalyzeClass(DataTable dt, FieldInfo info, int row, ref int column)
         {
             column++;
             ClassTypeInfo classType = info.BaseInfo as ClassTypeInfo;
             DataClass dataClass = new DataClass();
-            dataClass.Set(info.Name, info.Type, info.Check, info.Group);
+            //dataClass.Set(info.Name, info.Type, info.Check, info.Group);
             classType.UpdateToDict();
             var fieldDict = classType.GetFieldInfoDict();
             for (int i = 0; i < classType.Fields.Count; i++, column++)
             {
                 string fieldName = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
                 FieldInfo fieldInfo = fieldDict[fieldName];
-                FieldInfo dataField = AnalyzeField(dt, fieldInfo, row, ref column);
+                Data dataField = AnalyzeField(dt, fieldInfo, row, ref column);
                 dataClass.Fields.Add(fieldName, dataField);
             }
             return dataClass;
         }
-        private DataList AnalyzeList(DataTable dt, FieldInfo info, int row, ref int column)
+        private Data AnalyzeList(DataTable dt, FieldInfo info, int row, ref int column)
         {
             column++;
             ListTypeInfo listType = info.BaseInfo as ListTypeInfo;
             BaseTypeInfo elementType = TypeInfo.GetTypeInfo(listType.ItemType);
             DataList dataList = new DataList();
-            dataList.Set(info.Name, info.Type, info.Check, info.Group);
+            //dataList.Set(info.Name, info.Type, info.Check, info.Group);
             string flag = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
             for (int i = 0; !flag.Equals(Values.DataSetEndFlag); i++)
             {
                 FieldInfo element = new FieldInfo();
                 element.Set(i.ToString(), elementType.GetClassName(), null, null);
-                FieldInfo dataField = AnalyzeField(dt, element, row, ref column);
+                Data dataField = AnalyzeField(dt, element, row, ref column);
                 dataList.Elements.Add(dataField);
 
                 column++;
@@ -146,14 +168,14 @@ namespace ConfigGen.LocalInfo
             }
             return dataList;
         }
-        private DataDict AnalyzeDict(DataTable dt, FieldInfo info, int row, ref int column)
+        private Data AnalyzeDict(DataTable dt, FieldInfo info, int row, ref int column)
         {
             column++;
             DictTypeInfo dictType = info.BaseInfo as DictTypeInfo;
             BaseTypeInfo keyType = TypeInfo.GetTypeInfo(dictType.KeyType);
             BaseTypeInfo valueType = TypeInfo.GetTypeInfo(dictType.ValueType);
             DataDict dataDict = new DataDict();
-            dataDict.Set(info.Name, info.Type, info.Check, info.Group);
+            //dataDict.Set(info.Name, info.Type, info.Check, info.Group);
             string flag = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
             for (int i = 0; !flag.Equals(Values.DataSetEndFlag); i++)
             {
@@ -163,9 +185,9 @@ namespace ConfigGen.LocalInfo
 
                 column++;
                 element.Set(Values.VALUE, valueType.GetClassName(), null, null);
-                FieldInfo dataValue = AnalyzeField(dt, element, row, ref column);
+                Data dataValue = AnalyzeField(dt, element, row, ref column);
 
-                dataDict.Pairs.Add(new KeyValuePair<DataBase, FieldInfo>(dataKey, dataValue));
+                dataDict.Pairs.Add(new KeyValuePair<DataBase, Data>(dataKey, dataValue));
 
                 column++;
                 flag = dt.Rows[Values.DataSheetFieldIndex][column].ToString();

@@ -72,6 +72,7 @@ namespace ConfigGen.LocalInfo
 
         //---------------------------------------数据检查
 
+        static string ClassFullName = "";
         /// <summary>
         /// 仅检查基础类型数据,不对结构进行检查
         /// </summary>
@@ -79,90 +80,141 @@ namespace ConfigGen.LocalInfo
         {
             foreach (var table in Local.Instance.DataInfoDict)
             {
+                ClassFullName = table.Key;
                 List<DataClass> datas = table.Value.Datas;
                 ClassTypeInfo classType = table.Value.ClassTypeInfo;
-                List<FieldInfo> fields = table.Value.ClassTypeInfo.Fields;
+                List<FieldInfo> fields = classType.Fields;
                 for (int column = 0; column < fields.Count; column++)//列
                 {
                     FieldInfo info = fields[column];
-                    List<FieldInfo> dataColum = new List<FieldInfo>();
-                    for (int row = 0; row < datas.Count; row++)//行
-                        dataColum.Add(datas[row].Fields[info.Name]);
+                    List<Data> dataColum = table.Value.GetDataColumn(info.Name);
 
                     //数据表键的唯一性检查
                     if (classType.IndexField.Name == info.Name)
-                    {
-                        
-                    }
+                        info.RuleDict.Add(CheckRuleType.Unique, null);
+
+                    CheckField(info, dataColum);
                 }
             }
         }
+
         /// <summary>
         /// 检查类字段
         /// </summary>
-        static void CheckField(FieldInfo info)
+        static void CheckField(FieldInfo info, List<Data> datas)
         {
             BaseTypeInfo baseType = info.BaseInfo;
+            if (baseType.TypeType != TypeType.Class
+                && string.IsNullOrWhiteSpace(info.Check))
+                return;
+
             switch (baseType.TypeType)
             {
                 case TypeType.Base:
                 case TypeType.Enum:
-                    CheckBase(info);
+
+                    CheckBase(info, datas);
                     break;
                 case TypeType.Class:
-                    CheckClass(info);
+                    CheckClass(info, datas);
                     break;
                 case TypeType.List:
-                    CheckList(info);
+                    CheckList(info, datas);
                     break;
                 case TypeType.Dict:
-                    CheckDict(info);
+                    CheckDict(info, datas);
                     break;
                 case TypeType.None:
                 default:
                     break;
             }
         }
-        static void CheckBase(FieldInfo info)
+        static void CheckBase(FieldInfo info, List<Data> datas)
         {
-            DataBase dataBase = info as DataBase;
-            AnalyzeCheckRule(dataBase);
-            CheckFieldData(dataBase);
+            AnalyzeCheckRule(info);
+            CheckFieldData(info, datas);
         }
-        static void CheckClass(FieldInfo info)
+        static void CheckClass(FieldInfo info, List<Data> datas)
         {
-            DataClass dataClass = info as DataClass;
-            foreach (var field in dataClass.Fields)
-                CheckField(field.Value);
-        }
-        static void CheckList(FieldInfo info)
-        {
-            DataList dataList = info as DataList;
-            for (int i = 0; i < dataList.Elements.Count; i++)
-                CheckField(dataList.Elements[i]);
-        }
-        static void CheckDict(FieldInfo info)
-        {
-            DataDict dataDict = info as DataDict;
-            foreach (var pair in dataDict.Pairs)
+            ClassTypeInfo classType = info.BaseInfo as ClassTypeInfo;
             {
-                pair.Key.RuleDict.Add(CheckRuleType.Unique, null);
-                CheckField(pair.Key);
-                CheckField(pair.Value);
+                List<FieldInfo> fields = classType.Fields;
+                for (int column = 0; column < fields.Count; column++)//列
+                {
+                    FieldInfo field = fields[column];
+                    List<Data> dataColum = new List<Data>();
+                    for (int row = 0; row < datas.Count; row++)//行
+                    {
+                        DataClass dataClass = datas[row] as DataClass;
+                        dataColum.Add(dataClass.Fields[field.Name]);
+                    }
+
+                    CheckField(field, dataColum);
+                }
+            }
+            if (classType.HasSubClass)
+            {
+                foreach (var type in classType.SubClasses)
+                {
+                    ClassTypeInfo polyClass = TypeInfo.GetTypeInfo(type) as ClassTypeInfo;
+                    List<FieldInfo> fields = polyClass.Fields;
+                    for (int column = 0; column < fields.Count; column++)//列
+                    {
+                        FieldInfo field = fields[column];
+                        List<Data> dataColum = new List<Data>();
+                        for (int row = 0; row < datas.Count; row++)//行
+                        {
+                            DataClass dataClass = datas[row] as DataClass;
+                            dataColum.Add(dataClass.Fields[field.Name]);
+                        }
+
+                        CheckField(field, dataColum);
+                    }
+                }
             }
         }
+        static void CheckList(FieldInfo info, List<Data> datas)
+        {
+            ListTypeInfo listType = info.BaseInfo as ListTypeInfo;
+            FieldInfo element = new FieldInfo();
+            element.Set("List.Element", listType.GetClassName(), info.Check, info.Group);
+            for (int i = 0; i < datas.Count; i++)
+            {
+                DataList dataList = datas[i] as DataList;
+                CheckField(element, dataList.Elements);
+            }
+        }
+        static void CheckDict(FieldInfo info, List<Data> datas)
+        {
+            DictTypeInfo dictInfo = info.BaseInfo as DictTypeInfo;
+            FieldInfo keyInfo = new FieldInfo();
+            keyInfo.Set("Dict.Key", dictInfo.KeyType, info.Check, info.Group);
+            FieldInfo valueInfo = new FieldInfo();
+            keyInfo.Set("Dict.Value", dictInfo.ValueType, info.Check, info.Group);
+            for (int i = 0; i < datas.Count; i++)
+            {
+                DataDict dataDict = datas[i] as DataDict;
+                List<Data> keys = new List<Data>();
+                List<Data> values = new List<Data>();
+                for (int j = 0; j < dataDict.Pairs.Count; j++)
+                {
+                    keys.Add(dataDict.Pairs[j].Key);
+                    values.Add(dataDict.Pairs[j].Value);
+                }
+                CheckField(keyInfo, keys);
+                CheckField(valueInfo, values);
+            }
+        }
+
 
         //一下均需要访问列数据..
 
         /// <summary>
         /// 解析检查规则
         /// </summary>
-        static bool AnalyzeCheckRule(DataBase tableFieldInfo)
+        static bool AnalyzeCheckRule(FieldInfo info)
         {
-            if (string.IsNullOrWhiteSpace(tableFieldInfo.Check))
-                return false;
-
-            string[] checks = tableFieldInfo.Check.Split(Values.CheckRuleSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string[] checks = info.Check.Split(Values.CheckRuleSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             string refFlag = "ref";
             string[] rangeFlags = { "[", "]", "(", ")" };
             string noEmptyFlag = "noEmpty";
@@ -225,18 +277,18 @@ namespace ConfigGen.LocalInfo
                     //    }
                     //}
                 }
-                if (!tableFieldInfo.RuleDict.ContainsKey(ruleType))
-                    tableFieldInfo.RuleDict.Add(ruleType, ruleArgs);
+                if (!info.RuleDict.ContainsKey(ruleType))
+                    info.RuleDict.Add(ruleType, ruleArgs);
             }
             return isOK;
         }
         /// <summary>
         /// 检查字段数据
         /// </summary>
-        static string CheckFieldData(DataBase dataField)
+        static void CheckFieldData(FieldInfo info, List<Data> datas)
         {
-            string errorString = null;
-            foreach (var checkRule in dataField.RuleDict)
+            string error = null;
+            foreach (var checkRule in info.RuleDict)
             {
                 List<string> ruleArgs = checkRule.Value;
                 switch (checkRule.Key)
@@ -244,78 +296,77 @@ namespace ConfigGen.LocalInfo
                     case CheckRuleType.None:
                         break;
                     case CheckRuleType.Ref:
-                        errorString = CheckRef(ruleArgs, dataField);
+                        error = CheckRef(ruleArgs, datas);
                         break;
                     case CheckRuleType.Range:
-                        errorString = CheckRange(ruleArgs, dataField);
+                        error = CheckRange(ruleArgs, datas);
                         break;
                     case CheckRuleType.NoEmpty:
-                        errorString = CheckNoEmpty(ruleArgs, dataField);
+                        error = CheckNoEmpty(ruleArgs, datas);
                         break;
                     case CheckRuleType.Unique:
-                        errorString = CheckUnique(ruleArgs, dataField);
+                        error = CheckUnique(ruleArgs, datas);
                         break;
                     case CheckRuleType.FileExist:
-                        errorString = CheckFileExist(ruleArgs, dataField);
+                        error = CheckFileExist(ruleArgs, datas);
                         break;
                     default:
                         break;
                 }
             }
-
-            return errorString;
+            if (!string.IsNullOrWhiteSpace(error))
+                Util.LogErrorFormat("Check:{0} {1}\n{2}", ClassFullName, info.Name, error);
         }
-        //hash效率是否比list块
-        //object类型数据能否比较内容
-        static string CheckRef(List<string> args, DataBase dataField)
+        static string CheckRef(List<string> args, List<Data> datas)
         {
             if (args.Count == 0)
                 return "[ref]引用检查规则未填写参数";
 
             StringBuilder error = new StringBuilder();
-            object data = dataField.Data;
-            //int lastIndex = args[0].LastIndexOf('.');
-            //string className = args[0].Substring(0, lastIndex);
-            //string fieldName = args[0].Substring(lastIndex);
+            int lastIndex = args[0].LastIndexOf('.');
+            string className = args[0].Substring(0, lastIndex);
+            string fieldName = args[0].Substring(lastIndex);
 
-            //var dataInfoDict = Local.Instance.DataInfoDict;
-            //if (dataInfoDict.ContainsKey(className))
-            //{
-            //    DataClassInfo dataClass = Local.Instance.DataInfoDict[className].Datas;
-            //    if (dataClass.Fields.ContainsKey(fieldName))
-            //    {
-            //        DataBase dataBase = dataClass.Fields[fieldName] as DataBase;
-            //        HashSet<object> hash = new HashSet<object>(dataBase.Data);
-            //        for (int i = 0; i < datas.Count; i++)
-            //        {
-            //            if (!hash.Contains(datas[i]))
-            //                error.AppendFormat("[ref]引用{0}类型{1}字段的第{2}行数据不存在\n",
-            //                    className, fieldName, i + Values.DataSheetDataStartIndex);
-            //        }
-            //    }
-            //    else
-            //        error.AppendFormat("[ref]引类型{0}中无{1}字段", className, fieldName);
-            //}
-            //else
-            //    error.AppendFormat("[ref]引类型{0}不存在", className);
+            for (int i = 0; i < datas.Count; i++)
+            {
+                object data = (datas[i] as DataBase).Data;
 
+                var dataInfoDict = Local.Instance.DataInfoDict;
+                if (dataInfoDict.ContainsKey(className))
+                {
+                    //DataClassInfo dataClass = Local.Instance.DataInfoDict[className].GetDataColumn();
+                    //if (dataClass.Fields.ContainsKey(fieldName))
+                    //{
+                    //    DataBase dataBase = dataClass.Fields[fieldName] as DataBase;
+                    //    HashSet<object> hash = new HashSet<object>(dataBase.Data);
+                    //    for (int i = 0; i < datas.Count; i++)
+                    //    {
+                    //        if (!hash.Contains(datas[i]))
+                    //            error.AppendFormat("[ref]引用{0}类型{1}字段的第{2}行数据不存在\n",
+                    //                className, fieldName, i + Values.DataSheetDataStartIndex);
+                    //    }
+                    //}
+                    //else
+                    //    error.AppendFormat("[ref]引类型{0}中无{1}字段", className, fieldName);
+                }
+                else
+                    error.AppendFormat("[ref]引类型{0}不存在", className);
+            }
             return error.ToString();
         }
-        //-----不能使用HashSet ,因为它会将重复内容排除在外
-        //将转化后的HashSet长度与List对比,长度不一致则说明有重复内容
-        static string CheckUnique(List<string> args, DataBase dataField)
+        static string CheckUnique(List<string> args, List<Data> datas)
         {
             StringBuilder error = new StringBuilder();
-            //List<object> datas = dataField.Data;
-            //HashSet<object> hash = new HashSet<object>(datas);
-            //for (int i = 0; i < datas.Count; i++)
-            //{
-            //    if (!hash.Contains(datas[i]))
-            //        error.AppendFormat("[unique]数据列中{0}数据重复\n", datas[i]);
-            //}
+            HashSet<object> hash = new HashSet<object>();
+            for (int i = 0; i < datas.Count; i++)
+            {
+                object data = (datas[i] as DataBase).Data;
+                if (hash.Contains(data))
+                    error.AppendFormat("[unique]集合中数据{1}重复\n", data);
+            }
             return error.ToString();
         }
-        static string CheckNoEmpty(List<string> args, DataBase dataField)
+        static string CheckNoEmpty(List<string> args, List<Data> datas)
         {
             StringBuilder error = new StringBuilder();
             //List<object> datas = dataField.Data;
@@ -338,7 +389,7 @@ namespace ConfigGen.LocalInfo
             //}
             return error.ToString();
         }
-        static string CheckFileExist(List<string> args, DataBase dataField)
+        static string CheckFileExist(List<string> args, List<Data> datas)
         {
             if (args.Count == 0)
                 return "[file]文件存在性检查规则未填写参数";
@@ -360,7 +411,7 @@ namespace ConfigGen.LocalInfo
 
             return error.ToString();
         }
-        static string CheckRange(List<string> args, DataBase dataField)
+        static string CheckRange(List<string> args, List<Data> datas)
         {
             if (args.Count != 2)
                 return "[range]数值范围性检查规则参数填写错误";
