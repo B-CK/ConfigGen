@@ -70,6 +70,7 @@ namespace ConfigGen.LocalInfo
         //---------------------------------------数据检查
 
         static string ClassFullName = "";
+        static List<Data> DataKeys = new List<Data>();
         /// <summary>
         /// 仅检查基础类型数据,不对结构进行检查
         /// </summary>
@@ -88,13 +89,25 @@ namespace ConfigGen.LocalInfo
 
                     //数据表键的唯一性检查
                     if (classType.IndexField.Name == info.Name)
+                    {
                         info.Check += "|unique";
+                        DataKeys.Clear();
+                        DataKeys.AddRange(dataColum);
+                    }
 
                     CheckField(info, dataColum);
                 }
             }
+            DataKeys.Clear();
+            ClassFullName = "";
         }
-
+        static long GetKey(int i)
+        {
+            long key = long.MinValue;
+            if (DataKeys.Count > i)
+                key = DataKeys[i] as DataBase;
+            return key;
+        }
         /// <summary>
         /// 检查类字段
         /// </summary>
@@ -161,7 +174,8 @@ namespace ConfigGen.LocalInfo
                         for (int row = 0; row < datas.Count; row++)//行
                         {
                             DataClass dataClass = datas[row] as DataClass;
-                            dataColum.Add(dataClass.Fields[field.Name]);
+                            if (dataClass.Fields.ContainsKey(field.Name))
+                                dataColum.Add(dataClass.Fields[field.Name]);
                         }
 
                         CheckField(field, dataColum);
@@ -353,13 +367,13 @@ namespace ConfigGen.LocalInfo
                     {
                         object data = (datas[i] as DataBase).Data;
                         if (!hash.Contains(data))
-                            error.AppendFormat("[ref]引用{0}.{1}数据不存在\n", className, fieldName);
+                            error.AppendFormat("[ref]key:{0} 引用{1}.{2}数据不存在\n", GetKey(i), className, fieldName);
                         else
                             hash.Add(data);
                     }
                 }
                 else
-                    error.AppendFormat("[ref]{引用{0}.{1}字段不存在", className, fieldName);
+                    error.AppendFormat("[ref]引用{1}.{2}字段不存在", className, fieldName);
             }
             else
                 error.AppendFormat("[ref]引用{0}类型不存在", className);
@@ -373,7 +387,7 @@ namespace ConfigGen.LocalInfo
             {
                 object data = (datas[i] as DataBase).Data;
                 if (hash.Contains(data))
-                    error.AppendFormat("[unique]集合中数据{0}重复\n", data);
+                    error.AppendFormat("[unique]key:{0} 集合中数据{1}重复\n", GetKey(i), data);
                 else
                     hash.Add(data);
             }
@@ -389,7 +403,7 @@ namespace ConfigGen.LocalInfo
             {
                 string v = datas[i] as DataBase;
                 if (string.IsNullOrWhiteSpace(v))
-                    error.AppendFormat("[notEmpty]第{0}行未填数据\n", i + Values.DataSheetDataStartIndex + 1);
+                    error.AppendFormat("[notEmpty]key:{0} 第{1}行未填数据\n", GetKey(i), i + Values.DataSheetDataStartIndex + 1);
             }
             return error.ToString();
         }
@@ -410,7 +424,7 @@ namespace ConfigGen.LocalInfo
                 if (!string.IsNullOrWhiteSpace(ext))
                     file = string.Format("{0}\\{1}.{2}", Values.AssetsDir, file, ext);
                 if (!File.Exists(file))
-                    error.AppendFormat("[file]文件{0}不存在\n", file);
+                    error.AppendFormat("[file]key:{0} 文件{1}不存在\n", GetKey(i), file);
             }
 
             return error.ToString();
@@ -433,7 +447,7 @@ namespace ConfigGen.LocalInfo
                 bool leftResult = leftOpen ? start < v : start <= v;
                 bool rightResult = rightOpen ? v < end : v <= end;
                 if (!leftResult || !rightResult)
-                    error.AppendFormat("[range]{0}数据不在范围内\n", v);
+                    error.AppendFormat("[range]key:{0} {1}数据不在范围内\n", GetKey(i), v);
             }
 
             return error.ToString();

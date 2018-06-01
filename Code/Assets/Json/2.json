@@ -1,10 +1,10 @@
 {
-  "ID": 5555,
+  "ID": 333,
   "VarLong": 90,
   "VarFloat": 9.9,
   "VarString": "9999",
   "VarBool": true,
-  "VarEnum": 0,
+  "VarEnum": 9,
   "VarClass": {
     "$type": "Lson.AllType.LInherit1, Assembly-CSharp",
     "Var3": 9999,

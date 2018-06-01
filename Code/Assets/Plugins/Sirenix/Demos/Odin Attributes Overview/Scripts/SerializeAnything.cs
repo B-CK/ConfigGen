@@ -5,7 +5,7 @@
     using Sirenix.OdinInspector;
 
     // Example script from the Unity asset store.
-    public class SerializeAnything : SerializedMonoBehaviour
+    public class SerializeAnything : SerializedMonoBehaviour, ISomeInterface
     {
         public System.Guid Guid;
 
@@ -13,9 +13,9 @@
 
         public MyGeneric<GameObject[]> MyGenericGameObjects;
 
-        public Vector3? NullableVector3;
         public ISomeInterface SomeInterface;
-        public ObjA Obj;
+
+        public Vector3? NullableVector3;
     }
 
     public interface ISomeInterface { }
@@ -35,21 +35,4 @@
     {
         public T SomeVariable;
     }
-
-    public abstract class ObjA
-    {
-        public string A;
-    }
-
-    public abstract class ObjB:ObjA
-    {
-        public string C;
-        public bool Cb;
-    }
-    public abstract class ObjC:ObjA
-    {
-        public string D;
-        public int Di;
-    }
-
 }

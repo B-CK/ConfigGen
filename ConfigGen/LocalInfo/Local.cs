@@ -176,13 +176,14 @@ namespace ConfigGen.LocalInfo
                 //解析数据定义
                 foreach (var define in TypeInfoLib.ClassInfoDict)
                 {
-                    Util.Start();
+                    Util.Start();                 
                     ClassTypeInfo classType = define.Value;
                     if (string.IsNullOrWhiteSpace(classType.DataTable))
                     {
                         Util.PopTime();
                         continue;
                     }
+                  
                     string type = classType.GetClassName();
                     string excel = null, xml = null;
                     string combine = string.Format("{0}\\{1}", classType.NamespaceName, classType.DataTable);
@@ -199,7 +200,6 @@ namespace ConfigGen.LocalInfo
                         else if (Directory.Exists(absDir2))
                             xml = classType.DataTable;
                     }
-
                     TableDataInfo data = null;
                     if (!string.IsNullOrWhiteSpace(excel))
                         data = new TableDataInfo(excel, _dataTableDict[excel], classType);
@@ -211,7 +211,8 @@ namespace ConfigGen.LocalInfo
                             type, classType.DataTable);
                         Util.PopTime();
                         continue;
-                    }
+                    }                  
+                    Util.LogFormat("\n->{0}",data.RelPath);
                     data.Analyze();
                     if (!DataInfoDict.ContainsKey(type))
                         DataInfoDict.Add(type, data);

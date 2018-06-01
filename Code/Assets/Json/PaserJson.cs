@@ -9,12 +9,11 @@ using Sirenix.Serialization;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 
-public class PaserJson : SerializedMonoBehaviour
+public class PaserJson : MonoBehaviour
 {
     public string CsvDir = "";
     public string RelPath = @"\Json\Nsj.json";
     public TextAsset asset;
-    [OdinSerialize]
     public LsonAllClass datac;
 
     public int c = 1;
@@ -85,6 +84,7 @@ public class PaserJson : SerializedMonoBehaviour
         {
             TypeNameHandling = TypeNameHandling.Auto
         });
+        UnityEngine.Debug.LogError("Ok");
     }
     [Button(ButtonSizes.Medium)]
     void WriteJson()

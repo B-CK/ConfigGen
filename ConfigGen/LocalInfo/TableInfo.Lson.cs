@@ -54,13 +54,15 @@ namespace ConfigGen.LocalInfo
             {
                 JObject jClass = dt[row];
                 DataClass dataClass = new DataClass();
+
                 for (int colum = 0; colum < ClassTypeInfo.Fields.Count; colum++)
                 {
                     //解析数据类字段
                     FieldInfo fieldInfo = ClassTypeInfo.Fields[colum];
-                    Data dataField = AnalyzeField(jClass, fieldInfo);
+                    Data dataField = AnalyzeField(jClass[fieldInfo.Name], fieldInfo);
                     dataClass.Fields.Add(fieldInfo.Name, dataField);
                 }
+
                 Datas.Add(dataClass);
             }
         }
@@ -104,6 +106,13 @@ namespace ConfigGen.LocalInfo
             DataClass dataClass = new DataClass();
             //dataClass.Set(info.Name, info.Type, info.Check, info.Group);
 
+            for (int i = 0; i < classType.Fields.Count; i++)
+            {
+                FieldInfo fieldInfo = classType.Fields[i];
+                Data dataField = AnalyzeField(data[fieldInfo.Name], fieldInfo);
+                dataClass.Fields.Add(fieldInfo.Name, dataField);
+            }
+
             if (classType.HasSubClass)
             {
                 if (jClass.ContainsKey(Values.Polymorphism))
@@ -113,12 +122,7 @@ namespace ConfigGen.LocalInfo
                     type = type.Replace(Values.LsonRootNode + ".", "");
                     ClassTypeInfo polyType = TypeInfo.GetTypeInfo(type) as ClassTypeInfo;
                     dataClass.Type = polyType.GetClassName();
-                    for (int i = 0; i < classType.Fields.Count; i++)
-                    {
-                        FieldInfo fieldInfo = classType.Fields[i];
-                        Data dataField = AnalyzeField(data[fieldInfo.Name], fieldInfo);
-                        dataClass.Fields.Add(fieldInfo.Name, dataField);
-                    }
+
                     for (int i = 0; i < polyType.Fields.Count; i++)
                     {
                         FieldInfo fieldInfo = polyType.Fields[i];
@@ -126,16 +130,10 @@ namespace ConfigGen.LocalInfo
                         dataClass.Fields.Add(fieldInfo.Name, dataField);
                     }
                 }
+                else
+                    dataClass.Type = classType.GetClassName();
             }
-            else
-            {
-                for (int i = 0; i < classType.Fields.Count; i++)
-                {
-                    FieldInfo fieldInfo = classType.Fields[i];
-                    Data dataField = AnalyzeField(data[fieldInfo.Name], fieldInfo);
-                    dataClass.Fields.Add(fieldInfo.Name, dataField);
-                }
-            }
+
             return dataClass;
         }
         private Data AnalyzeList(JToken data, FieldInfo info)
@@ -143,13 +141,14 @@ namespace ConfigGen.LocalInfo
             JArray jArray = data as JArray;
             ListTypeInfo listType = info.BaseInfo as ListTypeInfo;
             BaseTypeInfo elemType = TypeInfo.GetTypeInfo(listType.ItemType);
+            FieldInfo element = new FieldInfo();
+            element.Set(Values.ELEMENT, elemType.GetClassName(), null, null);
+
             DataList dataList = new DataList();
             //dataList.Set(info.Name, info.Type, info.Check, info.Group);
 
             for (int i = 0; i < jArray.Count; i++)
             {
-                FieldInfo element = new FieldInfo();
-                element.Set(i.ToString(), elemType.GetClassName(), null, null);
                 Data dataField = AnalyzeField(jArray[i], element);
                 dataList.Elements.Add(dataField);
             }
@@ -159,8 +158,12 @@ namespace ConfigGen.LocalInfo
         {
             JObject jDict = data as JObject;
             DictTypeInfo dictType = info.BaseInfo as DictTypeInfo;
-            BaseTypeInfo ketType = TypeInfo.GetTypeInfo(dictType.KeyType);
+            BaseTypeInfo keyType = TypeInfo.GetTypeInfo(dictType.KeyType);
             BaseTypeInfo valueType = TypeInfo.GetTypeInfo(dictType.ValueType);
+            FieldInfo keyInfo = new FieldInfo();
+            keyInfo.Set(Values.KEY, keyType.GetClassName(), null, null);
+            FieldInfo valueInfo = new FieldInfo();
+            valueInfo.Set(Values.VALUE, valueType.GetClassName(), null, null);
 
             DataDict dataDict = new DataDict();
             //dataDict.Set(info.Name, info.Type, info.Check, info.Group);
@@ -168,12 +171,8 @@ namespace ConfigGen.LocalInfo
             for (int i = 0; i < properties.Count; i++)
             {
                 JProperty property = properties[i];
-                FieldInfo element = new FieldInfo();
-                element.Set(i.ToString(), ketType.GetClassName(), null, null);
-                DataBase dataKey = AnalyzeField(property.Name, element) as DataBase;
-
-                element.Set(Values.VALUE, valueType.GetClassName(), null, null);
-                Data dataValue = AnalyzeField(property.Value, element);
+                DataBase dataKey = AnalyzeField(property.Name, keyInfo) as DataBase;
+                Data dataValue = AnalyzeField(property.Value, valueInfo);
 
                 dataDict.Pairs.Add(new KeyValuePair<DataBase, Data>(dataKey, dataValue));
             }

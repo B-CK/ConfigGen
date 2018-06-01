@@ -1,25 +1,25 @@
 {
-  "ID": 11111,
-  "VarLong": 90,
-  "VarFloat": 9.9,
-  "VarString": "9999",
+  "ID": 3,
+  "VarLong": 30,
+  "VarFloat": 3.3,
+  "VarString": "3333",
   "VarBool": true,
-  "VarEnum": 9,
+  "VarEnum": 3,
   "VarClass": {
     "$type": "Lson.AllType.LInherit1, Assembly-CSharp",
-    "Var3": 9999,
-    "Var1": "999",
+    "Var3": 333,
+    "Var1": "3",
     "Var2": true
   },
   "VarListBase": [
-    "9",
-    "99",
-    "999",
-    "9999"
+    "3",
+    "33",
+    "333",
+    "3333"
   ],
   "VarListClass": [
     {
-      "Var1": "9999",
+      "Var1": "3",
       "Var2": true
     }
   ],
@@ -27,17 +27,27 @@
     5
   ],
   "VarDictBase": {
-    "9": "99",
-    "999": "9999"
+    "3": "33",
+    "333": "3333"
   },
   "VarDictEnum": {
-    "999": 7
+    "3": 7
   },
   "VarDictClass": {
-    "9999": {
+    "3": {
       "$type": "Lson.AllType.LInherit1, Assembly-CSharp",
-      "Var3": 9999,
-      "Var1": "99",
+      "Var3": 333,
+      "Var1": "3",
+      "Var2": true
+    },
+	"33": {
+      "$type": "Lson.AllType.LInherit2, Assembly-CSharp",
+      "Var4": 3334,
+      "Var1": "3",
+      "Var2": true
+    },
+	"333": {           
+      "Var1": "3",
       "Var2": true
     }
   }

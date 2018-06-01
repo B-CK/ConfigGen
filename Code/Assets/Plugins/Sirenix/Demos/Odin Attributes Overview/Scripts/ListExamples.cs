@@ -111,18 +111,5 @@
 
             private string Name { get { return this.SomeObject ? this.SomeObject.name : "Null"; } }
         }
-
-
-        public JEnum jEnum;
-        [System.Serializable]
-        public class JEnum
-        {
-            [ReadOnly]
-            public int A = 1;
-            [ReadOnly]
-            public int B = 2;
-            [ReadOnly]
-            public int C = 3;
-        }
     }
 }

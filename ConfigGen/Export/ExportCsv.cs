@@ -74,7 +74,7 @@ namespace ConfigGen.Export
             if (baseClassType.HasSubClass)
             {
                 string polyType = dataClass.Type;
-                builder.Append(polyType);
+                builder.AppendFormat("{0}{1}", polyType, Values.CsvSplitFlag);
                 for (int j = 0; j < baseClassType.Fields.Count; j++)
                 {
                     FieldInfo fieldInfo = baseClassType.Fields[j];
@@ -83,7 +83,10 @@ namespace ConfigGen.Export
                     if (isNesting && value.Equals(Values.DataSetEndFlag))
                         return Values.DataSetEndFlag;
 
-                    builder.AppendFormat("{0}{1}", Values.CsvSplitFlag, value);
+                    if (j == 0)
+                        builder.AppendFormat("{0}", value);
+                    else
+                        builder.AppendFormat("{0}{1}", Values.CsvSplitFlag, value);
                 }
                 if (baseClassType.SubClasses.Contains(polyType))
                 {
@@ -122,7 +125,7 @@ namespace ConfigGen.Export
             StringBuilder builder = new StringBuilder();
             ListTypeInfo listInfo = info.BaseInfo as ListTypeInfo;
             FieldInfo elementInfo = new FieldInfo();
-            elementInfo.Set(Values.ELEMENT, listInfo.GetClassName(), null, info.Group);
+            elementInfo.Set(Values.ELEMENT, listInfo.ItemType, null, info.Group);
             DataList dataList = data as DataList;
             int count = 0;
             var elements = dataList.Elements;

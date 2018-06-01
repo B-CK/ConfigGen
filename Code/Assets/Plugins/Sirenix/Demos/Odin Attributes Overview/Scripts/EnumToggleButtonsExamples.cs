@@ -30,9 +30,6 @@
         [System.Flags]
         public enum SomeBitmaskEnum
         {
-            他= 1000,
-            她= 10100,
-            它= 10200,
             A = 1 << 1,
             B = 1 << 2,
             C = 1 << 3,

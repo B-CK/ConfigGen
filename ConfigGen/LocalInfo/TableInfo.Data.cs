@@ -6,8 +6,8 @@ using System.Collections.Generic;
 
 namespace ConfigGen.LocalInfo
 {
-    //问题:list中类字段为##
-    //其实就是,集合中的##该如何表达结束
+    //注:集合中##或者null均表示数据结束,集合数据从左至右填充,遇空则结束.
+    //##结束符的功能预留,可扩展
 
     //---数据定义表,Excel形式中数据类无继承形式[未定义继承解析]
     public class TableDataInfo : TableInfo
@@ -79,6 +79,10 @@ namespace ConfigGen.LocalInfo
                 for (int i = 0; i < ClassTypeInfo.Fields.Count; i++, column++)
                 {
                     string fieldName = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
+                    if (!fieldDict.ContainsKey(fieldName))
+                    {
+                        Util.LogError("Class " + fieldName);
+                    }
                     FieldInfo fieldInfo = fieldDict[fieldName];
                     Data dataField = AnalyzeField(dt, fieldInfo, row, ref column);
                     dataClass.Fields.Add(fieldName, dataField);
@@ -160,11 +164,18 @@ namespace ConfigGen.LocalInfo
             var fieldDict = classType.GetFieldInfoDict();
             for (int i = 0; i < classType.Fields.Count; i++, column++)
             {
-                string fieldName = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
+                string fieldName = dt.Rows[Values.DataSheetFieldIndex][column].ToString();          
                 FieldInfo fieldInfo = fieldDict[fieldName];
                 Data dataField = AnalyzeField(dt, fieldInfo, row, ref column);
-                if (dataField == null)
-                    Util.LogErrorFormat("类型{0}字段{1}数据为空,{2}", info.Type, info.Name, GetErrorSite(column + 1, row + 1));
+                if (dataField == null && info.Name.Equals(Values.ELEMENT) || info.Name.Equals(Values.VALUE))
+                {
+                    column += classType.Fields.Count - i;
+                    dataClass = null;
+                    break;
+                }
+                else if (dataField == null)
+                    Util.LogErrorFormat("{0}.{1}数据为空,{2}", info.Type, info.Name, GetErrorSite(column + 1, row + 1));
+
                 dataClass.Fields.Add(fieldName, dataField);
             }
             column--;
@@ -172,76 +183,74 @@ namespace ConfigGen.LocalInfo
         }
         private Data AnalyzeList(DataTable dt, FieldInfo info, int row, ref int column)
         {
-            column++;
             ListTypeInfo listType = info.BaseInfo as ListTypeInfo;
             BaseTypeInfo elementType = TypeInfo.GetTypeInfo(listType.ItemType);
+            FieldInfo element = new FieldInfo();
+            element.Set(Values.ELEMENT, elementType.GetClassName(), null, null);
+
             DataList dataList = new DataList();
             //dataList.Set(info.Name, info.Type, info.Check, info.Group);
             string flag = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
+            bool isEnd = false;
+            column++;
             for (int i = 0; !flag.Equals(Values.DataSetEndFlag); i++)
             {
-                string dataFlag = dt.Rows[row][column].ToString();
-                if (dataFlag.Equals(Values.DataSetEndFlag))
+                if (isEnd == false)
                 {
-                    column++;
-                    continue;
+                    if (elementType.TypeType == TypeType.Class)
+                        column--;
+                    Data dataField = AnalyzeField(dt, element, row, ref column);
+                    if (dataField != null)
+                        dataList.Elements.Add(dataField);
+                    else
+                        isEnd = true;
                 }
-                FieldInfo element = new FieldInfo();
-                element.Set(Values.ELEMENT, elementType.GetClassName(), null, null);
-                Data dataField = AnalyzeField(dt, element, row, ref column);
-                if (dataField == null)
-                    Util.LogErrorFormat("类型{0}字段{1}数据为空,{2}", info.Type, info.Name, GetErrorSite(column + 1, row + 1));
-                else
-                    dataList.Elements.Add(dataField);
-                column++;
 
+                column++;
                 flag = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
             }
             return dataList;
         }
         private Data AnalyzeDict(DataTable dt, FieldInfo info, int row, ref int column)
         {
-            column++;
             DictTypeInfo dictType = info.BaseInfo as DictTypeInfo;
             BaseTypeInfo keyType = TypeInfo.GetTypeInfo(dictType.KeyType);
             BaseTypeInfo valueType = TypeInfo.GetTypeInfo(dictType.ValueType);
+            FieldInfo keyInfo = new FieldInfo();
+            keyInfo.Set(Values.KEY, keyType.GetClassName(), null, null);
+            FieldInfo valueInfo = new FieldInfo();
+            valueInfo.Set(Values.VALUE, valueType.GetClassName(), null, null);
+
             DataDict dataDict = new DataDict();
             //dataDict.Set(info.Name, info.Type, info.Check, info.Group);
             HashSet<object> hash = new HashSet<object>();
             string flag = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
+            bool isEnd = false;
+            column++;
             for (int i = 0; !flag.Equals(Values.DataSetEndFlag); i++)
             {
-                string dataFlag = dt.Rows[row][column].ToString();
-                if (dataFlag.Equals(Values.DataSetEndFlag))
+                if (isEnd == false)
                 {
+                    DataBase dataKey = AnalyzeField(dt, keyInfo, row, ref column) as DataBase;
                     column++;
-                    break;
-                }
-                FieldInfo keyInfo = new FieldInfo();
-                keyInfo.Set(Values.KEY, keyType.GetClassName(), null, null);
-                DataBase dataKey = AnalyzeField(dt, keyInfo, row, ref column) as DataBase;
-                column++;
 
-                dataFlag = dt.Rows[row][column].ToString();
-                if (dataFlag.Equals(Values.DataSetEndFlag))
-                {
-                    column++;
-                    break;
+                    if (valueType.TypeType == TypeType.Class)
+                        column--;
+                  
+                    Data dataValue = AnalyzeField(dt, valueInfo, row, ref column);
+                    if (dataKey == null || dataValue == null)
+                        isEnd = true;
+                    else if (hash.Contains(dataKey.Data))
+                        Util.LogErrorFormat("{0} {1} Key:{2}重复,{3}", info.Type, info.Name,
+                            dataKey.Data.ToString(), GetErrorSite(column - 1, row + 1));
+                    else
+                    {
+                        hash.Add(dataKey.Data);
+                        dataDict.Pairs.Add(new KeyValuePair<DataBase, Data>(dataKey, dataValue));
+                    }
                 }
-                FieldInfo valueInfo = new FieldInfo();
-                valueInfo.Set(Values.VALUE, valueType.GetClassName(), null, null);
-                Data dataValue = AnalyzeField(dt, valueInfo, row, ref column);
+
                 column++;
-                if (dataKey == null || dataValue == null)
-                    Util.LogErrorFormat("{0} {1} Key或者Value数据为空,{2}", info.Type, info.Name, GetErrorSite(column - 1, row + 1));
-                else if (hash.Contains(dataKey.Data))
-                    Util.LogErrorFormat("{0} {1} Key:{2}重复,{3}", info.Type, info.Name,
-                        dataKey.Data.ToString(), GetErrorSite(column - 1, row + 1));
-                else
-                {
-                    hash.Add(dataKey.Data);
-                    dataDict.Pairs.Add(new KeyValuePair<DataBase, Data>(dataKey, dataValue));
-                }
                 flag = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
             }
             return dataDict;

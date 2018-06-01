@@ -9,7 +9,6 @@
     using System.Reflection;
     using Sirenix.Utilities;
     using Sirenix.Utilities.Editor;
-    using System.Collections;
 
 #endif
 
@@ -49,12 +48,7 @@
         {
             this.MethodName = methodName;
         }
-        interface ICoc
-        {
-
-        }
     }
-
 
 #if UNITY_EDITOR
 
