@@ -2,7 +2,7 @@
   "ID": 3,
   "VarLong": 30,
   "VarFloat": 3.3,
-  "VarString": "3333",
+  "VarString": "Res/Sphere",
   "VarBool": true,
   "VarEnum": 3,
   "VarClass": {

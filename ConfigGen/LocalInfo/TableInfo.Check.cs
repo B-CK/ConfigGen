@@ -12,9 +12,7 @@ namespace ConfigGen.LocalInfo
 
 
         /// <summary>
-        /// 检查该字段引用数据是否在指定范围内,例:引用其他表中数据,或者枚举类中值
-        /// 引用类字段数据
-        /// 引用枚举
+        /// 检查该字段引用数据是否为指定数据表中主键,例:引用其他表中主键数据
         /// </summary>
         Ref,
         /// <summary>
@@ -271,11 +269,6 @@ namespace ConfigGen.LocalInfo
                 }
                 else if (check.StartsWith(fileExistFlags))
                 {
-                    if (string.IsNullOrWhiteSpace(Values.AssetsDir))
-                    {
-                        Util.LogWarningFormat("未配置资源目录路径无法使用file检查功能.错误位置:{0} {1}", ClassFullName, info.Name);
-                        continue;
-                    }
                     ruleType = CheckRuleType.FileExist;
                     ruleArgs.AddRange(check.Replace(fileExistFlags, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
@@ -351,29 +344,27 @@ namespace ConfigGen.LocalInfo
             if (args.Count == 0)
                 return "[ref]引用检查规则未填写参数";
 
+            //检查引用主键
             StringBuilder error = new StringBuilder();
-            int lastIndex = args[0].LastIndexOf('.');
-            string className = args[0].Substring(0, lastIndex);
-            string fieldName = args[0].Substring(lastIndex);
+            string className = args[0];
 
             var dataInfoDict = Local.Instance.DataInfoDict;
             if (dataInfoDict.ContainsKey(className))
             {
-                List<Data> dataClass = Local.Instance.DataInfoDict[className].GetDataColumn(fieldName);
-                if (dataClass != null)
+                TableDataInfo table = dataInfoDict[className];
+                ClassTypeInfo classType = table.ClassTypeInfo;
+                List<Data> keys = table.GetDataColumn(classType.IndexField.Name);
+                HashSet<string> hash = new HashSet<string>();
+                keys.ForEach(k => hash.Add(k as DataBase));
+                for (int i = 0; i < datas.Count; i++)
                 {
-                    HashSet<object> hash = new HashSet<object>();
-                    for (int i = 0; i < datas.Count; i++)
-                    {
-                        object data = (datas[i] as DataBase).Data;
-                        if (!hash.Contains(data))
-                            error.AppendFormat("[ref]key:{0} 引用{1}.{2}数据不存在\n", GetKey(i), className, fieldName);
-                        else
-                            hash.Add(data);
-                    }
+                    string data = datas[i] as DataBase;
+                    if (!hash.Contains(data))
+                        error.AppendFormat("[ref]key:{0} {1}.{2}中不包含{3}\n", GetKey(i),
+                            classType.GetClassName(), classType.IndexField.Name, data);
+                    else
+                        hash.Add(data);
                 }
-                else
-                    error.AppendFormat("[ref]引用{1}.{2}字段不存在", className, fieldName);
             }
             else
                 error.AppendFormat("[ref]引用{0}类型不存在", className);
@@ -382,10 +373,10 @@ namespace ConfigGen.LocalInfo
         static string CheckUnique(List<string> args, List<Data> datas)
         {
             StringBuilder error = new StringBuilder();
-            HashSet<object> hash = new HashSet<object>();
+            HashSet<string> hash = new HashSet<string>();
             for (int i = 0; i < datas.Count; i++)
             {
-                object data = (datas[i] as DataBase).Data;
+                string data = datas[i] as DataBase;
                 if (hash.Contains(data))
                     error.AppendFormat("[unique]key:{0} 集合中数据{1}重复\n", GetKey(i), data);
                 else
@@ -414,15 +405,16 @@ namespace ConfigGen.LocalInfo
 
             StringBuilder error = new StringBuilder();
 
-            int lastIndex = args[0].LastIndexOf('.');
-            string dirPath = args[0].Substring(0, lastIndex);
-            string ext = args[0].Substring(lastIndex);
+            string dirPath = args[0];
+            string ext = args.Count == 2 ? args[1].Replace(".", "") : "";
 
             for (int i = 0; i < datas.Count; i++)
             {
-                string file = datas[i] as DataBase;
+                string file = (datas[i] as DataBase);
                 if (!string.IsNullOrWhiteSpace(ext))
-                    file = string.Format("{0}\\{1}.{2}", Values.AssetsDir, file, ext);
+                    file = string.Format("{0}/{1}.{2}", dirPath, file, ext);
+                else
+                    file = string.Format("{0}/{1}", dirPath, file);
                 if (!File.Exists(file))
                     error.AppendFormat("[file]key:{0} 文件{1}不存在\n", GetKey(i), file);
             }

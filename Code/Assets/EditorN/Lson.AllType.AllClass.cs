@@ -12,7 +12,7 @@ namespace Lson.AllType
 		/// <summary>
 		/// 长整型
 		/// <summary>
-		public long VarLong;
+		public int VarLong;
 		/// <summary>
 		/// 浮点型
 		/// <summary>

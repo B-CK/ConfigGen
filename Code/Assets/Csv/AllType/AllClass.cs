@@ -13,7 +13,7 @@ namespace Csv.AllType
 		/// <summary>
 		/// 长整型
 		/// <summary>
-		public readonly long VarLong;
+		public readonly int VarLong;
 		/// <summary>
 		/// 浮点型
 		/// <summary>
@@ -62,7 +62,7 @@ namespace Csv.AllType
 		public AllClass(DataStream data)
 		{
 			this.ID = data.GetInt();
-			this.VarLong = data.GetLong();
+			this.VarLong = data.GetInt();
 			this.VarFloat = data.GetFloat();
 			this.VarString = data.GetString();
 			this.VarBool = data.GetBool();

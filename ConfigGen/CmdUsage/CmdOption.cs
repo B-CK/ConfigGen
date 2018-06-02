@@ -62,15 +62,15 @@ namespace ConfigGen.CmdUsage
                                 return false;
                             }
                             break;
-                        case "-assetsDir":
-                            if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.AssetsDir = string.Format(@"{0}\{1}\", Values.ApplicationDir, cmd.Value[0]);
-                            if (!Directory.Exists(Values.AssetsDir))
-                            {
-                                Util.LogErrorFormat("[{0}]Assets文件夹不在此路径{1}", cmdName, Values.AssetsDir);
-                                Values.AssetsDir = null;
-                            }
-                            break;
+                        //case "-assetsDir":
+                        //    if (!CheckArgList(cmdName, cmd.Value)) return false;
+                        //    Values.AssetsDir = string.Format(@"{0}\{1}\", Values.ApplicationDir, cmd.Value[0]);
+                        //    if (!Directory.Exists(Values.AssetsDir))
+                        //    {
+                        //        Util.LogErrorFormat("[{0}]Assets文件夹不在此路径{1}", cmdName, Values.AssetsDir);
+                        //        Values.AssetsDir = null;
+                        //    }
+                        //    break;
                         case "-help":
                             Help();
                             break;

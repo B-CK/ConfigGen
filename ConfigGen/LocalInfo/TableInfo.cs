@@ -49,7 +49,7 @@ namespace ConfigGen.LocalInfo
         }
         public static implicit operator string(DataBase value)
         {
-            return value.Data as string;
+            return Convert.ToString(value.Data);
         }
     }
     public class DataClass : Data

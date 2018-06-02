@@ -2,7 +2,7 @@
   "ID": 1,
   "VarLong": 10,
   "VarFloat": 1.1,
-  "VarString": "1111",
+  "VarString": "Res/Cube",
   "VarBool": true,
   "VarEnum": 1,
   "VarClass": {

@@ -2,7 +2,7 @@
   "ID": 2,
   "VarLong": 20,
   "VarFloat": 2.2,
-  "VarString": "222",
+  "VarString": "Res/Capsule",
   "VarBool": true,
   "VarEnum": 2,
   "VarClass": {

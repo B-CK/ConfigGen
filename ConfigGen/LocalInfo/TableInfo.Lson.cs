@@ -74,8 +74,10 @@ namespace ConfigGen.LocalInfo
             switch (baseType.TypeType)
             {
                 case TypeType.Base:
-                case TypeType.Enum:
                     dataField = AnalyzeBase(data, info);
+                    break;
+                case TypeType.Enum:
+                    dataField = AnalyzeEnum(data, info);
                     break;
                 case TypeType.Class:
                     dataField = AnalyzeClass(data, info);
@@ -96,6 +98,17 @@ namespace ConfigGen.LocalInfo
         {
             DataBase dataBase = new DataBase();
             //dataBase.Set(info.Name, info.Type, info.Check, info.Group);
+            dataBase.Data = data;
+            return dataBase;
+        }
+        private Data AnalyzeEnum(JToken data, FieldInfo info)
+        {
+            DataBase dataBase = new DataBase();
+            //dataBase.Set(info.Name, info.Type, info.Check, info.Group);
+            EnumTypeInfo enumType = info.BaseInfo as EnumTypeInfo;
+            string value = data.Value<string>();
+            if (!enumType.EnumDict.ContainsValue(value))
+                Util.LogErrorFormat("Enum:{0} Value:{1}不存在", enumType.GetClassName(), value);
             dataBase.Data = data;
             return dataBase;
         }

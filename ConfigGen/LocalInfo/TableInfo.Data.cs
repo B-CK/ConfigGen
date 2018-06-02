@@ -27,7 +27,7 @@ namespace ConfigGen.LocalInfo
         /// 字段列数据字典
         /// <para>key:字段名 value:数据列</para>
         /// </summary>
-        public Dictionary<string, List<Data>> DataColumnDict = new Dictionary<string, List<Data>>();
+        Dictionary<string, List<Data>> DataColumnDict = new Dictionary<string, List<Data>>();
 
         /// <summary>
         /// 只查询数据表中类型定义
@@ -44,7 +44,7 @@ namespace ConfigGen.LocalInfo
             return false;
         }
         /// <summary>
-        /// 字段列数据
+        /// 表主键列字段数据
         /// </summary>
         public List<Data> GetDataColumn(string fieldName)
         {
@@ -164,7 +164,7 @@ namespace ConfigGen.LocalInfo
             var fieldDict = classType.GetFieldInfoDict();
             for (int i = 0; i < classType.Fields.Count; i++, column++)
             {
-                string fieldName = dt.Rows[Values.DataSheetFieldIndex][column].ToString();          
+                string fieldName = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
                 FieldInfo fieldInfo = fieldDict[fieldName];
                 Data dataField = AnalyzeField(dt, fieldInfo, row, ref column);
                 if (dataField == null && info.Name.Equals(Values.ELEMENT) || info.Name.Equals(Values.VALUE))
@@ -236,7 +236,7 @@ namespace ConfigGen.LocalInfo
 
                     if (valueType.TypeType == TypeType.Class)
                         column--;
-                  
+
                     Data dataValue = AnalyzeField(dt, valueInfo, row, ref column);
                     if (dataKey == null || dataValue == null)
                         isEnd = true;

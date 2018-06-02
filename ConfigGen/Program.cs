@@ -16,9 +16,6 @@ namespace ConfigGen
     class Program
     {
         //未完成内容
-        //1.字段检查,自定义检查规则-完成-[表ID唯一性,字典Key唯一性,键(表/字典)类型限制为int,long,string,enum]
-        //                          a.枚举值存在性(Data检查key-已完成,Lson检查value)
-        //                          b.手动指定检查规则,ref,file未验证
         //2.分组导出功能
         //5.查找和替换功能
         //3.导出lua 数据,类

@@ -35,7 +35,7 @@ namespace ConfigGen
         /// <summary>
         /// 资源文件夹路径,用于file检查功能
         /// </summary>
-        public static string AssetsDir { get; set; }
+        //public static string AssetsDir { get; set; }
 
 
         /// <summary>
