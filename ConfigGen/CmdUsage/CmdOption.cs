@@ -7,6 +7,17 @@ namespace ConfigGen.CmdUsage
 {
     class CmdOption
     {
+        public const string CONFIG_DIR = "-configDir";
+        public const string HELP = "-help";
+        public const string OPTION_MODE = "-optMode";
+        public const string EXPORT_CSV = "-exportCsv";
+        public const string EXPORT_CSHARP = "-exportCSharp";
+        public const string EXPORT_CS_LSON = "-exportCsLson";
+        public const string GROUP = "-group";
+        public const string REPLACE = "-replace";
+        public const string FIND = "-find";
+
+
         public static CmdOption Instance
         {
             get
@@ -17,6 +28,7 @@ namespace ConfigGen.CmdUsage
             }
         }
         private static CmdOption _instance;
+
         private CmdOption() { }
 
         private Dictionary<string, List<string>> _cmdArgs = new Dictionary<string, List<string>>();
@@ -52,7 +64,7 @@ namespace ConfigGen.CmdUsage
                     string cmdName = cmd.Key;
                     switch (cmdName)
                     {
-                        case "-configDir":
+                        case CONFIG_DIR:
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
                             Values.ConfigDir = string.Format(@"{0}\{1}\", Values.ApplicationDir, cmd.Value[0]);
                             if (!Directory.Exists(Values.ConfigDir))
@@ -71,10 +83,10 @@ namespace ConfigGen.CmdUsage
                         //        Values.AssetsDir = null;
                         //    }
                         //    break;
-                        case "-help":
+                        case HELP:
                             Help();
                             break;
-                        case "-optMode":
+                        case OPTION_MODE:
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
                             bool isNormal = "part".Equals(cmd.Value[0]) || "all".Equals(cmd.Value[0]);
                             if (!isNormal)
@@ -84,33 +96,33 @@ namespace ConfigGen.CmdUsage
                             }
                             Values.IsOptPart = "part".Equals(cmd.Value[0]);
                             break;
-                        case "-exportCsv"://null不导出csv
+                        case EXPORT_CSV://null不导出csv
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
                             Values.ExportCsv = cmd.Value[0];
                             if (string.IsNullOrWhiteSpace(Values.ExportCsv))
                                 Values.ExportCsv = null;
                             break;
-                        case "-exportCSharp"://null不做语言类导出
+                        case EXPORT_CSHARP://null不做语言类导出
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
                             Values.ExportCSharp = cmd.Value[0];
                             if (string.IsNullOrWhiteSpace(Values.ExportCSharp))
                                 Values.ExportCSharp = null;
                             break;
-                        case "-exportCsLson"://null不做语言类导出
+                        case EXPORT_CS_LSON://null不做语言类导出
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
                             Values.ExportCsLson = cmd.Value[0];
                             if (string.IsNullOrWhiteSpace(Values.ExportCsLson))
                                 Values.ExportCsLson = null;
                             break;
-                        case "-group"://默认导出所有分组
+                        case GROUP://默认导出所有分组
                             Values.ExportGroup = cmd.Value[0];
                             if (string.IsNullOrWhiteSpace(Values.ExportGroup))
                                 Values.ExportGroup = null;
                             break;
-                        case "-replace":
+                        case REPLACE:
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
                             break;
-                        case "-find":
+                        case FIND:
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
                             break;
                         default:

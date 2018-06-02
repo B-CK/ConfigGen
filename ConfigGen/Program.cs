@@ -20,10 +20,6 @@ namespace ConfigGen
         //5.查找和替换功能
         //3.导出lua 数据,类
 
-        //问题!!!
-        //1.集合类型数据结束符##,仅在Excel中使用,解析时不做数据读取到程序中.导出Csv时不对##进行处理.Lson中无##符号.
-        //2.集合数据的长短不一,在数据导出时的问题,Lson和Data均异常
-
         //static Stopwatch stopwatch = new Stopwatch();
 
         static void Main(string[] args)
@@ -37,20 +33,22 @@ namespace ConfigGen
             //构建本地数据库
             Local.Instance.FileInfoLib = LocalInfo.FileInfo.Create();
             Local.Instance.UpdateFileInfo();
-            if (CmdOption.Instance.CmdArgs.ContainsKey("-exportCSharp")
-                || CmdOption.Instance.CmdArgs.ContainsKey("-exportCsv"))
+            if (CmdOption.Instance.CmdArgs.ContainsKey(CmdOption.EXPORT_CSHARP)
+                || CmdOption.Instance.CmdArgs.ContainsKey(CmdOption.EXPORT_CSV))
             {
                 Local.Instance.TypeInfoLib = TypeInfo.Create();
                 Local.Instance.DefineInfoDict = new Dictionary<string, TableDefineInfo>();
                 Local.Instance.DataInfoDict = new Dictionary<string, TableDataInfo>();
                 Local.Instance.UpdateTypeInfo();
             }
-            if (CmdOption.Instance.CmdArgs.ContainsKey("-replace")
-                || CmdOption.Instance.CmdArgs.ContainsKey("-find"))
+            if (CmdOption.Instance.CmdArgs.ContainsKey(CmdOption.REPLACE)
+                || CmdOption.Instance.CmdArgs.ContainsKey(CmdOption.FIND))
             {
                 Local.Instance.FindInfoLib = FindInfo.Create();
                 Local.Instance.UpdateFindInfo();
             }
+
+            //数据分组
 
             //导出数据
             if (!string.IsNullOrWhiteSpace(Values.ExportCsv))
