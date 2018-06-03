@@ -51,6 +51,24 @@ namespace ConfigGen.Export
                         CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, fullType);
                     }
 
+                    //常量字段
+                    for (int j = 0; j < classType.Consts.Count; j++)
+                    {
+                        ConstFieldInfo field = classType.Consts[j];
+                        CodeWriter.Comments(builder, field.Des);
+                        string value = field.value;
+                        switch (field.Type)
+                        {
+                            case Base.Float:
+                                value = string.Format("{0}f", field.value);
+                                break;
+                            case Base.String:
+                                value = string.Format("@{0}", field.value);
+                                break;
+                        }
+                        CodeWriter.FieldInit(builder, CodeWriter.Public, CodeWriter.Const, field.Type, field.Name, value);
+                    }
+
                     isWrited = true;
                     for (int j = 0; j < classType.Fields.Count; j++)
                     {

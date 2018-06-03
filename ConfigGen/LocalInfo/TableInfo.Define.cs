@@ -9,6 +9,9 @@ namespace ConfigGen.LocalInfo
     //---类型定义表
     public class TableDefineInfo : TableInfo
     {
+        public const string CLASS_TYPE = "class";
+        public const string ENUM_TYPE = "enum";
+
         public TableDefineInfo(string relPath, DataTable data)
             : base(relPath, data)
         {
@@ -17,6 +20,7 @@ namespace ConfigGen.LocalInfo
         }
         public Dictionary<string, ClassTypeInfo> ClassInfoDict { get; private set; }
         public Dictionary<string, EnumTypeInfo> EnumInfoDict { get; private set; }
+
 
 
         /// <summary>
@@ -47,7 +51,7 @@ namespace ConfigGen.LocalInfo
                 defineTypeStr = flag.TrimStart(Values.DefineTypeFlag.ToCharArray());
                 string nameSpace = TypeInfo.GetNamespaceName(RelPath);
                 name = dt.Rows[i][1].ToString();
-                if (defineTypeStr.Equals("class"))
+                if (defineTypeStr.Equals(CLASS_TYPE))
                 {
                     string inherit = dt.Rows[i][2].ToString();
                     string dataTable = dt.Rows[i][3].ToString();
@@ -61,9 +65,10 @@ namespace ConfigGen.LocalInfo
                     classInfo.Group = FilterEmptyOrNull(group);
                     classInfo.TypeType = TypeType.Class;
                     classInfo.Fields = new List<FieldInfo>();
+                    classInfo.Consts = new List<ConstFieldInfo>();
                     classInfo.IsExist = true;
 
-
+                    bool isNullGroup = string.IsNullOrWhiteSpace(classInfo.Group);
 
                     int j = i += 2;
                     for (; j < dt.Rows.Count; j++)
@@ -75,11 +80,21 @@ namespace ConfigGen.LocalInfo
                         FieldInfo fieldInfo = new FieldInfo();
                         fieldInfo.Name = dt.Rows[j][0].ToString();
                         string fieldType = dt.Rows[j][1].ToString();
-                        fieldInfo.Type = fieldType;
+                        string type, value;
+                        bool isConstBase = TypeInfo.IsConstBaseType(fieldType, out type, out value);
+                        fieldInfo.Type = isConstBase ? type : fieldType;
                         fieldInfo.Des = FilterEmptyOrNull(dt.Rows[j][2].ToString());
                         fieldInfo.Check = FilterEmptyOrNull(dt.Rows[j][3].ToString());
-                        fieldInfo.Group = FilterEmptyOrNull(dt.Rows[j][4].ToString());
-                        classInfo.Fields.Add(fieldInfo);
+                        fieldInfo.Group = isNullGroup ? FilterEmptyOrNull(dt.Rows[j][4].ToString()) : null;
+                        if (isConstBase)
+                        {
+                            ConstFieldInfo constField = new ConstFieldInfo();
+                            constField.Set(fieldInfo);
+                            constField.value = value;
+                            classInfo.Consts.Add(constField);
+                        }
+                        else
+                            classInfo.Fields.Add(fieldInfo);
 
                         //数据索引-字段信息
                         if (j == i)
@@ -94,7 +109,7 @@ namespace ConfigGen.LocalInfo
                     ClassInfoDict.Add(name, classInfo);
                     Local.Instance.TypeInfoLib.Add(classInfo);
                 }
-                else if (defineTypeStr.Equals("enum"))
+                else if (defineTypeStr.Equals(ENUM_TYPE))
                 {
                     EnumTypeInfo enumInfo = new EnumTypeInfo();
                     enumInfo.RelPath = RelPath;

@@ -13,22 +13,25 @@ using System.ComponentModel;
 namespace ConfigGen
 {
     /// 所有的路径均以应用为相对路径生成
+    /// 尽可能少配置Excel文件,文件读取非常耗时
     class Program
     {
         //未完成内容
-        //2.分组导出功能
-        //5.查找和替换功能
+        //5.查找和替换功能?
         //3.导出lua 数据,类
 
-        //static Stopwatch stopwatch = new Stopwatch();
+        //说明文档按功能来整理
 
         static void Main(string[] args)
         {
             Util.Start();
-            //stopwatch.Start();
 
             //命令行参数解析
-            if (!CmdOption.Instance.Init(args)) return;
+            if (!CmdOption.Instance.Init(args))
+            {
+                Console.ReadKey();
+                return;
+            }
 
             //构建本地数据库
             Local.Instance.FileInfoLib = LocalInfo.FileInfo.Create();
@@ -40,7 +43,7 @@ namespace ConfigGen
                 Local.Instance.DefineInfoDict = new Dictionary<string, TableDefineInfo>();
                 Local.Instance.DataInfoDict = new Dictionary<string, TableDataInfo>();
                 Local.Instance.UpdateTypeInfo();
-            }
+            }        
             if (CmdOption.Instance.CmdArgs.ContainsKey(CmdOption.REPLACE)
                 || CmdOption.Instance.CmdArgs.ContainsKey(CmdOption.FIND))
             {
@@ -49,6 +52,7 @@ namespace ConfigGen
             }
 
             //数据分组
+            Local.Instance.DoGrouping();
 
             //导出数据
             if (!string.IsNullOrWhiteSpace(Values.ExportCsv))
@@ -72,43 +76,42 @@ namespace ConfigGen
 
             Util.Log("\n\n\n");
             Util.Stop("=================>> 总共");
-            //Console.WriteLine(stopwatch.ElapsedMilliseconds);
             Console.ReadKey();
         }
 
-        static void Ex()
-        {
-            int c = 10000;
-            List<object> ins = new List<object>();
-            for (int i = 0; i < c; i++)
-                ins.Add(i.ToString());
+        //static void Ex()
+        //{
+        //    int c = 10000;
+        //    List<object> ins = new List<object>();
+        //    for (int i = 0; i < c; i++)
+        //        ins.Add(i.ToString());
 
-            Util.Start();
-            HashSet<object> vs = new HashSet<object>(ins);
-            int result = 0;
-            for (int i = 0; i < c; i++)
-            {
-                if (vs.Contains(i.ToString()))
-                {
-                    result++;
-                }
-            }
-            Util.Stopln(result.ToString() + "  Hash Time : ");
+        //    Util.Start();
+        //    HashSet<object> vs = new HashSet<object>(ins);
+        //    int result = 0;
+        //    for (int i = 0; i < c; i++)
+        //    {
+        //        if (vs.Contains(i.ToString()))
+        //        {
+        //            result++;
+        //        }
+        //    }
+        //    Util.Stopln(result.ToString() + "  Hash Time : ");
 
-            Util.Start();
-            result = 0;
-            for (int i = 0; i < c; i++)
-            {
-                if (ins.Contains(i.ToString()))
-                {
-                    result++;
-                }
-            }
-            Util.Stopln(result.ToString() + "  List Time : ");
+        //    Util.Start();
+        //    result = 0;
+        //    for (int i = 0; i < c; i++)
+        //    {
+        //        if (ins.Contains(i.ToString()))
+        //        {
+        //            result++;
+        //        }
+        //    }
+        //    Util.Stopln(result.ToString() + "  List Time : ");
 
 
 
-        }
+        //}
 
         //static void TEST()
         //{

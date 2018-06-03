@@ -67,7 +67,7 @@ namespace ConfigGen.LocalInfo
 
         //---------------------------------------数据检查
 
-        static string ClassFullName = "";
+        static ClassTypeInfo ClassInfo = null;
         static List<Data> DataKeys = new List<Data>();
         /// <summary>
         /// 仅检查基础类型数据,不对结构进行检查
@@ -76,7 +76,7 @@ namespace ConfigGen.LocalInfo
         {
             foreach (var table in Local.Instance.DataInfoDict)
             {
-                ClassFullName = table.Key;
+                ClassInfo = table.Value.ClassTypeInfo;
                 List<DataClass> datas = table.Value.Datas;
                 ClassTypeInfo classType = table.Value.ClassTypeInfo;
                 List<FieldInfo> fields = classType.Fields;
@@ -97,7 +97,7 @@ namespace ConfigGen.LocalInfo
                 }
             }
             DataKeys.Clear();
-            ClassFullName = "";
+            ClassInfo = null;
         }
         static long GetKey(int i)
         {
@@ -299,7 +299,7 @@ namespace ConfigGen.LocalInfo
                     info.RuleDict.Add(ruleType, ruleArgs);
 
                 if (!isNullOrWhiteSpace && ruleType == CheckRuleType.None)
-                    Util.LogWarningFormat("类:{0} 异常:检查规则{1}不存在", ClassFullName, check);
+                    Util.LogWarningFormat("类:{0} 异常:检查规则{1}不存在", ClassInfo.GetClassName(), check);
 
             }
             return isOK;
@@ -337,7 +337,7 @@ namespace ConfigGen.LocalInfo
                 }
             }
             if (!string.IsNullOrWhiteSpace(error))
-                Util.LogErrorFormat("Check:{0}.{1}\n{2}", ClassFullName, info.Name, error);
+                Util.LogErrorFormat("Check:{0}.{1} File:{2}\n{3}", ClassInfo.GetClassName(), info.Name, ClassInfo.DataTable, error);
         }
         static string CheckRef(List<string> args, List<Data> datas)
         {

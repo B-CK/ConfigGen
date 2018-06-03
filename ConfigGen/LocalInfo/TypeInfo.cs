@@ -138,13 +138,19 @@ namespace ConfigGen.LocalInfo
                     ClassTypeInfo classInfo = info as ClassTypeInfo;
                     string className = classInfo.GetClassName();
                     if (_classInfoDict.ContainsKey(className))
+                    {
                         _classInfoDict.Remove(className);
+                        ClassInfos.Remove(classInfo);
+                    }
                     break;
                 case TypeType.Enum:
                     EnumTypeInfo enumInfo = info as EnumTypeInfo;
                     string enumName = enumInfo.GetClassName();
                     if (_enumInfoDict.ContainsKey(enumName))
+                    {
                         _enumInfoDict.Remove(enumName);
+                        EnumInfos.Remove(enumInfo);
+                    }
                     break;
                 case TypeType.None:
                 default:
@@ -317,6 +323,27 @@ namespace ConfigGen.LocalInfo
 
         [XmlIgnore]
         static readonly HashSet<string> BaseType = new HashSet<string>() { "int", "long", "bool", "float", "string" };
+        public static bool IsConstBaseType(string fullType, out string type, out string value)
+        {
+            const string constFlag = "=";
+            int index = fullType.IndexOf(constFlag);
+            bool isConstBase = index > 0;
+            if (isConstBase)
+            {
+                type = fullType.Substring(0, index).Trim();
+                value = fullType.Substring(index + 1);
+                if (type == "string")
+                    value = string.Format("\"{0}\"", value);
+                isConstBase = BaseType.Contains(type);
+            }
+            else
+            {
+                type = fullType;
+                value = null;
+            }
+
+            return isConstBase;
+        }
         /// <summary>
         /// 完整类名,即带命名空间,基础类型和集合除外
         /// </summary>
@@ -347,7 +374,7 @@ namespace ConfigGen.LocalInfo
             var typeDict = Local.Instance.TypeInfoLib.TypeInfoDict;
             if (typeDict.ContainsKey(type))
                 baseTypeInfo = typeDict[type];
-            //else Util.LogErrorFormat("未定义{0}类型", type);
+            
             return baseTypeInfo;
         }
 
@@ -410,6 +437,10 @@ namespace ConfigGen.LocalInfo
         public string Inherit { get; set; }
         [XmlAttribute]
         public string DataTable { get; set; }
+
+        [XmlElement("Const")]
+        public List<ConstFieldInfo> Consts { get; set; }
+
         [XmlElement("Field")]
         public List<FieldInfo> Fields { get; set; }
 
@@ -430,7 +461,7 @@ namespace ConfigGen.LocalInfo
         }
         public void UpdateToDict()
         {
-            if (_fieldInfoDict != null) return;
+            if (_fieldInfoDict != null && _fieldInfoDict.Count > 0) return;
 
             _fieldInfoDict = new Dictionary<string, FieldInfo>();
             for (int i = 0; i < Fields.Count; i++)
@@ -439,6 +470,10 @@ namespace ConfigGen.LocalInfo
                 if (!_fieldInfoDict.ContainsKey(fieldName))
                     _fieldInfoDict.Add(fieldName, Fields[i]);
             }
+        }
+        public void ResetDict()
+        {
+            _fieldInfoDict.Clear();
         }
         public ClassTypeInfo GetInheritTypeInfo()
         {
@@ -509,7 +544,17 @@ namespace ConfigGen.LocalInfo
             Group = group;
         }
     }
+    [XmlInclude(typeof(ConstFieldInfo))]
+    public class ConstFieldInfo : FieldInfo
+    {
+        public string value;
 
+        public void Set(FieldInfo fieldInfo)
+        {
+            Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
+            Des = fieldInfo.Des;
+        }
+    }
     /// <summary>
     /// 枚举描述
     /// </summary>

@@ -65,6 +65,17 @@ namespace ConfigGen.LocalInfo
             }
             return dataColum;
         }
+        public void RemoveField(FieldInfo field)
+        {
+            ClassTypeInfo.Fields.Remove(field);
+            ClassTypeInfo.ResetDict();
+            ClassTypeInfo.UpdateToDict();
+
+            for (int k = 0; k < Datas.Count; k++)
+                Datas[k].Fields.Remove(field.Name);
+
+            DataColumnDict.Remove(field.Name);
+        }
 
         public override void Analyze()
         {
@@ -75,14 +86,15 @@ namespace ConfigGen.LocalInfo
             for (int row = Values.DataSheetDataStartIndex; row < dt.Rows.Count; row++)
             {
                 DataClass dataClass = new DataClass();
+                string key = dt.Rows[row][0].ToString();
+                if (string.IsNullOrWhiteSpace(key)) continue;
+
                 int column = 0;
                 for (int i = 0; i < ClassTypeInfo.Fields.Count; i++, column++)
                 {
                     string fieldName = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
                     if (!fieldDict.ContainsKey(fieldName))
-                    {
-                        Util.LogError("Class " + fieldName);
-                    }
+                        Util.LogWarningFormat("{0}.{1}为定义", ClassTypeInfo.GetClassName(), fieldName, GetErrorSite(column + 1, Values.DataSheetFieldIndex + 1));
                     FieldInfo fieldInfo = fieldDict[fieldName];
                     Data dataField = AnalyzeField(dt, fieldInfo, row, ref column);
                     dataClass.Fields.Add(fieldName, dataField);

@@ -45,8 +45,8 @@ namespace ConfigGen.Export
 
             //构造自定义类型
             List<BaseTypeInfo> typeInfos = new List<BaseTypeInfo>();
-            typeInfos.AddRange(LocalInfo.Local.Instance.TypeInfoLib.ClassInfos);
-            typeInfos.AddRange(LocalInfo.Local.Instance.TypeInfoLib.EnumInfos);
+            typeInfos.AddRange(Local.Instance.TypeInfoLib.ClassInfos);
+            typeInfos.AddRange(Local.Instance.TypeInfoLib.EnumInfos);
             for (int i = 0; i < typeInfos.Count; i++)
             {
                 BaseTypeInfo baseType = typeInfos[i];
@@ -68,6 +68,25 @@ namespace ConfigGen.Export
                         CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, fullType);
                     }
 
+                    //常量字段
+                    for (int j = 0; j < classType.Consts.Count; j++)
+                    {
+                        ConstFieldInfo field = classType.Consts[j];
+                        CodeWriter.Comments(builder, field.Des);
+                        string value = field.value;
+                        switch (field.Type)
+                        {
+                            case Base.Float:
+                                value = string.Format("{0}f", field.value);
+                                break;
+                            case Base.String:
+                                value = string.Format("@{0}", field.value);
+                                break;
+                        }
+                        CodeWriter.FieldInit(builder, CodeWriter.Public, CodeWriter.Const, field.Type, field.Name, value);
+                    }
+
+                    //普通字段
                     for (int j = 0; j < classType.Fields.Count; j++)
                     {
                         FieldInfo field = classType.Fields[j];

@@ -30,17 +30,9 @@ namespace Lson.AllType
 		/// <summary>
 		public Lson.Card.CardElement VarEnum;
 		/// <summary>
-		/// 类类型
-		/// <summary>
-		public Lson.AllType.LSingleClass VarClass;
-		/// <summary>
 		/// 字符串列表
 		/// <summary>
 		public List<string> VarListBase;
-		/// <summary>
-		/// Class列表
-		/// <summary>
-		public List<Lson.AllType.LSingleClass> VarListClass;
 		/// <summary>
 		/// Elem列表
 		/// <summary>
@@ -53,9 +45,5 @@ namespace Lson.AllType
 		/// 枚举类型字典
 		/// <summary>
 		public Dictionary<long, Lson.Card.CardElement> VarDictEnum;
-		/// <summary>
-		/// 类类型字典
-		/// <summary>
-		public Dictionary<string, Lson.AllType.LSingleClass> VarDictClass;
 	}
 }

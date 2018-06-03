@@ -117,7 +117,7 @@ namespace ConfigGen.CmdUsage
                         case GROUP://默认导出所有分组
                             Values.ExportGroup = cmd.Value[0];
                             if (string.IsNullOrWhiteSpace(Values.ExportGroup))
-                                Values.ExportGroup = null;
+                                Values.ExportGroup = Values.AllGroup;
                             break;
                         case REPLACE:
                             if (!CheckArgList(cmdName, cmd.Value)) return false;

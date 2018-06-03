@@ -106,10 +106,12 @@ namespace ConfigGen.LocalInfo
         }
         public void UpdateTypeInfo()
         {
+            Util.Start();
             Dictionary<string, DataTable> _dataTableDict = new Dictionary<string, DataTable>();
             //填充基本信息,均为xlsx文件
             for (int i = 0; i < _diffRelPath.Count; i++)
             {
+                //Util.Start();
                 string relPath = _diffRelPath[i];
                 string filePath = Util.GetConfigAbsPath(relPath);
                 string error = null;
@@ -120,6 +122,7 @@ namespace ConfigGen.LocalInfo
                     Util.LogErrorFormat("读取Xlsx失败!{0}", error);
                     return;
                 }
+                //Util.Stopln(filePath);
 
                 List<string> defines = dict[SheetType.Define];
                 TableDefineInfo defineInfo = null;
@@ -161,6 +164,7 @@ namespace ConfigGen.LocalInfo
                 if (dataInfo != null && !_dataTableDict.ContainsKey(relPath))
                     _dataTableDict.Add(relPath, dataInfo);
             }
+            Util.Stopln("==>> 表格读取");
 
             try
             {
@@ -174,16 +178,24 @@ namespace ConfigGen.LocalInfo
                 //Util.Log("==>>类型修正完毕\n");
 
                 //解析数据定义
-                foreach (var define in TypeInfoLib.ClassInfoDict)
+                var classDict = new Dictionary<string, ClassTypeInfo>(TypeInfoLib.ClassInfoDict);
+                foreach (var define in classDict)
                 {
-                    Util.Start();                 
+                    Util.Start();
                     ClassTypeInfo classType = define.Value;
+                    bool isNullGroup = string.IsNullOrWhiteSpace(classType.Group);
                     if (string.IsNullOrWhiteSpace(classType.DataTable))
                     {
                         Util.PopTime();
                         continue;
                     }
-                  
+                    if (!isNullGroup && classType.Group != Values.ExportGroup)
+                    {
+                        TypeInfoLib.Remove(classType);
+                        Util.PopTime();
+                        continue;
+                    }
+
                     string type = classType.GetClassName();
                     string excel = null, xml = null;
                     string combine = string.Format("{0}\\{1}", classType.NamespaceName, classType.DataTable);
@@ -211,8 +223,8 @@ namespace ConfigGen.LocalInfo
                             type, classType.DataTable);
                         Util.PopTime();
                         continue;
-                    }                  
-                    Util.LogFormat("\n->{0}",data.RelPath);
+                    }
+                    Util.LogFormat("\n->{0}", data.RelPath);
                     data.Analyze();
                     if (!DataInfoDict.ContainsKey(type))
                         DataInfoDict.Add(type, data);
@@ -235,6 +247,51 @@ namespace ConfigGen.LocalInfo
             if (FindInfoLib == null) return;
 
 
+        }
+
+        /// <summary>
+        /// 数据分组
+        /// </summary>
+        public void DoGrouping()
+        {
+            if (Values.ExportGroup == Values.AllGroup) return;
+
+            //字段分组
+            var dataList = new List<string>(DataInfoDict.Keys);
+            for (int i = 0; i < dataList.Count; i++)
+            {
+                string key = dataList[i];
+                ClassTypeInfo classType = DataInfoDict[key].ClassTypeInfo;
+                bool isNull = string.IsNullOrWhiteSpace(classType.Group);
+                if (isNull)
+                {
+                    var fields = new List<FieldInfo>(classType.Fields);
+                    for (int j = 0; j < fields.Count; j++)
+                    {
+                        FieldInfo field = fields[j];
+                        isNull = string.IsNullOrWhiteSpace(field.Group);
+                        if (!isNull && field.Group != Values.ExportGroup)
+                            DataInfoDict[key].RemoveField(field);
+                    }
+                    var consts = new List<ConstFieldInfo>(classType.Consts);
+                    for (int j = 0; j < consts.Count; j++)
+                    {
+                        ConstFieldInfo cst = consts[j];
+                        if (cst.Group != Values.ExportGroup)
+                            classType.Consts.Remove(cst);
+                    }
+                }
+            }
+
+            var enumDict = new Dictionary<string, EnumTypeInfo>(TypeInfoLib.EnumInfoDict);
+            foreach (var item in enumDict)
+            {
+                string key = item.Key;
+                EnumTypeInfo enumType = item.Value;
+                bool isNull = string.IsNullOrWhiteSpace(enumType.Group);
+                if (!isNull && enumType.Group != Values.ExportGroup)
+                    TypeInfoLib.Remove(enumType);
+            }
         }
 
         public static string GetInfoPath(LocalInfoType type)
