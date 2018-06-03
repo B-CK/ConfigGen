@@ -189,7 +189,7 @@ namespace ConfigGen.LocalInfo
                         Util.PopTime();
                         continue;
                     }
-                    if (!isNullGroup && classType.Group != Values.ExportGroup)
+                    if (!isNullGroup && !classType.GroupHashSet.Overlaps(Values.ExportGroup))
                     {
                         TypeInfoLib.Remove(classType);
                         Util.PopTime();
@@ -254,7 +254,7 @@ namespace ConfigGen.LocalInfo
         /// </summary>
         public void DoGrouping()
         {
-            if (Values.ExportGroup == Values.AllGroup) return;
+            if (Values.ExportGroup.Contains(Values.AllGroup)) return;
 
             //字段分组
             var dataList = new List<string>(DataInfoDict.Keys);
@@ -270,14 +270,14 @@ namespace ConfigGen.LocalInfo
                     {
                         FieldInfo field = fields[j];
                         isNull = string.IsNullOrWhiteSpace(field.Group);
-                        if (!isNull && field.Group != Values.ExportGroup)
+                        if (!isNull && !field.GroupHashSet.Overlaps(Values.ExportGroup))
                             DataInfoDict[key].RemoveField(field);
                     }
                     var consts = new List<ConstFieldInfo>(classType.Consts);
                     for (int j = 0; j < consts.Count; j++)
                     {
                         ConstFieldInfo cst = consts[j];
-                        if (cst.Group != Values.ExportGroup)
+                        if (!cst.GroupHashSet.Overlaps(Values.ExportGroup))
                             classType.Consts.Remove(cst);
                     }
                 }
@@ -289,7 +289,7 @@ namespace ConfigGen.LocalInfo
                 string key = item.Key;
                 EnumTypeInfo enumType = item.Value;
                 bool isNull = string.IsNullOrWhiteSpace(enumType.Group);
-                if (!isNull && enumType.Group != Values.ExportGroup)
+                if (!isNull && !enumType.GroupHashSet.Overlaps(Values.ExportGroup))
                     TypeInfoLib.Remove(enumType);
             }
         }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 namespace ConfigGen
-{    
+{
     class Values
     {
         /// <summary>
@@ -27,15 +27,11 @@ namespace ConfigGen
         /// <summary>
         /// 数据导出分组
         /// </summary>
-        public static string ExportGroup { get; set; }
+        public static HashSet<string> ExportGroup { get; set; }
         /// <summary>
         /// 是否只对已修改文件进行操作
         /// </summary>
         public static bool IsOptPart { get; set; }
-        /// <summary>
-        /// 资源文件夹路径,用于file检查功能
-        /// </summary>
-        //public static string AssetsDir { get; set; }
 
 
         /// <summary>
@@ -74,11 +70,11 @@ namespace ConfigGen
         /// </summary>
         public const string DataSetEndFlag = "##";
         /// <summary>
-        /// 多个数据字段检查规则组合分隔符
+        /// 多参数分隔符,适用检查规则,分组
         /// </summary>
-        public const string CheckRuleSplitFlag = "|";
+        public const string ArgsSplitFlag = "|";
         /// <summary>
-        /// 单个检查功能内存在多个参数时,用:符号分离
+        /// 单个检查功能中存在多个参数时,用:符号分离
         /// </summary>
         public const string CheckRunleArgsSplitFlag = ":";
         /// <summary>

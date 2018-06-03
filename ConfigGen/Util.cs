@@ -222,7 +222,7 @@ namespace ConfigGen
                 }
                 return sb.ToString();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 LogErrorFormat("文件{0} MD5生成失败.", filePath);
                 return null;

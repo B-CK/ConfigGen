@@ -17,10 +17,11 @@ namespace ConfigGen
     class Program
     {
         //未完成内容
+        //1.说明文档按功能来整理
         //5.查找和替换功能?
         //3.导出lua 数据,类
+        //2.字典key检查规则,vaue检查规则
 
-        //说明文档按功能来整理
 
         static void Main(string[] args)
         {

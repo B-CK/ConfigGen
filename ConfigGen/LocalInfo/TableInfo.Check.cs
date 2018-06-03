@@ -222,7 +222,7 @@ namespace ConfigGen.LocalInfo
         /// </summary>
         static bool AnalyzeCheckRule(FieldInfo info)
         {
-            string[] checks = info.Check.Split(Values.CheckRuleSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string[] checks = info.Check.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             string refFlag = "ref";
             string[] rangeFlags = { "[", "]", "(", ")" };
             string noEmptyFlag = "noEmpty";
@@ -240,14 +240,6 @@ namespace ConfigGen.LocalInfo
                 List<string> ruleArgs = new List<string>();
                 bool isNullOrWhiteSpace = string.IsNullOrWhiteSpace(check);
                 if (isNullOrWhiteSpace) continue;
-
-                if (check.StartsWith(dictKey))
-                    ;
-                else if (check.StartsWith(dictValue))
-                {
-
-                }
-
 
                 if (check.StartsWith(refFlag))
                 {

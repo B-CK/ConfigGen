@@ -74,15 +74,6 @@ namespace ConfigGen.CmdUsage
                                 return false;
                             }
                             break;
-                        //case "-assetsDir":
-                        //    if (!CheckArgList(cmdName, cmd.Value)) return false;
-                        //    Values.AssetsDir = string.Format(@"{0}\{1}\", Values.ApplicationDir, cmd.Value[0]);
-                        //    if (!Directory.Exists(Values.AssetsDir))
-                        //    {
-                        //        Util.LogErrorFormat("[{0}]Assets文件夹不在此路径{1}", cmdName, Values.AssetsDir);
-                        //        Values.AssetsDir = null;
-                        //    }
-                        //    break;
                         case HELP:
                             Help();
                             break;
@@ -115,9 +106,10 @@ namespace ConfigGen.CmdUsage
                                 Values.ExportCsLson = null;
                             break;
                         case GROUP://默认导出所有分组
-                            Values.ExportGroup = cmd.Value[0];
-                            if (string.IsNullOrWhiteSpace(Values.ExportGroup))
-                                Values.ExportGroup = Values.AllGroup;
+                            string[] groups = cmd.Value[0].Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                            Values.ExportGroup = new HashSet<string>(groups);
+                            if (Values.ExportGroup.Count == 0)
+                                Values.ExportGroup.Add(Values.AllGroup);
                             break;
                         case REPLACE:
                             if (!CheckArgList(cmdName, cmd.Value)) return false;

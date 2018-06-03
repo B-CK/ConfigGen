@@ -374,7 +374,7 @@ namespace ConfigGen.LocalInfo
             var typeDict = Local.Instance.TypeInfoLib.TypeInfoDict;
             if (typeDict.ContainsKey(type))
                 baseTypeInfo = typeDict[type];
-            
+
             return baseTypeInfo;
         }
 
@@ -425,6 +425,17 @@ namespace ConfigGen.LocalInfo
 
             return _className;
         }
+
+        [XmlIgnore]
+        public HashSet<string> GroupHashSet { get => _groupHashSet; set => _groupHashSet = value; }
+        private HashSet<string> _groupHashSet = new HashSet<string>();
+        public void GroupToHashSet()
+        {
+            if (_groupHashSet != null) return;
+
+            string[] groups = Group.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            _groupHashSet = new HashSet<string>(groups);
+        }
     }
 
     /// <summary>
@@ -452,7 +463,7 @@ namespace ConfigGen.LocalInfo
         [XmlIgnore]
         public HashSet<string> SubClasses = new HashSet<string>();
         [XmlIgnore]
-        public bool HasSubClass { get { return SubClasses != null && SubClasses.Count > 0; } }
+        public bool HasSubClass { get { return SubClasses != null && SubClasses.Count > 0; } }    
 
         Dictionary<string, FieldInfo> _fieldInfoDict;
         public Dictionary<string, FieldInfo> GetFieldInfoDict()
@@ -475,6 +486,7 @@ namespace ConfigGen.LocalInfo
         {
             _fieldInfoDict.Clear();
         }
+    
         public ClassTypeInfo GetInheritTypeInfo()
         {
             ClassTypeInfo classType = null;
@@ -542,6 +554,18 @@ namespace ConfigGen.LocalInfo
             Type = type;
             Check = check;
             Group = group;
+        }
+
+
+        [XmlIgnore]
+        public HashSet<string> GroupHashSet { get => _groupHashSet; set => _groupHashSet = value; }
+        private HashSet<string> _groupHashSet = new HashSet<string>();
+        public void GroupToHashSet()
+        {
+            if (_groupHashSet != null) return;
+
+            string[] groups = Group.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            _groupHashSet = new HashSet<string>(groups);
         }
     }
     [XmlInclude(typeof(ConstFieldInfo))]

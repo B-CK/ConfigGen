@@ -22,11 +22,6 @@ namespace ConfigGen.CmdUsage
             cmdLine.CmdDes = "[必填]数据表所在文件夹路径.";
             Usage.CmdUsageList.Add(cmdLine);
 
-            //cmdLine = new CmdLine();
-            //cmdLine.Cmd = "-assetsDir";
-            //cmdLine.CmdDes = "[选填]资源文件夹路径.无此路径则无法使用file检查功能";
-            //Usage.CmdUsageList.Add(cmdLine);
-
             cmdLine = new CmdLine();
             cmdLine.Cmd = "-help";
             cmdLine.CmdDes = "[选填]显示应用命令行帮助文档";
