@@ -24,11 +24,14 @@ namespace ConfigGen
 
         static void Main(string[] args)
         {
-            Util.Start();
+            Util.Start();            
 
             //命令行参数解析
             if (!CmdOption.Instance.Init(args))
             {
+                //项目之外的其他操作命令
+                //TODO
+
                 Console.ReadKey();
                 return;
             }
