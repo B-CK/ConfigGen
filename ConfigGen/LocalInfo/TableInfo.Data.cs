@@ -254,7 +254,7 @@ namespace ConfigGen.LocalInfo
                         isEnd = true;
                     else if (hash.Contains(dataKey.Data))
                         Util.LogErrorFormat("{0} {1} Key:{2}重复,{3}", info.Type, info.Name,
-                            dataKey.Data.ToString(), GetErrorSite(column - 1, row + 1));
+                            dataKey.Data.ToString(), GetErrorSite(column, row + 1));
                     else
                     {
                         hash.Add(dataKey.Data);

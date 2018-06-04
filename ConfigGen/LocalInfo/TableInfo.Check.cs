@@ -138,8 +138,8 @@ namespace ConfigGen.LocalInfo
         }
         static void CheckBase(FieldInfo info, List<Data> datas)
         {
-            AnalyzeCheckRule(info);
-            CheckFieldData(info, datas);
+            bool isOk = AnalyzeCheckRule(info);
+            if (isOk) CheckFieldData(info, datas);
         }
         static void CheckClass(FieldInfo info, List<Data> datas)
         {
@@ -185,7 +185,7 @@ namespace ConfigGen.LocalInfo
         {
             ListTypeInfo listType = info.BaseInfo as ListTypeInfo;
             FieldInfo element = new FieldInfo();
-            element.Set("List.Element", listType.GetClassName(), info.Check, info.Group);
+            element.Set(Values.ELEMENT, listType.ItemType, info.Check, info.Group);
             for (int i = 0; i < datas.Count; i++)
             {
                 DataList dataList = datas[i] as DataList;
@@ -195,10 +195,27 @@ namespace ConfigGen.LocalInfo
         static void CheckDict(FieldInfo info, List<Data> datas)
         {
             DictTypeInfo dictInfo = info.BaseInfo as DictTypeInfo;
+            string keyCheck, valueCheck;
+            keyCheck = valueCheck = "";
+            string[] checks = info.Check.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < checks.Length; i++)
+            {
+                int index = checks[i].IndexOf(Values.CheckRuleArgsSplitFlag);
+                string checkTarget = checks[i].Substring(0, index).ToLower();
+                if (checkTarget == Values.KEY.ToLower())
+                    keyCheck = string.Format("{0}{1}{2}", keyCheck, Values.ArgsSplitFlag, checks[i].Substring(index + 1));
+                else if (checkTarget == Values.VALUE.ToLower())
+                    valueCheck = string.Format("{0}{1}{2}", valueCheck, Values.ArgsSplitFlag, checks[i].Substring(index + 1));
+                else
+                {
+                    Util.LogWarningFormat("Type:{0} CheckRule:{1} 格式错误", info.Type, info.Check);
+                    return;
+                }
+            }
             FieldInfo keyInfo = new FieldInfo();
-            keyInfo.Set("Dict.Key", dictInfo.KeyType, info.Check, info.Group);
+            keyInfo.Set(Values.KEY, dictInfo.KeyType, keyCheck, info.Group);
             FieldInfo valueInfo = new FieldInfo();
-            keyInfo.Set("Dict.Value", dictInfo.ValueType, info.Check, info.Group);
+            valueInfo.Set(Values.VALUE, dictInfo.ValueType, valueCheck, info.Group);
             for (int i = 0; i < datas.Count; i++)
             {
                 DataDict dataDict = datas[i] as DataDict;
@@ -214,23 +231,21 @@ namespace ConfigGen.LocalInfo
             }
         }
 
-
-        //一下均需要访问列数据..
-
+ 
         /// <summary>
         /// 解析检查规则
         /// </summary>
         static bool AnalyzeCheckRule(FieldInfo info)
         {
             string[] checks = info.Check.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            if (checks.Length == 0) return false;
+
             string refFlag = "ref";
             string[] rangeFlags = { "[", "]", "(", ")" };
             string noEmptyFlag = "noEmpty";
             string uniqueFlag = "unique";
             //string[] relOpFlags = { "<", ">", "<=", ">=", "==" };
             string fileExistFlags = "file";
-            string dictKey = "key";
-            string dictValue = "value";
 
             bool isOK = true;
             for (int i = 0; i < checks.Length; i++)
@@ -244,25 +259,25 @@ namespace ConfigGen.LocalInfo
                 if (check.StartsWith(refFlag))
                 {
                     ruleType = CheckRuleType.Ref;
-                    ruleArgs.AddRange(check.Replace(refFlag, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
+                    ruleArgs.AddRange(check.Replace(refFlag, "").Split(Values.CheckRuleArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
                 }
                 else if (check.StartsWith(noEmptyFlag))
                 {
                     ruleType = CheckRuleType.NoEmpty;
-                    ruleArgs.AddRange(check.Replace(noEmptyFlag, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
+                    ruleArgs.AddRange(check.Replace(noEmptyFlag, "").Split(Values.CheckRuleArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
                 }
                 else if (check.StartsWith(uniqueFlag))
                 {
                     ruleType = CheckRuleType.Unique;
-                    ruleArgs.AddRange(check.Replace(uniqueFlag, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
+                    ruleArgs.AddRange(check.Replace(uniqueFlag, "").Split(Values.CheckRuleArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
                 }
                 else if (check.StartsWith(fileExistFlags))
                 {
                     ruleType = CheckRuleType.FileExist;
-                    ruleArgs.AddRange(check.Replace(fileExistFlags, "").Split(Values.CheckRunleArgsSplitFlag.ToCharArray(),
+                    ruleArgs.AddRange(check.Replace(fileExistFlags, "").Split(Values.CheckRuleArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
                 }
                 else
@@ -327,9 +342,9 @@ namespace ConfigGen.LocalInfo
                     default:
                         break;
                 }
+                if (!string.IsNullOrWhiteSpace(error))
+                    Util.LogErrorFormat("Check:{0}.{1} File:{2}\n{3}", ClassInfo.GetClassName(), info.Name, ClassInfo.DataTable, error);
             }
-            if (!string.IsNullOrWhiteSpace(error))
-                Util.LogErrorFormat("Check:{0}.{1} File:{2}\n{3}", ClassInfo.GetClassName(), info.Name, ClassInfo.DataTable, error);
         }
         static string CheckRef(List<string> args, List<Data> datas)
         {
@@ -370,7 +385,7 @@ namespace ConfigGen.LocalInfo
             {
                 string data = datas[i] as DataBase;
                 if (hash.Contains(data))
-                    error.AppendFormat("[unique]key:{0} 集合中数据{1}重复\n", GetKey(i), data);
+                    error.AppendFormat("[unique]key:{0} value:{1}重复\n", GetKey(i), data);
                 else
                     hash.Add(data);
             }
@@ -408,7 +423,7 @@ namespace ConfigGen.LocalInfo
                 else
                     file = string.Format("{0}/{1}", dirPath, file);
                 if (!File.Exists(file))
-                    error.AppendFormat("[file]key:{0} 文件{1}不存在\n", GetKey(i), file);
+                    error.AppendFormat("[file]key:{0} value:{1}不存在\n", GetKey(i), file);
             }
 
             return error.ToString();
@@ -422,16 +437,16 @@ namespace ConfigGen.LocalInfo
             bool leftOpen = args[0][0].Equals('(');
             int rightLenght = args[1].Length;
             bool rightOpen = args[1][rightLenght - 1].Equals(')');
-            long start, end;
-            start = long.Parse(args[0].Substring(1));
-            end = long.Parse(args[1].Substring(0, rightLenght - 1));
+            double start, end;
+            start = double.Parse(args[0].Substring(1));
+            end = double.Parse(args[1].Substring(0, rightLenght - 1));
             for (int i = 0; i < datas.Count; i++)
             {
-                long v = datas[i] as DataBase;
+                double v = datas[i] as DataBase;
                 bool leftResult = leftOpen ? start < v : start <= v;
                 bool rightResult = rightOpen ? v < end : v <= end;
                 if (!leftResult || !rightResult)
-                    error.AppendFormat("[range]key:{0} {1}数据不在范围内\n", GetKey(i), v);
+                    error.AppendFormat("[range]key:{0} value:{1}不在范围内\n", GetKey(i), v);
             }
 
             return error.ToString();

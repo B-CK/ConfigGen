@@ -43,6 +43,10 @@ namespace ConfigGen.LocalInfo
     {
         public object Data;
 
+        public static implicit operator double(DataBase value)
+        {
+            return Convert.ToDouble(value.Data);
+        }
         public static implicit operator long(DataBase value)
         {
             return Convert.ToInt64(value.Data);

@@ -51,7 +51,7 @@ namespace ConfigGen.LocalInfo
                 defineTypeStr = flag.TrimStart(Values.DefineTypeFlag.ToCharArray());
                 string nameSpace = TypeInfo.GetNamespaceName(RelPath);
                 name = dt.Rows[i][1].ToString();
-                if (defineTypeStr.Equals(CLASS_TYPE))
+                if (defineTypeStr.ToLower().Equals(CLASS_TYPE))
                 {
                     string inherit = dt.Rows[i][2].ToString();
                     string dataTable = dt.Rows[i][3].ToString();
@@ -62,7 +62,7 @@ namespace ConfigGen.LocalInfo
                     classInfo.NamespaceName = FilterEmptyOrNull(nameSpace);
                     classInfo.Inherit = FilterEmptyOrNull(inherit);
                     classInfo.DataTable = FilterEmptyOrNull(dataTable);
-                    classInfo.Group = string.IsNullOrWhiteSpace(group) ? Values.AllGroup : group;
+                    classInfo.Group = FilterEmptyOrNull(group);
                     classInfo.TypeType = TypeType.Class;
                     classInfo.Fields = new List<FieldInfo>();
                     classInfo.Consts = new List<ConstFieldInfo>();
@@ -86,13 +86,13 @@ namespace ConfigGen.LocalInfo
                         fieldInfo.Type = isConstBase ? type : fieldType;
                         fieldInfo.Des = FilterEmptyOrNull(dt.Rows[j][2].ToString());
                         fieldInfo.Check = FilterEmptyOrNull(dt.Rows[j][3].ToString());
-                        fieldInfo.Group = isNullGroup ? FilterEmptyOrNull(dt.Rows[j][4].ToString()) : Values.AllGroup;
+                        fieldInfo.Group = FilterEmptyOrNull(dt.Rows[j][4].ToString());
                         fieldInfo.GroupToHashSet();
                         if (isConstBase)
                         {
                             ConstFieldInfo constField = new ConstFieldInfo();
                             constField.Set(fieldInfo);
-                            constField.value = value;
+                            constField.Value = value;
                             classInfo.Consts.Add(constField);
                         }
                         else
@@ -111,7 +111,7 @@ namespace ConfigGen.LocalInfo
                     ClassInfoDict.Add(name, classInfo);
                     Local.Instance.TypeInfoLib.Add(classInfo);
                 }
-                else if (defineTypeStr.Equals(ENUM_TYPE))
+                else if (defineTypeStr.ToLower().Equals(ENUM_TYPE))
                 {
                     EnumTypeInfo enumInfo = new EnumTypeInfo();
                     enumInfo.RelPath = RelPath;
@@ -119,7 +119,7 @@ namespace ConfigGen.LocalInfo
                     enumInfo.NamespaceName = FilterEmptyOrNull(TypeInfo.GetNamespaceName(RelPath));
                     enumInfo.Group = FilterEmptyOrNull(dt.Rows[i][2].ToString());
                     enumInfo.TypeType = TypeType.Enum;
-                    enumInfo.KeyValuePair = new List<EnumKeyValue>();
+                    enumInfo.KeyValuePair = new List<ConstFieldInfo>();
                     enumInfo.IsExist = true;
                     enumInfo.GroupToHashSet();
 
@@ -130,10 +130,13 @@ namespace ConfigGen.LocalInfo
                         if (flag_.StartsWith(Values.DefineTypeFlag))
                             break;
 
-                        EnumKeyValue kv = new EnumKeyValue();
-                        kv.Key = dt.Rows[j][0].ToString();
+                        ConstFieldInfo kv = new ConstFieldInfo();
+                        kv.Type = TypeInfo.INT;
+                        kv.Name = dt.Rows[j][0].ToString();
                         kv.Value = dt.Rows[j][1].ToString();
                         kv.Des = dt.Rows[j][2].ToString();
+                        kv.Group = FilterEmptyOrNull(dt.Rows[j][3].ToString());
+                        kv.GroupToHashSet();
                         enumInfo.KeyValuePair.Add(kv);
                     }
                     enumInfo.UpdateToDict();

@@ -73,14 +73,14 @@ namespace ConfigGen.Export
                     {
                         ConstFieldInfo field = classType.Consts[j];
                         CodeWriter.Comments(builder, field.Des);
-                        string value = field.value;
+                        string value = field.Value;
                         switch (field.Type)
                         {
                             case Base.Float:
-                                value = string.Format("{0}f", field.value);
+                                value = string.Format("{0}f", field.Value);
                                 break;
                             case Base.String:
-                                value = string.Format("@{0}", field.value);
+                                value = string.Format("@{0}", field.Value);
                                 break;
                         }
                         CodeWriter.FieldInit(builder, CodeWriter.Public, CodeWriter.Const, field.Type, field.Name, value);
@@ -169,8 +169,8 @@ namespace ConfigGen.Export
                     EnumTypeInfo enumType = baseType as EnumTypeInfo;
                     for (int j = 0; j < enumType.KeyValuePair.Count; j++)
                     {
-                        EnumKeyValue keyValue = enumType.KeyValuePair[j];
-                        CodeWriter.FieldInit(builder, CodeWriter.Public, CodeWriter.Const, Base.Int, keyValue.Key, keyValue.Value);
+                        ConstFieldInfo keyValue = enumType.KeyValuePair[j];
+                        CodeWriter.FieldInit(builder, CodeWriter.Public, CodeWriter.Const, Base.Int, keyValue.Name, keyValue.Value);
                     }
                 }
 

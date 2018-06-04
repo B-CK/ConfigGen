@@ -254,44 +254,54 @@ namespace ConfigGen.LocalInfo
         /// </summary>
         public void DoGrouping()
         {
-            if (Values.ExportGroup.Contains(Values.AllGroup)) return;
+            if (Values.ExportGroup == null || Values.ExportGroup.Contains(Values.AllGroup)) return;
 
-            //字段分组
+
             var dataList = new List<string>(DataInfoDict.Keys);
+            dataList.AddRange(TypeInfoLib.EnumInfoDict.Keys);
             for (int i = 0; i < dataList.Count; i++)
             {
+                //Class/Enum型分组
                 string key = dataList[i];
-                ClassTypeInfo classType = DataInfoDict[key].ClassTypeInfo;
-                bool isNull = string.IsNullOrWhiteSpace(classType.Group);
-                if (isNull)
+                BaseTypeInfo baseType = TypeInfo.GetTypeInfo(key);
+                bool isNull = string.IsNullOrWhiteSpace(baseType.Group);
+                if (!isNull)
                 {
-                    var fields = new List<FieldInfo>(classType.Fields);
-                    for (int j = 0; j < fields.Count; j++)
+                    if (!baseType.GroupHashSet.Overlaps(Values.ExportGroup))
+                        TypeInfoLib.Remove(baseType);
+                }
+                else
+                {
+                    //字段分组                 
+                    if (baseType.TypeType == TypeType.Class)
                     {
-                        FieldInfo field = fields[j];
-                        isNull = string.IsNullOrWhiteSpace(field.Group);
-                        if (!isNull && !field.GroupHashSet.Overlaps(Values.ExportGroup))
-                            DataInfoDict[key].RemoveField(field);
+                        ClassTypeInfo classType = baseType as ClassTypeInfo;
+                        var fields = new List<FieldInfo>(classType.Fields);
+                        fields.AddRange(classType.Consts);
+                        for (int j = 0; j < fields.Count; j++)
+                        {
+                            FieldInfo field = fields[j];
+                            isNull = string.IsNullOrWhiteSpace(field.Group);
+                            if (!isNull && !field.GroupHashSet.Overlaps(Values.ExportGroup))
+                                DataInfoDict[key].RemoveField(field);
+                        }
                     }
-                    var consts = new List<ConstFieldInfo>(classType.Consts);
-                    for (int j = 0; j < consts.Count; j++)
+                    else if (baseType.TypeType == TypeType.Enum)
                     {
-                        ConstFieldInfo cst = consts[j];
-                        if (!cst.GroupHashSet.Overlaps(Values.ExportGroup))
-                            classType.Consts.Remove(cst);
+                        EnumTypeInfo enumType = baseType as EnumTypeInfo;
+                        var kvs = new List<ConstFieldInfo>(enumType.KeyValuePair);
+                        for (int j = 0; j < kvs.Count; j++)
+                        {
+                            ConstFieldInfo kv = kvs[j];
+                            isNull = string.IsNullOrWhiteSpace(kv.Group);
+                            if (!isNull && !kv.GroupHashSet.Overlaps(Values.ExportGroup))
+                                enumType.KeyValuePair.Remove(kv);
+                        }
                     }
                 }
             }
 
-            var enumDict = new Dictionary<string, EnumTypeInfo>(TypeInfoLib.EnumInfoDict);
-            foreach (var item in enumDict)
-            {
-                string key = item.Key;
-                EnumTypeInfo enumType = item.Value;
-                bool isNull = string.IsNullOrWhiteSpace(enumType.Group);
-                if (!isNull && !enumType.GroupHashSet.Overlaps(Values.ExportGroup))
-                    TypeInfoLib.Remove(enumType);
-            }
+            return;
         }
 
         public static string GetInfoPath(LocalInfoType type)

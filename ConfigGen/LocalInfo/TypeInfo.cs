@@ -23,6 +23,11 @@ namespace ConfigGen.LocalInfo
     [XmlRoot("TypeInfo")]
     public class TypeInfo : BaseInfo
     {
+        public const string INT = "int";
+        public const string LONG = "long";
+        public const string BOOL = "bool";
+        public const string FLOAT = "float";
+        public const string STRING = "string";
 
         [XmlArrayItem("Class", typeof(ClassTypeInfo))]
         [XmlArrayItem("List", typeof(ListTypeInfo))]
@@ -322,7 +327,7 @@ namespace ConfigGen.LocalInfo
 
 
         [XmlIgnore]
-        static readonly HashSet<string> BaseType = new HashSet<string>() { "int", "long", "bool", "float", "string" };
+        static readonly HashSet<string> BaseType = new HashSet<string>() { INT, LONG, BOOL, FLOAT, STRING };
         public static bool IsConstBaseType(string fullType, out string type, out string value)
         {
             const string constFlag = "=";
@@ -332,7 +337,7 @@ namespace ConfigGen.LocalInfo
             {
                 type = fullType.Substring(0, index).Trim();
                 value = fullType.Substring(index + 1);
-                if (type == "string")
+                if (type == STRING)
                     value = string.Format("\"{0}\"", value);
                 isConstBase = BaseType.Contains(type);
             }
@@ -463,7 +468,7 @@ namespace ConfigGen.LocalInfo
         [XmlIgnore]
         public HashSet<string> SubClasses = new HashSet<string>();
         [XmlIgnore]
-        public bool HasSubClass { get { return SubClasses != null && SubClasses.Count > 0; } }    
+        public bool HasSubClass { get { return SubClasses != null && SubClasses.Count > 0; } }
 
         Dictionary<string, FieldInfo> _fieldInfoDict;
         public Dictionary<string, FieldInfo> GetFieldInfoDict()
@@ -486,7 +491,7 @@ namespace ConfigGen.LocalInfo
         {
             _fieldInfoDict.Clear();
         }
-    
+
         public ClassTypeInfo GetInheritTypeInfo()
         {
             ClassTypeInfo classType = null;
@@ -571,7 +576,7 @@ namespace ConfigGen.LocalInfo
     [XmlInclude(typeof(ConstFieldInfo))]
     public class ConstFieldInfo : FieldInfo
     {
-        public string value;
+        public string Value { get; set; }
 
         public void Set(FieldInfo fieldInfo)
         {
@@ -586,7 +591,7 @@ namespace ConfigGen.LocalInfo
     public class EnumTypeInfo : BaseTypeInfo
     {
         [XmlElement("Item")]
-        public List<EnumKeyValue> KeyValuePair { get; set; }
+        public List<ConstFieldInfo> KeyValuePair { get; set; }
 
         [XmlIgnore]
         public Dictionary<string, string> EnumDict { get => _enumDict; }
@@ -598,22 +603,12 @@ namespace ConfigGen.LocalInfo
             _enumDict = new Dictionary<string, string>();
             for (int i = 0; i < KeyValuePair.Count; i++)
             {
-                EnumKeyValue keyValue = KeyValuePair[i];
-                if (_enumDict.ContainsKey(keyValue.Key))
-                    throw new Exception(string.Format("枚举{0}.{1}定义重复", GetClassName(), keyValue.Key));
+                ConstFieldInfo keyValue = KeyValuePair[i];
+                if (_enumDict.ContainsKey(keyValue.Name))
+                    throw new Exception(string.Format("枚举{0}.{1}定义重复", GetClassName(), keyValue.Name));
                 else
-                    _enumDict.Add(keyValue.Key, keyValue.Value);
+                    _enumDict.Add(keyValue.Name, keyValue.Value);
             }
         }
-    }
-    [XmlInclude(typeof(EnumKeyValue))]
-    public class EnumKeyValue
-    {
-        [XmlAttribute]
-        public string Key { get; set; }
-        [XmlAttribute]
-        public string Value { get; set; }
-        [XmlAttribute]
-        public string Des { get; set; }
     }
 }

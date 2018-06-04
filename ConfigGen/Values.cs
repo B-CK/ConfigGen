@@ -76,7 +76,7 @@ namespace ConfigGen
         /// <summary>
         /// 单个检查功能中存在多个参数时,用:符号分离
         /// </summary>
-        public const string CheckRunleArgsSplitFlag = ":";
+        public const string CheckRuleArgsSplitFlag = ":";
         /// <summary>
         /// Csv数据存储分隔符
         /// </summary>
