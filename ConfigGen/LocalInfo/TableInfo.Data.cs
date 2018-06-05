@@ -67,10 +67,6 @@ namespace ConfigGen.LocalInfo
         }
         public void RemoveField(FieldInfo field)
         {
-            ClassTypeInfo.Fields.Remove(field);
-            ClassTypeInfo.ResetDict();
-            ClassTypeInfo.UpdateToDict();
-
             for (int k = 0; k < Datas.Count; k++)
                 Datas[k].Fields.Remove(field.Name);
 
@@ -179,7 +175,7 @@ namespace ConfigGen.LocalInfo
                 string fieldName = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
                 FieldInfo fieldInfo = fieldDict[fieldName];
                 Data dataField = AnalyzeField(dt, fieldInfo, row, ref column);
-                if (dataField == null && info.Name.Equals(Values.ELEMENT) || info.Name.Equals(Values.VALUE))
+                if (dataField == null && (info.Name.Equals(Values.ELEMENT) || info.Name.Equals(Values.VALUE)))
                 {
                     column += classType.Fields.Count - i;
                     dataClass = null;

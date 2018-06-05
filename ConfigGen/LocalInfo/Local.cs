@@ -189,7 +189,8 @@ namespace ConfigGen.LocalInfo
                         Util.PopTime();
                         continue;
                     }
-                    if (!isNullGroup && !classType.GroupHashSet.Overlaps(Values.ExportGroup))
+                    if (!isNullGroup && Values.ExportGroup != null &&
+                         !classType.GroupHashSet.Overlaps(Values.ExportGroup))
                     {
                         TypeInfoLib.Remove(classType);
                         Util.PopTime();
@@ -257,7 +258,7 @@ namespace ConfigGen.LocalInfo
             if (Values.ExportGroup == null || Values.ExportGroup.Contains(Values.AllGroup)) return;
 
 
-            var dataList = new List<string>(DataInfoDict.Keys);
+            var dataList = new List<string>(TypeInfoLib.ClassInfoDict.Keys);//DataInfoDict.Keys
             dataList.AddRange(TypeInfoLib.EnumInfoDict.Keys);
             for (int i = 0; i < dataList.Count; i++)
             {
@@ -277,13 +278,32 @@ namespace ConfigGen.LocalInfo
                     {
                         ClassTypeInfo classType = baseType as ClassTypeInfo;
                         var fields = new List<FieldInfo>(classType.Fields);
-                        fields.AddRange(classType.Consts);
                         for (int j = 0; j < fields.Count; j++)
                         {
                             FieldInfo field = fields[j];
                             isNull = string.IsNullOrWhiteSpace(field.Group);
                             if (!isNull && !field.GroupHashSet.Overlaps(Values.ExportGroup))
-                                DataInfoDict[key].RemoveField(field);
+                            {
+                                classType.Fields.Remove(field);
+                                classType.ResetDict();
+                                classType.UpdateToDict();
+
+                                if (DataInfoDict.ContainsKey(key))
+                                    DataInfoDict[key].RemoveField(field);
+                            }
+                        }
+                        fields.Clear();
+                        fields.AddRange(classType.Consts);
+                        for (int j = 0; j < fields.Count; j++)
+                        {
+                            ConstFieldInfo field = fields[j] as ConstFieldInfo;
+                            isNull = string.IsNullOrWhiteSpace(field.Group);
+                            if (!isNull && !field.GroupHashSet.Overlaps(Values.ExportGroup))
+                            {
+                                classType.Consts.Remove(field);
+                                classType.ResetDict();
+                                classType.UpdateToDict();
+                            }
                         }
                     }
                     else if (baseType.TypeType == TypeType.Enum)

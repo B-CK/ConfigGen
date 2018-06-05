@@ -433,11 +433,12 @@ namespace ConfigGen.LocalInfo
 
         [XmlIgnore]
         public HashSet<string> GroupHashSet { get => _groupHashSet; set => _groupHashSet = value; }
-        private HashSet<string> _groupHashSet = new HashSet<string>();
+        private HashSet<string> _groupHashSet = null;
         public void GroupToHashSet()
         {
             if (_groupHashSet != null) return;
 
+            _groupHashSet = new HashSet<string>();
             string[] groups = Group.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             _groupHashSet = new HashSet<string>(groups);
         }
@@ -489,7 +490,8 @@ namespace ConfigGen.LocalInfo
         }
         public void ResetDict()
         {
-            _fieldInfoDict.Clear();
+            if (_fieldInfoDict != null)
+                _fieldInfoDict.Clear();
         }
 
         public ClassTypeInfo GetInheritTypeInfo()
@@ -546,6 +548,8 @@ namespace ConfigGen.LocalInfo
             {
                 if (_typeInfo == null)
                     _typeInfo = TypeInfo.GetTypeInfo(Type);
+                //if (_typeInfo == null)
+                //    Util.LogErrorFormat("Type:{0} 不存在", Type);
                 return _typeInfo;
             }
         }
@@ -564,11 +568,12 @@ namespace ConfigGen.LocalInfo
 
         [XmlIgnore]
         public HashSet<string> GroupHashSet { get => _groupHashSet; set => _groupHashSet = value; }
-        private HashSet<string> _groupHashSet = new HashSet<string>();
+        private HashSet<string> _groupHashSet = null;
         public void GroupToHashSet()
         {
             if (_groupHashSet != null) return;
 
+            _groupHashSet = new HashSet<string>();
             string[] groups = Group.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             _groupHashSet = new HashSet<string>(groups);
         }
