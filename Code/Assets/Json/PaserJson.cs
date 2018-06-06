@@ -9,7 +9,7 @@ using Sirenix.Serialization;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 
-public class PaserJson : MonoBehaviour
+public class PaserJson : SerializedMonoBehaviour
 {
     public string CsvDir = "";
     public string RelPath = @"\Json\Nsj.json";

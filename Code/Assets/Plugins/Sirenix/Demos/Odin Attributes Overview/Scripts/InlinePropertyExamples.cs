@@ -37,5 +37,4 @@
         [HorizontalGroup]
         public int Y;
     }
-
 }

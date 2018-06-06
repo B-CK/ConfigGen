@@ -9,6 +9,7 @@
     {
         public bool[,] BooleanMatrix = new bool[15, 6];
 
+        [TableMatrix(SquareCells = true)]
         public Texture2D[,] TextureMatrix = new Texture2D[8, 6];
 
         public InfoMessageType[,] EnumMatrix = new InfoMessageType[4, 4];

@@ -52,8 +52,11 @@
         [ListDrawerSettings(OnBeginListElementGUI = "BeginDrawListElement", OnEndListElementGUI = "EndDrawListElement")]
         public SomeStruct[] InjectListElementGUI;
 
-        [ListDrawerSettings(HideAddButton = true, OnTitleBarGUI = "DrawAddButton")]
+        [ListDrawerSettings(OnTitleBarGUI = "DrawRefreshButton")]
         public List<int> CustomButtons;
+
+        [ListDrawerSettings(CustomAddFunction = "CustomAddFunction")]
+        public List<int> CustomAddBehaviour;
 
 #if UNITY_EDITOR
 
@@ -67,19 +70,17 @@
             SirenixEditorGUI.EndBox();
         }
 
-        private void DrawAddButton()
+        private void DrawRefreshButton()
         {
-            if (SirenixEditorGUI.ToolbarButton(EditorIcons.Plus))
+            if (SirenixEditorGUI.ToolbarButton(EditorIcons.Refresh))
             {
-                this.CustomButtons.Add(Random.Range(0, 100));
+                Debug.Log(this.CustomButtons.Count.ToString());
             }
+        }
 
-            GUIHelper.PushGUIEnabled(GUI.enabled && this.CustomButtons.Count > 0);
-            if (SirenixEditorGUI.ToolbarButton(EditorIcons.Minus))
-            {
-                this.CustomButtons.RemoveAt(this.CustomButtons.Count - 1);
-            }
-            GUIHelper.PopGUIEnabled();
+        private int CustomAddFunction()
+        {
+            return this.CustomAddBehaviour.Count;
         }
 
 #endif
