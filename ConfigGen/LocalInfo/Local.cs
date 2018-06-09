@@ -236,6 +236,7 @@ namespace ConfigGen.LocalInfo
                 //依据检查规则检查数据
                 Util.Start();
                 TableChecker.CheckAllData();
+                TableChecker.CheckFullTable();
                 Util.Stopln("==>> 检查数据耗时");
             }
             catch (Exception e)

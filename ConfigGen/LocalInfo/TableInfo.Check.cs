@@ -36,7 +36,7 @@ namespace ConfigGen.LocalInfo
 
     }
 
-    class TableChecker
+    partial class TableChecker
     {
         /// <summary>
         /// 检查类是否存在
@@ -231,7 +231,7 @@ namespace ConfigGen.LocalInfo
             }
         }
 
- 
+
         /// <summary>
         /// 解析检查规则
         /// </summary>
