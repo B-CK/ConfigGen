@@ -65,6 +65,7 @@
     <Compile Include="Export\ExportCSharp.DataOp.cs" />
     <Compile Include="Export\ExportCSharp.LsonOp.cs" />
     <Compile Include="Export\ExportCsv.cs" />
+    <Compile Include="Export\ExportLua.cs" />
     <Compile Include="LocalInfo\FileInfo.cs" />
     <Compile Include="LocalInfo\FindInfo.cs" />
     <Compile Include="LocalInfo\Local.cs" />
