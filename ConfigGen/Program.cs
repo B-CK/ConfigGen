@@ -76,6 +76,12 @@ namespace ConfigGen
                 ExportCSharp.Export_LsonOp();
                 Util.Stopln("==>> CS Lson操作类导出完毕");
             }
+            if (!string.IsNullOrWhiteSpace(Values.ExportLua))
+            {
+                Util.Start();
+                ExportLua.Export();
+                Util.Stopln("==>> Lua操作类导出完毕");
+            }
 
             Util.Log("\n\n\n");
             Util.Stop("=================>> 总共");

@@ -13,6 +13,7 @@ namespace ConfigGen.CmdUsage
         public const string EXPORT_CSV = "-exportCsv";
         public const string EXPORT_CSHARP = "-exportCSharp";
         public const string EXPORT_CS_LSON = "-exportCsLson";
+        public const string EXPORT_LUA = "-exportLua";
         public const string GROUP = "-group";
         public const string REPLACE = "-replace";
         public const string FIND = "-find";
@@ -104,6 +105,12 @@ namespace ConfigGen.CmdUsage
                             Values.ExportCsLson = cmd.Value[0];
                             if (string.IsNullOrWhiteSpace(Values.ExportCsLson))
                                 Values.ExportCsLson = null;
+                            break;
+                        case EXPORT_LUA:
+                            if (!CheckArgList(cmdName, cmd.Value)) return false;
+                            Values.ExportLua = cmd.Value[0];
+                            if (string.IsNullOrWhiteSpace(Values.ExportLua))
+                                Values.ExportLua = null;
                             break;
                         case GROUP://默认导出所有分组
                             string[] groups = cmd.Value[0].Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);

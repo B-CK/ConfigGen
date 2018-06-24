@@ -49,6 +49,11 @@ namespace ConfigGen.CmdUsage
             Usage.CmdUsageList.Add(cmdLine);
 
             cmdLine = new CmdLine();
+            cmdLine.Cmd = "-exportLua";
+            cmdLine.CmdDes = string.Format("[选填]数据表导出Lua语言脚本路径.");
+            Usage.CmdUsageList.Add(cmdLine);
+
+            cmdLine = new CmdLine();
             cmdLine.Cmd = "-exportCsLson";
             cmdLine.CmdDes = string.Format("[选填]数据表导出CSharp语言的Json操作类文件路径.");
             Usage.CmdUsageList.Add(cmdLine);

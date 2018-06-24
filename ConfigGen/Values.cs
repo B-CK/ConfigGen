@@ -21,6 +21,10 @@ namespace ConfigGen
         /// </summary>
         public static string ExportCsLson { get; set; }
         /// <summary>
+        /// 导出Lua类型类
+        /// </summary>
+        public static string ExportLua { get; set; }
+        /// <summary>
         /// 导出csv存储路径
         /// </summary>
         public static string ExportCsv { get; set; }
