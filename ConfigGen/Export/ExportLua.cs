@@ -13,17 +13,29 @@ namespace ConfigGen.Export
         private const string DATA_CONFIG = "Config";
         private const string LUA_CFG_ROOT = "Cfg";
 
+        static readonly Dictionary<string, string> MapType = new Dictionary<string, string>()
+        {
+            {"int", "Int" },
+            {"long", "Long" },
+            {"float", "Float" },
+            {"bool", "Bool" },
+            {"string", "String" },
+        };
+
+
         public static void Export()
         {
             StringBuilder dsLoopBuilder = new StringBuilder();
             StringBuilder cfgLoopBuilder = new StringBuilder();
-            foreach (var item in Local.Instance.DataInfoDict)
+            foreach (var item in Local.Instance.TypeInfoLib.ClassInfoDict)
             {
-                string className = item.Key;
-                ClassTypeInfo classType = item.Value.ClassTypeInfo;
+                ClassTypeInfo classType = item.Value;
+                if (classType.TypeType != TypeType.Class) continue;
+                string method = string.Format("Get{0}{1}", LUA_CFG_ROOT, classType.GetClassName().Replace(".", ""));
                 string index = classType.IndexField.Name;
                 string fileName = classType.GetClassName().Replace(".", "/") + Values.CsvFileExt;
-                cfgLoopBuilder.AppendFormat("\t{{ name = '{0}{1}', index = '{2}', output = '{3}' }},\n", LUA_CFG_ROOT, className, index, fileName);
+                cfgLoopBuilder.AppendFormat("\t{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
+                    classType.Name, method, index, fileName);
 
                 dsLoopBuilder.AppendLine("meta= {}");
                 dsLoopBuilder.AppendLine("meta.__index = meta");
@@ -43,7 +55,7 @@ namespace ConfigGen.Export
                     switch (baseType.TypeType)
                     {
                         case TypeType.Base:
-                            dsLoopBuilder.AppendFormat("\to.{0} = self:Get{1}()\n", field.Name, field.Type);
+                            dsLoopBuilder.AppendFormat("\to.{0} = self:Get{1}()\n", field.Name, MapType[field.Type]);
                             break;
                         case TypeType.Enum:
                             dsLoopBuilder.AppendFormat("\to.{0} = self:GetInt()\n", field.Name);
@@ -57,7 +69,7 @@ namespace ConfigGen.Export
                             }
                             else
                             {
-                                string fullName = string.Format("{0}.{1}", LUA_CFG_ROOT, field.Type);
+                                string fullName = string.Format("{0}{1}", LUA_CFG_ROOT, field.Type.Replace(".", ""));
                                 dsLoopBuilder.AppendFormat("\to.{0} = self:GetObject('{1}')\n", field.Name, fullName);
                             }
                             break;
@@ -69,13 +81,13 @@ namespace ConfigGen.Export
                                 switch (itemInfo.TypeType)
                                 {
                                     case TypeType.Base:
-                                        itemType = listType.ItemType;
+                                        itemType = MapType[listType.ItemType];
                                         break;
                                     case TypeType.Enum:
-                                        itemType = "Int";
+                                        itemType = MapType["int"];
                                         break;
                                     case TypeType.Class:
-                                        itemType = string.Format("{0}.{1}", LUA_CFG_ROOT, listType.ItemType);
+                                        itemType = string.Format("{0}{1}", LUA_CFG_ROOT, listType.ItemType.Replace(".", ""));
                                         break;
                                     case TypeType.List:
                                     case TypeType.Dict:
@@ -95,10 +107,10 @@ namespace ConfigGen.Export
                                 switch (keyInfo.TypeType)
                                 {
                                     case TypeType.Base:
-                                        keyType = dictType.KeyType;
+                                        keyType = MapType[dictType.KeyType];
                                         break;
                                     case TypeType.Enum:
-                                        keyType = "Int";
+                                        keyType = MapType["int"];
                                         break;
                                     case TypeType.Class:
                                     case TypeType.List:
@@ -111,13 +123,13 @@ namespace ConfigGen.Export
                                 switch (valueInfo.TypeType)
                                 {
                                     case TypeType.Base:
-                                        valueType = dictType.ValueType;
+                                        valueType = MapType[dictType.ValueType];
                                         break;
                                     case TypeType.Enum:
-                                        valueType = "Int";
+                                        valueType = MapType["int"];
                                         break;
                                     case TypeType.Class:
-                                        valueType = string.Format("{0}.{1}", LUA_CFG_ROOT, dictType.ValueType);
+                                        valueType = string.Format("{0}{1}", LUA_CFG_ROOT, dictType.ValueType.Replace(".", ""));
                                         break;
                                     case TypeType.List:
                                     case TypeType.Dict:
@@ -186,17 +198,18 @@ namespace ConfigGen.Export
 
             //--Config
             StringBuilder configBuilder = new StringBuilder();
-            configBuilder.Append("local Stream = require(\"Cfg.DataStream\")\n");
+            configBuilder.Append("local Stream = require(\"Cfg.DataStruct\")\n");
             configBuilder.Append("local cfgs = {}\n");
             configBuilder.Append("for _, s in ipairs({\n");
             configBuilder.Append(cfgLoopBuilder.ToString());
             configBuilder.AppendLine("}) do");
-            configBuilder.AppendLine("\tlocal data = Stream.New(s.output)");
-            configBuilder.AppendLine("\tlocal method = 'Get' .. s.name");
+            configBuilder.AppendLine("\tlocal data = Stream.new(s.output)");
+            configBuilder.AppendLine("\tlocal cfg = {}");
             configBuilder.AppendLine("\twhile data.hasNext do");
-            configBuilder.AppendLine("\t\tcfg[s.index] = data[method](data)");
+            configBuilder.AppendLine("\t\tcfg[s.index] = data[s.method](data)");
             configBuilder.AppendLine("\tend");
             configBuilder.AppendLine("\tcfgs[s.name] = cfg");
+            configBuilder.AppendLine("\tdata:Close()");
             configBuilder.AppendLine("end");
             configBuilder.AppendLine();
             configBuilder.AppendLine("return cfgs");

@@ -25,6 +25,19 @@ end
 local meta
 meta= {}
 meta.__index = meta
+GetOrCreate('Cfg.Card')['Card'] = meta
+function Stream:GetCfgCardCard()
+	local o = {}
+	setmetatable(o, Cfg.Card.Card)
+	o.ID = self:Getint()
+	o.Name = self:Getstring()
+	o.CardType = self:GetInt()
+	o.Cost = self:Getlong()
+	o.Elements = self:GetDict('Int', 'long')
+	return o
+end
+meta= {}
+meta.__index = meta
 meta.ConstString = "Hello World"
 meta.ConstFloat = 3.141527
 GetOrCreate('Cfg.AllType')['AllClass'] = meta
@@ -46,32 +59,6 @@ function Stream:GetCfgAllTypeAllClass()
 	o.VarDictClass = self:GetDict('string', 'Cfg.AllType.SingleClass')
 	return o
 end
-meta= {}
-meta.__index = meta
-GetOrCreate('Cfg.Card')['Card'] = meta
-function Stream:GetCfgCardCard()
-	local o = {}
-	setmetatable(o, Cfg.Card.Card)
-	o.ID = self:Getint()
-	o.Name = self:Getstring()
-	o.CardType = self:GetInt()
-	o.Cost = self:Getlong()
-	o.Elements = self:GetDict('Int', 'long')
-	return o
-end
-GetOrCreate('Cfg.AllType')['CommondEnum'] = {
-	NULL = -1,
-	Attack = 0,
-	Extract = 1,
-	Renounce = 2,
-	Armor = 3,
-	Control = 4,
-	Cure = 5,
-	Oneself = 6,
-	Hand = 7,
-	Brary = 8,
-	Handack = 9,
-}
 GetOrCreate('Cfg.Card')['CardElement'] = {
 	NULL = -1,
 	Attack = 0,
@@ -88,6 +75,19 @@ GetOrCreate('Cfg.Card')['CardElement'] = {
 GetOrCreate('Cfg.Card')['CardType'] = {
 	NULL = -1,
 	Attack = 0,
+}
+GetOrCreate('Cfg.AllType')['CommondEnum'] = {
+	NULL = -1,
+	Attack = 0,
+	Extract = 1,
+	Renounce = 2,
+	Armor = 3,
+	Control = 4,
+	Cure = 5,
+	Oneself = 6,
+	Hand = 7,
+	Brary = 8,
+	Handack = 9,
 }
 
 return Stream
