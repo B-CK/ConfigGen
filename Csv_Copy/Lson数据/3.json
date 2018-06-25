@@ -1,0 +1,54 @@
+{
+  "ID": 3,
+  "VarLong": 30,
+  "VarFloat": 3.3,
+  "VarString": "Res/Sphere",
+  "VarBool": true,
+  "VarEnum": 3,
+  "VarClass": {
+    "$type": "Lson.AllType.LInherit1, Assembly-CSharp",
+    "Var3": 333,
+    "Var1": "3",
+    "Var2": true
+  },
+  "VarListBase": [
+    "3",
+    "33",
+    "333",
+    "3333"
+  ],
+  "VarListClass": [
+    {
+      "Var1": "3",
+      "Var2": true
+    }
+  ],
+  "VarListCardElem": [
+    5
+  ],
+  "VarDictBase": {
+    "3": "33",
+    "333": "3333"
+  },
+  "VarDictEnum": {
+    "3": 7
+  },
+  "VarDictClass": {
+    "3": {
+      "$type": "Lson.AllType.LInherit1, Assembly-CSharp",
+      "Var3": 333,
+      "Var1": "3",
+      "Var2": true
+    },
+	"33": {
+      "$type": "Lson.AllType.LInherit2, Assembly-CSharp",
+      "Var4": 3334,
+      "Var1": "3",
+      "Var2": true
+    },
+	"333": {           
+      "Var1": "3",
+      "Var2": true
+    }
+  }
+}

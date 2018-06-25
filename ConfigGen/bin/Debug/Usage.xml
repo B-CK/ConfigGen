@@ -32,6 +32,10 @@
       <CmdDes>[选填]数据表导出CSharp语言脚本路径.</CmdDes>
     </CmdLine>
     <CmdLine>
+      <Cmd>-exportLua</Cmd>
+      <CmdDes>[选填]数据表导出Lua语言脚本路径.</CmdDes>
+    </CmdLine>
+    <CmdLine>
       <Cmd>-exportCsLson</Cmd>
       <CmdDes>[选填]数据表导出CSharp语言的Json操作类文件路径.</CmdDes>
     </CmdLine>

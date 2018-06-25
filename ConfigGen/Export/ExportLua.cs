@@ -22,10 +22,10 @@ namespace ConfigGen.Export
                 string className = item.Key;
                 ClassTypeInfo classType = item.Value.ClassTypeInfo;
                 string index = classType.IndexField.Name;
-                string relPath = item.Value.RelPath;
-                cfgLoopBuilder.AppendFormat("\t{ name = '{0}{1}', index = '{2}', output = '{3}' },\n", LUA_CFG_ROOT, className, index, relPath);
+                string fileName = classType.GetClassName().Replace(".", "/") + Values.CsvFileExt;
+                cfgLoopBuilder.AppendFormat("\t{{ name = '{0}{1}', index = '{2}', output = '{3}' }},\n", LUA_CFG_ROOT, className, index, fileName);
 
-                dsLoopBuilder.AppendLine("meta= {{}}");
+                dsLoopBuilder.AppendLine("meta= {}");
                 dsLoopBuilder.AppendLine("meta.__index = meta");
                 for (int i = 0; i < classType.Consts.Count; i++)
                 {
@@ -34,7 +34,7 @@ namespace ConfigGen.Export
                 }
                 dsLoopBuilder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = meta\n", LUA_CFG_ROOT, classType.NamespaceName, classType.Name);
                 dsLoopBuilder.AppendFormat("function Stream:Get{0}{1}{2}()\n", LUA_CFG_ROOT, classType.NamespaceName, classType.Name);
-                dsLoopBuilder.AppendFormat("\tlocal o = {}\n");
+                dsLoopBuilder.AppendFormat("\tlocal o = {{}}\n");
                 dsLoopBuilder.AppendFormat("\tsetmetatable(o, {0}.{1}.{2})\n", LUA_CFG_ROOT, classType.NamespaceName, classType.Name);
                 for (int i = 0; i < classType.Fields.Count; i++)
                 {
@@ -134,7 +134,7 @@ namespace ConfigGen.Export
                     }
                 }
                 dsLoopBuilder.AppendFormat("\treturn o\n", LUA_CFG_ROOT, classType.NamespaceName, classType.Name);
-                dsLoopBuilder.AppendFormat("\tend\n");
+                dsLoopBuilder.AppendFormat("end\n");
             }
             var enums = Local.Instance.TypeInfoLib.EnumInfoDict;
             foreach (var item in enums)
@@ -149,7 +149,7 @@ namespace ConfigGen.Export
                     string value = enumInfo.KeyValuePair[i].Value;
                     dsLoopBuilder.AppendFormat("\t{0} = {1},\n", key, value);
                 }
-                dsLoopBuilder.AppendLine("}}");
+                dsLoopBuilder.AppendLine("}");
             }
             //--DataStruct
             StringBuilder structBuilder = new StringBuilder();
@@ -180,15 +180,17 @@ namespace ConfigGen.Export
             structBuilder.AppendLine("local meta");
             structBuilder.AppendLine(dsLoopBuilder.ToString());
             structBuilder.AppendLine("return Stream");
-
+            string path = Path.Combine(Values.ExportLua, DATA_STRUCT + ".lua");
+            Util.SaveFile(path, structBuilder.ToString());
+            structBuilder.Clear();
 
             //--Config
             StringBuilder configBuilder = new StringBuilder();
             configBuilder.Append("local Stream = require(\"Cfg.DataStream\")\n");
-            configBuilder.Append("local cfgs = {{}}\n");
-            configBuilder.Append("for _, s in ipairs({{\n");
+            configBuilder.Append("local cfgs = {}\n");
+            configBuilder.Append("for _, s in ipairs({\n");
             configBuilder.Append(cfgLoopBuilder.ToString());
-            configBuilder.AppendLine("}})");
+            configBuilder.AppendLine("}) do");
             configBuilder.AppendLine("\tlocal data = Stream.New(s.output)");
             configBuilder.AppendLine("\tlocal method = 'Get' .. s.name");
             configBuilder.AppendLine("\twhile data.hasNext do");
@@ -198,7 +200,7 @@ namespace ConfigGen.Export
             configBuilder.AppendLine("end");
             configBuilder.AppendLine();
             configBuilder.AppendLine("return cfgs");
-            string path = Path.Combine(Values.ExportLua, DATA_CONFIG + ".lua");
+            path = Path.Combine(Values.ExportLua, DATA_CONFIG + ".lua");
             Util.SaveFile(path, configBuilder.ToString());
             configBuilder.Clear();
         }
