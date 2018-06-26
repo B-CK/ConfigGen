@@ -22,20 +22,24 @@ namespace ConfigGen.Export
             {"string", "String" },
         };
 
-
         public static void Export()
         {
             StringBuilder dsLoopBuilder = new StringBuilder();
             StringBuilder cfgLoopBuilder = new StringBuilder();
-            foreach (var item in Local.Instance.TypeInfoLib.ClassInfoDict)
+            foreach (var item in Local.Instance.DataInfoDict)
             {
-                ClassTypeInfo classType = item.Value;
+                ClassTypeInfo classType = item.Value.ClassTypeInfo;
                 if (classType.TypeType != TypeType.Class) continue;
                 string method = string.Format("Get{0}{1}", LUA_CFG_ROOT, classType.GetClassName().Replace(".", ""));
                 string index = classType.IndexField.Name;
                 string fileName = classType.GetClassName().Replace(".", "/") + Values.CsvFileExt;
                 cfgLoopBuilder.AppendFormat("\t{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
                     classType.Name, method, index, fileName);
+            }
+            foreach (var item in Local.Instance.TypeInfoLib.ClassInfoDict)
+            {
+                ClassTypeInfo classType = item.Value;
+                if (classType.TypeType != TypeType.Class) continue;
 
                 dsLoopBuilder.AppendLine("meta= {}");
                 dsLoopBuilder.AppendLine("meta.__index = meta");
@@ -205,11 +209,12 @@ namespace ConfigGen.Export
             configBuilder.AppendLine("}) do");
             configBuilder.AppendLine("\tlocal data = Stream.new(s.output)");
             configBuilder.AppendLine("\tlocal cfg = {}");
-            configBuilder.AppendLine("\twhile data.hasNext do");
-            configBuilder.AppendLine("\t\tcfg[s.index] = data[s.method](data)");
+            configBuilder.AppendLine("\twhile data:NextRow() do");
+            configBuilder.AppendLine("\t\tlocal value = data[s.method](data)");
+            configBuilder.AppendLine("\t\tlocal key = value[s.index]");
+            configBuilder.AppendLine("\t\tcfg[key] = value");
             configBuilder.AppendLine("\tend");
             configBuilder.AppendLine("\tcfgs[s.name] = cfg");
-            configBuilder.AppendLine("\tdata:Close()");
             configBuilder.AppendLine("end");
             configBuilder.AppendLine();
             configBuilder.AppendLine("return cfgs");

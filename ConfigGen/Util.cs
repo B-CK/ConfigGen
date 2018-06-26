@@ -29,6 +29,7 @@ namespace ConfigGen
         private const int OF_READWRITE = 2;
         private const int OF_SHARE_DENY_NONE = 0x40;
         private static readonly IntPtr HFILE_ERROR = new IntPtr(-1);
+        private static readonly UTF8Encoding UTF8 = new UTF8Encoding(false);
 
         public static FileState GetFileState(string filePath)
         {
@@ -237,7 +238,7 @@ namespace ConfigGen
             if (!Directory.Exists(dirPath))
                 Directory.CreateDirectory(dirPath);
 
-            File.WriteAllText(filePath, content, Encoding.UTF8);
+            File.WriteAllText(filePath, content, UTF8);
         }
         public static string GetConfigRelPath(string path)
         {

@@ -88,7 +88,7 @@ namespace ConfigGen
         /// <summary>
         /// Csv数据文件扩展名
         /// </summary>
-        public const string CsvFileExt = ".xml";
+        public const string CsvFileExt = ".data";
         /// <summary>
         /// 多态标识符
         /// </summary>
