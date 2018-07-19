@@ -161,6 +161,7 @@ namespace ConfigGen.Export
             CodeWriter.UsingNamespace(builder, NameSpaces);
             builder.AppendLine();
             CodeWriter.NameSpace(builder, Values.LsonRootNode);
+            builder.AppendLine("[Serializable]");
             CodeWriter.ClassBase(builder, CodeWriter.Public, CodeWriter.Abstract, LSON_STREAM);
             List<ClassTypeInfo> classes = LocalInfo.Local.Instance.TypeInfoLib.ClassInfos;
             foreach (var info in classes)
