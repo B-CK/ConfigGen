@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Collections.Generic;
 namespace Csv
@@ -29,9 +29,9 @@ namespace Csv
 
 		public static void LoadAll()
 		{
-			var cards = Load(ConfigDir + "Card/Card.xml", (d) => new Card.Card(d));
+			var cards = Load(ConfigDir + "Card/Card.data", (d) => new Card.Card(d));
 			cards.ForEach(v => Card.Add(v.ID, v));
-			var allclasss = Load(ConfigDir + "AllType/AllClass.xml", (d) => new AllType.AllClass(d));
+			var allclasss = Load(ConfigDir + "AllType/AllClass.data", (d) => new AllType.AllClass(d));
 			allclasss.ForEach(v => AllClass.Add(v.ID, v));
 		}
 

@@ -54,7 +54,7 @@ namespace ConfigGen
                 Local.Instance.UpdateFindInfo();
             }
 
-            //数据分组
+            //数据分组:默认组未all,指定组相当于重写了组
             Local.Instance.DoGrouping();
 
             //导出数据

@@ -44,11 +44,14 @@ namespace ConfigGen
         public static StringBuilder LogContent = new StringBuilder();
 
         #region 常量
-        public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
         /// <summary>
         /// 导出所有分组
         /// </summary>
-        public const string AllGroup = "all";
+        public const string AllGroup = "defualt";
+        /// <summary>
+        /// 工具所在目录
+        /// </summary>
+        public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
         /// <summary>
         /// 数据表格Sheet名定义格式
         /// </summary>

@@ -256,8 +256,7 @@ namespace ConfigGen.LocalInfo
         /// </summary>
         public void DoGrouping()
         {
-            if (Values.ExportGroup == null || Values.ExportGroup.Contains(Values.AllGroup)) return;
-
+            if (Values.ExportGroup == null || Values.ExportGroup.Count == 1 && Values.ExportGroup.Equals(Values.AllGroup)) return;
 
             var dataList = new List<string>(TypeInfoLib.ClassInfoDict.Keys);//DataInfoDict.Keys
             dataList.AddRange(TypeInfoLib.EnumInfoDict.Keys);

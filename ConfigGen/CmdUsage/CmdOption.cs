@@ -114,6 +114,8 @@ namespace ConfigGen.CmdUsage
                             break;
                         case GROUP://默认导出所有分组
                             string[] groups = cmd.Value[0].Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                            for (int i = 0; i < groups.Length; i++)
+                                groups[i] = groups[i].ToLower();
                             Values.ExportGroup = new HashSet<string>(groups);
                             if (Values.ExportGroup.Count == 0)
                                 Values.ExportGroup.Add(Values.AllGroup);

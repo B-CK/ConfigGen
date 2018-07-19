@@ -1,4 +1,4 @@
-﻿local Stream = require("Cfg.DataStream")
+local Stream = require("Cfg.DataStream")
 local find = string.find
 local sub = string.sub
 
@@ -29,11 +29,11 @@ GetOrCreate('Cfg.Card')['Card'] = meta
 function Stream:GetCfgCardCard()
 	local o = {}
 	setmetatable(o, Cfg.Card.Card)
-	o.ID = self:Getint()
-	o.Name = self:Getstring()
+	o.ID = self:GetInt()
+	o.Name = self:GetString()
 	o.CardType = self:GetInt()
-	o.Cost = self:Getlong()
-	o.Elements = self:GetDict('Int', 'long')
+	o.Cost = self:GetLong()
+	o.Elements = self:GetDict('Int', 'Long')
 	return o
 end
 meta= {}
@@ -44,19 +44,29 @@ GetOrCreate('Cfg.AllType')['AllClass'] = meta
 function Stream:GetCfgAllTypeAllClass()
 	local o = {}
 	setmetatable(o, Cfg.AllType.AllClass)
-	o.ID = self:Getint()
-	o.VarLong = self:Getint()
-	o.VarFloat = self:Getfloat()
-	o.VarString = self:Getstring()
-	o.VarBool = self:Getbool()
+	o.ID = self:GetInt()
+	o.VarLong = self:GetInt()
+	o.VarFloat = self:GetFloat()
+	o.VarString = self:GetString()
+	o.VarBool = self:GetBool()
 	o.VarEnum = self:GetInt()
-	o.VarClass = self:GetObject('Cfg.AllType.SingleClass')
-	o.VarListBase = self:GetList('string')
-	o.VarListClass = self:GetList('Cfg.AllType.SingleClass')
-	o.VarListCardElem = self:GetList('string')
-	o.VarDictBase = self:GetDict('int', 'string')
-	o.VarDictEnum = self:GetDict('long', 'Int')
-	o.VarDictClass = self:GetDict('string', 'Cfg.AllType.SingleClass')
+	o.VarClass = self:GetObject('CfgAllTypeSingleClass')
+	o.VarListBase = self:GetList('String')
+	o.VarListClass = self:GetList('CfgAllTypeSingleClass')
+	o.VarListCardElem = self:GetList('String')
+	o.VarDictBase = self:GetDict('Int', 'String')
+	o.VarDictEnum = self:GetDict('Long', 'Int')
+	o.VarDictClass = self:GetDict('String', 'CfgAllTypeSingleClass')
+	return o
+end
+meta= {}
+meta.__index = meta
+GetOrCreate('Cfg.AllType')['SingleClass'] = meta
+function Stream:GetCfgAllTypeSingleClass()
+	local o = {}
+	setmetatable(o, Cfg.AllType.SingleClass)
+	o.Var1 = self:GetString()
+	o.Var2 = self:GetFloat()
 	return o
 end
 GetOrCreate('Cfg.Card')['CardElement'] = {
