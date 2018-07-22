@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Xml.Serialization;
 
 namespace ConfigGen.LocalInfo
 {
-    [XmlRoot("FileInfo")]
     public class FileInfo : BaseInfo
     {
-        [XmlElement("FileState")]
         public List<FileState> FileStates { get; set; }
         private void UpdateList()
         {
@@ -23,7 +20,6 @@ namespace ConfigGen.LocalInfo
             FileStates = ls;
         }
 
-        [XmlIgnore]
         public Dictionary<string, FileState> FileDict { get { return _fileDict; } }
         private Dictionary<string, FileState> _fileDict = new Dictionary<string, FileState>();
 
@@ -39,12 +35,25 @@ namespace ConfigGen.LocalInfo
                     File.Delete(path);
                     fileInfo.Save();
                 }
+                fileInfo.UpdateList();
             }
             else
             {
                 fileInfo.Save();
             }
-            fileInfo = Util.Deserialize(path, typeof(FileInfo)) as FileInfo;
+            string content = File.ReadAllText(path);
+            string[] lines = content.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string[] nodes = lines[i].Split("|".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                if (!File.Exists(nodes[0])) continue;
+                  
+                FileState state = new FileState();
+                state.RelPath = nodes[0];
+                state.MD5Hash = nodes[1];
+                fileInfo._fileDict.Add(state.RelPath, state);
+            }
+            //fileInfo = Util.Deserialize(path, typeof(FileInfo)) as FileInfo;
             fileInfo.Init();
             return fileInfo;
         }
@@ -75,15 +84,16 @@ namespace ConfigGen.LocalInfo
         {
             UpdateList();
             string path = Local.GetInfoPath(LocalInfoType.FileInfo);
-            Util.Serialize(path, this);
+            StringBuilder builder = new StringBuilder();
+            foreach (var file in _fileDict)
+                builder.AppendFormat("{0}|{1}\r\n", file.Key, file.Value.MD5Hash);
+            Util.SaveFile(path, builder.ToString());
+            //Util.Serialize(path, this);
         }
     }
-    [XmlInclude(typeof(FileState))]
     public class FileState
     {
-        [XmlAttribute]
         public string RelPath { get; set; }
-        [XmlAttribute]
         public string MD5Hash { get; set; }
     }
 }

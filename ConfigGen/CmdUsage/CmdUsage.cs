@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
@@ -14,6 +15,9 @@ namespace ConfigGen.CmdUsage
         public static CmdUsage Usage { get; private set; }
         public static void CreateUsage()
         {
+            string path = string.Format("{0}/Usage.xml", Values.ApplicationDir);
+            if (File.Exists(path)) return;
+
             Usage = new CmdUsage();
             Usage.CmdUsageList = new List<CmdLine>();
 
@@ -90,7 +94,7 @@ namespace ConfigGen.CmdUsage
             };
             Usage.CmdUsageList.Add(cmdLine);
 
-            Util.Serialize(string.Format("{0}/Usage.xml", Values.ApplicationDir), Usage);
+            Util.Serialize(path, Usage);
         }
     }
 

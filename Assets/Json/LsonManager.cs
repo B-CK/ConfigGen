@@ -5,10 +5,13 @@ using System.Collections.Generic;
 
 namespace Lson
 {
+[Serializable]
 	public class LsonManager
 	{
-		public static List<Lson.Card.Card> Card = new List<Card.Card>();
 		public static List<Lson.AllType.AllClass> AllClass = new List<AllType.AllClass>();
+		public static List<Lson.Card.Card> Card = new List<Card.Card>();
+		public static List<Lson.Skill.ModelActions> ModelActions = new List<Skill.ModelActions>();
+		public static List<Lson.LsonAllClass.LsonAllClass> LsonAllClass = new List<LsonAllClass.LsonAllClass>();
 
 		public static T Deserialize<T>(string path)
 		{
@@ -47,13 +50,17 @@ namespace Lson
 		}
 		public static void LoadAll()
 		{
-			Card = Load<Lson.Card.Card>("F:/__GitHub/ConfigGen/ConfigGen/bin/Debug/../../../Csv/卡牌_Card.xlsx");
 			AllClass = Load<Lson.AllType.AllClass>("F:/__GitHub/ConfigGen/ConfigGen/bin/Debug/../../../Csv/Data所有Class类型.xlsx");
+			Card = Load<Lson.Card.Card>("F:/__GitHub/ConfigGen/ConfigGen/bin/Debug/../../../Csv/卡牌_Card.xlsx");
+			ModelActions = Load<Lson.Skill.ModelActions>("F:/__GitHub/ConfigGen/ConfigGen/bin/Debug/../../../Csv/ActionConfig");
+			LsonAllClass = Load<Lson.LsonAllClass.LsonAllClass>("F:/__GitHub/ConfigGen/ConfigGen/bin/Debug/../../../Csv/Lson数据");
 		}
 		public static void Clear()
 		{
-			Card.Clear();
 			AllClass.Clear();
+			Card.Clear();
+			ModelActions.Clear();
+			LsonAllClass.Clear();
 		}
 	}
 }

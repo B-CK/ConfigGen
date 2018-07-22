@@ -57,32 +57,40 @@ namespace ConfigGen
             //数据分组:默认组未all,指定组相当于重写了组
             Local.Instance.DoGrouping();
 
-            //导出数据
-            if (!string.IsNullOrWhiteSpace(Values.ExportCsv))
+            try
             {
-                Util.Start();
-                ExportCsv.Export();
-                Util.Stopln("==>> Csv数据导出完毕");
-            }
-            if (!string.IsNullOrWhiteSpace(Values.ExportCSharp))
-            {
-                Util.Start();
-                ExportCSharp.Export_CsvOp();
-                Util.Stopln("==>> CS Csv操作类导出完毕");
-            }
-            if (!string.IsNullOrWhiteSpace(Values.ExportCsLson))
-            {
-                Util.Start();
-                ExportCSharp.Export_LsonOp();
-                Util.Stopln("==>> CS Lson操作类导出完毕");
-            }
-            if (!string.IsNullOrWhiteSpace(Values.ExportLua))
-            {
-                Util.Start();
-                ExportLua.Export();
-                Util.Stopln("==>> Lua操作类导出完毕");
-            }
+                //导出数据
+                if (!string.IsNullOrWhiteSpace(Values.ExportCsv))
+                {
+                    Util.Start();
+                    ExportCsv.Export();
+                    Util.Stopln("==>> Csv数据导出完毕");
+                }
+                if (!string.IsNullOrWhiteSpace(Values.ExportCSharp))
+                {
+                    Util.Start();
+                    ExportCSharp.Export_CsvOp();
+                    Util.Stopln("==>> CS Csv操作类导出完毕");
+                }
+                if (!string.IsNullOrWhiteSpace(Values.ExportCsLson))
+                {
+                    Util.Start();
+                    ExportCSharp.Export_LsonOp();
+                    Util.Stopln("==>> CS Lson操作类导出完毕");
+                }
+                if (!string.IsNullOrWhiteSpace(Values.ExportLua))
+                {
+                    Util.Start();
+                    ExportLua.Export();
+                    Util.Stopln("==>> Lua操作类导出完毕");
+                }
 
+            }
+            catch (Exception)
+            {
+                Util.LogError("数据导出异常!!!");
+            }
+           
             Util.Log("\n\n\n");
             Util.Stop("=================>> 总共");
             Console.ReadKey();

@@ -15,11 +15,11 @@ namespace ConfigGen.LocalInfo
         public TableDefineInfo(string relPath, DataTable data)
             : base(relPath, data)
         {
-            ClassInfoDict = new Dictionary<string, ClassTypeInfo>();
-            EnumInfoDict = new Dictionary<string, EnumTypeInfo>();
+            //ClassInfoDict = new Dictionary<string, ClassTypeInfo>();
+            //EnumInfoDict = new Dictionary<string, EnumTypeInfo>();
         }
-        public Dictionary<string, ClassTypeInfo> ClassInfoDict { get; private set; }
-        public Dictionary<string, EnumTypeInfo> EnumInfoDict { get; private set; }
+        //public Dictionary<string, ClassTypeInfo> ClassInfoDict { get; private set; }
+        //public Dictionary<string, EnumTypeInfo> EnumInfoDict { get; private set; }
 
 
 
@@ -79,6 +79,7 @@ namespace ConfigGen.LocalInfo
                             break;
 
                         FieldInfo fieldInfo = new FieldInfo();
+                        fieldInfo.SetClassName(classInfo.GetClassName());
                         fieldInfo.Name = dt.Rows[j][0].ToString();
                         string fieldType = dt.Rows[j][1].ToString();
                         string type, value;
@@ -100,16 +101,17 @@ namespace ConfigGen.LocalInfo
                             classInfo.Fields.Add(fieldInfo);
 
                         //数据索引-字段信息
-                        if (j == i)
+                        if (j == i && !string.IsNullOrWhiteSpace(classInfo.DataTable))
                         {
                             string error = TableChecker.CheckDictKey(fieldInfo.Type);
                             if (!string.IsNullOrWhiteSpace(error))
-                                Util.LogErrorFormat("表索引键类型只能为int,long,string,enum,错误位置{0}", classInfo.RelPath);
+                                Util.LogErrorFormat("表索引键类型只能为int,long,string,enum,错误位置{0}:{1}:{2}:{3}",
+                                    classInfo.RelPath, classInfo.GetClassName(), fieldInfo.Name, fieldInfo.Type);
                             classInfo.IndexField = fieldInfo;
                         }
                     }
                     i = j - 1;
-                    ClassInfoDict.Add(name, classInfo);
+                    //ClassInfoDict.Add(name, classInfo);
                     Local.Instance.TypeInfoLib.Add(classInfo);
                 }
                 else if (defineTypeStr.ToLower().Equals(ENUM_TYPE))
@@ -142,7 +144,7 @@ namespace ConfigGen.LocalInfo
                     }
                     enumInfo.UpdateToDict();
                     i = j - 1;
-                    EnumInfoDict.Add(name, enumInfo);
+                    //EnumInfoDict.Add(name, enumInfo);
                     Local.Instance.TypeInfoLib.Add(enumInfo);
                 }
                 else

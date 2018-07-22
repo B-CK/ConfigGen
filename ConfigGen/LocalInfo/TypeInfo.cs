@@ -548,12 +548,17 @@ namespace ConfigGen.LocalInfo
             {
                 if (_typeInfo == null)
                     _typeInfo = TypeInfo.GetTypeInfo(Type);
-                //if (_typeInfo == null)
-                //    Util.LogErrorFormat("Type:{0} 不存在", Type);
+                if (_typeInfo == null)
+                    Util.LogErrorFormat("{0}.{1} 类型:{2} 不存在", _className, Name, Type);
                 return _typeInfo;
             }
         }
         private BaseTypeInfo _typeInfo;
+        private string _className;
+        public void SetClassName(string name)
+        {
+            _className = name;
+        }
         [XmlIgnore]
         public Dictionary<CheckRuleType, List<string>> RuleDict { get => _ruleDict; set => _ruleDict = value; }
         private Dictionary<CheckRuleType, List<string>> _ruleDict = new Dictionary<CheckRuleType, List<string>>();
@@ -581,6 +586,7 @@ namespace ConfigGen.LocalInfo
     [XmlInclude(typeof(ConstFieldInfo))]
     public class ConstFieldInfo : FieldInfo
     {
+        [XmlAttribute]
         public string Value { get; set; }
 
         public void Set(FieldInfo fieldInfo)
