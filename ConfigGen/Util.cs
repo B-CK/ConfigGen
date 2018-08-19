@@ -6,9 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Data;
 using System.Data.OleDb;
-using ConfigGen.LocalInfo;
 using System.Diagnostics;
-using System.Timers;
 
 
 namespace ConfigGen
@@ -52,19 +50,17 @@ namespace ConfigGen
         /// <param name="filePath">excel文件路径</param>
         /// <param name="sheetDict">sheet表类型及名字列表</param>
         /// <returns>excel中多个sheet数据集</returns>
-        public static DataSet ReadXlsxFile(string filePath, out Dictionary<SheetType, List<string>> sheetDict, out string errorString)
+        public static DataSet ReadXlsxFile(string filePath, out string errorString)
         {
             // 检查文件是否存在且没被打开
             FileState fileState = GetFileState(filePath);
             if (fileState == FileState.Inexist)
             {
-                sheetDict = null;
                 errorString = string.Format("{0}文件不存在", filePath);
                 return null;
             }
             else if (fileState == FileState.IsOpen)
             {
-                sheetDict = null;
                 errorString = string.Format("{0}文件正在被其他软件打开，请关闭后重新运行本工具", filePath);
                 return null;
             }
@@ -73,9 +69,6 @@ namespace ConfigGen
             OleDbDataAdapter da = null;
             DataSet ds = new DataSet();
             ds.DataSetName = filePath;
-            sheetDict = new Dictionary<SheetType, List<string>>();
-            sheetDict.Add(SheetType.Data, new List<string>());
-            sheetDict.Add(SheetType.Define, new List<string>());
 
             try
             {
@@ -95,13 +88,7 @@ namespace ConfigGen
                 for (int i = 0; i < dtSheet.Rows.Count; ++i)
                 {
                     string sheetName = dtSheet.Rows[i]["TABLE_NAME"].ToString();
-                    if (!sheetName.StartsWith(Values.DataSheetPrefix)
-                        && !sheetName.StartsWith(Values.DefineSheetPrefix)) continue;
-
-                    if (sheetName.StartsWith(Values.DataSheetPrefix))
-                        sheetDict[SheetType.Data].Add(sheetName);
-                    else if (sheetName.StartsWith(Values.DefineSheetPrefix))
-                        sheetDict[SheetType.Define].Add(sheetName);
+                    if (!sheetName.StartsWith(Values.DataSheetPrefix)) continue;
 
                     da = new OleDbDataAdapter();
                     da.SelectCommand = new OleDbCommand(String.Format("Select * FROM [{0}]", sheetName), conn);
@@ -187,7 +174,6 @@ namespace ConfigGen
                 using (StreamWriter streamWriter = new StreamWriter(filePath))
                 {
                     XmlSerializer xmlSerializer = new XmlSerializer(type);
-                    new XmlSerializer(type);
                     xmlSerializer.Serialize(streamWriter, sourceObj);
                 }
             }
@@ -252,6 +238,11 @@ namespace ConfigGen
         {
             return string.Format("{0}.{1}", nameSpace, name);
         }
+        public static string FirstCharUpper(string name)
+        {
+            return Char.ToUpper(name[0]) + name.Substring(1);
+        }
+
 
         public static string ListStringSplit(string[] array, string split = ",")
         {
@@ -316,21 +307,7 @@ namespace ConfigGen
 
             long ms = _sw.ElapsedMilliseconds - _timeStack.Pop();
             string seconds = (ms / 1000f).ToString();
-            LogFormat("{0} 耗时 {1:N3}s", msg, seconds);
+            LogFormat("{0} 耗时 {1:N3}s\n", msg, seconds);
         }
-        public static void Stopln(string msg)
-        {
-            if (_timeStack.Count <= 0) return;
-
-            long ms = _sw.ElapsedMilliseconds - _timeStack.Pop();
-            string seconds = (ms / 1000f).ToString();
-            LogFormat("{0} 耗时 {1:N3}s", msg, seconds);
-        }
-
-        public static void PopTime()
-        {
-            _timeStack.Pop();
-        }
-
     }
 }

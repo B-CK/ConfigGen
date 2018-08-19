@@ -20,606 +20,720 @@ namespace ConfigGen.LocalInfo
         Dict,
     }
 
-    [XmlRoot("TypeInfo")]
-    public class TypeInfo : BaseInfo
+    public class TypeInfo
     {
         public const string INT = "int";
         public const string LONG = "long";
         public const string BOOL = "bool";
         public const string FLOAT = "float";
         public const string STRING = "string";
+        public const string GLOBAL_SPACE = "G";
 
-        [XmlArrayItem("Class", typeof(ClassTypeInfo))]
-        [XmlArrayItem("List", typeof(ListTypeInfo))]
-        [XmlArrayItem("Dict", typeof(DictTypeInfo))]
-        public List<ClassTypeInfo> ClassInfos { get; set; }
-        [XmlArrayItem("Enum", typeof(EnumTypeInfo))]
-        public List<EnumTypeInfo> EnumInfos { get; set; }
-
-        [XmlIgnore]
-        public Dictionary<string, BaseTypeInfo> TypeInfoDict { get => _typeInfoDict; set => _typeInfoDict = value; }
-        private Dictionary<string, BaseTypeInfo> _typeInfoDict = new Dictionary<string, BaseTypeInfo>();
-
-        [XmlIgnore]
-        public Dictionary<string, ClassTypeInfo> ClassInfoDict { get => _classInfoDict; }
-        private Dictionary<string, ClassTypeInfo> _classInfoDict = new Dictionary<string, ClassTypeInfo>();
-        [XmlIgnore]
-        public Dictionary<string, EnumTypeInfo> EnumInfoDict { get => _enumInfoDict; }
-        private Dictionary<string, EnumTypeInfo> _enumInfoDict = new Dictionary<string, EnumTypeInfo>();
-
-        public static TypeInfo Create()
+        public static TypeInfo Instance
         {
-            TypeInfo typeInfo = new TypeInfo();
-            string path = Local.GetInfoPath(LocalInfoType.TypeInfo);
-            if (File.Exists(path))
+            get
             {
-                string txt = File.ReadAllText(path);
-                if (string.IsNullOrWhiteSpace(txt))
-                {
-                    File.Delete(path);
-                    typeInfo.Save();
-                }
-            }
-            else
-            {
-                typeInfo.Save();
-            }
-            typeInfo = Util.Deserialize(path, typeof(TypeInfo)) as TypeInfo;
-            typeInfo.Init();
-
-            return typeInfo;
-        }
-        private void Init()
-        {
-            for (int i = 0; i < ClassInfos.Count; i++)
-            {
-                string type = ClassInfos[i].GetClassName();
-                if (!_classInfoDict.ContainsKey(type))
-                {
-                    _classInfoDict.Add(type, ClassInfos[i]);
-                    _typeInfoDict.Add(type, ClassInfos[i]);
-                }
-            }
-            for (int i = 0; i < EnumInfos.Count; i++)
-            {
-                string type = EnumInfos[i].GetClassName();
-                if (!_enumInfoDict.ContainsKey(type))
-                {
-                    _enumInfoDict.Add(type, EnumInfos[i]);
-                    _typeInfoDict.Add(type, EnumInfos[i]);
-                }
+                if (_instance == null)
+                    _instance = new TypeInfo();
+                return _instance;
             }
         }
-        public void Add(object info)
+        private static TypeInfo _instance;
+
+        private HashSet<string> BaseTypeSet = new HashSet<string>();
+
+        public List<ClassTypeInfo> ClassInfos { get; private set; }
+        public List<EnumTypeInfo> EnumInfos { get; private set; }
+        public Dictionary<string, BaseTypeInfo> TypeInfoDict { get; private set; }
+        private Dictionary<string, ClassTypeInfo> ClassInfoDict { get; set; }
+        private Dictionary<string, EnumTypeInfo> EnumInfoDict { get; set; }
+
+        public static void Init()
         {
-            BaseTypeInfo baseInfo = info as BaseTypeInfo;
-            switch (baseInfo.TypeType)
+            Instance.ClassInfos = new List<ClassTypeInfo>();
+            Instance.EnumInfos = new List<EnumTypeInfo>();
+            Instance.TypeInfoDict = new Dictionary<string, BaseTypeInfo>();
+            Instance.ClassInfoDict = new Dictionary<string, ClassTypeInfo>();
+            Instance.EnumInfoDict = new Dictionary<string, EnumTypeInfo>();
+
+            //解析类型定义
+            Dictionary<string, TypeDescription> pairs = new Dictionary<string, TypeDescription>();
+            string[] defines = Directory.GetFiles(Values.ConfigDir, "*" + Values.ClassDesFileExt, SearchOption.AllDirectories);
+            for (int i = 0; i < defines.Length; i++)
             {
-                case TypeType.Base:
+                var typeDes = Util.Deserialize(defines[i], typeof(TypeDescription)) as TypeDescription;
+                if (pairs.ContainsKey(typeDes.Namespace))
+                {
+                    pairs[typeDes.Namespace].Classes.AddRange(typeDes.Classes);
+                    pairs[typeDes.Namespace].Enums.AddRange(typeDes.Enums);
+                }
+                else
+                {
+                    typeDes.XmlDirPath = Path.GetDirectoryName(defines[i]);
+                    pairs.Add(typeDes.Namespace, typeDes);
+                }
+            }
+            //类型重名检查
+            HashSet<string> fullHash = new HashSet<string>();
+            foreach (var item in pairs)
+            {
+                foreach (var c in item.Value.Classes)
+                {
+                    string name = string.Format("{0}.{1}", item.Key, c.Name);
+                    if (fullHash.Contains(name))
+                        Util.LogErrorFormat("{0} Class重复定义!\t{1}", name, item.Value.XmlDirPath);
+
+                    fullHash.Add(name);
+                    ClassTypeInfo info = new ClassTypeInfo(item.Value.XmlDirPath, item.Key, c);
+                    Instance.Add(info);
+                }
+                foreach (var e in item.Value.Enums)
+                {
+                    string name = string.Format("{0}.{1}", item.Key, e.Name);
+                    if (fullHash.Contains(name))
+                        Util.LogErrorFormat("{0} Enum重复定义!\t{1}", name, item.Value.XmlDirPath);
+
+                    fullHash.Add(name);
+                    EnumTypeInfo info = new EnumTypeInfo(item.Value.XmlDirPath, item.Key, e);
+                    Instance.Add(info);
+                }
+            }
+            //类型分组
+            DoGrouping();
+            //添加基础类型
+            HashSet<string> _baseType = new HashSet<string>() { INT, LONG, BOOL, FLOAT, STRING };
+            foreach (var item in _baseType)
+            {
+                Instance.Add(new BaseTypeInfo(GLOBAL_SPACE, item));
+                Instance.BaseTypeSet.Add(string.Format("{0}.{1}", GLOBAL_SPACE, item));
+            }
+            //初始化类型
+            foreach (var item in Instance.ClassInfos)
+                item.Init();
+            foreach (var item in Instance.EnumInfos)
+                item.Init();
+        }
+        private static void DoGrouping()
+        {
+            if (Values.ExportGroup == null)
+                Values.ExportGroup = new HashSet<string>() { Values.DefualtGroup };
+
+            List<BaseTypeInfo> infoList = new List<BaseTypeInfo>();
+            infoList.AddRange(Instance.ClassInfos);
+            infoList.AddRange(Instance.EnumInfos);
+            for (int i = 0; i < infoList.Count; i++)
+            {
+                //Class/Enum型分组
+                BaseTypeInfo baseType = infoList[i];
+                if (baseType.EType == TypeType.Class)
+                {
+                    ClassTypeInfo classType = baseType as ClassTypeInfo;
+                    if (!Values.ExportGroup.Overlaps(classType.GroupHashSet))
+                    {
+                        Instance.Remove(classType);
+                        continue;
+                    }
+
+                    var fields = new List<FieldInfo>(classType.Fields);
+                    for (int j = 0; j < fields.Count; j++)
+                    {
+                        FieldInfo field = fields[j];
+                        if (!Values.ExportGroup.Overlaps(field.GroupHashSet))
+                            classType.Fields.Remove(field);
+                    }
+                    classType.UpdateFieldDict();
+                    fields.Clear();
+                    fields.AddRange(classType.Consts);
+                    for (int j = 0; j < fields.Count; j++)
+                    {
+                        ConstInfo field = fields[j] as ConstInfo;
+                        if (!Values.ExportGroup.Overlaps(field.GroupHashSet))
+                            classType.Consts.Remove(field);
+                    }
+                    classType.UpdateConstDict();
+                }
+                else if (baseType.EType == TypeType.Enum)
+                {
+                    EnumTypeInfo enumType = baseType as EnumTypeInfo;
+                    var kvs = new List<ConstInfo>(enumType.Enums);
+                    for (int j = 0; j < kvs.Count; j++)
+                    {
+                        ConstInfo kv = kvs[j];
+                        if (!Values.ExportGroup.Overlaps(enumType.GroupHashSet))
+                            enumType.Enums.Remove(kv);
+                    }
+                    enumType.UpdateEnumDict();
+                }
+            }
+            return;
+        }
+
+        public void Add(BaseTypeInfo info)
+        {
+            switch (info.EType)
+            {
                 case TypeType.Class:
-                case TypeType.List:
-                case TypeType.Dict:
-                    ClassTypeInfo classInfo = baseInfo as ClassTypeInfo;
-                    string className = classInfo.GetClassName();
-                    if (!_classInfoDict.ContainsKey(className))
-                        _classInfoDict.Add(className, classInfo);
-                    else
-                        _classInfoDict[className] = classInfo;
+                    ClassTypeInfo classInfo = info as ClassTypeInfo;
+                    string className = classInfo.GetFullName();
+                    if (!ClassInfoDict.ContainsKey(className))
+                    {
+                        ClassInfoDict.Add(className, classInfo);
+                        ClassInfos.Add(classInfo);
+                    }
                     break;
                 case TypeType.Enum:
                     EnumTypeInfo enumInfo = info as EnumTypeInfo;
-                    string enumName = enumInfo.GetClassName();
-                    if (!_enumInfoDict.ContainsKey(enumName))
-                        _enumInfoDict.Add(enumName, enumInfo);
-                    else
-                        _enumInfoDict[enumName] = enumInfo;
+                    string enumName = enumInfo.GetFullName();
+                    if (!EnumInfoDict.ContainsKey(enumName))
+                    {
+                        EnumInfoDict.Add(enumName, enumInfo);
+                        EnumInfos.Add(enumInfo);
+                    }
+                    break;
+                case TypeType.Base:
+
+                case TypeType.List:
+                case TypeType.Dict:
                     break;
                 case TypeType.None:
                 default:
-                    Util.LogErrorFormat("未定义{0}.{1}类型", baseInfo.NamespaceName, baseInfo.Name);
+                    Util.LogErrorFormat("{0} 类型无法解析!", info.GetFullName());
                     break;
             }
 
-            if (baseInfo.TypeType != TypeType.None)
+            if (info.EType != TypeType.None)
             {
-                string type = baseInfo.GetClassName();
+                string type = info.GetFullName();
                 if (!TypeInfoDict.ContainsKey(type))
-                    TypeInfoDict.Add(type, baseInfo);
+                    TypeInfoDict.Add(type, info);
                 else
-                    TypeInfoDict[type] = baseInfo;
+                    TypeInfoDict[type] = info;
             }
         }
-        public void Remove(object info)
+        public void Remove(BaseTypeInfo info)
         {
             if (info == null) return;
 
-            BaseTypeInfo baseInfo = info as BaseTypeInfo;
-            switch (baseInfo.TypeType)
+            string fullName = info.GetFullName();
+            switch (info.EType)
             {
-                case TypeType.Base:
                 case TypeType.Class:
-                case TypeType.List:
-                case TypeType.Dict:
                     ClassTypeInfo classInfo = info as ClassTypeInfo;
-                    string className = classInfo.GetClassName();
-                    if (_classInfoDict.ContainsKey(className))
+                    if (ClassInfoDict.ContainsKey(fullName))
                     {
-                        _classInfoDict.Remove(className);
+                        ClassInfoDict.Remove(fullName);
                         ClassInfos.Remove(classInfo);
                     }
                     break;
                 case TypeType.Enum:
                     EnumTypeInfo enumInfo = info as EnumTypeInfo;
-                    string enumName = enumInfo.GetClassName();
-                    if (_enumInfoDict.ContainsKey(enumName))
+                    if (EnumInfoDict.ContainsKey(fullName))
                     {
-                        _enumInfoDict.Remove(enumName);
+                        EnumInfoDict.Remove(fullName);
                         EnumInfos.Remove(enumInfo);
                     }
                     break;
+                case TypeType.Base:
+                case TypeType.List:
+                case TypeType.Dict:
+                    break;
                 case TypeType.None:
                 default:
-                    Util.LogErrorFormat("未定义{0}.{1}类型", baseInfo.NamespaceName, baseInfo.Name);
+                    Util.LogErrorFormat("{0} 类型无法解析!", info.GetFullName());
                     break;
             }
-            if (baseInfo.TypeType != TypeType.None)
+            if (info.EType != TypeType.None)
             {
-                string type = baseInfo.GetClassName();
-                if (TypeInfoDict.ContainsKey(type))
-                    TypeInfoDict.Remove(type);
+                if (TypeInfoDict.ContainsKey(fullName))
+                    TypeInfoDict.Remove(fullName);
             }
         }
-        public void CorrectClassInfo()
-        {
-            var infoDict = new Dictionary<string, BaseTypeInfo>(TypeInfoDict);
-            foreach (var item in infoDict)
-            {
-                BaseTypeInfo typeInfo = item.Value;
-                if (typeInfo.TypeType == TypeType.Class)
-                {
-                    ClassTypeInfo classType = typeInfo as ClassTypeInfo;
-                    if (!classType.IsExist) continue;
-                    for (int i = 0; i < classType.Fields.Count; i++)
-                    {
-                        FieldInfo fieldInfo = classType.Fields[i];
-                        TypeType typeType = GetTypeType(fieldInfo.Type);
-                        if (typeType == TypeType.None)
-                        {
-                            string combine = Util.Combine(classType.NamespaceName, fieldInfo.Type);
-                            typeType = GetTypeType(combine);
-                        }
-                        BaseTypeInfo baseType = null;
-                        switch (typeType)
-                        {
-                            case TypeType.Class:
-                            case TypeType.Enum:
-                                fieldInfo.Type = CorrectType(fieldInfo.Type, classType, fieldInfo.Name);
-                                continue;
-                            case TypeType.List:
-                                ListTypeInfo listType = new ListTypeInfo();
-                                listType.TypeType = typeType;
-                                string type = fieldInfo.Type.Replace("list<", "").Replace(">", "");
-                                listType.ItemType = CorrectType(type, classType, fieldInfo.Name);
-                                fieldInfo.Type = string.Format("list<{0}>", listType.ItemType);
-                                listType.Name = fieldInfo.Type;
-                                baseType = listType;
-                                break;
-                            case TypeType.Dict:
-                                DictTypeInfo dictType = new DictTypeInfo();
-                                dictType.TypeType = typeType;
-                                string[] kv = fieldInfo.Type.Replace("dict<", "").Replace(">", "").Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                                if (kv.Length != 2)
-                                {
-                                    Util.LogErrorFormat("{0}.{1}的dict类型格式错误,错误位置{2}",
-                                        classType.GetClassName(), fieldInfo.Name, classType.RelPath);
-                                    continue;
-                                }
-                                string key = CorrectType(kv[0], classType, fieldInfo.Name);
-                                string error = TableChecker.CheckDictKey(key);
-                                if (!string.IsNullOrWhiteSpace(error))
-                                {
-                                    Util.LogErrorFormat("{0}.{1}定义dict key类型只能为int,long,string,enum,错误位置{2}",
-                                        classType.GetClassName(), fieldInfo.Name, classType.RelPath);
-                                    continue;
-                                }
-                                dictType.KeyType = key;
-                                dictType.ValueType = CorrectType(kv[1], classType, fieldInfo.Name);
-                                fieldInfo.Type = string.Format("dict<{0}, {1}>", dictType.KeyType, dictType.ValueType);
-                                dictType.Name = fieldInfo.Type;
-                                baseType = dictType;
-                                break;
-                            default:
-                                continue;
-                        }
-                        baseType.IsExist = true;
-                        Add(baseType);
-                    }
-                }
-                else if (typeInfo.TypeType == TypeType.Base)
-                {
-                    typeInfo.IsExist = true;
-                }
-            }
-            infoDict = new Dictionary<string, BaseTypeInfo>(TypeInfoDict);
-            foreach (var item in infoDict)
-            {
-                if (!item.Value.IsExist)
-                    Remove(item.Value);
-            }
-            foreach (var item in TypeInfoDict)
-            {
-                BaseTypeInfo typeInfo = item.Value;
-                if (typeInfo.TypeType != TypeType.Class) continue;
 
-                ClassTypeInfo classType = typeInfo as ClassTypeInfo;
-                if (!string.IsNullOrWhiteSpace(classType.Inherit))
-                {
-                    string newType = null;
-                    string combine = Util.Combine(classType.NamespaceName, classType.Inherit);
-                    string error = TableChecker.CheckType(combine);
-                    if (!string.IsNullOrWhiteSpace(error))
-                    {
-                        error = TableChecker.CheckType(classType.Inherit);
-                        if (!string.IsNullOrWhiteSpace(error))
-                            newType = null;
-                        else
-                            newType = classType.Inherit;
-                    }
-                    else
-                        newType = combine;
-
-                    if (newType == null)
-                        throw new Exception(string.Format("{0}类的继承类型{1}不存在,错误位置{2}",
-                                classType.GetClassName(), classType.Inherit, classType.RelPath));
-                    else
-                        classType.Inherit = newType;
-
-                    ClassTypeInfo pClass = GetTypeInfo(newType) as ClassTypeInfo;
-                    pClass.SubClasses.Add(typeInfo.GetClassName());
-                }
-            }
-        }
-        private string CorrectType(string type, BaseTypeInfo baseType, string name)
-        {
-            string newType = null;
-            string combine = Util.Combine(baseType.NamespaceName, type);
-            string error = TableChecker.CheckType(combine);
-            if (!string.IsNullOrWhiteSpace(error))
-            {
-                error = TableChecker.CheckType(type);
-                if (!string.IsNullOrWhiteSpace(error))
-                    newType = null;
-                else
-                    newType = type;
-            }
-            else
-                newType = combine;
-
-            if (newType != null)
-            {
-                var newInfo = GetTypeInfo(newType);
-                var oldInfo = GetTypeInfo(type);
-                Remove(oldInfo);
-                Add(newInfo);
-            }
-            else
-            {
-                throw new Exception(string.Format("{0}.{1}的类型{2}不存在,错误位置{3}",
-                   baseType.GetClassName(), name, type, baseType.RelPath));
-            }
-            return newType;
-        }
-        private void UpdateList()
-        {
-            //基础类型信息
-            foreach (var item in BaseType)
-            {
-                if (ClassInfoDict.ContainsKey(item)) continue;
-
-                ClassTypeInfo classInfo = new ClassTypeInfo();
-                classInfo.Name = item;
-                classInfo.TypeType = TypeType.Base;
-                ClassInfoDict.Add(item, classInfo);
-            }
-            ClassInfos = new List<ClassTypeInfo>(ClassInfoDict.Values);
-            EnumInfos = new List<EnumTypeInfo>(EnumInfoDict.Values);
-        }
-
-
-        [XmlIgnore]
-        static readonly HashSet<string> BaseType = new HashSet<string>() { INT, LONG, BOOL, FLOAT, STRING };
-        public static bool IsConstBaseType(string fullType, out string type, out string value)
-        {
-            const string constFlag = "=";
-            int index = fullType.IndexOf(constFlag);
-            bool isConstBase = index > 0;
-            if (isConstBase)
-            {
-                type = fullType.Substring(0, index).Trim();
-                value = fullType.Substring(index + 1);
-                if (type == STRING)
-                    value = string.Format("\"{0}\"", value);
-                isConstBase = BaseType.Contains(type);
-            }
-            else
-            {
-                type = fullType;
-                value = null;
-            }
-
-            return isConstBase;
-        }
         /// <summary>
-        /// 完整类名,即带命名空间,基础类型和集合除外
+        /// 完整类名,即带命名空间
         /// </summary>
-        public static TypeType GetTypeType(string type)
+        public static TypeType GetTypeType(string fullName)
         {
             TypeType typeType = TypeType.None;
-            if (BaseType.Contains(type))
+            if (Instance.BaseTypeSet.Contains(fullName))
                 typeType = TypeType.Base;
-            else if (type.StartsWith("list<"))
+            else if (fullName.StartsWith("list:"))
                 typeType = TypeType.List;
-            else if (type.StartsWith("dict<"))
+            else if (fullName.StartsWith("dict:"))
                 typeType = TypeType.Dict;
-            else if (Local.Instance.TypeInfoLib.ClassInfoDict.ContainsKey(type))
+            else if (Instance.ClassInfoDict.ContainsKey(fullName))
                 typeType = TypeType.Class;
-            else if (Local.Instance.TypeInfoLib.EnumInfoDict.ContainsKey(type))
+            else if (Instance.EnumInfoDict.ContainsKey(fullName))
                 typeType = TypeType.Enum;
 
             return typeType;
         }
-        public static string GetNamespaceName(string relPath)
-        {
-            string[] nodes = Path.GetDirectoryName(relPath).Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            return Util.ListStringSplit(nodes, ".");
-        }
-        public static BaseTypeInfo GetTypeInfo(string type)
+        public static BaseTypeInfo GetTypeInfo(string fullName)
         {
             BaseTypeInfo baseTypeInfo = null;
-            var typeDict = Local.Instance.TypeInfoLib.TypeInfoDict;
-            if (typeDict.ContainsKey(type))
-                baseTypeInfo = typeDict[type];
+            var typeDict = Instance.TypeInfoDict;
+            if (typeDict.ContainsKey(fullName))
+                baseTypeInfo = typeDict[fullName];
 
             return baseTypeInfo;
         }
-
-
-        public void Save()
+        public static HashSet<string> AnalyzeGroup(string group)
         {
-            UpdateList();
-            string path = Local.GetInfoPath(LocalInfoType.TypeInfo);
-            Util.Serialize(path, this);
+            if (string.IsNullOrWhiteSpace(group)) return new HashSet<string>() { Values.DefualtGroup };
+            string[] groups = group.Split(Values.ItemSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            if (groups.Length == 0) return null;
+            return new HashSet<string>(groups);
         }
     }
 
-    public abstract class BaseTypeInfo
+    public class BaseTypeInfo
     {
-        [XmlAttribute]
-        public TypeType TypeType { get; set; }
-        [XmlAttribute]
         /// <summary>
         /// 类对应文件的相对路径
         /// </summary>
-        public string RelPath { get; set; }
-        [XmlAttribute]
-        public string NamespaceName { get; set; }
-        [XmlAttribute]
-        public string Name { get; set; }
-        [XmlAttribute]
-        public string Group { get; set; }
+        public virtual string XmlDirPath { get; protected set; }
 
-        /// <summary>
-        /// 类型信息是否任然存在
-        /// </summary>
-        [XmlIgnore]
-        public bool IsExist { get; set; }
+        public TypeType EType = TypeType.Base;
+        public string NamespaceName { get; private set; }
+        public string Name { get; private set; }
 
-        private string _className;
+        public BaseTypeInfo(string namespace0, string name)
+        {
+            NamespaceName = namespace0;
+            Name = name;
+        }
+        public virtual void Init() { }
         /// <summary>
         /// 相对根的目录的命名空间,不包含根节点
         /// </summary>
-        public string GetClassName()
+        public string GetFullName()
         {
-            if (_className == null)
-            {
-                if (string.IsNullOrWhiteSpace(NamespaceName))
-                    _className = Name;
-                else
-                    _className = string.Format("{0}.{1}", NamespaceName, Name);
-            }
-
-            return _className;
-        }
-
-        [XmlIgnore]
-        public HashSet<string> GroupHashSet { get => _groupHashSet; set => _groupHashSet = value; }
-        private HashSet<string> _groupHashSet = null;
-        public void GroupToHashSet()
-        {
-            if (_groupHashSet != null) return;
-
-            _groupHashSet = new HashSet<string>();
-            string[] groups = Group.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            _groupHashSet = new HashSet<string>(groups);
+            if (string.IsNullOrWhiteSpace(NamespaceName))
+                return Name;
+            else
+                return string.Format("{0}.{1}", NamespaceName, Name);
         }
     }
 
     /// <summary>
     /// 类描述
     /// </summary>
-    [XmlInclude(typeof(ClassTypeInfo))]
     public class ClassTypeInfo : BaseTypeInfo
     {
-        [XmlAttribute]
-        public string Inherit { get; set; }
-        [XmlAttribute]
-        public string DataTable { get; set; }
-
-        [XmlElement("Const")]
-        public List<ConstFieldInfo> Consts { get; set; }
-
-        [XmlElement("Field")]
-        public List<FieldInfo> Fields { get; set; }
-
+        public string Index { get { return _des.Index; } }
         /// <summary>
-        /// 表索引键字段信息
+        /// Excel或者Xml等全路径
         /// </summary>
-        [XmlIgnore]
-        public FieldInfo IndexField { get; set; }
-        [XmlIgnore]
-        public HashSet<string> SubClasses = new HashSet<string>();
-        [XmlIgnore]
-        public bool HasSubClass { get { return SubClasses != null && SubClasses.Count > 0; } }
-
-        Dictionary<string, FieldInfo> _fieldInfoDict;
-        public Dictionary<string, FieldInfo> GetFieldInfoDict()
-        {
-            return _fieldInfoDict;
-        }
-        public void UpdateToDict()
-        {
-            if (_fieldInfoDict != null && _fieldInfoDict.Count > 0) return;
-
-            _fieldInfoDict = new Dictionary<string, FieldInfo>();
-            for (int i = 0; i < Fields.Count; i++)
-            {
-                string fieldName = Fields[i].Name;
-                if (!_fieldInfoDict.ContainsKey(fieldName))
-                    _fieldInfoDict.Add(fieldName, Fields[i]);
-            }
-        }
-        public void ResetDict()
-        {
-            if (_fieldInfoDict != null)
-                _fieldInfoDict.Clear();
-        }
-
-        public ClassTypeInfo GetInheritTypeInfo()
-        {
-            ClassTypeInfo classType = null;
-            Dictionary<string, ClassTypeInfo> classInfoDict = Local.Instance.TypeInfoLib.ClassInfoDict;
-            if (classInfoDict.ContainsKey(Inherit))
-                classType = classInfoDict[Inherit];
-            else
-                throw new Exception(string.Format("{0}类型的继承类型{1}不存在,错误位置{2}",
-                    GetClassName(), Inherit, RelPath));
-            return classType;
-        }
-    }
-    [XmlInclude(typeof(ListTypeInfo))]
-    public class ListTypeInfo : ClassTypeInfo
-    {
-        [XmlAttribute]
-        public string ItemType { get; set; }
-    }
-    [XmlInclude(typeof(DictTypeInfo))]
-    public class DictTypeInfo : ClassTypeInfo
-    {
-        [XmlAttribute]
-        public string KeyType { get; set; }
-        [XmlAttribute]
-        public string ValueType { get; set; }
-    }
-    [XmlInclude(typeof(FieldInfo))]
-    public class FieldInfo
-    {
-        [XmlAttribute]
-        /// <summary>
-        /// 字段名
-        /// </summary>
-        public string Name { get; set; }
-        [XmlAttribute]
-        /// <summary>
-        /// 完整类型名,即带命名空间
-        /// </summary>
-        public string Type { get; set; }
-        [XmlAttribute]
-        public string Des { get; set; }
-        [XmlAttribute]
-        public string Check { get; set; }
-        [XmlAttribute]
-        public string Group { get; set; }
-
-
-        [XmlIgnore]
-        public BaseTypeInfo BaseInfo
+        public string DataPath
         {
             get
             {
-                if (_typeInfo == null)
-                    _typeInfo = TypeInfo.GetTypeInfo(Type);
-                if (_typeInfo == null)
-                    Util.LogErrorFormat("{0}.{1} 类型:{2} 不存在", _className, Name, Type);
-                return _typeInfo;
+                if (string.IsNullOrWhiteSpace(_des.DataPath))
+                    return null;
+                return string.Format("{0}\\{1}", XmlDirPath, _des.DataPath);
             }
         }
-        private BaseTypeInfo _typeInfo;
-        private string _className;
-        public void SetClassName(string name)
+        public string Group { get; private set; }
+
+        public List<ConstInfo> Consts { get; private set; }
+        public List<FieldInfo> Fields { get; private set; }
+        public Dictionary<string, ConstInfo> ConstDict { get; private set; }
+        public Dictionary<string, FieldInfo> FieldDict { get; private set; }
+        public FieldInfo IndexField { get; private set; }
+        public ClassTypeInfo Inherit { get; private set; }
+        public HashSet<string> GroupHashSet { get; private set; }
+
+        //----------------------继承功能:父类查找,优先查找当前命名空间;其次直接当做全路径类型查找
+        public Dictionary<string, ClassTypeInfo> SubClassDict { get; private set; }
+
+        private ClassDes _des;
+        public ClassTypeInfo(string xmlDir, string namespace0, ClassDes des) : base(namespace0, des.Name)
         {
-            _className = name;
+            EType = TypeType.Class;
+            _des = des;
+            XmlDirPath = xmlDir;
+            string inherit = _des.Inherit;
+
+            Consts = new List<ConstInfo>();
+            for (int i = 0; i < des.Consts.Count; i++)
+            {
+                var info = new ConstInfo(this, des.Consts[i]);
+                Consts.Add(info);
+            }
+            UpdateConstDict();
+            Fields = new List<FieldInfo>();
+            for (int i = 0; i < des.Fields.Count; i++)
+            {
+                var info = new FieldInfo(this, des.Fields[i]);
+                Fields.Add(info);
+            }
+            UpdateFieldDict();
+            GroupHashSet = TypeInfo.AnalyzeGroup(Group);
+
+            SubClassDict = new Dictionary<string, ClassTypeInfo>();
+            if (!string.IsNullOrWhiteSpace(inherit))
+            {
+                string localSpace = Util.Combine(NamespaceName, inherit);
+                Inherit = TypeInfo.GetTypeInfo(localSpace) as ClassTypeInfo;
+                if (Inherit == null)
+                    Inherit = TypeInfo.GetTypeInfo(inherit) as ClassTypeInfo;
+                if (Inherit == null)
+                {
+                    Util.LogErrorFormat("类型{0}的父类{1}未定义!\t{2}", GetFullName(), inherit, XmlDirPath);
+                    return;
+                }
+                string fullName = GetFullName();
+                if (!SubClassDict.ContainsKey(fullName))
+                    SubClassDict.Add(fullName, this);
+            }
         }
-        [XmlIgnore]
-        public Dictionary<CheckRuleType, List<string>> RuleDict { get => _ruleDict; set => _ruleDict = value; }
-        private Dictionary<CheckRuleType, List<string>> _ruleDict = new Dictionary<CheckRuleType, List<string>>();
-        public void Set(string name, string type, string check, string group)
+        public override void Init()
         {
-            Name = name;
-            Type = type;
-            Check = check;
-            Group = group;
+            if (string.IsNullOrWhiteSpace(_des.Group))
+                Group = Values.DefualtGroup;
+            else
+                Group = string.Format("{0}|{1}", _des.Group, Values.DefualtGroup);
+            if (Index != null)
+                if (!FieldDict.ContainsKey(Index))
+                    Util.LogErrorFormat("{0}类中不包含字段{1}!\t{2}", GetFullName(), Index, XmlDirPath);
+                else
+                    IndexField = FieldDict[Index];
+
+            for (int i = 0; i < Consts.Count; i++)
+                Consts[i].Init();
+            for (int i = 0; i < Fields.Count; i++)
+                Fields[i].Init();
+        }
+        public void UpdateFieldDict()
+        {
+            if (FieldDict == null)
+                FieldDict = new Dictionary<string, FieldInfo>();
+            FieldDict.Clear();
+
+            for (int i = 0; i < Fields.Count; i++)
+            {
+                var info = Fields[i];
+                if (FieldDict.ContainsKey(info.Name))
+                    Util.LogErrorFormat("变量{0}.{1}定义重复", GetFullName(), info.Name);
+                else
+                    FieldDict.Add(info.Name, info);
+            }
+        }
+        public void UpdateConstDict()
+        {
+            if (ConstDict == null)
+                ConstDict = new Dictionary<string, ConstInfo>();
+            ConstDict.Clear();
+
+            for (int i = 0; i < Consts.Count; i++)
+            {
+                var info = Consts[i];
+                if (ConstDict.ContainsKey(info.Name))
+                    Util.LogErrorFormat("常量{0}.{1}定义重复", GetFullName(), info.Name);
+                else
+                    ConstDict.Add(info.Name, info);
+            }
         }
 
-
-        [XmlIgnore]
-        public HashSet<string> GroupHashSet { get => _groupHashSet; set => _groupHashSet = value; }
-        private HashSet<string> _groupHashSet = null;
-        public void GroupToHashSet()
+        public ClassTypeInfo GetSubClass(string fullName)
         {
-            if (_groupHashSet != null) return;
-
-            _groupHashSet = new HashSet<string>();
-            string[] groups = Group.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            _groupHashSet = new HashSet<string>(groups);
+            if (SubClassDict.ContainsKey(fullName))
+                return SubClassDict[fullName];
+            else
+                return null;
         }
     }
-    [XmlInclude(typeof(ConstFieldInfo))]
-    public class ConstFieldInfo : FieldInfo
-    {
-        [XmlAttribute]
-        public string Value { get; set; }
-
-        public void Set(FieldInfo fieldInfo)
-        {
-            Set(fieldInfo.Name, fieldInfo.Type, fieldInfo.Check, fieldInfo.Group);
-            Des = fieldInfo.Des;
-        }
-    }
-    /// <summary>
-    /// 枚举描述
-    /// </summary>
-    [XmlInclude(typeof(EnumTypeInfo))]
     public class EnumTypeInfo : BaseTypeInfo
     {
-        [XmlElement("Item")]
-        public List<ConstFieldInfo> KeyValuePair { get; set; }
+        public string Group { get; private set; }
+        public List<ConstInfo> Enums { get; private set; }
+        public Dictionary<string, ConstInfo> EnumDict { get; private set; }
+        public Dictionary<string, ConstInfo> AliasDict { get; private set; }
+        public HashSet<string> GroupHashSet { get; private set; }
 
-        [XmlIgnore]
-        public Dictionary<string, string> EnumDict { get => _enumDict; }
-        private Dictionary<string, string> _enumDict;
-        public void UpdateToDict()
+
+        private EnumDes _des;
+        public EnumTypeInfo(string xmlDir, string namespace0, EnumDes des) : base(namespace0, des.Name)
         {
-            if (_enumDict != null) return;
+            EType = TypeType.Enum;
+            _des = des;
+            XmlDirPath = xmlDir;
 
-            _enumDict = new Dictionary<string, string>();
-            for (int i = 0; i < KeyValuePair.Count; i++)
+            Enums = new List<ConstInfo>();
+            AliasDict = new Dictionary<string, ConstInfo>();
+            for (int i = 0; i < des.Enums.Count; i++)
             {
-                ConstFieldInfo keyValue = KeyValuePair[i];
-                if (_enumDict.ContainsKey(keyValue.Name))
-                    throw new Exception(string.Format("枚举{0}.{1}定义重复", GetClassName(), keyValue.Name));
+                var info = new ConstInfo(this, des.Enums[i]);
+                info.Type = TypeInfo.INT;
+                Enums.Add(info);
+
+                if (string.IsNullOrWhiteSpace(info.Alias)) continue;
+              
+                if (!AliasDict.ContainsKey(info.Alias))
+                    AliasDict.Add(info.Alias, info);
                 else
-                    _enumDict.Add(keyValue.Name, keyValue.Value);
+                    Util.LogErrorFormat("{0} 枚举{1}重名!", GetFullName(), info.Alias);
             }
+           
+            UpdateEnumDict();
+            GroupHashSet = TypeInfo.AnalyzeGroup(Group);
+        }
+        public override void Init()
+        {
+            if (string.IsNullOrWhiteSpace(_des.Group))
+                Group = Values.DefualtGroup;
+            else
+                Group = string.Format("{0}|{1}", _des.Group, Values.DefualtGroup);
+            for (int i = 0; i < Enums.Count; i++)
+                Enums[i].Init();
+        }
+        public void UpdateEnumDict()
+        {
+            if (EnumDict == null)
+                EnumDict = new Dictionary<string, ConstInfo>();
+            EnumDict.Clear();
+
+            for (int i = 0; i < Enums.Count; i++)
+            {
+                var info = Enums[i];
+
+                if (EnumDict.ContainsKey(info.Name))
+                    Util.LogErrorFormat("枚举{0}.{1}定义重复", GetFullName(), info.Name);
+                else
+                    EnumDict.Add(info.Name, info);
+            }
+        }
+    }
+
+
+    public class ListTypeInfo : BaseTypeInfo
+    {
+        public string ItemType { get; private set; }
+        public FieldInfo ItemInfo { get; private set; }
+        public BaseTypeInfo Parent { get; private set; }
+        public ListTypeInfo(BaseTypeInfo parent, string listType)
+            : base(TypeInfo.GLOBAL_SPACE, listType)
+        {
+            EType = TypeType.List;
+            string[] nodes = listType.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            if (nodes.Length != 2)
+                Util.LogErrorFormat("{0} list类型格式不正确!", GetFullName());
+
+            Parent = parent;
+            ItemType = nodes[1];
+            ItemInfo = new FieldInfo(parent, Values.ELEMENT, ItemType, null);
+        }
+        public override void Init()
+        {
+            ItemInfo.Init();
+        }
+    }
+    public class DictTypeInfo : BaseTypeInfo
+    {
+        public string KeyType { get; private set; }
+        public string ValueType { get; private set; }
+        public FieldInfo KeyInfo { get; private set; }
+        public FieldInfo ValueInfo { get; private set; }
+        public BaseTypeInfo Parent { get; private set; }
+
+        private HashSet<string> _dictKeyLimit = new HashSet<string>() { TypeInfo.INT, TypeInfo.LONG, TypeInfo.STRING };
+
+        public DictTypeInfo(BaseTypeInfo parent, string dictType)
+                : base(TypeInfo.GLOBAL_SPACE, dictType)
+        {
+            EType = TypeType.Dict;
+            string[] nodes = dictType.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            if (nodes.Length != 3)
+                Util.LogErrorFormat("{0} dict类型格式不正确!", GetFullName());
+
+            Parent = parent;
+            KeyType = nodes[1];
+            ValueType = nodes[2];
+            if (!_dictKeyLimit.Contains(KeyType) && EType != TypeType.Enum)
+                Util.LogErrorFormat("{0} key不能为{1}类型!", GetFullName(), KeyType);
+            KeyInfo = new FieldInfo(parent, Values.KEY, KeyType, null);
+            ValueInfo = new FieldInfo(parent, Values.VALUE, ValueType, null);
+
+
+        }
+        public override void Init()
+        {
+            KeyInfo.Init();
+            ValueInfo.Init();
+        }
+    }
+
+    public class FieldInfo
+    {
+        public virtual string Name { get { return _des.Name; } }
+        public virtual string Type { get { return _des.Type; } set { _des.Type = value; } }//直接配置全路径
+        public virtual string Des { get { return _des.Des; } }
+        public virtual string Check { get { return _des.Check; } }
+        public virtual string Group { get; private set; }
+
+        public virtual BaseTypeInfo Parent { get; private set; }
+        public virtual BaseTypeInfo BaseInfo { get; private set; }
+        public Dictionary<CheckRuleType, List<string>> RuleDict { get; private set; }
+        public HashSet<string> GroupHashSet { get; private set; }
+
+        private FieldDes _des;
+
+        public FieldInfo(BaseTypeInfo parent, string name, string type, string check)
+        {
+            _des = new FieldDes()
+            {
+                Name = name,
+                Type = type,
+                Check = check,
+            };
+            Parent = parent;
+            RuleDict = new Dictionary<CheckRuleType, List<string>>();
+            GroupHashSet = TypeInfo.AnalyzeGroup(Group);
+            AnalyzeCheckRule();
+        }
+        public FieldInfo(BaseTypeInfo parent, FieldDes des)
+        {
+            _des = des;
+            Parent = parent;
+            RuleDict = new Dictionary<CheckRuleType, List<string>>();
+            GroupHashSet = TypeInfo.AnalyzeGroup(Group);
+            AnalyzeCheckRule();
+        }
+        public void Init()
+        {
+            if (string.IsNullOrWhiteSpace(_des.Group))
+                Group = Values.DefualtGroup;
+            else
+                Group = string.Format("{0}|{1}", _des.Group, Values.DefualtGroup);
+
+            //--基础类型或者集合类型
+            string type = Util.Combine(TypeInfo.GLOBAL_SPACE, Type);
+            BaseInfo = TypeInfo.GetTypeInfo(type);
+            if (BaseInfo == null)
+            {
+                //--创建集合类型
+                if (Type.StartsWith("list:"))
+                {
+                    BaseInfo = new ListTypeInfo(Parent, Type);
+                    BaseInfo.Init();
+                    TypeInfo.Instance.Add(BaseInfo);
+                }
+                else if (Type.StartsWith("dict:"))
+                {
+                    BaseInfo = new DictTypeInfo(Parent, Type);
+                    BaseInfo.Init();
+                    TypeInfo.Instance.Add(BaseInfo);
+                }
+            }
+            if (BaseInfo == null)
+            {
+                //--Class或者Enum
+                type = Util.Combine(Parent.NamespaceName, Type);
+                BaseInfo = TypeInfo.GetTypeInfo(type);
+                if (BaseInfo == null)
+                    BaseInfo = TypeInfo.GetTypeInfo(Type);
+                else
+                    _des.Type = type;
+            }
+
+            if (BaseInfo == null)
+                Util.LogErrorFormat("{0}.{1} {2}类型无法解析!", Parent.GetFullName(), Name, Type);
+        }
+        public void AddCheckRule(string rule)
+        {
+            if (GroupHashSet != null && GroupHashSet.Contains(rule)) return;
+            _des.Check += "|" + rule;
+            AnalyzeCheckRule();
+        }
+        private void AnalyzeCheckRule()
+        {
+            if (Check == null) return;
+            string[] checks = Check.Split(Values.ItemSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            if (checks.Length == 0) return;
+
+            string refFlag = "ref";
+            string[] rangeFlags = { "[", "]", "(", ")" };
+            string noEmptyFlag = "noEmpty";
+            string uniqueFlag = "unique";
+            //string[] relOpFlags = { "<", ">", "<=", ">=", "==" };
+            string fileExistFlags = "file";
+
+            foreach (var check in checks)
+            {
+                CheckRuleType ruleType = CheckRuleType.None;
+                List<string> ruleArgs = new List<string>();
+                bool isNullOrWhiteSpace = string.IsNullOrWhiteSpace(check);
+                if (isNullOrWhiteSpace) continue;
+
+                if (check.StartsWith(refFlag))
+                {
+                    ruleType = CheckRuleType.Ref;
+                    ruleArgs.AddRange(check.Replace(refFlag, "").Split(Values.ArgsSplitFlag.ToCharArray(),
+                        StringSplitOptions.RemoveEmptyEntries));
+                }
+                else if (check.StartsWith(noEmptyFlag))
+                {
+                    ruleType = CheckRuleType.NoEmpty;
+                    //ruleArgs.AddRange(check.Replace(noEmptyFlag, "").Split(Values.ArgsSplitFlag.ToCharArray(),
+                    //    StringSplitOptions.RemoveEmptyEntries));
+                }
+                else if (check.StartsWith(uniqueFlag))
+                {
+                    ruleType = CheckRuleType.Unique;
+                    //ruleArgs.AddRange(check.Replace(uniqueFlag, "").Split(Values.ArgsSplitFlag.ToCharArray(),
+                    //    StringSplitOptions.RemoveEmptyEntries));
+                }
+                else if (check.StartsWith(fileExistFlags))
+                {
+                    ruleType = CheckRuleType.FileExist;
+                    ruleArgs.AddRange(check.Replace(fileExistFlags, "").Split(Values.ArgsSplitFlag.ToCharArray(),
+                        StringSplitOptions.RemoveEmptyEntries));
+                }
+                else
+                {
+                    for (int j = 0; j < rangeFlags.Length; j++)
+                    {
+                        if (check.StartsWith(rangeFlags[j]) || check.EndsWith(rangeFlags[j]))
+                        {
+                            ruleType = CheckRuleType.Range;
+                            ruleArgs.AddRange(check.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries));
+                            break;
+                        }
+                    }
+                    //for (int j = 0; j < relOpFlags.Length; j++)
+                    //{
+                    //    if (check.StartsWith(relOpFlags[j]) || check.EndsWith(relOpFlags[j]))
+                    //    {
+                    //        ruleType = CheckRuleType.RelationalOp;
+                    //        ruleArgs.Add(check.Replace(relOpFlags[j], ""));
+                    //        break;
+                    //    }
+                    //}
+                }
+
+                if (!RuleDict.ContainsKey(ruleType))
+                    RuleDict.Add(ruleType, ruleArgs);
+
+                if (!isNullOrWhiteSpace && ruleType == CheckRuleType.None)
+                    Util.LogWarningFormat("{0}.{1} 异常:检查规则{2}不存在", Parent.GetFullName(), Name, check);
+
+            }
+        }
+
+        public void Set(string name, string type, string check, string group)
+        {
+
+        }
+    }
+    public class ConstInfo : FieldInfo
+    {
+        public string Value { get { return _des.Value; } }
+        public string Alias { get { return _des.Alias; } }
+
+        ConstDes _des;
+        public ConstInfo(BaseTypeInfo parent, ConstDes des) : base(parent, des)
+        {
+            _des = des;
         }
     }
 }

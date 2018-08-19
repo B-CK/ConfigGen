@@ -12,11 +12,13 @@ namespace ConfigGen.Export
         public const string Const = "const";
         public const string Readonly = "readonly";
         public const string Abstract = "abstract";
+        public const string Override = "override";
         public const string Sealed = "sealed";
 
         private static int _level = 0;
         public static void Reset() { _level = 0; }
         public static void EndLevel() { _level--; }
+        public static void AddLevel() { _level++; }
         public static void IntervalLevel(StringBuilder builder)
         {
             for (int i = 0; i < _level; i++)
@@ -48,9 +50,9 @@ namespace ConfigGen.Export
         {
             IntervalLevel(builder);
             if (string.IsNullOrWhiteSpace(inhert))
-                builder.AppendFormat("{0} class {1}", modifier, className);
+                builder.AppendFormat("{0} {1} class {2}", modifier, identification, className);
             else
-                builder.AppendFormat("{0} class {1} : {2}", modifier, className, inhert);
+                builder.AppendFormat("{0} {1} class {2} : {3}", modifier, identification, className, inhert);
             Start(builder);
         }
         public static void Field(StringBuilder builder, string modifier, string type, string fieldName)
@@ -110,7 +112,7 @@ namespace ConfigGen.Export
         {
             Function(builder, modifier, "", returnType, funcName, types, args);
         }
-        public static void Function(StringBuilder builder, string modifier, string identification, string returnType, string funcName, string[] types = null, string[] args = null)
+        public static void Function(StringBuilder builder, string modifier, string identification, string returnType, string funcName, string[] types = null, string[] args = null, string whereT = null)
         {
             StringBuilder strbuilder = new StringBuilder();
             IntervalLevel(builder);
@@ -130,10 +132,14 @@ namespace ConfigGen.Export
                         strbuilder.AppendFormat(", {0} {1}", types[i], args[i]);
                 }
             }
-            builder.AppendFormat("{0}{1} {2} {3}({4})", s1, s2, returnType, funcName, strbuilder.ToString());
+            if (string.IsNullOrWhiteSpace(whereT))
+                builder.AppendFormat("{0}{1} {2} {3}({4})", s1, s2, returnType, funcName, strbuilder.ToString());
+            else
+                builder.AppendFormat("{0}{1} {2} {3}({4}) where T :{5}", s1, s2, returnType, funcName, strbuilder.ToString(), whereT);
 
             Start(builder);
         }
+
         public static void Enum(StringBuilder builder, string modifier, string enumName)
         {
             IntervalLevel(builder);

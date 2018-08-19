@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class EffectAlignType
+	public sealed class EffectAlignType
 	{
 		public const int None = 0;
 		public const int LeftTop = 1;

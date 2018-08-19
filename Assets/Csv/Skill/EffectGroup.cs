@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class EffectGroup : CfgObject
+	public  class EffectGroup : CfgObject
 	{
 		/// <summary>
 		/// 特效组ID
@@ -17,7 +17,7 @@ namespace Csv.Skill
 		/// <summary>
 		/// 特效组行为列表
 		/// <summary>
-		public readonly List<Csv.Skill.Action> Actions = new List<Csv.Skill.Action>();
+		public readonly List<Action> Actions = new List<Action>();
 
 		public EffectGroup(DataStream data)
 		{
@@ -25,7 +25,7 @@ namespace Csv.Skill
 			this.Name = data.GetString();
 			for (int n = data.GetInt(); n-- > 0; )
 			{
-				this.Actions.Add((Skill.Action)data.GetObject(data.GetString()));
+				this.Actions.Add(new Action(data));
 			}
 		}
 	}

@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class SoundEffect : Csv.Skill.Action
+	public  class SoundEffect : Csv.Skill.Action
 	{
 		/// <summary>
 		/// 触发概率

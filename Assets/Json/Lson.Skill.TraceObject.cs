@@ -1,9 +1,11 @@
 using System;
+using System.IO;
+using System.Xml;
 using System.Collections.Generic;
 
 namespace Lson.Skill
 {
-	public class TraceObject : Lson.Skill.SpawnObject
+	public  class TraceObject : Lson.Skill.SpawnObject
 	{
 		/// <summary>
 		/// 身体矫正值
@@ -49,5 +51,35 @@ namespace Lson.Skill
 		/// 被击者绑定位置
 		/// <summary>
 		public Lson.Skill.TraceBindType TargetBindType;
+
+		public override void Write(TextWriter _1)
+		{
+			Write(_1, "EffectId", this.EffectId);
+			Write(_1, "IsTraceTarget", this.IsTraceTarget);
+			Write(_1, "TraceCurveId", this.TraceCurveId);
+			Write(_1, "OffsetX", this.OffsetX);
+			Write(_1, "OffsetY", this.OffsetY);
+			Write(_1, "OffsetZ", this.OffsetZ);
+			Write(_1, "TraceType", (int)this.TraceType);
+			Write(_1, "CasterBindType", (int)this.CasterBindType);
+			Write(_1, "TargetBindType", (int)this.TargetBindType);
+		}
+
+		public override void Read(XmlNode _1)
+		{
+			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
+			switch (_2.Name)
+			{
+				case "EffectId": this.EffectId = ReadInt(_2); break;
+				case "IsTraceTarget": this.IsTraceTarget = ReadBool(_2); break;
+				case "TraceCurveId": this.TraceCurveId = ReadInt(_2); break;
+				case "OffsetX": this.OffsetX = ReadFloat(_2); break;
+				case "OffsetY": this.OffsetY = ReadFloat(_2); break;
+				case "OffsetZ": this.OffsetZ = ReadFloat(_2); break;
+				case "TraceType": this.TraceType = (Lson.Skill.TraceType)ReadInt(_2); break;
+				case "CasterBindType": this.CasterBindType = (Lson.Skill.TraceBindType)ReadInt(_2); break;
+				case "TargetBindType": this.TargetBindType = (Lson.Skill.TraceBindType)ReadInt(_2); break;
+			}
+		}
 	}
 }

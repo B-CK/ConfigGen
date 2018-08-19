@@ -47,7 +47,7 @@ namespace ConfigGen
         /// <summary>
         /// 导出所有分组
         /// </summary>
-        public const string AllGroup = "defualt";
+        public const string DefualtGroup = "defualt";
         /// <summary>
         /// 工具所在目录
         /// </summary>
@@ -59,7 +59,11 @@ namespace ConfigGen
         /// <summary>
         /// 数据类型表格Sheet名定义格式
         /// </summary>
-        public const string DefineSheetPrefix = "define";
+        public const string ClassDesFileExt = ".xml";
+        /// <summary>
+        /// 数据填写扩展文件后缀名
+        /// </summary>
+        public const string TableExtFileExt = ".xsl";
         /// <summary>
         /// 数据表前四行分别声明字段检查规则,字段描述,字段名,字段数据类型.
         /// </summary>
@@ -69,21 +73,18 @@ namespace ConfigGen
         //public const int DataSheetTypeIndex = 3;
         public const int DataSheetDataStartIndex = 3;
         /// <summary>
-        /// 数据类型定义起始符
-        /// </summary>
-        public const string DefineTypeFlag = "##";
-        /// <summary>
         /// 数据集合结束符,可用在数据/子字段上.
         /// </summary>
         public const string DataSetEndFlag = "##";
         /// <summary>
         /// 多参数分隔符,适用检查规则,分组
         /// </summary>
-        public const string ArgsSplitFlag = "|";
+        public const string ItemSplitFlag = "|";
         /// <summary>
-        /// 单个检查功能中存在多个参数时,用:符号分离
+        /// 单个检查功能中存在多个参数时,用:符号分离;
+        /// 集合元素类型分离
         /// </summary>
-        public const string CheckRuleArgsSplitFlag = ":";
+        public const string ArgsSplitFlag = ":";
         /// <summary>
         /// Csv数据存储分隔符
         /// </summary>
@@ -93,9 +94,9 @@ namespace ConfigGen
         /// </summary>
         public const string CsvFileExt = ".data";
         /// <summary>
-        /// 多态标识符
+        /// 多态类型属性标识符
         /// </summary>
-        public const string Polymorphism = "$type";
+        public const string PolymorphismFlag = "Type";
         /// <summary>
         /// 导出Lson数据读写类命名空间根节点
         /// </summary>
@@ -107,15 +108,15 @@ namespace ConfigGen
         /// <summary>
         /// 列表元素命名
         /// </summary>
-        public const string ELEMENT = "List.Element";
+        public const string ELEMENT = "Element";
         /// <summary>
         /// 字典Key命名
         /// </summary>
-        public const string KEY = "Dict.Key";
+        public const string KEY = "Key";
         /// <summary>
         /// 字典Value命名
         /// </summary>
-        public const string VALUE = "Dict.Value";
+        public const string VALUE = "Value";
         #endregion
     }
 }

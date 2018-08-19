@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.AllType
 {
-	public class AllClass : CfgObject
+	public  class AllClass : CfgObject
 	{
 		/// <summary>
 		/// 常量字符串
@@ -21,7 +21,7 @@ namespace Csv.AllType
 		/// <summary>
 		/// 长整型
 		/// <summary>
-		public readonly int VarLong;
+		public readonly long VarLong;
 		/// <summary>
 		/// 浮点型
 		/// <summary>
@@ -49,7 +49,7 @@ namespace Csv.AllType
 		/// <summary>
 		/// Class列表
 		/// <summary>
-		public readonly List<Csv.AllType.SingleClass> VarListClass = new List<Csv.AllType.SingleClass>();
+		public readonly List<SingleClass> VarListClass = new List<SingleClass>();
 		/// <summary>
 		/// 字符串列表
 		/// <summary>
@@ -61,16 +61,16 @@ namespace Csv.AllType
 		/// <summary>
 		/// 枚举类型字典
 		/// <summary>
-		public readonly Dictionary<long, int> VarDictEnum = new Dictionary<long, int>();
+		public readonly Dictionary<long, CardElement> VarDictEnum = new Dictionary<long, CardElement>();
 		/// <summary>
 		/// 类类型字典
 		/// <summary>
-		public readonly Dictionary<string, Csv.AllType.SingleClass> VarDictClass = new Dictionary<string, Csv.AllType.SingleClass>();
+		public readonly Dictionary<string, SingleClass> VarDictClass = new Dictionary<string, SingleClass>();
 
 		public AllClass(DataStream data)
 		{
 			this.ID = data.GetInt();
-			this.VarLong = data.GetInt();
+			this.VarLong = data.GetLong();
 			this.VarFloat = data.GetFloat();
 			this.VarString = data.GetString();
 			this.VarBool = data.GetBool();
@@ -82,7 +82,7 @@ namespace Csv.AllType
 			}
 			for (int n = data.GetInt(); n-- > 0; )
 			{
-				this.VarListClass.Add(new AllType.SingleClass(data));
+				this.VarListClass.Add(new SingleClass(data));
 			}
 			for (int n = data.GetInt(); n-- > 0; )
 			{
@@ -90,18 +90,15 @@ namespace Csv.AllType
 			}
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				int k = data.GetInt();
 				this.VarDictBase[k] = data.GetString();
 			}
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				long k = data.GetLong();
 				this.VarDictEnum[k] = data.GetInt();
 			}
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				string k = data.GetString();
-				this.VarDictClass[k] = new AllType.SingleClass(data);
+				this.VarDictClass[k] = new SingleClass(data);
 			}
 		}
 	}

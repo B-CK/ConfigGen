@@ -1,9 +1,11 @@
 using System;
+using System.IO;
+using System.Xml;
 using System.Collections.Generic;
 
 namespace Lson.Skill
 {
-	public class ParticleEffect : Lson.Skill.Action
+	public  class ParticleEffect : Lson.Skill.Action
 	{
 		/// <summary>
 		/// 粒子特效id
@@ -129,5 +131,79 @@ namespace Lson.Skill
 		/// 是否特效池管理
 		/// <summary>
 		public bool IsPoolDestroy;
+
+		public override void Write(TextWriter _1)
+		{
+			Write(_1, "Id", this.Id);
+			Write(_1, "Type", this.Type);
+			Write(_1, "FadeOutTime", this.FadeOutTime);
+			Write(_1, "Path", this.Path);
+			Write(_1, "Life", this.Life);
+			Write(_1, "FollowDirection", this.FollowDirection);
+			Write(_1, "FollowBeAttackedDirection", this.FollowBeAttackedDirection);
+			Write(_1, "Scale", this.Scale);
+			Write(_1, "CasterBindType", this.CasterBindType);
+			Write(_1, "FollowBoneDirection", this.FollowBoneDirection);
+			Write(_1, "TargetBindType", this.TargetBindType);
+			Write(_1, "InstanceTraceType", this.InstanceTraceType);
+			Write(_1, "WorldOffsetX", this.WorldOffsetX);
+			Write(_1, "WorldOffsetY", this.WorldOffsetY);
+			Write(_1, "WorldOffsetZ", this.WorldOffsetZ);
+			Write(_1, "WorldRotateX", this.WorldRotateX);
+			Write(_1, "WorldRotateY", this.WorldRotateY);
+			Write(_1, "WorldRotateZ", this.WorldRotateZ);
+			Write(_1, "BonePostionX", this.BonePostionX);
+			Write(_1, "BonePostionY", this.BonePostionY);
+			Write(_1, "BonePostionZ", this.BonePostionZ);
+			Write(_1, "BoneRotationX", this.BoneRotationX);
+			Write(_1, "BoneRotationY", this.BoneRotationY);
+			Write(_1, "BoneRotationZ", this.BoneRotationZ);
+			Write(_1, "BoneScaleX", this.BoneScaleX);
+			Write(_1, "BoneScaleY", this.BoneScaleY);
+			Write(_1, "BoneScaleZ", this.BoneScaleZ);
+			Write(_1, "BoneName", this.BoneName);
+			Write(_1, "TraceTime", this.TraceTime);
+			Write(_1, "AlignType", (int)this.AlignType);
+			Write(_1, "IsPoolDestroy", this.IsPoolDestroy);
+		}
+
+		public override void Read(XmlNode _1)
+		{
+			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
+			switch (_2.Name)
+			{
+				case "Id": this.Id = ReadInt(_2); break;
+				case "Type": this.Type = ReadInt(_2); break;
+				case "FadeOutTime": this.FadeOutTime = ReadFloat(_2); break;
+				case "Path": this.Path = ReadString(_2); break;
+				case "Life": this.Life = ReadFloat(_2); break;
+				case "FollowDirection": this.FollowDirection = ReadBool(_2); break;
+				case "FollowBeAttackedDirection": this.FollowBeAttackedDirection = ReadBool(_2); break;
+				case "Scale": this.Scale = ReadFloat(_2); break;
+				case "CasterBindType": this.CasterBindType = ReadInt(_2); break;
+				case "FollowBoneDirection": this.FollowBoneDirection = ReadBool(_2); break;
+				case "TargetBindType": this.TargetBindType = ReadInt(_2); break;
+				case "InstanceTraceType": this.InstanceTraceType = ReadInt(_2); break;
+				case "WorldOffsetX": this.WorldOffsetX = ReadFloat(_2); break;
+				case "WorldOffsetY": this.WorldOffsetY = ReadFloat(_2); break;
+				case "WorldOffsetZ": this.WorldOffsetZ = ReadFloat(_2); break;
+				case "WorldRotateX": this.WorldRotateX = ReadFloat(_2); break;
+				case "WorldRotateY": this.WorldRotateY = ReadFloat(_2); break;
+				case "WorldRotateZ": this.WorldRotateZ = ReadFloat(_2); break;
+				case "BonePostionX": this.BonePostionX = ReadFloat(_2); break;
+				case "BonePostionY": this.BonePostionY = ReadFloat(_2); break;
+				case "BonePostionZ": this.BonePostionZ = ReadFloat(_2); break;
+				case "BoneRotationX": this.BoneRotationX = ReadFloat(_2); break;
+				case "BoneRotationY": this.BoneRotationY = ReadFloat(_2); break;
+				case "BoneRotationZ": this.BoneRotationZ = ReadFloat(_2); break;
+				case "BoneScaleX": this.BoneScaleX = ReadFloat(_2); break;
+				case "BoneScaleY": this.BoneScaleY = ReadFloat(_2); break;
+				case "BoneScaleZ": this.BoneScaleZ = ReadFloat(_2); break;
+				case "BoneName": this.BoneName = ReadString(_2); break;
+				case "TraceTime": this.TraceTime = ReadFloat(_2); break;
+				case "AlignType": this.AlignType = (Lson.Skill.EffectAlignType)ReadInt(_2); break;
+				case "IsPoolDestroy": this.IsPoolDestroy = ReadBool(_2); break;
+			}
+		}
 	}
 }

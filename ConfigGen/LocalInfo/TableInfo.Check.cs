@@ -37,36 +37,7 @@ namespace ConfigGen.LocalInfo
     }
 
     partial class TableChecker
-    {
-        /// <summary>
-        /// 检查类是否存在
-        /// </summary>
-        /// <param name="typeName">类型名,可全路径可不全路径</param>
-        /// <param name="nameSpace">非空时会检查组合类型</param>
-        /// <returns></returns>
-        public static string CheckType(string typeName)
-        {
-            string error = null;
-            if (!Local.Instance.TypeInfoLib.TypeInfoDict.ContainsKey(typeName))
-                error = string.Format("类型{0}不存在", typeName);
-            return error;
-        }
-
-        static readonly HashSet<string> DictKeyTypeLimit = new HashSet<string>() { "int", "long", "string" };
-        public static string CheckDictKey(string type)
-        {
-            string error = null;
-            if (!DictKeyTypeLimit.Contains(type))
-            {
-                TypeType typeType = TypeInfo.GetTypeType(type);
-                if (typeType != TypeType.Enum)
-                    error = "字段key类型错误" + type;
-            }
-            return error;
-        }
-
-        //---------------------------------------数据检查
-
+    {        
         static ClassTypeInfo ClassInfo = null;
         static List<Data> DataKeys = new List<Data>();
         /// <summary>
@@ -74,7 +45,7 @@ namespace ConfigGen.LocalInfo
         /// </summary>
         public static void CheckAllData()
         {
-            foreach (var table in Local.Instance.DataInfoDict)
+            foreach (var table in TableInfo.DataInfoDict)
             {
                 ClassInfo = table.Value.ClassTypeInfo;
                 List<DataClass> datas = table.Value.Datas;
@@ -88,7 +59,8 @@ namespace ConfigGen.LocalInfo
                     //数据表键的唯一性检查
                     if (classType.IndexField.Name == info.Name)
                     {
-                        info.Check += "|unique";
+                        string unique = CheckRuleType.Unique.ToString().ToLower();
+                        classType.IndexField.AddCheckRule(unique);
                         DataKeys.Clear();
                         DataKeys.AddRange(dataColum);
                     }
@@ -112,11 +84,11 @@ namespace ConfigGen.LocalInfo
         static void CheckField(FieldInfo info, List<Data> datas)
         {
             BaseTypeInfo baseType = info.BaseInfo;
-            if (baseType.TypeType != TypeType.Class
+            if (baseType.EType != TypeType.Class
                 && string.IsNullOrWhiteSpace(info.Check))
                 return;
 
-            switch (baseType.TypeType)
+            switch (baseType.EType)
             {
                 case TypeType.Base:
                 case TypeType.Enum:
@@ -159,12 +131,11 @@ namespace ConfigGen.LocalInfo
                     CheckField(field, dataColum);
                 }
             }
-            if (classType.HasSubClass)
+            if (classType.Inherit != null)
             {
-                foreach (var type in classType.SubClasses)
+                foreach (var polyType in classType.SubClassDict)
                 {
-                    ClassTypeInfo polyClass = TypeInfo.GetTypeInfo(type) as ClassTypeInfo;
-                    List<FieldInfo> fields = polyClass.Fields;
+                    List<FieldInfo> fields = polyType.Value.Fields;
                     for (int column = 0; column < fields.Count; column++)//列
                     {
                         FieldInfo field = fields[column];
@@ -184,7 +155,7 @@ namespace ConfigGen.LocalInfo
         static void CheckList(FieldInfo info, List<Data> datas)
         {
             ListTypeInfo listType = info.BaseInfo as ListTypeInfo;
-            FieldInfo element = new FieldInfo();
+            FieldInfo element = listType.ItemInfo;
             element.Set(Values.ELEMENT, listType.ItemType, info.Check, info.Group);
             for (int i = 0; i < datas.Count; i++)
             {
@@ -197,24 +168,24 @@ namespace ConfigGen.LocalInfo
             DictTypeInfo dictInfo = info.BaseInfo as DictTypeInfo;
             string keyCheck, valueCheck;
             keyCheck = valueCheck = "";
-            string[] checks = info.Check.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string[] checks = info.Check.Split(Values.ItemSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < checks.Length; i++)
             {
-                int index = checks[i].IndexOf(Values.CheckRuleArgsSplitFlag);
+                int index = checks[i].IndexOf(Values.ArgsSplitFlag);
                 string checkTarget = checks[i].Substring(0, index).ToLower();
                 if (checkTarget == Values.KEY.ToLower())
-                    keyCheck = string.Format("{0}{1}{2}", keyCheck, Values.ArgsSplitFlag, checks[i].Substring(index + 1));
+                    keyCheck = string.Format("{0}{1}{2}", keyCheck, Values.ItemSplitFlag, checks[i].Substring(index + 1));
                 else if (checkTarget == Values.VALUE.ToLower())
-                    valueCheck = string.Format("{0}{1}{2}", valueCheck, Values.ArgsSplitFlag, checks[i].Substring(index + 1));
+                    valueCheck = string.Format("{0}{1}{2}", valueCheck, Values.ItemSplitFlag, checks[i].Substring(index + 1));
                 else
                 {
                     Util.LogWarningFormat("Type:{0} CheckRule:{1} 格式错误", info.Type, info.Check);
                     return;
                 }
             }
-            FieldInfo keyInfo = new FieldInfo();
+            FieldInfo keyInfo = dictInfo.KeyInfo;
             keyInfo.Set(Values.KEY, dictInfo.KeyType, keyCheck, info.Group);
-            FieldInfo valueInfo = new FieldInfo();
+            FieldInfo valueInfo = dictInfo.ValueInfo;
             valueInfo.Set(Values.VALUE, dictInfo.ValueType, valueCheck, info.Group);
             for (int i = 0; i < datas.Count; i++)
             {
@@ -237,7 +208,7 @@ namespace ConfigGen.LocalInfo
         /// </summary>
         static bool AnalyzeCheckRule(FieldInfo info)
         {
-            string[] checks = info.Check.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string[] checks = info.Check.Split(Values.ItemSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             if (checks.Length == 0) return false;
 
             string refFlag = "ref";
@@ -259,25 +230,25 @@ namespace ConfigGen.LocalInfo
                 if (check.StartsWith(refFlag))
                 {
                     ruleType = CheckRuleType.Ref;
-                    ruleArgs.AddRange(check.Replace(refFlag, "").Split(Values.CheckRuleArgsSplitFlag.ToCharArray(),
+                    ruleArgs.AddRange(check.Replace(refFlag, "").Split(Values.ArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
                 }
                 else if (check.StartsWith(noEmptyFlag))
                 {
                     ruleType = CheckRuleType.NoEmpty;
-                    ruleArgs.AddRange(check.Replace(noEmptyFlag, "").Split(Values.CheckRuleArgsSplitFlag.ToCharArray(),
+                    ruleArgs.AddRange(check.Replace(noEmptyFlag, "").Split(Values.ArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
                 }
                 else if (check.StartsWith(uniqueFlag))
                 {
                     ruleType = CheckRuleType.Unique;
-                    ruleArgs.AddRange(check.Replace(uniqueFlag, "").Split(Values.CheckRuleArgsSplitFlag.ToCharArray(),
+                    ruleArgs.AddRange(check.Replace(uniqueFlag, "").Split(Values.ArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
                 }
                 else if (check.StartsWith(fileExistFlags))
                 {
                     ruleType = CheckRuleType.FileExist;
-                    ruleArgs.AddRange(check.Replace(fileExistFlags, "").Split(Values.CheckRuleArgsSplitFlag.ToCharArray(),
+                    ruleArgs.AddRange(check.Replace(fileExistFlags, "").Split(Values.ArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
                 }
                 else
@@ -306,7 +277,7 @@ namespace ConfigGen.LocalInfo
                     info.RuleDict.Add(ruleType, ruleArgs);
 
                 if (!isNullOrWhiteSpace && ruleType == CheckRuleType.None)
-                    Util.LogWarningFormat("类:{0} 异常:检查规则{1}不存在", ClassInfo.GetClassName(), check);
+                    Util.LogWarningFormat("类:{0} 异常:检查规则{1}不存在", ClassInfo.GetFullName(), check);
 
             }
             return isOK;
@@ -343,7 +314,7 @@ namespace ConfigGen.LocalInfo
                         break;
                 }
                 if (!string.IsNullOrWhiteSpace(error))
-                    Util.LogErrorFormat("Check:{0}.{1} File:{2}\n{3}", ClassInfo.GetClassName(), info.Name, ClassInfo.DataTable, error);
+                    Util.LogErrorFormat("Check:{0}.{1} File:{2}\n{3}", ClassInfo.GetFullName(), info.Name, ClassInfo.DataPath, error);
             }
         }
         static string CheckRef(List<string> args, List<Data> datas)
@@ -355,10 +326,10 @@ namespace ConfigGen.LocalInfo
             StringBuilder error = new StringBuilder();
             string className = args[0];
 
-            var dataInfoDict = Local.Instance.DataInfoDict;
+            var dataInfoDict = TableInfo.DataInfoDict;
             if (dataInfoDict.ContainsKey(className))
             {
-                TableDataInfo table = dataInfoDict[className];
+                TableDataInfo table = dataInfoDict[className] as TableDataInfo;
                 ClassTypeInfo classType = table.ClassTypeInfo;
                 List<Data> keys = table.GetDataColumn(classType.IndexField.Name);
                 HashSet<string> hash = new HashSet<string>();
@@ -368,7 +339,7 @@ namespace ConfigGen.LocalInfo
                     string data = datas[i] as DataBase;
                     if (!hash.Contains(data))
                         error.AppendFormat("[ref]key:{0} {1}.{2}中不包含{3}\n", GetKey(i),
-                            classType.GetClassName(), classType.IndexField.Name, data);
+                            classType.GetFullName(), classType.IndexField.Name, data);
                     else
                         hash.Add(data);
                 }

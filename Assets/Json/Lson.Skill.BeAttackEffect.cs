@@ -1,9 +1,11 @@
 using System;
+using System.IO;
+using System.Xml;
 using System.Collections.Generic;
 
 namespace Lson.Skill
 {
-	public class BeAttackEffect : LsonObject
+	public  class BeAttackEffect : LsonObject
 	{
 		/// <summary>
 		/// 被击效果id
@@ -21,5 +23,25 @@ namespace Lson.Skill
 		/// 被打击者身上出现的被击特效，Null为默认
 		/// <summary>
 		public int DefencerEffectId;
+
+		public override void Write(TextWriter _1)
+		{
+			Write(_1, "Id", this.Id);
+			Write(_1, "Curve", this.Curve);
+			Write(_1, "DefencerAction", this.DefencerAction);
+			Write(_1, "DefencerEffectId", this.DefencerEffectId);
+		}
+
+		public override void Read(XmlNode _1)
+		{
+			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
+			switch (_2.Name)
+			{
+				case "Id": this.Id = ReadInt(_2); break;
+				case "Curve": this.Curve = ReadInt(_2); break;
+				case "DefencerAction": this.DefencerAction = ReadString(_2); break;
+				case "DefencerEffectId": this.DefencerEffectId = ReadInt(_2); break;
+			}
+		}
 	}
 }

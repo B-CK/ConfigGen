@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class ModelAction : CfgObject
+	public  class ModelAction : CfgObject
 	{
 		/// <summary>
 		/// 行为名称
@@ -45,11 +45,11 @@ namespace Csv.Skill
 		/// <summary>
 		/// 时间事件列表
 		/// <summary>
-		public readonly List<Csv.Skill.Action> Actions = new List<Csv.Skill.Action>();
+		public readonly List<Action> Actions = new List<Action>();
 		/// <summary>
 		/// 特效组列表
 		/// <summary>
-		public readonly List<Csv.Skill.EffectGroup> Effects = new List<Csv.Skill.EffectGroup>();
+		public readonly List<EffectGroup> Effects = new List<EffectGroup>();
 
 		public ModelAction(DataStream data)
 		{
@@ -64,11 +64,11 @@ namespace Csv.Skill
 			this.EffectId = data.GetInt();
 			for (int n = data.GetInt(); n-- > 0; )
 			{
-				this.Actions.Add((Skill.Action)data.GetObject(data.GetString()));
+				this.Actions.Add(new Action(data));
 			}
 			for (int n = data.GetInt(); n-- > 0; )
 			{
-				this.Effects.Add(new Skill.EffectGroup(data));
+				this.Effects.Add(new EffectGroup(data));
 			}
 		}
 	}

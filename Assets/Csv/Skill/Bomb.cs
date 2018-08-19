@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class Bomb : Csv.Skill.TraceObject
+	public  class Bomb : Csv.Skill.TraceObject
 	{
 		/// <summary>
 		/// 打击点组(HitPointGroup)ID

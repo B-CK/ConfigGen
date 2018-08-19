@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class TraceObject : Csv.Skill.SpawnObject
+	public  class TraceObject : Csv.Skill.SpawnObject
 	{
 		/// <summary>
 		/// 身体矫正值

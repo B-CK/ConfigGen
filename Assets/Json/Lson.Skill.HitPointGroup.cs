@@ -1,9 +1,11 @@
 using System;
+using System.IO;
+using System.Xml;
 using System.Collections.Generic;
 
 namespace Lson.Skill
 {
-	public class HitPointGroup : LsonObject
+	public  class HitPointGroup : LsonObject
 	{
 		/// <summary>
 		/// 打击点组ID
@@ -16,6 +18,24 @@ namespace Lson.Skill
 		/// <summary>
 		/// 打击点列表
 		/// <summary>
-		public List<Lson.Skill.Attack> Attacks;
+		public List<Attack> Attacks;
+
+		public override void Write(TextWriter _1)
+		{
+			Write(_1, "Id", this.Id);
+			Write(_1, "Name", this.Name);
+			Write(_1, "Attacks", this.Attacks);
+		}
+
+		public override void Read(XmlNode _1)
+		{
+			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
+			switch (_2.Name)
+			{
+				case "Id": this.Id = ReadInt(_2); break;
+				case "Name": this.Name = ReadString(_2); break;
+				case "Attacks": GetChilds(_2).ForEach (_3 => this.Attacks.Add(ReadDynamicObject<Lson.Skill.Attack>(_3, "Skill"))); break;
+			}
+		}
 	}
 }

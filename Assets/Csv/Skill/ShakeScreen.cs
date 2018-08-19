@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class ShakeScreen : Csv.Skill.Action
+	public  class ShakeScreen : Csv.Skill.Action
 	{
 		/// <summary>
 		/// 震屏方式

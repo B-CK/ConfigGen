@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class SkillAction : Csv.Skill.ModelAction
+	public  class SkillAction : CfgObject
 	{
 		/// <summary>
 		/// 默认后续技能使用期限,用于单个技能多段输出
@@ -51,23 +51,23 @@ namespace Csv.Skill
 		/// <summary>
 		public readonly float EndMoveTime;
 		/// <summary>
-		/// 施放相对位置(1 自己 , 2 目标)
+		/// 施放相对位置(1 自己 ,2目标)
 		/// <summary>
 		public readonly int RelateType;
 		/// <summary>
 		/// 打击点组列表
 		/// <summary>
-		public readonly List<Csv.Skill.HitPointGroup> HitPoints = new List<Csv.Skill.HitPointGroup>();
+		public readonly List<HitPointGroup> HitPoints = new List<HitPointGroup>();
 		/// <summary>
 		/// 打击区域列表
 		/// <summary>
-		public readonly List<Csv.Skill.HitZone> HitZones = new List<Csv.Skill.HitZone>();
+		public readonly List<HitZone> HitZones = new List<HitZone>();
 		/// <summary>
 		/// 被击效果列表
 		/// <summary>
-		public readonly List<Csv.Skill.BeAttackEffect> BeAttackEffects = new List<Csv.Skill.BeAttackEffect>();
+		public readonly List<BeAttackEffect> BeAttackEffects = new List<BeAttackEffect>();
 
-		public SkillAction(DataStream data) : base(data)
+		public SkillAction(DataStream data)
 		{
 			this.SkillExpireTime = data.GetFloat();
 			this.SkillEndTime = data.GetFloat();
@@ -82,15 +82,15 @@ namespace Csv.Skill
 			this.RelateType = data.GetInt();
 			for (int n = data.GetInt(); n-- > 0; )
 			{
-				this.HitPoints.Add(new Skill.HitPointGroup(data));
+				this.HitPoints.Add(new HitPointGroup(data));
 			}
 			for (int n = data.GetInt(); n-- > 0; )
 			{
-				this.HitZones.Add(new Skill.HitZone(data));
+				this.HitZones.Add(new HitZone(data));
 			}
 			for (int n = data.GetInt(); n-- > 0; )
 			{
-				this.BeAttackEffects.Add(new Skill.BeAttackEffect(data));
+				this.BeAttackEffects.Add(new BeAttackEffect(data));
 			}
 		}
 	}

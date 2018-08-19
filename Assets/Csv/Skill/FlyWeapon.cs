@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class FlyWeapon : Csv.Skill.TraceObject
+	public  class FlyWeapon : Csv.Skill.TraceObject
 	{
 		/// <summary>
 		/// 子弹半径

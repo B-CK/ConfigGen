@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class Attack : Csv.Skill.Action
+	public  class Attack : Csv.Skill.Action
 	{
 		/// <summary>
 		/// 打击点id

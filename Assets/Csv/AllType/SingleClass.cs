@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.AllType
 {
-	public class SingleClass : CfgObject
+	public  class SingleClass : CfgObject
 	{
 		/// <summary>
 		/// Var1

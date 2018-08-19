@@ -4,12 +4,13 @@ using System.IO;
 using System.Reflection;
 namespace Csv
 {
-	public class DataStream
+	public  class DataStream
 	{
 		public DataStream(string path, Encoding encoding)
 		{
 			_rows = File.ReadAllLines(path, encoding);
 			_rIndex = _cIndex = 0;
+			if (_rows.Length > 0)
 			_columns = _rows[_rIndex].Split("▃".ToCharArray(),  StringSplitOptions.RemoveEmptyEntries);
 		}
 

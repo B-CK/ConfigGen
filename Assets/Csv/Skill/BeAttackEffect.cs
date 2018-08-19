@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class BeAttackEffect : CfgObject
+	public  class BeAttackEffect : CfgObject
 	{
 		/// <summary>
 		/// 被击效果id

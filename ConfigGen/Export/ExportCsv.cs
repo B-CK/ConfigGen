@@ -11,7 +11,7 @@ namespace ConfigGen.Export
         public static void Export()
         {
             StringBuilder builder = new StringBuilder();
-            foreach (var item in Local.Instance.DataInfoDict)
+            foreach (var item in TableInfo.DataInfoDict)
             {
                 ClassTypeInfo classType = item.Value.ClassTypeInfo;
                 List<DataClass> datas = item.Value.Datas;
@@ -30,7 +30,7 @@ namespace ConfigGen.Export
                 }
 
 
-                string fileName = item.Value.ClassTypeInfo.GetClassName().Replace(".", "/");
+                string fileName = item.Value.ClassTypeInfo.GetFullName().Replace(".", "/");
                 string filePath = string.Format("{0}\\{1}{2}", Values.ExportCsv, fileName, Values.CsvFileExt);
                 Util.SaveFile(filePath, builder.ToString());
                 builder.Clear();
@@ -41,7 +41,7 @@ namespace ConfigGen.Export
         {
             string v = "";
             BaseTypeInfo typeInfo = info.BaseInfo;
-            switch (typeInfo.TypeType)
+            switch (typeInfo.EType)
             {
                 case TypeType.Base:
                 case TypeType.Enum:
@@ -71,7 +71,7 @@ namespace ConfigGen.Export
             StringBuilder builder = new StringBuilder();
             DataClass dataClass = data as DataClass;
             ClassTypeInfo baseClassType = info.BaseInfo as ClassTypeInfo;
-            if (baseClassType.HasSubClass)
+            if (baseClassType.Inherit != null)
             {
                 string polyType = dataClass.Type;
                 builder.AppendFormat("{0}{1}", polyType, Values.CsvSplitFlag);
@@ -88,9 +88,9 @@ namespace ConfigGen.Export
                     else
                         builder.AppendFormat("{0}{1}", Values.CsvSplitFlag, value);
                 }
-                if (baseClassType.SubClasses.Contains(polyType))
+                var polyClassType = baseClassType.SubClassDict[polyType];
+                if (polyClassType != null)
                 {
-                    ClassTypeInfo polyClassType = TypeInfo.GetTypeInfo(polyType) as ClassTypeInfo;
                     for (int j = 0; j < polyClassType.Fields.Count; j++)
                     {
                         FieldInfo fieldInfo = polyClassType.Fields[j];
@@ -124,8 +124,7 @@ namespace ConfigGen.Export
         {
             StringBuilder builder = new StringBuilder();
             ListTypeInfo listInfo = info.BaseInfo as ListTypeInfo;
-            FieldInfo elementInfo = new FieldInfo();
-            elementInfo.Set(Values.ELEMENT, listInfo.ItemType, null, info.Group);
+            FieldInfo elementInfo = listInfo.ItemInfo;
             DataList dataList = data as DataList;
             int count = 0;
             var elements = dataList.Elements;
@@ -155,10 +154,8 @@ namespace ConfigGen.Export
         {
             StringBuilder builder = new StringBuilder();
             DictTypeInfo dictInfo = info.BaseInfo as DictTypeInfo;
-            FieldInfo keyInfo = new FieldInfo();
-            keyInfo.Set(Values.KEY, dictInfo.KeyType, null, info.Group);
-            FieldInfo valueInfo = new FieldInfo();
-            valueInfo.Set(Values.VALUE, dictInfo.ValueType, null, info.Group);
+            FieldInfo keyInfo = dictInfo.KeyInfo;
+            FieldInfo valueInfo = dictInfo.ValueInfo;
             DataDict dataDict = data as DataDict;
             int count = 0;
             var pairs = dataDict.Pairs;

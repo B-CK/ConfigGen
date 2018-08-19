@@ -1,9 +1,11 @@
 using System;
+using System.IO;
+using System.Xml;
 using System.Collections.Generic;
 
 namespace Lson.Skill
 {
-	public class HitZone : LsonObject
+	public  class HitZone : LsonObject
 	{
 		/// <summary>
 		/// 打击区域id
@@ -45,5 +47,37 @@ namespace Lson.Skill
 		/// 最大数量
 		/// <summary>
 		public int MaxTarget;
+
+		public override void Write(TextWriter _1)
+		{
+			Write(_1, "Id", this.Id);
+			Write(_1, "Sharp", (int)this.Sharp);
+			Write(_1, "Zoffset", this.Zoffset);
+			Write(_1, "Xlength", this.Xlength);
+			Write(_1, "BottomHeight", this.BottomHeight);
+			Write(_1, "TopHeight", this.TopHeight);
+			Write(_1, "Zlength", this.Zlength);
+			Write(_1, "YAngle", this.YAngle);
+			Write(_1, "YRotation", this.YRotation);
+			Write(_1, "MaxTarget", this.MaxTarget);
+		}
+
+		public override void Read(XmlNode _1)
+		{
+			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
+			switch (_2.Name)
+			{
+				case "Id": this.Id = ReadInt(_2); break;
+				case "Sharp": this.Sharp = (Lson.Skill.HitSharpType)ReadInt(_2); break;
+				case "Zoffset": this.Zoffset = ReadFloat(_2); break;
+				case "Xlength": this.Xlength = ReadFloat(_2); break;
+				case "BottomHeight": this.BottomHeight = ReadFloat(_2); break;
+				case "TopHeight": this.TopHeight = ReadFloat(_2); break;
+				case "Zlength": this.Zlength = ReadFloat(_2); break;
+				case "YAngle": this.YAngle = ReadFloat(_2); break;
+				case "YRotation": this.YRotation = ReadFloat(_2); break;
+				case "MaxTarget": this.MaxTarget = ReadInt(_2); break;
+			}
+		}
 	}
 }

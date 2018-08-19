@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class Movement : Csv.Skill.Action
+	public  class Movement : Csv.Skill.Action
 	{
 		/// <summary>
 		/// 移动方式

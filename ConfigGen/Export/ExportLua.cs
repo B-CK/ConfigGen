@@ -10,88 +10,99 @@ namespace ConfigGen.Export
     {
         //--lua中的枚举默认   NULL = -1
         private const string DATA_STRUCT = "DataStruct";
+        private const string DATA_STREAM = "DataStream";
         private const string DATA_CONFIG = "Config";
-        private const string LUA_CFG_ROOT = "Cfg";
-
-        static readonly Dictionary<string, string> MapType = new Dictionary<string, string>()
-        {
-            {"int", "Int" },
-            {"long", "Long" },
-            {"float", "Float" },
-            {"bool", "Bool" },
-            {"string", "String" },
-        };
+        private const string LUA_ENUM_NULL = "-9";
 
         public static void Export()
         {
+            GenDataStructAndConfig();
+            GenDataStream();
+        }
+
+        private static void GenDataStructAndConfig()
+        {
             StringBuilder dsLoopBuilder = new StringBuilder();
             StringBuilder cfgLoopBuilder = new StringBuilder();
-            foreach (var item in Local.Instance.DataInfoDict)
+            foreach (var item in TableInfo.DataInfoDict)
             {
                 ClassTypeInfo classType = item.Value.ClassTypeInfo;
-                if (classType.TypeType != TypeType.Class) continue;
-                string method = string.Format("Get{0}{1}", LUA_CFG_ROOT, classType.GetClassName().Replace(".", ""));
+                if (classType.EType != TypeType.Class) continue;
+                string method = string.Format("Get{0}{1}", Values.ConfigRootNode, classType.GetFullName().Replace(".", ""));
                 string index = classType.IndexField.Name;
-                string fileName = classType.GetClassName().Replace(".", "/") + Values.CsvFileExt;
+                string fileName = classType.GetFullName().Replace(".", "/") + Values.CsvFileExt;
                 cfgLoopBuilder.AppendFormat("\t{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
                     classType.Name, method, index, fileName);
             }
-            foreach (var item in Local.Instance.TypeInfoLib.ClassInfoDict)
+            foreach (var item in TypeInfo.Instance.ClassInfos)
             {
-                ClassTypeInfo classType = item.Value;
-                if (classType.TypeType != TypeType.Class) continue;
+                ClassTypeInfo classInfo = item;
+                if (classInfo.EType != TypeType.Class) continue;
 
                 dsLoopBuilder.AppendLine("meta= {}");
                 dsLoopBuilder.AppendLine("meta.__index = meta");
-                for (int i = 0; i < classType.Consts.Count; i++)
+                dsLoopBuilder.AppendFormat("meta.class = '{0}.{1}'\n", Values.ConfigRootNode, classInfo.GetFullName());
+                //--常量字段
+                for (int i = 0; i < classInfo.Consts.Count; i++)
                 {
-                    ConstFieldInfo cst = classType.Consts[i];
-                    dsLoopBuilder.AppendFormat("meta.{0} = {1}\n", cst.Name, cst.Value);
+                    ConstInfo cst = classInfo.Consts[i];
+                    string value = cst.Value;
+                    switch (cst.Type)
+                    {
+                        case TypeInfo.FLOAT:
+                            value = string.Format("{0}", cst.Value);
+                            break;
+                        case TypeInfo.STRING:
+                            value = string.Format("'{0}'", cst.Value);
+                            break;
+                    }
+                    dsLoopBuilder.AppendFormat("meta.{0} = {1}\n", cst.Name, value);
                 }
-                dsLoopBuilder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = meta\n", LUA_CFG_ROOT, classType.NamespaceName, classType.Name);
-                dsLoopBuilder.AppendFormat("function Stream:Get{0}{1}{2}()\n", LUA_CFG_ROOT, classType.NamespaceName, classType.Name);
+                dsLoopBuilder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = meta\n", Values.ConfigRootNode, classInfo.NamespaceName, classInfo.Name);
+                dsLoopBuilder.AppendFormat("function Stream:Get{0}{1}{2}()\n", Values.ConfigRootNode, classInfo.NamespaceName, classInfo.Name);
                 dsLoopBuilder.AppendFormat("\tlocal o = {{}}\n");
-                dsLoopBuilder.AppendFormat("\tsetmetatable(o, {0}.{1}.{2})\n", LUA_CFG_ROOT, classType.NamespaceName, classType.Name);
-                for (int i = 0; i < classType.Fields.Count; i++)
+                dsLoopBuilder.AppendFormat("\tsetmetatable(o, {0}.{1}.{2})\n", Values.ConfigRootNode, classInfo.NamespaceName, classInfo.Name);
+                //--普通变量
+                for (int i = 0; i < classInfo.Fields.Count; i++)
                 {
-                    FieldInfo field = classType.Fields[i];
+                    FieldInfo field = classInfo.Fields[i];
                     BaseTypeInfo baseType = field.BaseInfo;
-                    switch (baseType.TypeType)
+                    switch (baseType.EType)
                     {
                         case TypeType.Base:
-                            dsLoopBuilder.AppendFormat("\to.{0} = self:Get{1}()\n", field.Name, MapType[field.Type]);
+                            dsLoopBuilder.AppendFormat("\to.{0} = self:Get{1}()\n", field.Name, Util.FirstCharUpper(field.Type));
                             break;
                         case TypeType.Enum:
                             dsLoopBuilder.AppendFormat("\to.{0} = self:GetInt()\n", field.Name);
                             break;
                         case TypeType.Class:
                             ClassTypeInfo classTypeField = baseType as ClassTypeInfo;
-                            if (classTypeField.HasSubClass)
+                            if (classTypeField.Inherit != null)
                             {
-                                dsLoopBuilder.AppendFormat("\tlocal _{0} = '{1}' .. self:GetString()\n", field.Name, LUA_CFG_ROOT);
+                                dsLoopBuilder.AppendFormat("\tlocal _{0} = '{1}' .. self:GetString()\n", field.Name, Values.ConfigRootNode);
                                 dsLoopBuilder.AppendFormat("\to.{0} = self:GetObject(_{0})\n", field.Name);
                             }
                             else
                             {
-                                string fullName = string.Format("{0}{1}", LUA_CFG_ROOT, field.Type.Replace(".", ""));
+                                string fullName = string.Format("{0}{1}", Values.ConfigRootNode, field.Type.Replace(".", ""));
                                 dsLoopBuilder.AppendFormat("\to.{0} = self:GetObject('{1}')\n", field.Name, fullName);
                             }
                             break;
                         case TypeType.List:
                             {
                                 ListTypeInfo listType = baseType as ListTypeInfo;
-                                BaseTypeInfo itemInfo = TypeInfo.GetTypeInfo(listType.ItemType);
+                                BaseTypeInfo itemInfo = listType.ItemInfo.BaseInfo;
                                 string itemType = null;
-                                switch (itemInfo.TypeType)
+                                switch (itemInfo.EType)
                                 {
                                     case TypeType.Base:
-                                        itemType = MapType[listType.ItemType];
+                                        itemType = Util.FirstCharUpper(listType.ItemType);
                                         break;
                                     case TypeType.Enum:
-                                        itemType = MapType["int"];
+                                        itemType = Util.FirstCharUpper("int");
                                         break;
                                     case TypeType.Class:
-                                        itemType = string.Format("{0}{1}", LUA_CFG_ROOT, listType.ItemType.Replace(".", ""));
+                                        itemType = string.Format("{0}{1}", Values.ConfigRootNode, listType.ItemType.Replace(".", ""));
                                         break;
                                     case TypeType.List:
                                     case TypeType.Dict:
@@ -105,16 +116,16 @@ namespace ConfigGen.Export
                         case TypeType.Dict:
                             {
                                 DictTypeInfo dictType = baseType as DictTypeInfo;
-                                BaseTypeInfo keyInfo = TypeInfo.GetTypeInfo(dictType.KeyType);
-                                BaseTypeInfo valueInfo = TypeInfo.GetTypeInfo(dictType.ValueType);
+                                BaseTypeInfo keyInfo = dictType.KeyInfo.BaseInfo;
+                                BaseTypeInfo valueInfo = dictType.ValueInfo.BaseInfo;
                                 string keyType = null;
-                                switch (keyInfo.TypeType)
+                                switch (keyInfo.EType)
                                 {
                                     case TypeType.Base:
-                                        keyType = MapType[dictType.KeyType];
+                                        keyType = Util.FirstCharUpper(dictType.KeyType);
                                         break;
                                     case TypeType.Enum:
-                                        keyType = MapType["int"];
+                                        keyType = Util.FirstCharUpper("int");
                                         break;
                                     case TypeType.Class:
                                     case TypeType.List:
@@ -124,16 +135,16 @@ namespace ConfigGen.Export
                                         break;
                                 }
                                 string valueType = null;
-                                switch (valueInfo.TypeType)
+                                switch (valueInfo.EType)
                                 {
                                     case TypeType.Base:
-                                        valueType = MapType[dictType.ValueType];
+                                        valueType = Util.FirstCharUpper(dictType.ValueType);
                                         break;
                                     case TypeType.Enum:
-                                        valueType = MapType["int"];
+                                        valueType = Util.FirstCharUpper("int");
                                         break;
                                     case TypeType.Class:
-                                        valueType = string.Format("{0}{1}", LUA_CFG_ROOT, dictType.ValueType.Replace(".", ""));
+                                        valueType = string.Format("{0}{1}", Values.ConfigRootNode, dictType.ValueType.Replace(".", ""));
                                         break;
                                     case TypeType.List:
                                     case TypeType.Dict:
@@ -149,20 +160,19 @@ namespace ConfigGen.Export
                             break;
                     }
                 }
-                dsLoopBuilder.AppendFormat("\treturn o\n", LUA_CFG_ROOT, classType.NamespaceName, classType.Name);
+                dsLoopBuilder.AppendFormat("\treturn o\n", Values.ConfigRootNode, classInfo.NamespaceName, classInfo.Name);
                 dsLoopBuilder.AppendFormat("end\n");
             }
-            var enums = Local.Instance.TypeInfoLib.EnumInfoDict;
-            foreach (var item in enums)
+            foreach (var item in TypeInfo.Instance.EnumInfos)
             {
-                EnumTypeInfo enumInfo = item.Value;
-                string fullName = string.Format("{0}.{1}", LUA_CFG_ROOT, item.Value.GetClassName());
-                dsLoopBuilder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = {{\n", LUA_CFG_ROOT, enumInfo.NamespaceName, enumInfo.Name);
-                dsLoopBuilder.AppendFormat("\tNULL = -1,\n");
-                for (int i = 0; i < enumInfo.KeyValuePair.Count; i++)
+                EnumTypeInfo enumInfo = item;
+                string fullName = string.Format("{0}.{1}", Values.ConfigRootNode, enumInfo.GetFullName());
+                dsLoopBuilder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = {{\n", Values.ConfigRootNode, enumInfo.NamespaceName, enumInfo.Name);
+                dsLoopBuilder.AppendFormat("\tNULL = {0},\n", LUA_ENUM_NULL);
+                for (int i = 0; i < enumInfo.Enums.Count; i++)
                 {
-                    string key = enumInfo.KeyValuePair[i].Name;
-                    string value = enumInfo.KeyValuePair[i].Value;
+                    string key = enumInfo.Enums[i].Name;
+                    string value = enumInfo.Enums[i].Value;
                     dsLoopBuilder.AppendFormat("\t{0} = {1},\n", key, value);
                 }
                 dsLoopBuilder.AppendLine("}");
@@ -221,6 +231,134 @@ namespace ConfigGen.Export
             path = Path.Combine(Values.ExportLua, DATA_CONFIG + ".lua");
             Util.SaveFile(path, configBuilder.ToString());
             configBuilder.Clear();
+        }
+        private static void GenDataStream()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("local lower = string.lower");
+            builder.AppendLine("local setmetatable = setmetatable");
+            builder.AppendLine("local tonumber = tonumber");
+            builder.AppendLine("local root = Util.DataPath");
+            builder.AppendLine("local Stream = {}");
+            builder.AppendLine("Stream.__index = Stream");
+            builder.AppendLine("Stream.name = \"Stream\"");
+            builder.AppendLine("local out = ''\n");
+
+            builder.AppendLine("local Split = function (str)");
+            builder.AppendLine("\tlocal fields = {}");
+            builder.AppendLine("\tlocal flag = \"(.-)\" .. '▃'");
+            builder.AppendLine("\tlocal last_end = 1");
+            builder.AppendLine("\tlocal s, e, cap = str:find(flag, 1)");
+            builder.AppendLine("\twhile s do");
+            builder.AppendLine("\t\tif s ~= 1 or cap ~= \"\" then");
+            builder.AppendLine("\t\t\tinsert(fields, cap)");
+            builder.AppendLine("\t\tend");
+            builder.AppendLine("\t\tlast_end = e + 1");
+            builder.AppendLine("\t\ts, e, cap = str:find(flag, last_end)");
+            builder.AppendLine("\tend");
+            builder.AppendLine("\tif last_end <= #str then");
+            builder.AppendLine("\t\tcap = str:sub(last_end)");
+            builder.AppendLine("\t\tinsert(fields, cap)");
+            builder.AppendLine("\tend");
+            builder.AppendLine("\treturn fields");
+            builder.AppendLine("end");
+
+            builder.AppendLine("function Stream.new(dataFile)");
+            builder.AppendLine("\tlocal o = {}");
+            builder.AppendLine("\tsetmetatable(o, Stream)");
+            builder.AppendLine("\to.dataFile = dataFile");
+            builder.AppendLine("\to.GetLine = io.lines(root .. dataFile)");
+            builder.AppendLine("\to.idx = 0");
+            builder.AppendLine("\to.line = 0");
+            builder.AppendLine("\treturn o");
+            builder.AppendLine("end");
+
+            builder.AppendLine("function Stream:Count()");
+            builder.AppendLine("\treturn #self.columns");
+            builder.AppendLine("end");
+
+            builder.AppendLine("function Stream:NextRow()");
+            builder.AppendLine("\tlocal line = self.GetLine()");
+            builder.AppendLine("\tif line == nil or #line == 0 then");
+            builder.AppendLine("\t\treturn false");
+            builder.AppendLine("\tend");
+            builder.AppendLine("\tself.columns = Split(line)");
+            builder.AppendLine("\tself.idx = 1");
+            builder.AppendLine("\tself.line = self.line + 1");
+            builder.AppendLine("\treturn true");
+            builder.AppendLine("end");
+
+            builder.AppendLine("function Stream:NextColum()");
+            builder.AppendLine("\tif self.idx > #self.columns then");
+            builder.AppendLine("\t\tlocal status = self:NextRow()");
+            builder.AppendLine("\t\tif not status then");
+            builder.AppendLine("\t\t\tself.hasNext = false");
+            builder.AppendLine("\t\t\treturn nil");
+            builder.AppendLine("\t\tend");
+            builder.AppendLine("\tend");
+            builder.AppendLine("\tlocal result = self.columns[self.idx]");
+            builder.AppendLine("\tout = out .. '▃' .. result");
+            builder.AppendLine("\tself.idx = self.idx + 1");
+            builder.AppendLine("\treturn result");
+            builder.AppendLine("end");
+
+            builder.AppendLine("function Stream:GetInt()");
+            builder.AppendLine("\tlocal next = self:NextColum()");
+            builder.AppendLine("\treturn tonumber(next)");
+            builder.AppendLine("end");
+
+            builder.AppendLine("function Stream:GetLong()");
+            builder.AppendLine("\tlocal next = self:NextColum()");
+            builder.AppendLine("\treturn tonumber(next)");
+            builder.AppendLine("end");
+
+            builder.AppendLine("function Stream:GetFloat()");
+            builder.AppendLine("\tlocal next = self:NextColum()");
+            builder.AppendLine("\treturn tonumber(next)");
+            builder.AppendLine("end");
+
+            builder.AppendLine("function Stream:GetBool()");
+            builder.AppendLine("\tlocal next = lower(self:NextColum())");
+            builder.AppendLine("\tif next == '0' then");
+            builder.AppendLine("\t\treturn false");
+            builder.AppendLine("\telse");
+            builder.AppendLine("\t\treturn true");
+            builder.AppendLine("\tend");
+            builder.AppendLine("end");
+
+            builder.AppendLine("function Stream:GetString()");
+            builder.AppendLine("\treturn self:NextColum()");
+            builder.AppendLine("end");
+
+            builder.AppendLine("function Stream:GetList(type)");
+            builder.AppendLine("\tlocal result = {}");
+            builder.AppendLine("\tlocal length = self:GetInt()");
+            builder.AppendLine("\tlocal method = self['Get' .. type]");
+            builder.AppendLine("\tfor i = 1, length do");
+            builder.AppendLine("\t\tresult[i] = method(self)");
+            builder.AppendLine("\tend");
+            builder.AppendLine("\treturn result");
+            builder.AppendLine("end");
+
+            builder.AppendLine("function Stream:GetDict(key, value)");
+            builder.AppendLine("\tlocal result = {}");
+            builder.AppendLine("\tlocal optKey = self['Get' .. key]");
+            builder.AppendLine("\tlocal optValue = self['Get' .. value]");
+            builder.AppendLine("\tlocal length = self:GetInt()");
+            builder.AppendLine("\tfor i = 1, length do");
+            builder.AppendLine("\t\tresult[optKey(self)] = optValue(self)");
+            builder.AppendLine("\tend");
+            builder.AppendLine("\treturn result");
+            builder.AppendLine("end");
+
+            builder.AppendLine("function Stream:GetObject(name)");
+            builder.AppendLine("\tlocal getter = self['Get' .. name]");
+            builder.AppendLine("\treturn getter(self)");
+            builder.AppendLine("end");
+            builder.AppendLine("return Stream");
+
+            string path = Path.Combine(Values.ExportLua, DATA_STREAM + ".lua");
+            Util.SaveFile(path, builder.ToString());
         }
     }
 }

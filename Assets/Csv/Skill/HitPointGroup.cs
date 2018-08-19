@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class HitPointGroup : CfgObject
+	public  class HitPointGroup : CfgObject
 	{
 		/// <summary>
 		/// 打击点组ID
@@ -17,7 +17,7 @@ namespace Csv.Skill
 		/// <summary>
 		/// 打击点列表
 		/// <summary>
-		public readonly List<Csv.Skill.Attack> Attacks = new List<Csv.Skill.Attack>();
+		public readonly List<Attack> Attacks = new List<Attack>();
 
 		public HitPointGroup(DataStream data)
 		{
@@ -25,7 +25,7 @@ namespace Csv.Skill
 			this.Name = data.GetString();
 			for (int n = data.GetInt(); n-- > 0; )
 			{
-				this.Attacks.Add(new Skill.Attack(data));
+				this.Attacks.Add((Attack)data.GetObject(data.GetString()));
 			}
 		}
 	}

@@ -1,9 +1,11 @@
 using System;
+using System.IO;
+using System.Xml;
 using System.Collections.Generic;
 
 namespace Lson.Skill
 {
-	public class ModelAction : LsonObject
+	public  class ModelAction : LsonObject
 	{
 		/// <summary>
 		/// 行为名称
@@ -44,10 +46,44 @@ namespace Lson.Skill
 		/// <summary>
 		/// 时间事件列表
 		/// <summary>
-		public List<Lson.Skill.Action> Actions;
+		public List<Action> Actions;
 		/// <summary>
 		/// 特效组列表
 		/// <summary>
-		public List<Lson.Skill.EffectGroup> Effects;
+		public List<EffectGroup> Effects;
+
+		public override void Write(TextWriter _1)
+		{
+			Write(_1, "ActionName", this.ActionName);
+			Write(_1, "ActionSource", (int)this.ActionSource);
+			Write(_1, "OtherModelName", this.OtherModelName);
+			Write(_1, "ActionFile", this.ActionFile);
+			Write(_1, "PreActionFile", this.PreActionFile);
+			Write(_1, "PostActionFile", this.PostActionFile);
+			Write(_1, "ActionSpeed", this.ActionSpeed);
+			Write(_1, "LoopTimes", this.LoopTimes);
+			Write(_1, "EffectId", this.EffectId);
+			Write(_1, "Actions", this.Actions);
+			Write(_1, "Effects", this.Effects);
+		}
+
+		public override void Read(XmlNode _1)
+		{
+			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
+			switch (_2.Name)
+			{
+				case "ActionName": this.ActionName = ReadString(_2); break;
+				case "ActionSource": this.ActionSource = (Lson.Skill.ActionSourceType)ReadInt(_2); break;
+				case "OtherModelName": this.OtherModelName = ReadString(_2); break;
+				case "ActionFile": this.ActionFile = ReadString(_2); break;
+				case "PreActionFile": this.PreActionFile = ReadString(_2); break;
+				case "PostActionFile": this.PostActionFile = ReadString(_2); break;
+				case "ActionSpeed": this.ActionSpeed = ReadFloat(_2); break;
+				case "LoopTimes": this.LoopTimes = ReadInt(_2); break;
+				case "EffectId": this.EffectId = ReadInt(_2); break;
+				case "Actions": GetChilds(_2).ForEach (_3 => this.Actions.Add(ReadObject<Lson.Skill.Action>(_3, "Lson.Skill.Action"))); break;
+				case "Effects": GetChilds(_2).ForEach (_3 => this.Effects.Add(ReadObject<Lson.Skill.EffectGroup>(_3, "Lson.Skill.EffectGroup"))); break;
+			}
+		}
 	}
 }

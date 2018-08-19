@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class Action : CfgObject
+	public  class Action : CfgObject
 	{
 		/// <summary>
 		/// 时间点

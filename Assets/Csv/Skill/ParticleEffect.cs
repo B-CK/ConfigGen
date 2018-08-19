@@ -4,7 +4,7 @@ using Csv;
 
 namespace Csv.Skill
 {
-	public class ParticleEffect : Csv.Skill.Action
+	public  class ParticleEffect : Csv.Skill.Action
 	{
 		/// <summary>
 		/// 粒子特效id

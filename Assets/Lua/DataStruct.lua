@@ -25,65 +25,169 @@ end
 local meta
 meta= {}
 meta.__index = meta
-meta.ConstString = "Hello World"
+meta.class = 'Csv.AllType.AllClass'
+meta.ConstString = 'Hello World'
 meta.ConstFloat = 3.141527
-GetOrCreate('Cfg.AllType')['AllClass'] = meta
-function Stream:GetCfgAllTypeAllClass()
+GetOrCreate('Csv.AllType')['AllClass'] = meta
+function Stream:GetCsvAllTypeAllClass()
 	local o = {}
-	setmetatable(o, Cfg.AllType.AllClass)
+	setmetatable(o, Csv.AllType.AllClass)
 	o.ID = self:GetInt()
-	o.VarLong = self:GetInt()
+	o.VarLong = self:GetLong()
 	o.VarFloat = self:GetFloat()
 	o.VarString = self:GetString()
 	o.VarBool = self:GetBool()
 	o.VarEnum = self:GetInt()
-	o.VarClass = self:GetObject('CfgAllTypeSingleClass')
+	o.VarClass = self:GetObject('CsvAllTypeSingleClass')
 	o.VarListBase = self:GetList('String')
-	o.VarListClass = self:GetList('CfgAllTypeSingleClass')
+	o.VarListClass = self:GetList('CsvSingleClass')
 	o.VarListCardElem = self:GetList('String')
 	o.VarDictBase = self:GetDict('Int', 'String')
 	o.VarDictEnum = self:GetDict('Long', 'Int')
-	o.VarDictClass = self:GetDict('String', 'CfgAllTypeSingleClass')
+	o.VarDictClass = self:GetDict('String', 'CsvSingleClass')
 	return o
 end
 meta= {}
 meta.__index = meta
-GetOrCreate('Cfg.AllType')['SingleClass'] = meta
-function Stream:GetCfgAllTypeSingleClass()
+meta.class = 'Csv.AllType.SingleClass'
+GetOrCreate('Csv.AllType')['SingleClass'] = meta
+function Stream:GetCsvAllTypeSingleClass()
 	local o = {}
-	setmetatable(o, Cfg.AllType.SingleClass)
+	setmetatable(o, Csv.AllType.SingleClass)
 	o.Var1 = self:GetString()
 	o.Var2 = self:GetFloat()
 	return o
 end
 meta= {}
 meta.__index = meta
-GetOrCreate('Cfg.Card')['Card'] = meta
-function Stream:GetCfgCardCard()
+meta.class = 'Csv.Skill.ModelActions'
+GetOrCreate('Csv.Skill')['ModelActions'] = meta
+function Stream:GetCsvSkillModelActions()
 	local o = {}
-	setmetatable(o, Cfg.Card.Card)
-	o.ID = self:GetInt()
-	o.Name = self:GetString()
-	o.CardType = self:GetInt()
-	o.Cost = self:GetLong()
-	o.Elements = self:GetDict('Int', 'Long')
+	setmetatable(o, Csv.Skill.ModelActions)
+	o.ModelName = self:GetString()
+	o.BaseModelName = self:GetString()
+	o.ModelActions = self:GetList('CsvModelAction')
+	o.SkillActions = self:GetList('CsvSkillAction')
 	return o
 end
 meta= {}
 meta.__index = meta
-GetOrCreate('Cfg.Skill')['Action'] = meta
-function Stream:GetCfgSkillAction()
+meta.class = 'Csv.Skill.ModelAction'
+GetOrCreate('Csv.Skill')['ModelAction'] = meta
+function Stream:GetCsvSkillModelAction()
 	local o = {}
-	setmetatable(o, Cfg.Skill.Action)
+	setmetatable(o, Csv.Skill.ModelAction)
+	o.ActionName = self:GetString()
+	o.ActionSource = self:GetInt()
+	o.OtherModelName = self:GetString()
+	o.ActionFile = self:GetString()
+	o.PreActionFile = self:GetString()
+	o.PostActionFile = self:GetString()
+	o.ActionSpeed = self:GetFloat()
+	o.LoopTimes = self:GetInt()
+	o.EffectId = self:GetInt()
+	o.Actions = self:GetList('CsvAction')
+	o.Effects = self:GetList('CsvEffectGroup')
+	return o
+end
+meta= {}
+meta.__index = meta
+meta.class = 'Csv.Skill.SkillAction'
+meta.EXPIRE_TIME = 1
+GetOrCreate('Csv.Skill')['SkillAction'] = meta
+function Stream:GetCsvSkillSkillAction()
+	local o = {}
+	setmetatable(o, Csv.Skill.SkillAction)
+	o.SkillExpireTime = self:GetFloat()
+	o.SkillEndTime = self:GetFloat()
+	o.NeedTarget = self:GetBool()
+	o.CanInterrupt = self:GetBool()
+	o.SkillRange = self:GetFloat()
+	o.CanShowSkillRange = self:GetBool()
+	o.CanRotate = self:GetBool()
+	o.CanMove = self:GetBool()
+	o.StartMoveTime = self:GetFloat()
+	o.EndMoveTime = self:GetFloat()
+	o.RelateType = self:GetInt()
+	o.HitPoints = self:GetList('CsvHitPointGroup')
+	o.HitZones = self:GetList('CsvHitZone')
+	o.BeAttackEffects = self:GetList('CsvBeAttackEffect')
+	return o
+end
+meta= {}
+meta.__index = meta
+meta.class = 'Csv.Skill.HitZone'
+GetOrCreate('Csv.Skill')['HitZone'] = meta
+function Stream:GetCsvSkillHitZone()
+	local o = {}
+	setmetatable(o, Csv.Skill.HitZone)
+	o.Id = self:GetInt()
+	o.Sharp = self:GetInt()
+	o.Zoffset = self:GetFloat()
+	o.Xlength = self:GetFloat()
+	o.BottomHeight = self:GetFloat()
+	o.TopHeight = self:GetFloat()
+	o.Zlength = self:GetFloat()
+	o.YAngle = self:GetFloat()
+	o.YRotation = self:GetFloat()
+	o.MaxTarget = self:GetInt()
+	return o
+end
+meta= {}
+meta.__index = meta
+meta.class = 'Csv.Skill.BeAttackEffect'
+GetOrCreate('Csv.Skill')['BeAttackEffect'] = meta
+function Stream:GetCsvSkillBeAttackEffect()
+	local o = {}
+	setmetatable(o, Csv.Skill.BeAttackEffect)
+	o.Id = self:GetInt()
+	o.Curve = self:GetInt()
+	o.DefencerAction = self:GetString()
+	o.DefencerEffectId = self:GetInt()
+	return o
+end
+meta= {}
+meta.__index = meta
+meta.class = 'Csv.Skill.EffectGroup'
+GetOrCreate('Csv.Skill')['EffectGroup'] = meta
+function Stream:GetCsvSkillEffectGroup()
+	local o = {}
+	setmetatable(o, Csv.Skill.EffectGroup)
+	o.Id = self:GetInt()
+	o.Name = self:GetString()
+	o.Actions = self:GetList('CsvAction')
+	return o
+end
+meta= {}
+meta.__index = meta
+meta.class = 'Csv.Skill.HitPointGroup'
+GetOrCreate('Csv.Skill')['HitPointGroup'] = meta
+function Stream:GetCsvSkillHitPointGroup()
+	local o = {}
+	setmetatable(o, Csv.Skill.HitPointGroup)
+	o.Id = self:GetInt()
+	o.Name = self:GetString()
+	o.Attacks = self:GetList('CsvAttack')
+	return o
+end
+meta= {}
+meta.__index = meta
+meta.class = 'Csv.Skill.Action'
+GetOrCreate('Csv.Skill')['Action'] = meta
+function Stream:GetCsvSkillAction()
+	local o = {}
+	setmetatable(o, Csv.Skill.Action)
 	o.Timeline = self:GetFloat()
 	return o
 end
 meta= {}
 meta.__index = meta
-GetOrCreate('Cfg.Skill')['Attack'] = meta
-function Stream:GetCfgSkillAttack()
+meta.class = 'Csv.Skill.Attack'
+GetOrCreate('Csv.Skill')['Attack'] = meta
+function Stream:GetCsvSkillAttack()
 	local o = {}
-	setmetatable(o, Cfg.Skill.Attack)
+	setmetatable(o, Csv.Skill.Attack)
 	o.Id = self:GetInt()
 	o.HitZoneId = self:GetInt()
 	o.BeAttackEffectId = self:GetInt()
@@ -91,10 +195,11 @@ function Stream:GetCfgSkillAttack()
 end
 meta= {}
 meta.__index = meta
-GetOrCreate('Cfg.Skill')['ShakeScreen'] = meta
-function Stream:GetCfgSkillShakeScreen()
+meta.class = 'Csv.Skill.ShakeScreen'
+GetOrCreate('Csv.Skill')['ShakeScreen'] = meta
+function Stream:GetCsvSkillShakeScreen()
 	local o = {}
-	setmetatable(o, Cfg.Skill.ShakeScreen)
+	setmetatable(o, Csv.Skill.ShakeScreen)
 	o.Type = self:GetString()
 	o.Frequency = self:GetInt()
 	o.FrequencyDuration = self:GetFloat()
@@ -108,10 +213,11 @@ function Stream:GetCfgSkillShakeScreen()
 end
 meta= {}
 meta.__index = meta
-GetOrCreate('Cfg.Skill')['Movement'] = meta
-function Stream:GetCfgSkillMovement()
+meta.class = 'Csv.Skill.Movement'
+GetOrCreate('Csv.Skill')['Movement'] = meta
+function Stream:GetCsvSkillMovement()
 	local o = {}
-	setmetatable(o, Cfg.Skill.Movement)
+	setmetatable(o, Csv.Skill.Movement)
 	o.Type = self:GetInt()
 	o.Duration = self:GetFloat()
 	o.Speed = self:GetFloat()
@@ -120,10 +226,11 @@ function Stream:GetCfgSkillMovement()
 end
 meta= {}
 meta.__index = meta
-GetOrCreate('Cfg.Skill')['ParticleEffect'] = meta
-function Stream:GetCfgSkillParticleEffect()
+meta.class = 'Csv.Skill.ParticleEffect'
+GetOrCreate('Csv.Skill')['ParticleEffect'] = meta
+function Stream:GetCsvSkillParticleEffect()
 	local o = {}
-	setmetatable(o, Cfg.Skill.ParticleEffect)
+	setmetatable(o, Csv.Skill.ParticleEffect)
 	o.Id = self:GetInt()
 	o.Type = self:GetInt()
 	o.FadeOutTime = self:GetFloat()
@@ -159,10 +266,11 @@ function Stream:GetCfgSkillParticleEffect()
 end
 meta= {}
 meta.__index = meta
-GetOrCreate('Cfg.Skill')['SoundEffect'] = meta
-function Stream:GetCfgSkillSoundEffect()
+meta.class = 'Csv.Skill.SoundEffect'
+GetOrCreate('Csv.Skill')['SoundEffect'] = meta
+function Stream:GetCsvSkillSoundEffect()
 	local o = {}
-	setmetatable(o, Cfg.Skill.SoundEffect)
+	setmetatable(o, Csv.Skill.SoundEffect)
 	o.Probability = self:GetFloat()
 	o.VolumeMin = self:GetFloat()
 	o.VolumeMax = self:GetFloat()
@@ -171,23 +279,25 @@ function Stream:GetCfgSkillSoundEffect()
 end
 meta= {}
 meta.__index = meta
-GetOrCreate('Cfg.Skill')['SpawnObject'] = meta
-function Stream:GetCfgSkillSpawnObject()
+meta.class = 'Csv.Skill.SpawnObject'
+GetOrCreate('Csv.Skill')['SpawnObject'] = meta
+function Stream:GetCsvSkillSpawnObject()
 	local o = {}
-	setmetatable(o, Cfg.Skill.SpawnObject)
-	o.Id = self:GetInt()
-	o.SpawnType = self:GetInt()
+	setmetatable(o, Csv.Skill.SpawnObject)
+	o.Id = self:GetFloat()
+	o.SpawnType = self:GetFloat()
 	o.Life = self:GetFloat()
 	return o
 end
 meta= {}
 meta.__index = meta
+meta.class = 'Csv.Skill.TraceObject'
 meta.BODY_CORRECT = 0.7
 meta.HEAD_CORRECT = 1.3
-GetOrCreate('Cfg.Skill')['TraceObject'] = meta
-function Stream:GetCfgSkillTraceObject()
+GetOrCreate('Csv.Skill')['TraceObject'] = meta
+function Stream:GetCsvSkillTraceObject()
 	local o = {}
-	setmetatable(o, Cfg.Skill.TraceObject)
+	setmetatable(o, Csv.Skill.TraceObject)
 	o.EffectId = self:GetInt()
 	o.IsTraceTarget = self:GetBool()
 	o.TraceCurveId = self:GetInt()
@@ -201,10 +311,11 @@ function Stream:GetCfgSkillTraceObject()
 end
 meta= {}
 meta.__index = meta
-GetOrCreate('Cfg.Skill')['FlyWeapon'] = meta
-function Stream:GetCfgSkillFlyWeapon()
+meta.class = 'Csv.Skill.FlyWeapon'
+GetOrCreate('Csv.Skill')['FlyWeapon'] = meta
+function Stream:GetCsvSkillFlyWeapon()
 	local o = {}
-	setmetatable(o, Cfg.Skill.FlyWeapon)
+	setmetatable(o, Csv.Skill.FlyWeapon)
 	o.BulletRadius = self:GetFloat()
 	o.PassBody = self:GetBool()
 	o.BeAttackEffectId = self:GetInt()
@@ -212,171 +323,16 @@ function Stream:GetCfgSkillFlyWeapon()
 end
 meta= {}
 meta.__index = meta
-GetOrCreate('Cfg.Skill')['Bomb'] = meta
-function Stream:GetCfgSkillBomb()
+meta.class = 'Csv.Skill.Bomb'
+GetOrCreate('Csv.Skill')['Bomb'] = meta
+function Stream:GetCsvSkillBomb()
 	local o = {}
-	setmetatable(o, Cfg.Skill.Bomb)
+	setmetatable(o, Csv.Skill.Bomb)
 	o.Id = self:GetInt()
 	return o
 end
-meta= {}
-meta.__index = meta
-GetOrCreate('Cfg.Skill')['ModelActions'] = meta
-function Stream:GetCfgSkillModelActions()
-	local o = {}
-	setmetatable(o, Cfg.Skill.ModelActions)
-	o.ModelName = self:GetString()
-	o.BaseModelName = self:GetString()
-	o.ModelActions = self:GetList('CfgSkillModelAction')
-	o.SkillActions = self:GetList('CfgSkillSkillAction')
-	return o
-end
-meta= {}
-meta.__index = meta
-GetOrCreate('Cfg.Skill')['ModelAction'] = meta
-function Stream:GetCfgSkillModelAction()
-	local o = {}
-	setmetatable(o, Cfg.Skill.ModelAction)
-	o.ActionName = self:GetString()
-	o.ActionSource = self:GetInt()
-	o.OtherModelName = self:GetString()
-	o.ActionFile = self:GetString()
-	o.PreActionFile = self:GetString()
-	o.PostActionFile = self:GetString()
-	o.ActionSpeed = self:GetFloat()
-	o.LoopTimes = self:GetInt()
-	o.EffectId = self:GetInt()
-	o.Actions = self:GetList('CfgSkillAction')
-	o.Effects = self:GetList('CfgSkillEffectGroup')
-	return o
-end
-meta= {}
-meta.__index = meta
-meta.EXPIRE_TIME = 1
-GetOrCreate('Cfg.Skill')['SkillAction'] = meta
-function Stream:GetCfgSkillSkillAction()
-	local o = {}
-	setmetatable(o, Cfg.Skill.SkillAction)
-	o.SkillExpireTime = self:GetFloat()
-	o.SkillEndTime = self:GetFloat()
-	o.NeedTarget = self:GetBool()
-	o.CanInterrupt = self:GetBool()
-	o.SkillRange = self:GetFloat()
-	o.CanShowSkillRange = self:GetBool()
-	o.CanRotate = self:GetBool()
-	o.CanMove = self:GetBool()
-	o.StartMoveTime = self:GetFloat()
-	o.EndMoveTime = self:GetFloat()
-	o.RelateType = self:GetInt()
-	o.HitPoints = self:GetList('CfgSkillHitPointGroup')
-	o.HitZones = self:GetList('CfgSkillHitZone')
-	o.BeAttackEffects = self:GetList('CfgSkillBeAttackEffect')
-	return o
-end
-meta= {}
-meta.__index = meta
-GetOrCreate('Cfg.Skill')['HitZone'] = meta
-function Stream:GetCfgSkillHitZone()
-	local o = {}
-	setmetatable(o, Cfg.Skill.HitZone)
-	o.Id = self:GetInt()
-	o.Sharp = self:GetInt()
-	o.Zoffset = self:GetFloat()
-	o.Xlength = self:GetFloat()
-	o.BottomHeight = self:GetFloat()
-	o.TopHeight = self:GetFloat()
-	o.Zlength = self:GetFloat()
-	o.YAngle = self:GetFloat()
-	o.YRotation = self:GetFloat()
-	o.MaxTarget = self:GetInt()
-	return o
-end
-meta= {}
-meta.__index = meta
-GetOrCreate('Cfg.Skill')['BeAttackEffect'] = meta
-function Stream:GetCfgSkillBeAttackEffect()
-	local o = {}
-	setmetatable(o, Cfg.Skill.BeAttackEffect)
-	o.Id = self:GetInt()
-	o.Curve = self:GetInt()
-	o.DefencerAction = self:GetString()
-	o.DefencerEffectId = self:GetInt()
-	return o
-end
-meta= {}
-meta.__index = meta
-GetOrCreate('Cfg.Skill')['EffectGroup'] = meta
-function Stream:GetCfgSkillEffectGroup()
-	local o = {}
-	setmetatable(o, Cfg.Skill.EffectGroup)
-	o.Id = self:GetInt()
-	o.Name = self:GetString()
-	o.Actions = self:GetList('CfgSkillAction')
-	return o
-end
-meta= {}
-meta.__index = meta
-GetOrCreate('Cfg.Skill')['HitPointGroup'] = meta
-function Stream:GetCfgSkillHitPointGroup()
-	local o = {}
-	setmetatable(o, Cfg.Skill.HitPointGroup)
-	o.Id = self:GetInt()
-	o.Name = self:GetString()
-	o.Attacks = self:GetList('CfgSkillAttack')
-	return o
-end
-meta= {}
-meta.__index = meta
-GetOrCreate('Cfg.LsonAllClass')['LsonAllClass'] = meta
-function Stream:GetCfgLsonAllClassLsonAllClass()
-	local o = {}
-	setmetatable(o, Cfg.LsonAllClass.LsonAllClass)
-	o.ID = self:GetInt()
-	o.VarLong = self:GetLong()
-	o.VarFloat = self:GetFloat()
-	o.VarString = self:GetString()
-	o.VarBool = self:GetBool()
-	o.VarEnum = self:GetInt()
-	local _VarClass = 'Cfg' .. self:GetString()
-	o.VarClass = self:GetObject(_VarClass)
-	o.VarListBase = self:GetList('String')
-	o.VarListClass = self:GetList('CfgLsonAllClassLSingleClass')
-	o.VarListCardElem = self:GetList('Int')
-	o.VarDictBase = self:GetDict('Int', 'String')
-	o.VarDictEnum = self:GetDict('Long', 'Int')
-	o.VarDictClass = self:GetDict('String', 'CfgLsonAllClassLSingleClass')
-	return o
-end
-meta= {}
-meta.__index = meta
-GetOrCreate('Cfg.LsonAllClass')['LSingleClass'] = meta
-function Stream:GetCfgLsonAllClassLSingleClass()
-	local o = {}
-	setmetatable(o, Cfg.LsonAllClass.LSingleClass)
-	o.Var1 = self:GetString()
-	o.Var2 = self:GetBool()
-	return o
-end
-meta= {}
-meta.__index = meta
-GetOrCreate('Cfg.LsonAllClass')['LInherit1'] = meta
-function Stream:GetCfgLsonAllClassLInherit1()
-	local o = {}
-	setmetatable(o, Cfg.LsonAllClass.LInherit1)
-	o.Var3 = self:GetInt()
-	return o
-end
-meta= {}
-meta.__index = meta
-GetOrCreate('Cfg.LsonAllClass')['LInherit2'] = meta
-function Stream:GetCfgLsonAllClassLInherit2()
-	local o = {}
-	setmetatable(o, Cfg.LsonAllClass.LInherit2)
-	o.Var4 = self:GetLong()
-	return o
-end
-GetOrCreate('Cfg.AllType')['CommondEnum'] = {
-	NULL = -1,
+GetOrCreate('Csv.AllType')['CardElement'] = {
+	NULL = -9,
 	Attack = 0,
 	Extract = 1,
 	Renounce = 2,
@@ -388,59 +344,42 @@ GetOrCreate('Cfg.AllType')['CommondEnum'] = {
 	Brary = 8,
 	Handack = 9,
 }
-GetOrCreate('Cfg.Card')['CardElement'] = {
-	NULL = -1,
-	Attack = 0,
-	Extract = 1,
-	Renounce = 2,
-	Armor = 3,
-	Control = 4,
-	Cure = 5,
-	Oneself = 6,
-	Hand = 7,
-	Brary = 8,
-	Handack = 9,
-}
-GetOrCreate('Cfg.Card')['CardType'] = {
-	NULL = -1,
-	Attack = 0,
-}
-GetOrCreate('Cfg.Skill')['ActionSourceType'] = {
-	NULL = -1,
+GetOrCreate('Csv.Skill')['ActionSourceType'] = {
+	NULL = -9,
 	SelfModel = 0,
 	OtherModel = 1,
 }
-GetOrCreate('Cfg.Skill')['SkillTargetType'] = {
-	NULL = -1,
+GetOrCreate('Csv.Skill')['SkillTargetType'] = {
+	NULL = -9,
 	Enemy = 0,
 	Teammate = 1,
 	Self = 2,
 }
-GetOrCreate('Cfg.Skill')['SkillRelateType'] = {
-	NULL = -1,
+GetOrCreate('Csv.Skill')['SkillRelateType'] = {
+	NULL = -9,
 	Self = 0,
 	Target = 1,
 }
-GetOrCreate('Cfg.Skill')['HitSharpType'] = {
-	NULL = -1,
+GetOrCreate('Csv.Skill')['HitSharpType'] = {
+	NULL = -9,
 	Cube = 0,
 	Cylinder = 1,
 	Trangle = 2,
 }
-GetOrCreate('Cfg.Skill')['ShakeType'] = {
-	NULL = -1,
+GetOrCreate('Csv.Skill')['ShakeType'] = {
+	NULL = -9,
 	Horizontal = 0,
 	Vertical = 1,
 	Mix = 2,
 }
-GetOrCreate('Cfg.Skill')['MoveType'] = {
-	NULL = -1,
+GetOrCreate('Csv.Skill')['MoveType'] = {
+	NULL = -9,
 	MoveBack = 0,
 	MoveToTarget = 1,
 	MoveInDirection = 2,
 }
-GetOrCreate('Cfg.Skill')['EffectType'] = {
-	NULL = -1,
+GetOrCreate('Csv.Skill')['EffectType'] = {
+	NULL = -9,
 	Stand = 0,
 	Follow = 1,
 	Trace = 2,
@@ -448,8 +387,8 @@ GetOrCreate('Cfg.Skill')['EffectType'] = {
 	BindToCamera = 4,
 	UIStand = 5,
 }
-GetOrCreate('Cfg.Skill')['EffectAlignType'] = {
-	NULL = -1,
+GetOrCreate('Csv.Skill')['EffectAlignType'] = {
+	NULL = -9,
 	None = 0,
 	LeftTop = 1,
 	Left = 2,
@@ -461,19 +400,19 @@ GetOrCreate('Cfg.Skill')['EffectAlignType'] = {
 	Right = 8,
 	RightBottom = 9,
 }
-GetOrCreate('Cfg.Skill')['SpawnType'] = {
-	NULL = -1,
+GetOrCreate('Csv.Skill')['SpawnType'] = {
+	NULL = -9,
 	FlyWeapon = 0,
 	Bomb = 1,
 	Object = 2,
 }
-GetOrCreate('Cfg.Skill')['TraceType'] = {
-	NULL = -1,
+GetOrCreate('Csv.Skill')['TraceType'] = {
+	NULL = -9,
 	Fly = 0,
 	Fixed = 1,
 }
-GetOrCreate('Cfg.Skill')['TraceBindType'] = {
-	NULL = -1,
+GetOrCreate('Csv.Skill')['TraceBindType'] = {
+	NULL = -9,
 	Body = 0,
 	Head = 1,
 	Foot = 2,

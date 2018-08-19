@@ -12,73 +12,19 @@ namespace ConfigGen.LocalInfo
     //---数据定义表,Excel形式中数据类无继承形式[未定义继承解析]
     public class TableDataInfo : TableInfo
     {
-        public TableDataInfo(string relPath, DataTable data, ClassTypeInfo classType)
-            : base(relPath, data)
-        {
-            if (classType != null)
-                ClassTypeInfo = classType;
-            else
-                Util.LogErrorFormat("数据表结构没有指明类型,文件名:{0}", RelPath);
-        }
+        public DataTable TableDataSet { get; private set; }
 
-        public ClassTypeInfo ClassTypeInfo { get; protected set; }
-        public List<DataClass> Datas { get; protected set; }
-        /// <summary>
-        /// 字段列数据字典
-        /// <para>key:字段名 value:数据列</para>
-        /// </summary>
-        Dictionary<string, List<Data>> DataColumnDict = new Dictionary<string, List<Data>>();
-
-        /// <summary>
-        /// 只查询数据表中类型定义
-        /// </summary>
-        public override bool Exist(string content)
+        public TableDataInfo(string absPath, DataTable data, ClassTypeInfo classType)
+            : base(absPath, classType)
         {
-            return false;
-        }
-        /// <summary>
-        /// 只做数据表中数据类型相关参数替换
-        /// </summary>
-        public override bool Replace(string arg1, string arg2)
-        {
-            return false;
-        }
-        /// <summary>
-        /// 表主键列字段数据
-        /// </summary>
-        public List<Data> GetDataColumn(string fieldName)
-        {
-            List<Data> dataColum = new List<Data>();
-            var fieldDict = ClassTypeInfo.GetFieldInfoDict();
-            if (!fieldDict.ContainsKey(fieldName))
-                return new List<Data>();
-
-            if (DataColumnDict.ContainsKey(fieldName))
-            {
-                dataColum = DataColumnDict[fieldName];
-            }
-            else
-            {
-                for (int row = 0; row < Datas.Count; row++)//行
-                    dataColum.Add(Datas[row].Fields[fieldName]);
-                DataColumnDict.Add(fieldName, dataColum);
-            }
-            return dataColum;
-        }
-        public void RemoveField(FieldInfo field)
-        {
-            for (int k = 0; k < Datas.Count; k++)
-                Datas[k].Fields.Remove(field.Name);
-
-            DataColumnDict.Remove(field.Name);
+            TableDataSet = data;
         }
 
         public override void Analyze()
         {
             DataTable dt = TableDataSet;
             Datas = new List<DataClass>();
-            ClassTypeInfo.UpdateToDict();
-            var fieldDict = ClassTypeInfo.GetFieldInfoDict();
+            var fieldDict = ClassTypeInfo.FieldDict;
             for (int row = Values.DataSheetDataStartIndex; row < dt.Rows.Count; row++)
             {
                 DataClass dataClass = new DataClass();
@@ -90,7 +36,7 @@ namespace ConfigGen.LocalInfo
                 {
                     string fieldName = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
                     if (!fieldDict.ContainsKey(fieldName))
-                        Util.LogWarningFormat("{0}.{1}为定义", ClassTypeInfo.GetClassName(), fieldName, GetErrorSite(column + 1, Values.DataSheetFieldIndex + 1));
+                        Util.LogWarningFormat("{0}.{1}为定义", ClassTypeInfo.GetFullName(), fieldName, GetErrorSite(column + 1, Values.DataSheetFieldIndex + 1));
                     FieldInfo fieldInfo = fieldDict[fieldName];
                     Data dataField = AnalyzeField(dt, fieldInfo, row, ref column);
                     dataClass.Fields.Add(fieldName, dataField);
@@ -101,14 +47,14 @@ namespace ConfigGen.LocalInfo
         }
         private string GetErrorSite(int c, int r)
         {
-            return Util.GetErrorSite(RelPath, c, r);
+            return Util.GetErrorSite(AbsPath, c, r);
         }
 
         private Data AnalyzeField(DataTable dt, FieldInfo info, int row, ref int column)
         {
             Data dataField = null;
             BaseTypeInfo baseType = info.BaseInfo;
-            switch (baseType.TypeType)
+            switch (baseType.EType)
             {
                 case TypeType.Base:
                     dataField = AnalyzeBase(dt, info, row, ref column);
@@ -144,17 +90,17 @@ namespace ConfigGen.LocalInfo
         private Data AnalyzeEnum(DataTable dt, FieldInfo info, int row, ref int column)
         {
             DataBase dataBase = new DataBase();
-            //dataBase.Set(info.Name, info.Type, info.Check, info.Group);
             EnumTypeInfo enumType = info.BaseInfo as EnumTypeInfo;
-            enumType.UpdateToDict();
             dataBase.Data = dt.Rows[row][column];
             string key = dataBase.Data as string;
             if (key != null && !key.Equals(Values.DataSetEndFlag))
             {
-                if (enumType.EnumDict.ContainsKey(key))
-                    dataBase.Data = enumType.EnumDict[key];
+                if (enumType.AliasDict.ContainsKey(key))
+                    dataBase.Data = enumType.AliasDict[key].Value;
+                else if (enumType.EnumDict.ContainsKey(key))
+                    dataBase.Data = enumType.EnumDict[key].Value;
                 else
-                    Util.LogErrorFormat("{0}.{1}不存在,{2}", enumType.GetClassName(), key
+                    Util.LogErrorFormat("{0}.{1}不存在,{2}", enumType.GetFullName(), key
                         , GetErrorSite(column + 1, row + 1));
             }
             else
@@ -168,8 +114,7 @@ namespace ConfigGen.LocalInfo
             ClassTypeInfo classType = info.BaseInfo as ClassTypeInfo;
             DataClass dataClass = new DataClass();
             //dataClass.Set(info.Name, info.Type, info.Check, info.Group);
-            classType.UpdateToDict();
-            var fieldDict = classType.GetFieldInfoDict();
+            var fieldDict = classType.FieldDict;
             for (int i = 0; i < classType.Fields.Count; i++, column++)
             {
                 string fieldName = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
@@ -192,12 +137,9 @@ namespace ConfigGen.LocalInfo
         private Data AnalyzeList(DataTable dt, FieldInfo info, int row, ref int column)
         {
             ListTypeInfo listType = info.BaseInfo as ListTypeInfo;
-            BaseTypeInfo elementType = TypeInfo.GetTypeInfo(listType.ItemType);
-            FieldInfo element = new FieldInfo();
-            element.Set(Values.ELEMENT, elementType.GetClassName(), null, null);
+            FieldInfo element = listType.ItemInfo;
 
             DataList dataList = new DataList();
-            //dataList.Set(info.Name, info.Type, info.Check, info.Group);
             string flag = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
             bool isEnd = false;
             column++;
@@ -205,7 +147,7 @@ namespace ConfigGen.LocalInfo
             {
                 if (isEnd == false)
                 {
-                    if (elementType.TypeType == TypeType.Class)
+                    if (element.BaseInfo.EType == TypeType.Class)
                         column--;
                     Data dataField = AnalyzeField(dt, element, row, ref column);
                     if (dataField != null)
@@ -222,15 +164,10 @@ namespace ConfigGen.LocalInfo
         private Data AnalyzeDict(DataTable dt, FieldInfo info, int row, ref int column)
         {
             DictTypeInfo dictType = info.BaseInfo as DictTypeInfo;
-            BaseTypeInfo keyType = TypeInfo.GetTypeInfo(dictType.KeyType);
-            BaseTypeInfo valueType = TypeInfo.GetTypeInfo(dictType.ValueType);
-            FieldInfo keyInfo = new FieldInfo();
-            keyInfo.Set(Values.KEY, keyType.GetClassName(), null, null);
-            FieldInfo valueInfo = new FieldInfo();
-            valueInfo.Set(Values.VALUE, valueType.GetClassName(), null, null);
+            FieldInfo keyInfo = dictType.KeyInfo;
+            FieldInfo valueInfo = dictType.ValueInfo;
 
             DataDict dataDict = new DataDict();
-            //dataDict.Set(info.Name, info.Type, info.Check, info.Group);
             HashSet<object> hash = new HashSet<object>();
             string flag = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
             bool isEnd = false;
@@ -242,7 +179,7 @@ namespace ConfigGen.LocalInfo
                     DataBase dataKey = AnalyzeField(dt, keyInfo, row, ref column) as DataBase;
                     column++;
 
-                    if (valueType.TypeType == TypeType.Class)
+                    if (valueInfo.BaseInfo.EType == TypeType.Class)
                         column--;
 
                     Data dataValue = AnalyzeField(dt, valueInfo, row, ref column);
