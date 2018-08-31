@@ -71,7 +71,6 @@
     <Compile Include="LocalInfo\TableInfo.Lson.cs" />
     <Compile Include="LocalInfo\TableInfo.CheckCustom.cs" />
     <Compile Include="LocalInfo\TypeDescription.cs" />
-    <Compile Include="TableOption.cs" />
     <Compile Include="LocalInfo\TableInfo.cs" />
     <Compile Include="LocalInfo\TypeInfo.cs" />
     <Compile Include="Program.cs" />

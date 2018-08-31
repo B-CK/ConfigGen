@@ -33,6 +33,10 @@ namespace ConfigGen
         /// </summary>
         public static HashSet<string> ExportGroup { get; set; }
         /// <summary>
+        /// 类结构导出文件路径
+        /// </summary>
+        public static string ExportFilter { get; set; }
+        /// <summary>
         /// 是否只对已修改文件进行操作
         /// </summary>
         public static bool IsOptPart { get; set; }
@@ -51,7 +55,7 @@ namespace ConfigGen
         /// <summary>
         /// 工具所在目录
         /// </summary>
-        public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
+        public static readonly string ApplicationDir = Directory.GetCurrentDirectory().Replace("\\", "/");
         /// <summary>
         /// 数据表格Sheet名定义格式
         /// </summary>

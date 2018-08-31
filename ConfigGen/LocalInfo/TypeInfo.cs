@@ -100,6 +100,8 @@ namespace ConfigGen.LocalInfo
             }
             //类型分组
             DoGrouping();
+            //过滤导出类型
+            FilterInfo();
             //添加基础类型
             HashSet<string> _baseType = new HashSet<string>() { INT, LONG, BOOL, FLOAT, STRING };
             foreach (var item in _baseType)
@@ -166,6 +168,29 @@ namespace ConfigGen.LocalInfo
                 }
             }
             return;
+        }
+        private static void FilterInfo()
+        {
+            if (string.IsNullOrWhiteSpace(Values.ExportFilter)) return;
+
+            var export = Util.Deserialize(Values.ExportFilter, typeof(ExportInfo)) as ExportInfo;
+            List<BaseTypeInfo> infos = new List<BaseTypeInfo>();
+            HashSet<string> hash = new HashSet<string>(export.Exports);
+            foreach (var info in Instance.TypeInfoDict)
+            {
+                if (hash.Contains(info.Key))
+                    export.Exports.Remove(info.Key);
+                else if (hash.Contains(info.Value.NamespaceName))
+                    export.Exports.Remove(info.Value.NamespaceName);
+                else
+                    infos.Add(info.Value);
+            }
+
+            foreach (var item in export.Exports)
+                Util.LogWarningFormat("导出定义{0},无法与任何类型或者命名空间匹配..", item);
+
+            foreach (var info in infos)
+                Instance.Remove(info);
         }
 
         public void Add(BaseTypeInfo info)
@@ -468,13 +493,13 @@ namespace ConfigGen.LocalInfo
                 Enums.Add(info);
 
                 if (string.IsNullOrWhiteSpace(info.Alias)) continue;
-              
+
                 if (!AliasDict.ContainsKey(info.Alias))
                     AliasDict.Add(info.Alias, info);
                 else
                     Util.LogErrorFormat("{0} 枚举{1}重名!", GetFullName(), info.Alias);
             }
-           
+
             UpdateEnumDict();
             GroupHashSet = TypeInfo.AnalyzeGroup(Group);
         }

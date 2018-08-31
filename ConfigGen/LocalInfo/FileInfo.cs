@@ -13,7 +13,7 @@ namespace ConfigGen.LocalInfo
         public List<string> DiffRelPath { get; private set; }
         public Dictionary<string, FileState> FileDict { get; private set; }
 
-        public static FileInfo Init()
+        public static void Init()
         {
             FileInfo fileInfo = new FileInfo();
             fileInfo.FileDict = new Dictionary<string, FileState>();
@@ -46,21 +46,20 @@ namespace ConfigGen.LocalInfo
                 fileInfo.FileDict.Add(state.RelPath, state);
             }
             fileInfo.DoFileState();
-            return fileInfo;
         }
-        public void Add(object info)
+        private void Add(object info)
         {
             FileState fileState = info as FileState;
             if (!FileDict.ContainsKey(fileState.RelPath))
                 FileDict.Add(fileState.RelPath, fileState);
         }
-        public void Remove(object info)
+        private void Remove(object info)
         {
             FileState fileState = info as FileState;
             if (FileDict.ContainsKey(fileState.RelPath))
                 FileDict.Remove(fileState.RelPath);
         }
-        public void Save()
+        private void Save()
         {
             UpdateList();
             string path = string.Format(@"{0}\{1}", Values.ApplicationDir, LIB_NAME);
@@ -69,8 +68,6 @@ namespace ConfigGen.LocalInfo
                 builder.AppendFormat("{0}|{1}\r\n", file.Key, file.Value.MD5Hash);
             Util.SaveFile(path, builder.ToString());
         }
-
-
         private void DoFileState()
         {
             for (int i = 0; i < FileStates.Count; i++)

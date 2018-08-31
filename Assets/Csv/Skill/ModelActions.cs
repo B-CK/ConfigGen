@@ -17,7 +17,7 @@ namespace Csv.Skill
 		/// <summary>
 		/// 普通动作
 		/// <summary>
-		public readonly List<ModelAction> ModelActions = new List<ModelAction>();
+		public readonly List<NormalAction> NormalActions = new List<NormalAction>();
 		/// <summary>
 		/// 技能动作
 		/// <summary>
@@ -29,7 +29,7 @@ namespace Csv.Skill
 			this.BaseModelName = data.GetString();
 			for (int n = data.GetInt(); n-- > 0; )
 			{
-				this.ModelActions.Add(new ModelAction(data));
+				this.NormalActions.Add(new NormalAction(data));
 			}
 			for (int n = data.GetInt(); n-- > 0; )
 			{

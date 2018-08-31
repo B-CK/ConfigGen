@@ -27,34 +27,38 @@ namespace ConfigGen
                 //构建本地数据库
                 FileInfo.Init();
                 TypeInfo.Init();
-                TableInfo.Init();
 
-                //类型,数据,检查操作
-                Util.Start();
-                TableChecker.CheckAllData();
-                TableChecker.CheckFullTable();
-                Util.Stop("==>> 检查数据耗时");
+                bool canExportCsv = !string.IsNullOrWhiteSpace(Values.ExportCsv);
+                bool canExportCSharp = !string.IsNullOrWhiteSpace(Values.ExportCSharp);
+                bool canExportCsLson = !string.IsNullOrWhiteSpace(Values.ExportCsLson);
+                bool canExportLua = !string.IsNullOrWhiteSpace(Values.ExportLua);
 
-                //导出数据
-                if (!string.IsNullOrWhiteSpace(Values.ExportCsv))
+                if (canExportCsv)
                 {
+                    TableInfo.Init();
+                    //类型,数据,检查操作
+                    Util.Start();
+                    TableChecker.CheckAllData();
+                    TableChecker.CheckFullTable();
+                    Util.Stop("==>> 检查数据耗时");
+
                     Util.Start();
                     ExportCsv.Export();
                     Util.Stop("==>> Csv数据导出完毕");
                 }
-                if (!string.IsNullOrWhiteSpace(Values.ExportCSharp))
+                if (canExportCSharp)
                 {
                     Util.Start();
                     ExportCSharp.Export_CsvOp();
                     Util.Stop("==>> CS Csv操作类导出完毕");
                 }
-                if (!string.IsNullOrWhiteSpace(Values.ExportCsLson))
+                if (canExportCsLson)
                 {
                     Util.Start();
                     ExportCSharp.Export_LsonOp();
                     Util.Stop("==>> CS Lson操作类导出完毕");
                 }
-                if (!string.IsNullOrWhiteSpace(Values.ExportLua))
+                if (canExportLua)
                 {
                     Util.Start();
                     ExportLua.Export();

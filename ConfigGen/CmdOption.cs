@@ -15,6 +15,7 @@ namespace ConfigGen
         public const string EXPORT_CS_LSON = "-exportCsLson";
         public const string EXPORT_LUA = "-exportLua";
         public const string GROUP = "-group";
+        public const string EXPORT_INFO = "-exportInfo";
         //public const string REPLACE = "-replace";
         //public const string FIND = "-find";
 
@@ -64,7 +65,7 @@ namespace ConfigGen
                     {
                         case CONFIG_DIR:
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ConfigDir = string.Format(@"{0}\{1}\", Values.ApplicationDir, cmd.Value[0]);
+                            Values.ConfigDir = string.Format(@"{0}/{1}/", Values.ApplicationDir, cmd.Value[0]);
                             if (!Directory.Exists(Values.ConfigDir))
                             {
                                 Util.LogErrorFormat("[{0}]Config文件夹不在此路径{1}", cmdName, Values.ConfigDir);
@@ -114,6 +115,16 @@ namespace ConfigGen
                                 groups[i] = groups[i].ToLower();
                             Values.ExportGroup = new HashSet<string>(groups);
                             Values.ExportGroup.Add(Values.DefualtGroup);
+                            break;
+                        case EXPORT_INFO:
+                            if (!CheckArgList(cmdName, cmd.Value)) return false;
+                            Values.ExportFilter = string.Format(@"{0}/{1}", Values.ApplicationDir, cmd.Value[0]);
+                            if (!File.Exists(Values.ExportFilter))
+                            {
+                                Util.LogErrorFormat("[{0}]导出定义文件不在此路径{1}", cmdName, Values.ExportFilter);
+                                Values.ExportFilter = null;
+                                return false;
+                            }
                             break;
                         //case REPLACE:
                         //    if (!CheckArgList(cmdName, cmd.Value)) return false;

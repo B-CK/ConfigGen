@@ -18,7 +18,7 @@ namespace Lson.Skill
 		/// <summary>
 		/// 普通动作
 		/// <summary>
-		public List<ModelAction> ModelActions;
+		public List<NormalAction> NormalActions;
 		/// <summary>
 		/// 技能动作
 		/// <summary>
@@ -28,7 +28,7 @@ namespace Lson.Skill
 		{
 			Write(_1, "ModelName", this.ModelName);
 			Write(_1, "BaseModelName", this.BaseModelName);
-			Write(_1, "ModelActions", this.ModelActions);
+			Write(_1, "NormalActions", this.NormalActions);
 			Write(_1, "SkillActions", this.SkillActions);
 		}
 
@@ -39,7 +39,7 @@ namespace Lson.Skill
 			{
 				case "ModelName": this.ModelName = ReadString(_2); break;
 				case "BaseModelName": this.BaseModelName = ReadString(_2); break;
-				case "ModelActions": GetChilds(_2).ForEach (_3 => this.ModelActions.Add(ReadObject<Lson.Skill.ModelAction>(_3, "Lson.Skill.ModelAction"))); break;
+				case "NormalActions": GetChilds(_2).ForEach (_3 => this.NormalActions.Add(ReadObject<Lson.Skill.NormalAction>(_3, "Lson.Skill.NormalAction"))); break;
 				case "SkillActions": GetChilds(_2).ForEach (_3 => this.SkillActions.Add(ReadObject<Lson.Skill.SkillAction>(_3, "Lson.Skill.SkillAction"))); break;
 			}
 		}

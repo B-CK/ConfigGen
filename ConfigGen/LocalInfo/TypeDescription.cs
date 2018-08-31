@@ -68,4 +68,11 @@ namespace ConfigGen.LocalInfo
         [XmlAttribute]
         public string Alias;
     }
+
+    [XmlRoot("Exports")]
+    public class ExportInfo
+    {
+        [XmlElement("Item")]
+        public List<string> Exports;
+    }
 }

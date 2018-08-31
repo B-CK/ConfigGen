@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Lson.Skill
 {
-	public  class ModelAction : LsonObject
+	public  class NormalAction : LsonObject
 	{
 		/// <summary>
 		/// 行为名称

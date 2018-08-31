@@ -25,30 +25,6 @@ end
 local meta
 meta= {}
 meta.__index = meta
-meta.class = 'Csv.AllType.AllClass'
-meta.ConstString = 'Hello World'
-meta.ConstFloat = 3.141527
-GetOrCreate('Csv.AllType')['AllClass'] = meta
-function Stream:GetCsvAllTypeAllClass()
-	local o = {}
-	setmetatable(o, Csv.AllType.AllClass)
-	o.ID = self:GetInt()
-	o.VarLong = self:GetLong()
-	o.VarFloat = self:GetFloat()
-	o.VarString = self:GetString()
-	o.VarBool = self:GetBool()
-	o.VarEnum = self:GetInt()
-	o.VarClass = self:GetObject('CsvAllTypeSingleClass')
-	o.VarListBase = self:GetList('String')
-	o.VarListClass = self:GetList('CsvSingleClass')
-	o.VarListCardElem = self:GetList('String')
-	o.VarDictBase = self:GetDict('Int', 'String')
-	o.VarDictEnum = self:GetDict('Long', 'Int')
-	o.VarDictClass = self:GetDict('String', 'CsvSingleClass')
-	return o
-end
-meta= {}
-meta.__index = meta
 meta.class = 'Csv.AllType.SingleClass'
 GetOrCreate('Csv.AllType')['SingleClass'] = meta
 function Stream:GetCsvAllTypeSingleClass()
@@ -67,17 +43,17 @@ function Stream:GetCsvSkillModelActions()
 	setmetatable(o, Csv.Skill.ModelActions)
 	o.ModelName = self:GetString()
 	o.BaseModelName = self:GetString()
-	o.ModelActions = self:GetList('CsvModelAction')
+	o.NormalActions = self:GetList('CsvNormalAction')
 	o.SkillActions = self:GetList('CsvSkillAction')
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Csv.Skill.ModelAction'
-GetOrCreate('Csv.Skill')['ModelAction'] = meta
-function Stream:GetCsvSkillModelAction()
+meta.class = 'Csv.Skill.NormalAction'
+GetOrCreate('Csv.Skill')['NormalAction'] = meta
+function Stream:GetCsvSkillNormalAction()
 	local o = {}
-	setmetatable(o, Csv.Skill.ModelAction)
+	setmetatable(o, Csv.Skill.NormalAction)
 	o.ActionName = self:GetString()
 	o.ActionSource = self:GetInt()
 	o.OtherModelName = self:GetString()
@@ -331,19 +307,6 @@ function Stream:GetCsvSkillBomb()
 	o.Id = self:GetInt()
 	return o
 end
-GetOrCreate('Csv.AllType')['CardElement'] = {
-	NULL = -9,
-	Attack = 0,
-	Extract = 1,
-	Renounce = 2,
-	Armor = 3,
-	Control = 4,
-	Cure = 5,
-	Oneself = 6,
-	Hand = 7,
-	Brary = 8,
-	Handack = 9,
-}
 GetOrCreate('Csv.Skill')['ActionSourceType'] = {
 	NULL = -9,
 	SelfModel = 0,
