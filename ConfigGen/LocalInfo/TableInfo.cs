@@ -76,6 +76,9 @@ namespace ConfigGen.LocalInfo
             {
                 var c = classList[i];
                 if (string.IsNullOrWhiteSpace(c.DataPath)) continue;
+                //FileInfo info = new FileInfo(c.DataPath);
+                //if (info.LastWriteTime == info.CreationTime) continue;
+                //info.CreationTime = info.LastWriteTime;
 
                 TableInfo data = null;
                 if (File.Exists(c.DataPath))
@@ -118,7 +121,7 @@ namespace ConfigGen.LocalInfo
                     if (!hash.Contains(c.DataPath))
                     {
                         hash.Add(c.DataPath);
-                        data = new TableLsonInfo(c.DataPath, c);
+                        data = new TableXmlInfo(c.DataPath, c);
                     }
                     else
                         Util.LogErrorFormat("数据类{0}指定数据文件与其他类相同", c.GetFullName());
@@ -138,7 +141,7 @@ namespace ConfigGen.LocalInfo
                 }
             }
             Util.Stop("==>> 解析数据文件完毕!");
-        }
+        }        
     }
 
 

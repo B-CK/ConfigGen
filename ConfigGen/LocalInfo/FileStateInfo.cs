@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ConfigGen.LocalInfo
 {
-    public class FileInfo
+    public class FileStateInfo
     {
          const string LIB_NAME = "FileStateInfo.lfi";
 
@@ -15,7 +15,7 @@ namespace ConfigGen.LocalInfo
 
         public static void Init()
         {
-            FileInfo fileInfo = new FileInfo();
+            FileStateInfo fileInfo = new FileStateInfo();
             fileInfo.FileDict = new Dictionary<string, FileState>();
             fileInfo.DiffRelPath = new List<string>();
             string path = string.Format(@"{0}\{1}", Values.ApplicationDir, LIB_NAME);
@@ -34,7 +34,7 @@ namespace ConfigGen.LocalInfo
                 fileInfo.Save();
             }
             string content = File.ReadAllText(path);
-            string[] lines = content.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);            
+            string[] lines = content.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < lines.Length; i++)
             {
                 string[] nodes = lines[i].Split("|".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
@@ -47,6 +47,7 @@ namespace ConfigGen.LocalInfo
             }
             fileInfo.DoFileState();
         }
+
         private void Add(object info)
         {
             FileState fileState = info as FileState;

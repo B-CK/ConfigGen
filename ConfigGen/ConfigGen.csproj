@@ -65,10 +65,10 @@
     <Compile Include="Export\ExportCSharp.LsonOp.cs" />
     <Compile Include="Export\ExportCsv.cs" />
     <Compile Include="Export\ExportLua.cs" />
-    <Compile Include="LocalInfo\FileInfo.cs" />
+    <Compile Include="LocalInfo\FileStateInfo.cs" />
     <Compile Include="LocalInfo\TableInfo.Check.cs" />
     <Compile Include="LocalInfo\TableInfo.Data.cs" />
-    <Compile Include="LocalInfo\TableInfo.Lson.cs" />
+    <Compile Include="LocalInfo\TableInfo.Xml.cs" />
     <Compile Include="LocalInfo\TableInfo.CheckCustom.cs" />
     <Compile Include="LocalInfo\TypeDescription.cs" />
     <Compile Include="LocalInfo\TableInfo.cs" />

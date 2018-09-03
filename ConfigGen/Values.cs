@@ -55,7 +55,7 @@ namespace ConfigGen
         /// <summary>
         /// 工具所在目录
         /// </summary>
-        public static readonly string ApplicationDir = Directory.GetCurrentDirectory().Replace("\\", "/");
+        public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
         /// <summary>
         /// 数据表格Sheet名定义格式
         /// </summary>

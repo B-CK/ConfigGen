@@ -5,10 +5,10 @@ using System.Collections.Generic;
 
 namespace ConfigGen.LocalInfo
 {
-    public class TableLsonInfo : TableInfo
+    public class TableXmlInfo : TableInfo
     {
         private List<XmlElement> _datas = new List<XmlElement>();
-        public TableLsonInfo(string absPath, ClassTypeInfo classType)
+        public TableXmlInfo(string absPath, ClassTypeInfo classType)
            : base(absPath, classType)
         {
             string[] files = Directory.GetFiles(absPath);

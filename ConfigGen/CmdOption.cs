@@ -8,16 +8,29 @@ namespace ConfigGen
     class CmdOption
     {
         public const string CONFIG_DIR = "-configDir";
-        public const string HELP = "-help";
         public const string OPTION_MODE = "-optMode";
-        public const string EXPORT_CSV = "-exportCsv";
-        public const string EXPORT_CSHARP = "-exportCSharp";
-        public const string EXPORT_CS_LSON = "-exportCsLson";
-        public const string EXPORT_LUA = "-exportLua";
+        public const string EXPORT_CSV = "-dataDir";
+        public const string EXPORT_CSHARP = "-codeDir";
+        public const string EXPORT_CS_LSON = "-xmlCodeDir";
+        public const string EXPORT_LUA = "-luaCodeDir";
         public const string GROUP = "-group";
         public const string EXPORT_INFO = "-exportInfo";
+        public const string HELP = "-help";
         //public const string REPLACE = "-replace";
         //public const string FIND = "-find";
+
+        void Usage()
+        {
+            Console.WriteLine("-configDir [path] 数据文件根目录路径");
+            Console.WriteLine("-optMode [all|part] 导出模式,全部导出或者只导出被修改文件");
+            Console.WriteLine("-dataDir [path] 导出数据到指定目录路径");
+            Console.WriteLine("-codeDir [path] 导出结构到指定目录路径");
+            Console.WriteLine("-xmlCodeDir [path] 导出xml类到指定目录路径");
+            Console.WriteLine("-luaCodeDir [path] 导出lua脚本到指定目录路径");
+            Console.WriteLine("-group [client|editor|server] 按分组导出数据,分组可自定义");
+            Console.WriteLine("-exportInfo [path] 按配置文件导出数据或者结构类,配置可自定义");
+            Console.WriteLine("--help 打印指令说明");
+        }
 
 
         public static CmdOption Instance
@@ -74,6 +87,7 @@ namespace ConfigGen
                             }
                             break;
                         case HELP:
+                            Usage();
                             break;
                         case OPTION_MODE:
                             if (!CheckArgList(cmdName, cmd.Value)) return false;

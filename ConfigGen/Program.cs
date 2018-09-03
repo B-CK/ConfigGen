@@ -25,7 +25,7 @@ namespace ConfigGen
                 }
 
                 //构建本地数据库
-                FileInfo.Init();
+                FileStateInfo.Init();
                 TypeInfo.Init();
 
                 bool canExportCsv = !string.IsNullOrWhiteSpace(Values.ExportCsv);
