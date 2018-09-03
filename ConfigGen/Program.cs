@@ -24,13 +24,13 @@ namespace ConfigGen
                     return;
                 }
 
-                //构建本地数据库
-                FileStateInfo.Init();
+                //构建本地数据库               
                 TypeInfo.Init();
+                DataFileInfo.Init();
 
                 bool canExportCsv = !string.IsNullOrWhiteSpace(Values.ExportCsv);
-                bool canExportCSharp = !string.IsNullOrWhiteSpace(Values.ExportCSharp);
-                bool canExportCsLson = !string.IsNullOrWhiteSpace(Values.ExportCsLson);
+                bool canExportCsCode = !string.IsNullOrWhiteSpace(Values.ExportCode);
+                bool canExportXmlCode = !string.IsNullOrWhiteSpace(Values.ExportXmlCode);
                 bool canExportLua = !string.IsNullOrWhiteSpace(Values.ExportLua);
 
                 if (canExportCsv)
@@ -43,24 +43,28 @@ namespace ConfigGen
                     Util.Stop("==>> 检查数据耗时");
 
                     Util.Start();
+                    Util.TryDeleteDirectory(Values.ExportCsv);
                     ExportCsv.Export();
                     Util.Stop("==>> Csv数据导出完毕");
                 }
-                if (canExportCSharp)
+                if (canExportCsCode)
                 {
                     Util.Start();
+                    Util.TryDeleteDirectory(Values.ExportCode);
                     ExportCSharp.Export_CsvOp();
                     Util.Stop("==>> CS Csv操作类导出完毕");
                 }
-                if (canExportCsLson)
+                if (canExportXmlCode)
                 {
                     Util.Start();
+                    Util.TryDeleteDirectory(Values.ExportXmlCode);
                     ExportCSharp.Export_LsonOp();
                     Util.Stop("==>> CS Lson操作类导出完毕");
                 }
                 if (canExportLua)
                 {
                     Util.Start();
+                    Util.TryDeleteDirectory(Values.ExportLua);
                     ExportLua.Export();
                     Util.Stop("==>> Lua操作类导出完毕");
                 }

@@ -88,7 +88,7 @@ namespace ConfigGen
                 for (int i = 0; i < dtSheet.Rows.Count; ++i)
                 {
                     string sheetName = dtSheet.Rows[i]["TABLE_NAME"].ToString();
-                    if (!sheetName.StartsWith(Values.DataSheetPrefix)) continue;
+                    if (!sheetName.StartsWith(Values.DataFileFlag)) continue;
 
                     da = new OleDbDataAdapter();
                     da.SelectCommand = new OleDbCommand(String.Format("Select * FROM [{0}]", sheetName), conn);
@@ -226,6 +226,10 @@ namespace ConfigGen
 
             File.WriteAllText(filePath, content, UTF8);
         }
+        public static string NormalizePath(string patth)
+        {
+            return patth.Replace("/", @"\");
+        }
         public static string GetConfigRelPath(string path)
         {
             return path.Replace(Values.ConfigDir, "");
@@ -241,6 +245,11 @@ namespace ConfigGen
         public static string FirstCharUpper(string name)
         {
             return Char.ToUpper(name[0]) + name.Substring(1);
+        }
+        public static void TryDeleteDirectory(string path)
+        {
+            if (Directory.Exists(path))
+                Directory.Delete(path, true);
         }
 
 

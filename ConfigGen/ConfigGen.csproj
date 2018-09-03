@@ -46,10 +46,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -62,10 +58,10 @@
     <Compile Include="CmdOption.cs" />
     <Compile Include="Export\CodeWriter.cs" />
     <Compile Include="Export\ExportCSharp.DataOp.cs" />
-    <Compile Include="Export\ExportCSharp.LsonOp.cs" />
+    <Compile Include="Export\ExportCSharp.XmlOp.cs" />
     <Compile Include="Export\ExportCsv.cs" />
     <Compile Include="Export\ExportLua.cs" />
-    <Compile Include="LocalInfo\FileStateInfo.cs" />
+    <Compile Include="LocalInfo\DataFileInfo.cs" />
     <Compile Include="LocalInfo\TableInfo.Check.cs" />
     <Compile Include="LocalInfo\TableInfo.Data.cs" />
     <Compile Include="LocalInfo\TableInfo.Xml.cs" />

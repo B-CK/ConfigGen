@@ -15,11 +15,11 @@ namespace ConfigGen
         /// <summary>
         /// 导出CSharp类型
         /// </summary>
-        public static string ExportCSharp { get; set; }
+        public static string ExportCode { get; set; }
         /// <summary>
         /// 导出CSharp类型Xml操作类
         /// </summary>
-        public static string ExportCsLson { get; set; }
+        public static string ExportXmlCode { get; set; }
         /// <summary>
         /// 导出Lua类型类
         /// </summary>
@@ -59,7 +59,7 @@ namespace ConfigGen
         /// <summary>
         /// 数据表格Sheet名定义格式
         /// </summary>
-        public const string DataSheetPrefix = "data";
+        public const string DataFileFlag = "data";
         /// <summary>
         /// 数据类型表格Sheet名定义格式
         /// </summary>
@@ -104,7 +104,7 @@ namespace ConfigGen
         /// <summary>
         /// 导出Lson数据读写类命名空间根节点
         /// </summary>
-        public const string LsonRootNode = "Lson";
+        public const string XmlRootNode = "XmlCode";
         /// <summary>
         /// 导出Csv数据读写类命名空间根节点
         /// </summary>

@@ -76,6 +76,8 @@ namespace ConfigGen.LocalInfo
             {
                 var c = classList[i];
                 if (string.IsNullOrWhiteSpace(c.DataPath)) continue;
+                if (!DataFileInfo.HasChangeFile(c.DataPath)) continue;
+                
                 //FileInfo info = new FileInfo(c.DataPath);
                 //if (info.LastWriteTime == info.CreationTime) continue;
                 //info.CreationTime = info.LastWriteTime;
@@ -140,6 +142,7 @@ namespace ConfigGen.LocalInfo
                     Util.Stop(string.Format("解析数据:{0}", c.DataPath));
                 }
             }
+            DataFileInfo.Save();
             Util.Stop("==>> 解析数据文件完毕!");
         }        
     }

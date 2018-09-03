@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using Newtonsoft.Json;
 using ConfigGen.LocalInfo;
 using System.Collections.Generic;
 using System.IO;
@@ -9,8 +8,8 @@ namespace ConfigGen.Export
 {
     public partial class ExportCSharp
     {
-        private const string LSON_STREAM = "LsonManager";
-        private const string CLASS_LSON_OBJECT = "LsonObject";
+        private const string XML_STREAM = "XmlManager";
+        private const string CLASS_XML_OBJECT = "XmlObject";
         private static readonly List<string> XmlNameSpaces = new List<string>() { "System", "System.IO", "System.Xml", "System.Collections.Generic" };
 
 
@@ -25,12 +24,12 @@ namespace ConfigGen.Export
         private static void DefineLsonObject()
         {
             StringBuilder builder = new StringBuilder();
-            string path = Path.Combine(Values.ExportCsLson, CLASS_LSON_OBJECT + ".cs");
+            string path = Path.Combine(Values.ExportXmlCode, CLASS_XML_OBJECT + ".cs");
             CodeWriter.UsingNamespace(builder, XmlNameSpaces);
             builder.AppendLine();
-            CodeWriter.NameSpace(builder, Values.LsonRootNode);
+            CodeWriter.NameSpace(builder, Values.XmlRootNode);
 
-            CodeWriter.ClassBase(builder, CodeWriter.Public, CodeWriter.Abstract, CLASS_LSON_OBJECT);
+            CodeWriter.ClassBase(builder, CodeWriter.Public, CodeWriter.Abstract, CLASS_XML_OBJECT);
             CodeWriter.IntervalLevel(builder);
             builder.AppendLine("public abstract void Write(TextWriter os);");
             CodeWriter.IntervalLevel(builder);
@@ -164,7 +163,7 @@ namespace ConfigGen.Export
             builder.AppendLine();
 
             CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, "T", "ReadObject<T>",
-                new string[] { "XmlNode", Base.String }, new string[] { "node", "fullTypeName" }, CLASS_LSON_OBJECT);
+                new string[] { "XmlNode", Base.String }, new string[] { "node", "fullTypeName" }, CLASS_XML_OBJECT);
             {
                 CodeWriter.IntervalLevel(builder);
                 builder.AppendLine("var obj = (T)Create(node, fullTypeName);");
@@ -177,7 +176,7 @@ namespace ConfigGen.Export
             builder.AppendLine();
 
             CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, "T", "ReadDynamicObject<T>",
-                new string[] { "XmlNode", Base.String }, new string[] { "node", "ns" }, CLASS_LSON_OBJECT);
+                new string[] { "XmlNode", Base.String }, new string[] { "node", "ns" }, CLASS_XML_OBJECT);
             {
                 CodeWriter.IntervalLevel(builder);
                 builder.AppendLine("var fullTypeName = ns + \".\" + ReadAttribute(node, \"Type\");");
@@ -226,7 +225,7 @@ namespace ConfigGen.Export
             }
 
             CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "Write",
-                new string[] { "TextWriter", Base.String, CLASS_LSON_OBJECT }, new string[] { "os", "name", "x" });
+                new string[] { "TextWriter", Base.String, CLASS_XML_OBJECT }, new string[] { "os", "name", "x" });
             {
                 CodeWriter.IntervalLevel(builder);
                 builder.AppendLine("os.WriteLine(\"<{0} type =\\\"{1}\\\">\", name, x.GetType().Name);");
@@ -300,9 +299,9 @@ namespace ConfigGen.Export
                 CodeWriter.IntervalLevel(builder);
                 builder.AppendLine("\tWrite(os, name, (string)x);");
                 CodeWriter.IntervalLevel(builder);
-                builder.AppendFormat("else if (x is {0})\n", CLASS_LSON_OBJECT);
+                builder.AppendFormat("else if (x is {0})\n", CLASS_XML_OBJECT);
                 CodeWriter.IntervalLevel(builder);
-                builder.AppendFormat("\tWrite(os, name, ({0})x);\n", CLASS_LSON_OBJECT);
+                builder.AppendFormat("\tWrite(os, name, ({0})x);\n", CLASS_XML_OBJECT);
                 CodeWriter.IntervalLevel(builder);
                 builder.AppendLine("else");
                 CodeWriter.IntervalLevel(builder);
@@ -338,7 +337,7 @@ namespace ConfigGen.Export
             builder.AppendLine();
 
             CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.String, "LoadConfig<T>",
-                new string[] { "List<T>", Base.String }, new string[] { "x", "file" }, CLASS_LSON_OBJECT);
+                new string[] { "List<T>", Base.String }, new string[] { "x", "file" }, CLASS_XML_OBJECT);
             {
                 CodeWriter.IntervalLevel(builder);
                 builder.AppendLine("var doc = new XmlDocument();");
@@ -351,7 +350,7 @@ namespace ConfigGen.Export
             builder.AppendLine();
 
             CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.String, "SaveConfig<T>",
-                new string[] { "List<T>", Base.String }, new string[] { "x", "file" }, CLASS_LSON_OBJECT);
+                new string[] { "List<T>", Base.String }, new string[] { "x", "file" }, CLASS_XML_OBJECT);
             {
                 CodeWriter.IntervalLevel(builder);
                 builder.AppendLine("var os = new StringWriter();");
@@ -379,17 +378,17 @@ namespace ConfigGen.Export
             {
                 CodeWriter.UsingNamespace(builder, XmlNameSpaces);
                 builder.AppendLine();
-                CodeWriter.NameSpace(builder, string.Format("{0}.{1}", Values.LsonRootNode, baseType.NamespaceName));
+                CodeWriter.NameSpace(builder, string.Format("{0}.{1}", Values.XmlRootNode, baseType.NamespaceName));
 
                 bool isWrited = false;
                 if (baseType.EType == TypeType.Class)
                 {
                     ClassTypeInfo classType = baseType as ClassTypeInfo;
                     if (classType.Inherit == null)
-                        CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, CLASS_LSON_OBJECT);
+                        CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, CLASS_XML_OBJECT);
                     else
                     {
-                        string fullType = CodeWriter.GetFullNamespace(Values.LsonRootNode, classType.Inherit.GetFullName());
+                        string fullType = CodeWriter.GetFullNamespace(Values.XmlRootNode, classType.Inherit.GetFullName());
                         CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, fullType);
                     }
 
@@ -428,17 +427,17 @@ namespace ConfigGen.Export
                             case TypeType.Class:
                                 {
                                     CodeWriter.Comments(builder, field.Des);
-                                    string fullType = CodeWriter.GetFullNamespace(Values.LsonRootNode, field.Type);
+                                    string fullType = CodeWriter.GetFullNamespace(Values.XmlRootNode, field.Type);
                                     CodeWriter.Field(builder, CodeWriter.Public, fullType, field.Name);
 
                                     if (field.BaseInfo.EType == TypeType.Base)
                                         reader.Add(string.Format("case \"{0}\": this.{0} = Read{1}(_2); break;", field.Name, Util.FirstCharUpper(field.Type)));
                                     else if (field.BaseInfo.EType == TypeType.Enum)
-                                        reader.Add(string.Format("case \"{0}\": this.{0} = ({1}.{2})ReadInt(_2); break;", field.Name, Values.LsonRootNode, field.BaseInfo.GetFullName()));
+                                        reader.Add(string.Format("case \"{0}\": this.{0} = ({1}.{2})ReadInt(_2); break;", field.Name, Values.XmlRootNode, field.BaseInfo.GetFullName()));
                                     else if (field.BaseInfo.EType == TypeType.Class)
                                     {
                                         var classInfo = field.BaseInfo as ClassTypeInfo;
-                                        string classFullName = string.Format("{0}.{1}", Values.LsonRootNode, classInfo.GetFullName());
+                                        string classFullName = string.Format("{0}.{1}", Values.XmlRootNode, classInfo.GetFullName());
                                         if (classInfo.Inherit == null)
                                             reader.Add(string.Format("case \"{0}\": this.{0} = ReadObject<{1}>(_2, \"{1}\"); break;", field.Name, classFullName));
                                         else
@@ -453,7 +452,7 @@ namespace ConfigGen.Export
                                     string initValue = string.Format("new {0}()", type);
                                     CodeWriter.Comments(builder, field.Des);
                                     TypeType itemType = TypeInfo.GetTypeType(listType.ItemType);
-                                    string fullType = CodeWriter.GetFullNamespace(Values.LsonRootNode, listType.ItemType);
+                                    string fullType = CodeWriter.GetFullNamespace(Values.XmlRootNode, listType.ItemType);
                                     type = type.Replace(listType.ItemType, fullType);
                                     CodeWriter.Field(builder, CodeWriter.Public, type, field.Name);
 
@@ -461,11 +460,11 @@ namespace ConfigGen.Export
                                     if (item.EType == TypeType.Base)
                                         reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add(Read{1}(_3))); break;", field.Name, Util.FirstCharUpper(listType.ItemType)));
                                     else if (item.EType == TypeType.Enum)
-                                        reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add(({1}.{2})ReadInt(_3))); break;", field.Name, Values.LsonRootNode, field.BaseInfo.GetFullName()));
+                                        reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add(({1}.{2})ReadInt(_3))); break;", field.Name, Values.XmlRootNode, field.BaseInfo.GetFullName()));
                                     else if (item.EType == TypeType.Class)
                                     {
                                         var classInfo = item as ClassTypeInfo;
-                                        string classFullName = string.Format("{0}.{1}", Values.LsonRootNode, classInfo.GetFullName());
+                                        string classFullName = string.Format("{0}.{1}", Values.XmlRootNode, classInfo.GetFullName());
                                         if (classInfo.Inherit == null)
                                             reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add(ReadObject<{1}>(_3, \"{1}\"))); break;", field.Name, classFullName));
                                         else
@@ -480,9 +479,9 @@ namespace ConfigGen.Export
                                     string type = string.Format("Dictionary<{0}, {1}>", dictType.KeyType, dictType.ValueType);
                                     string initValue = string.Format("new {0}()", type);
                                     CodeWriter.Comments(builder, field.Des);
-                                    string fullType = CodeWriter.GetFullNamespace(Values.LsonRootNode, dictType.KeyType);
+                                    string fullType = CodeWriter.GetFullNamespace(Values.XmlRootNode, dictType.KeyType);
                                     type = type.Replace(dictType.KeyType, fullType);
-                                    fullType = CodeWriter.GetFullNamespace(Values.LsonRootNode, dictType.ValueType);
+                                    fullType = CodeWriter.GetFullNamespace(Values.XmlRootNode, dictType.ValueType);
                                     type = type.Replace(dictType.ValueType, fullType);
                                     CodeWriter.Field(builder, CodeWriter.Public, type, field.Name);
 
@@ -495,14 +494,14 @@ namespace ConfigGen.Export
                                     }
                                     else if (valueInfo.EType == TypeType.Enum)
                                     {
-                                        string value = string.Format("({0}.{1})ReadInt(GetOnlyChild(_3, \"Value\"))", Values.LsonRootNode, field.BaseInfo.GetFullName());
+                                        string value = string.Format("({0}.{1})ReadInt(GetOnlyChild(_3, \"Value\"))", Values.XmlRootNode, field.BaseInfo.GetFullName());
                                         reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add({1}, {2}); break;", field.Name, key, value));
                                     }
                                     else if (valueInfo.EType == TypeType.Class)
                                     {
                                         var classInfo = valueInfo as ClassTypeInfo;
                                         string value = null;
-                                        string classFullName = string.Format("{0}.{1}", Values.LsonRootNode, classInfo.GetFullName());
+                                        string classFullName = string.Format("{0}.{1}", Values.XmlRootNode, classInfo.GetFullName());
                                         if (classInfo.Inherit == null)
                                             value = string.Format("ReadObject<{0}>(GetChilds(_3, \"Value\", \"{0}\")", classFullName);
                                         else
@@ -562,8 +561,8 @@ namespace ConfigGen.Export
 
                 if (isWrited)
                 {
-                    string file = string.Format("{0}.{1}.cs", Values.LsonRootNode, baseType.GetFullName());
-                    string path = Path.Combine(Values.ExportCsLson, file);
+                    string file = string.Format("{0}.{1}.cs", Values.XmlRootNode, baseType.GetFullName());
+                    string path = Path.Combine(Values.ExportXmlCode, file);
                     Util.SaveFile(path, builder.ToString());
                 }
 

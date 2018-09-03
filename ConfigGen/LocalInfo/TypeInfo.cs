@@ -355,7 +355,7 @@ namespace ConfigGen.LocalInfo
             {
                 if (string.IsNullOrWhiteSpace(_des.DataPath))
                     return null;
-                return string.Format("{0}\\{1}", XmlDirPath, _des.DataPath);
+                return string.Format("{0}\\{1}", XmlDirPath, Util.NormalizePath(_des.DataPath));
             }
         }
         public string Group { get; private set; }
@@ -376,7 +376,7 @@ namespace ConfigGen.LocalInfo
         {
             EType = TypeType.Class;
             _des = des;
-            XmlDirPath = xmlDir;
+            XmlDirPath = Util.NormalizePath(xmlDir);
             string inherit = _des.Inherit;
 
             Consts = new List<ConstInfo>();
