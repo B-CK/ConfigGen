@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public  class TraceObject : Lson.Skill.SpawnObject
+	public  class TraceObject : XmlCode.Skill.SpawnObject
 	{
 		/// <summary>
 		/// 身体矫正值
@@ -42,15 +42,15 @@ namespace Lson.Skill
 		/// <summary>
 		/// 追踪类型
 		/// <summary>
-		public Lson.Skill.TraceType TraceType;
+		public XmlCode.Skill.TraceType TraceType;
 		/// <summary>
 		/// 释放者绑定位置
 		/// <summary>
-		public Lson.Skill.TraceBindType CasterBindType;
+		public XmlCode.Skill.TraceBindType CasterBindType;
 		/// <summary>
 		/// 被击者绑定位置
 		/// <summary>
-		public Lson.Skill.TraceBindType TargetBindType;
+		public XmlCode.Skill.TraceBindType TargetBindType;
 
 		public override void Write(TextWriter _1)
 		{
@@ -76,9 +76,9 @@ namespace Lson.Skill
 				case "OffsetX": this.OffsetX = ReadFloat(_2); break;
 				case "OffsetY": this.OffsetY = ReadFloat(_2); break;
 				case "OffsetZ": this.OffsetZ = ReadFloat(_2); break;
-				case "TraceType": this.TraceType = (Lson.Skill.TraceType)ReadInt(_2); break;
-				case "CasterBindType": this.CasterBindType = (Lson.Skill.TraceBindType)ReadInt(_2); break;
-				case "TargetBindType": this.TargetBindType = (Lson.Skill.TraceBindType)ReadInt(_2); break;
+				case "TraceType": this.TraceType = (XmlCode.Skill.TraceType)ReadInt(_2); break;
+				case "CasterBindType": this.CasterBindType = (XmlCode.Skill.TraceBindType)ReadInt(_2); break;
+				case "TargetBindType": this.TargetBindType = (XmlCode.Skill.TraceBindType)ReadInt(_2); break;
 			}
 		}
 	}

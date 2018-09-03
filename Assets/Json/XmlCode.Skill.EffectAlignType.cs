@@ -3,7 +3,7 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
 	public enum EffectAlignType
 	{

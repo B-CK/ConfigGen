@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public  class BeAttackEffect : LsonObject
+	public  class BeAttackEffect : XmlObject
 	{
 		/// <summary>
 		/// 被击效果id

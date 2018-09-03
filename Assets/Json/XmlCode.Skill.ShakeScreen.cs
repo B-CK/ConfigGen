@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public  class ShakeScreen : Lson.Skill.Action
+	public  class ShakeScreen : XmlCode.Skill.Action
 	{
 		/// <summary>
 		/// 震屏方式

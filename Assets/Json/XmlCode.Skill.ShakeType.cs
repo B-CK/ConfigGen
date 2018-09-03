@@ -3,21 +3,21 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public enum SpawnType
+	public enum ShakeType
 	{
 		/// <summary>
-		/// 飞行武器
+		/// 水平
 		/// <summary>
-		FlyWeapon = 0,
+		Horizontal = 0,
 		/// <summary>
-		/// 炸弹
+		/// 垂直
 		/// <summary>
-		Bomb = 1,
+		Vertical = 1,
 		/// <summary>
-		/// 游戏对象
+		/// 混合
 		/// <summary>
-		Object = 2,
+		Mix = 2,
 	}
 }

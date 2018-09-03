@@ -3,21 +3,21 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public enum TraceBindType
+	public enum HitSharpType
 	{
 		/// <summary>
-		/// 身体
+		/// 立方体
 		/// <summary>
-		Body = 0,
+		Cube = 0,
 		/// <summary>
-		/// 头
+		/// 圆柱形
 		/// <summary>
-		Head = 1,
+		Cylinder = 1,
 		/// <summary>
-		/// 脚
+		/// 三棱柱
 		/// <summary>
-		Foot = 2,
+		Trangle = 2,
 	}
 }

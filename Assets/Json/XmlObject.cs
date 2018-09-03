@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson
+namespace XmlCode
 {
-	public abstract class LsonObject
+	public abstract class XmlObject
 	{
 		public abstract void Write(TextWriter os);
 		public abstract void Read(XmlNode os);
@@ -78,14 +78,14 @@ namespace Lson
 			return node.InnerText;
 		}
 
-		public static T ReadObject<T>(XmlNode node, string fullTypeName) where T :LsonObject
+		public static T ReadObject<T>(XmlNode node, string fullTypeName) where T :XmlObject
 		{
 			var obj = (T)Create(node, fullTypeName);
 			obj.Read(node);
 			return obj;
 		}
 
-		public static T ReadDynamicObject<T>(XmlNode node, string ns) where T :LsonObject
+		public static T ReadDynamicObject<T>(XmlNode node, string ns) where T :XmlObject
 		{
 			var fullTypeName = ns + "." + ReadAttribute(node, "Type");
 			return ReadObject<T>(node, fullTypeName);
@@ -129,7 +129,7 @@ namespace Lson
 			os.WriteLine("<{0}>{1}</{0}>", name, x);
 		}
 
-		public static void Write(TextWriter os, string name, LsonObject x)
+		public static void Write(TextWriter os, string name, XmlObject x)
 		{
 			os.WriteLine("<{0} type =\"{1}\">", name, x.GetType().Name);
 			x.Write(os);
@@ -168,8 +168,8 @@ namespace Lson
 				Write(os, name, (float)x);
 			else if (x is string)
 				Write(os, name, (string)x);
-			else if (x is LsonObject)
-				Write(os, name, (LsonObject)x);
+			else if (x is XmlObject)
+				Write(os, name, (XmlObject)x);
 			else
 				throw new Exception("unknown Lson type; " + x.GetType());
 		}
@@ -188,14 +188,14 @@ namespace Lson
 			File.WriteAllText(file, os.ToString());
 		}
 
-		public static string LoadConfig<T>(List<T> x, string file) where T :LsonObject
+		public static string LoadConfig<T>(List<T> x, string file) where T :XmlObject
 		{
 			var doc = new XmlDocument();
 			doc.Load(file);
 			x.AddRange(GetChilds(doc.DocumentElement).Select(_ => ReadDynamicObject<T>(_, typeof(T).Namespace)));
 		}
 
-		public static string SaveConfig<T>(List<T> x, string file) where T :LsonObject
+		public static string SaveConfig<T>(List<T> x, string file) where T :XmlObject
 		{
 			var os = new StringWriter();
 			Write(os, "Root", x);

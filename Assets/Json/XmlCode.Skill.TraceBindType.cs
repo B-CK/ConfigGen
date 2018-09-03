@@ -3,21 +3,21 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public enum SkillTargetType
+	public enum TraceBindType
 	{
 		/// <summary>
-		/// 敌方目标
+		/// 身体
 		/// <summary>
-		Enemy = 0,
+		Body = 0,
 		/// <summary>
-		/// 己方目标
+		/// 头
 		/// <summary>
-		Teammate = 1,
+		Head = 1,
 		/// <summary>
-		/// 自己
+		/// 脚
 		/// <summary>
-		Self = 2,
+		Foot = 2,
 	}
 }

@@ -3,28 +3,28 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public  class HitPointGroup : LsonObject
+	public  class Attack : XmlCode.Skill.Action
 	{
 		/// <summary>
-		/// 打击点组ID
+		/// 打击点id
 		/// <summary>
 		public int Id;
 		/// <summary>
-		/// 打击点组名称
+		/// 打击区域id
 		/// <summary>
-		public string Name;
+		public int HitZoneId;
 		/// <summary>
-		/// 打击点列表
+		/// 被击效果id
 		/// <summary>
-		public List<Attack> Attacks;
+		public int BeAttackEffectId;
 
 		public override void Write(TextWriter _1)
 		{
 			Write(_1, "Id", this.Id);
-			Write(_1, "Name", this.Name);
-			Write(_1, "Attacks", this.Attacks);
+			Write(_1, "HitZoneId", this.HitZoneId);
+			Write(_1, "BeAttackEffectId", this.BeAttackEffectId);
 		}
 
 		public override void Read(XmlNode _1)
@@ -33,8 +33,8 @@ namespace Lson.Skill
 			switch (_2.Name)
 			{
 				case "Id": this.Id = ReadInt(_2); break;
-				case "Name": this.Name = ReadString(_2); break;
-				case "Attacks": GetChilds(_2).ForEach (_3 => this.Attacks.Add(ReadDynamicObject<Lson.Skill.Attack>(_3, "Skill"))); break;
+				case "HitZoneId": this.HitZoneId = ReadInt(_2); break;
+				case "BeAttackEffectId": this.BeAttackEffectId = ReadInt(_2); break;
 			}
 		}
 	}

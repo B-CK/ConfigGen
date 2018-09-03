@@ -3,21 +3,21 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public enum MoveType
+	public enum SpawnType
 	{
 		/// <summary>
-		/// 方向移动
+		/// 飞行武器
 		/// <summary>
-		MoveBack = 0,
+		FlyWeapon = 0,
 		/// <summary>
-		/// 向目标移动
+		/// 炸弹
 		/// <summary>
-		MoveToTarget = 1,
+		Bomb = 1,
 		/// <summary>
-		/// 按当前方向移动
+		/// 游戏对象
 		/// <summary>
-		MoveInDirection = 2,
+		Object = 2,
 	}
 }

@@ -3,21 +3,21 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public enum ShakeType
+	public enum MoveType
 	{
 		/// <summary>
-		/// 水平
+		/// 方向移动
 		/// <summary>
-		Horizontal = 0,
+		MoveBack = 0,
 		/// <summary>
-		/// 垂直
+		/// 向目标移动
 		/// <summary>
-		Vertical = 1,
+		MoveToTarget = 1,
 		/// <summary>
-		/// 混合
+		/// 按当前方向移动
 		/// <summary>
-		Mix = 2,
+		MoveInDirection = 2,
 	}
 }

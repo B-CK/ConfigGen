@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.AllType
+namespace XmlCode.AllType
 {
-	public  class SingleClass : LsonObject
+	public  class SingleClass : XmlObject
 	{
 		/// <summary>
 		/// Var1

@@ -76,8 +76,15 @@ namespace ConfigGen.LocalInfo
             {
                 var c = classList[i];
                 if (string.IsNullOrWhiteSpace(c.DataPath)) continue;
-                if (!DataFileInfo.HasChangeFile(c.DataPath)) continue;
-                
+                if (!hash.Contains(c.DataPath))
+                    hash.Add(c.DataPath);
+                else
+                {
+                    Util.LogErrorFormat("数据类{0}指定数据文件与其他类相同", c.GetFullName());
+                    continue;
+                }
+                if (Values.IsOptPart && !DataFileInfo.HasChangeFile(c.DataPath)) continue;
+
                 //FileInfo info = new FileInfo(c.DataPath);
                 //if (info.LastWriteTime == info.CreationTime) continue;
                 //info.CreationTime = info.LastWriteTime;
@@ -109,24 +116,12 @@ namespace ConfigGen.LocalInfo
                                 dt.Rows.Add(dt1.Rows[k]);
                         }
                     }
-                    if (!hash.Contains(c.DataPath))
-                    {
-                        hash.Add(c.DataPath);
-                        data = new TableDataInfo(c.DataPath, dt, c);
-                    }
-                    else
-                        Util.LogErrorFormat("数据类{0}指定数据文件与其他类相同", c.GetFullName());
+                    data = new TableDataInfo(c.DataPath, dt, c);
                 }
                 else if (Directory.Exists(c.DataPath))
                 {
                     Util.Start();
-                    if (!hash.Contains(c.DataPath))
-                    {
-                        hash.Add(c.DataPath);
-                        data = new TableXmlInfo(c.DataPath, c);
-                    }
-                    else
-                        Util.LogErrorFormat("数据类{0}指定数据文件与其他类相同", c.GetFullName());
+                    data = new TableXmlInfo(c.DataPath, c);
                 }
                 else
                 {
@@ -144,7 +139,7 @@ namespace ConfigGen.LocalInfo
             }
             DataFileInfo.Save();
             Util.Stop("==>> 解析数据文件完毕!");
-        }        
+        }
     }
 
 

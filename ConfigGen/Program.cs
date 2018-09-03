@@ -29,7 +29,7 @@ namespace ConfigGen
                 DataFileInfo.Init();
 
                 bool canExportCsv = !string.IsNullOrWhiteSpace(Values.ExportCsv);
-                bool canExportCsCode = !string.IsNullOrWhiteSpace(Values.ExportCode);
+                bool canExportCode = !string.IsNullOrWhiteSpace(Values.ExportCode);
                 bool canExportXmlCode = !string.IsNullOrWhiteSpace(Values.ExportXmlCode);
                 bool canExportLua = !string.IsNullOrWhiteSpace(Values.ExportLua);
 
@@ -45,28 +45,28 @@ namespace ConfigGen
                     Util.Start();
                     Util.TryDeleteDirectory(Values.ExportCsv);
                     ExportCsv.Export();
-                    Util.Stop("==>> Csv数据导出完毕");
+                    Util.Stop("==>> Csv 数据导出完毕");
                 }
-                if (canExportCsCode)
+                if (canExportCode)
                 {
                     Util.Start();
                     Util.TryDeleteDirectory(Values.ExportCode);
                     ExportCSharp.Export_CsvOp();
-                    Util.Stop("==>> CS Csv操作类导出完毕");
+                    Util.Stop("==>> Code 类导出完毕");
                 }
                 if (canExportXmlCode)
                 {
                     Util.Start();
                     Util.TryDeleteDirectory(Values.ExportXmlCode);
                     ExportCSharp.Export_LsonOp();
-                    Util.Stop("==>> CS Lson操作类导出完毕");
+                    Util.Stop("==>> XmlCode 类导出完毕");
                 }
                 if (canExportLua)
                 {
                     Util.Start();
                     Util.TryDeleteDirectory(Values.ExportLua);
                     ExportLua.Export();
-                    Util.Stop("==>> Lua操作类导出完毕");
+                    Util.Stop("==>> Lua 脚本导出完毕");
                 }
 
             }

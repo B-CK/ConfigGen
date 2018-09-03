@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public  class NormalAction : LsonObject
+	public  class NormalAction : XmlObject
 	{
 		/// <summary>
 		/// 行为名称
@@ -14,7 +14,7 @@ namespace Lson.Skill
 		/// <summary>
 		/// 动作来源
 		/// <summary>
-		public Lson.Skill.ActionSourceType ActionSource;
+		public XmlCode.Skill.ActionSourceType ActionSource;
 		/// <summary>
 		/// 其他模型名称,用于套用其他模型动作
 		/// <summary>
@@ -73,7 +73,7 @@ namespace Lson.Skill
 			switch (_2.Name)
 			{
 				case "ActionName": this.ActionName = ReadString(_2); break;
-				case "ActionSource": this.ActionSource = (Lson.Skill.ActionSourceType)ReadInt(_2); break;
+				case "ActionSource": this.ActionSource = (XmlCode.Skill.ActionSourceType)ReadInt(_2); break;
 				case "OtherModelName": this.OtherModelName = ReadString(_2); break;
 				case "ActionFile": this.ActionFile = ReadString(_2); break;
 				case "PreActionFile": this.PreActionFile = ReadString(_2); break;
@@ -81,8 +81,8 @@ namespace Lson.Skill
 				case "ActionSpeed": this.ActionSpeed = ReadFloat(_2); break;
 				case "LoopTimes": this.LoopTimes = ReadInt(_2); break;
 				case "EffectId": this.EffectId = ReadInt(_2); break;
-				case "Actions": GetChilds(_2).ForEach (_3 => this.Actions.Add(ReadObject<Lson.Skill.Action>(_3, "Lson.Skill.Action"))); break;
-				case "Effects": GetChilds(_2).ForEach (_3 => this.Effects.Add(ReadObject<Lson.Skill.EffectGroup>(_3, "Lson.Skill.EffectGroup"))); break;
+				case "Actions": GetChilds(_2).ForEach (_3 => this.Actions.Add(ReadObject<XmlCode.Skill.Action>(_3, "XmlCode.Skill.Action"))); break;
+				case "Effects": GetChilds(_2).ForEach (_3 => this.Effects.Add(ReadObject<XmlCode.Skill.EffectGroup>(_3, "XmlCode.Skill.EffectGroup"))); break;
 			}
 		}
 	}

@@ -3,18 +3,18 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public  class Bomb : Lson.Skill.TraceObject
+	public  class Action : XmlObject
 	{
 		/// <summary>
-		/// 打击点组(HitPointGroup)ID
+		/// 时间点
 		/// <summary>
-		public int Id;
+		public float Timeline;
 
 		public override void Write(TextWriter _1)
 		{
-			Write(_1, "Id", this.Id);
+			Write(_1, "Timeline", this.Timeline);
 		}
 
 		public override void Read(XmlNode _1)
@@ -22,7 +22,7 @@ namespace Lson.Skill
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{
-				case "Id": this.Id = ReadInt(_2); break;
+				case "Timeline": this.Timeline = ReadFloat(_2); break;
 			}
 		}
 	}

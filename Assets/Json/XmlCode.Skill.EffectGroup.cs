@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public  class EffectGroup : LsonObject
+	public  class EffectGroup : XmlObject
 	{
 		/// <summary>
 		/// 特效组ID
@@ -34,7 +34,7 @@ namespace Lson.Skill
 			{
 				case "Id": this.Id = ReadInt(_2); break;
 				case "Name": this.Name = ReadString(_2); break;
-				case "Actions": GetChilds(_2).ForEach (_3 => this.Actions.Add(ReadObject<Lson.Skill.Action>(_3, "Lson.Skill.Action"))); break;
+				case "Actions": GetChilds(_2).ForEach (_3 => this.Actions.Add(ReadObject<XmlCode.Skill.Action>(_3, "XmlCode.Skill.Action"))); break;
 			}
 		}
 	}

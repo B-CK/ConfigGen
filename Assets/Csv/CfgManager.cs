@@ -11,6 +11,7 @@ namespace Csv
 		/// <summary>
 		public static string ConfigDir;
 
+		public static readonly Dictionary<int, Csv.AllType.AllClass> AllClass = new Dictionary<int, Csv.AllType.AllClass>();
 		public static readonly Dictionary<string, Csv.Skill.ModelActions> ModelActions = new Dictionary<string, Csv.Skill.ModelActions>();
 
 		/// <summary>
@@ -34,12 +35,15 @@ namespace Csv
 
 		public static void LoadAll()
 		{
+			var allclasss = Load(ConfigDir + "AllType/AllClass.data", (d) => new AllType.AllClass(d));
+			allclasss.ForEach(v => AllClass.Add(v.ID, v));
 			var modelactionss = Load(ConfigDir + "Skill/ModelActions.data", (d) => new Skill.ModelActions(d));
 			modelactionss.ForEach(v => ModelActions.Add(v.ModelName, v));
 		}
 
 		public static void Clear()
 		{
+			AllClass.Clear();
 			ModelActions.Clear();
 		}
 

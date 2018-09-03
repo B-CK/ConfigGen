@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public  class SoundEffect : Lson.Skill.Action
+	public  class SoundEffect : XmlCode.Skill.Action
 	{
 		/// <summary>
 		/// 触发概率

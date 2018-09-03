@@ -3,21 +3,21 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public enum HitSharpType
+	public enum SkillTargetType
 	{
 		/// <summary>
-		/// 立方体
+		/// 敌方目标
 		/// <summary>
-		Cube = 0,
+		Enemy = 0,
 		/// <summary>
-		/// 圆柱形
+		/// 己方目标
 		/// <summary>
-		Cylinder = 1,
+		Teammate = 1,
 		/// <summary>
-		/// 三棱柱
+		/// 自己
 		/// <summary>
-		Trangle = 2,
+		Self = 2,
 	}
 }

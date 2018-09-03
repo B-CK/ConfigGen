@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public  class FlyWeapon : Lson.Skill.TraceObject
+	public  class FlyWeapon : XmlCode.Skill.TraceObject
 	{
 		/// <summary>
 		/// 子弹半径

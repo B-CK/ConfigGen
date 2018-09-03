@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public  class SkillAction : LsonObject
+	public  class SkillAction : XmlObject
 	{
 		/// <summary>
 		/// 默认后续技能使用期限,用于单个技能多段输出
@@ -54,7 +54,7 @@ namespace Lson.Skill
 		/// <summary>
 		/// 施放相对位置(1 自己 ,2目标)
 		/// <summary>
-		public Lson.Skill.SkillRelateType RelateType;
+		public XmlCode.Skill.SkillRelateType RelateType;
 		/// <summary>
 		/// 打击点组列表
 		/// <summary>
@@ -101,10 +101,10 @@ namespace Lson.Skill
 				case "CanMove": this.CanMove = ReadBool(_2); break;
 				case "StartMoveTime": this.StartMoveTime = ReadFloat(_2); break;
 				case "EndMoveTime": this.EndMoveTime = ReadFloat(_2); break;
-				case "RelateType": this.RelateType = (Lson.Skill.SkillRelateType)ReadInt(_2); break;
-				case "HitPoints": GetChilds(_2).ForEach (_3 => this.HitPoints.Add(ReadObject<Lson.Skill.HitPointGroup>(_3, "Lson.Skill.HitPointGroup"))); break;
-				case "HitZones": GetChilds(_2).ForEach (_3 => this.HitZones.Add(ReadObject<Lson.Skill.HitZone>(_3, "Lson.Skill.HitZone"))); break;
-				case "BeAttackEffects": GetChilds(_2).ForEach (_3 => this.BeAttackEffects.Add(ReadObject<Lson.Skill.BeAttackEffect>(_3, "Lson.Skill.BeAttackEffect"))); break;
+				case "RelateType": this.RelateType = (XmlCode.Skill.SkillRelateType)ReadInt(_2); break;
+				case "HitPoints": GetChilds(_2).ForEach (_3 => this.HitPoints.Add(ReadObject<XmlCode.Skill.HitPointGroup>(_3, "XmlCode.Skill.HitPointGroup"))); break;
+				case "HitZones": GetChilds(_2).ForEach (_3 => this.HitZones.Add(ReadObject<XmlCode.Skill.HitZone>(_3, "XmlCode.Skill.HitZone"))); break;
+				case "BeAttackEffects": GetChilds(_2).ForEach (_3 => this.BeAttackEffects.Add(ReadObject<XmlCode.Skill.BeAttackEffect>(_3, "XmlCode.Skill.BeAttackEffect"))); break;
 			}
 		}
 	}

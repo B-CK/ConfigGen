@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public  class ParticleEffect : Lson.Skill.Action
+	public  class ParticleEffect : XmlCode.Skill.Action
 	{
 		/// <summary>
 		/// 粒子特效id
@@ -126,7 +126,7 @@ namespace Lson.Skill
 		/// <summary>
 		/// 屏幕对齐类型
 		/// <summary>
-		public Lson.Skill.EffectAlignType AlignType;
+		public XmlCode.Skill.EffectAlignType AlignType;
 		/// <summary>
 		/// 是否特效池管理
 		/// <summary>
@@ -201,7 +201,7 @@ namespace Lson.Skill
 				case "BoneScaleZ": this.BoneScaleZ = ReadFloat(_2); break;
 				case "BoneName": this.BoneName = ReadString(_2); break;
 				case "TraceTime": this.TraceTime = ReadFloat(_2); break;
-				case "AlignType": this.AlignType = (Lson.Skill.EffectAlignType)ReadInt(_2); break;
+				case "AlignType": this.AlignType = (XmlCode.Skill.EffectAlignType)ReadInt(_2); break;
 				case "IsPoolDestroy": this.IsPoolDestroy = ReadBool(_2); break;
 			}
 		}

@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public  class SpawnObject : Lson.Skill.Action
+	public  class SpawnObject : XmlCode.Skill.Action
 	{
 		/// <summary>
 		/// 子物体ID

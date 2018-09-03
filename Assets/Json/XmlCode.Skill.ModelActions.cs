@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public  class ModelActions : LsonObject
+	public  class ModelActions : XmlObject
 	{
 		/// <summary>
 		/// 模型名称
@@ -39,8 +39,8 @@ namespace Lson.Skill
 			{
 				case "ModelName": this.ModelName = ReadString(_2); break;
 				case "BaseModelName": this.BaseModelName = ReadString(_2); break;
-				case "NormalActions": GetChilds(_2).ForEach (_3 => this.NormalActions.Add(ReadObject<Lson.Skill.NormalAction>(_3, "Lson.Skill.NormalAction"))); break;
-				case "SkillActions": GetChilds(_2).ForEach (_3 => this.SkillActions.Add(ReadObject<Lson.Skill.SkillAction>(_3, "Lson.Skill.SkillAction"))); break;
+				case "NormalActions": GetChilds(_2).ForEach (_3 => this.NormalActions.Add(ReadObject<XmlCode.Skill.NormalAction>(_3, "XmlCode.Skill.NormalAction"))); break;
+				case "SkillActions": GetChilds(_2).ForEach (_3 => this.SkillActions.Add(ReadObject<XmlCode.Skill.SkillAction>(_3, "XmlCode.Skill.SkillAction"))); break;
 			}
 		}
 	}

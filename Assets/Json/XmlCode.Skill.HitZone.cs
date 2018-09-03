@@ -3,9 +3,9 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace Lson.Skill
+namespace XmlCode.Skill
 {
-	public  class HitZone : LsonObject
+	public  class HitZone : XmlObject
 	{
 		/// <summary>
 		/// 打击区域id
@@ -14,7 +14,7 @@ namespace Lson.Skill
 		/// <summary>
 		/// 打击范围的形态，0：方盒，1:圆柱,2:三棱柱
 		/// <summary>
-		public Lson.Skill.HitSharpType Sharp;
+		public XmlCode.Skill.HitSharpType Sharp;
 		/// <summary>
 		/// 打击范围的中心点在Z轴上的偏移量，向前为正
 		/// <summary>
@@ -68,7 +68,7 @@ namespace Lson.Skill
 			switch (_2.Name)
 			{
 				case "Id": this.Id = ReadInt(_2); break;
-				case "Sharp": this.Sharp = (Lson.Skill.HitSharpType)ReadInt(_2); break;
+				case "Sharp": this.Sharp = (XmlCode.Skill.HitSharpType)ReadInt(_2); break;
 				case "Zoffset": this.Zoffset = ReadFloat(_2); break;
 				case "Xlength": this.Xlength = ReadFloat(_2); break;
 				case "BottomHeight": this.BottomHeight = ReadFloat(_2); break;
