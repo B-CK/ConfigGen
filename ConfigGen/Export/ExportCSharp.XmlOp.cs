@@ -10,7 +10,7 @@ namespace ConfigGen.Export
     {
         private const string XML_STREAM = "XmlManager";
         private const string CLASS_XML_OBJECT = "XmlObject";
-        private static readonly List<string> XmlNameSpaces = new List<string>() { "System", "System.IO", "System.Xml", "System.Collections.Generic" };
+        private static readonly List<string> XmlNameSpaces = new List<string>() { "System", "System.IO", "System.Linq", "System.Xml", "System.Collections.Generic" };
 
 
         /// <summary>
@@ -310,7 +310,7 @@ namespace ConfigGen.Export
             CodeWriter.End(builder);
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, Base.String, "LoadAConfig",
+            CodeWriter.Function(builder, CodeWriter.Public, Base.Void, "LoadAConfig",
                 new string[] { Base.String }, new string[] { "file" });
             {
                 CodeWriter.IntervalLevel(builder);
@@ -323,7 +323,7 @@ namespace ConfigGen.Export
             CodeWriter.End(builder);
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, Base.String, "SaveAConfig",
+            CodeWriter.Function(builder, CodeWriter.Public, Base.Void, "SaveAConfig",
                 new string[] { Base.String }, new string[] { "file" });
             {
                 CodeWriter.IntervalLevel(builder);
@@ -336,7 +336,7 @@ namespace ConfigGen.Export
             CodeWriter.End(builder);
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.String, "LoadConfig<T>",
+            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "LoadConfig<T>",
                 new string[] { "List<T>", Base.String }, new string[] { "x", "file" }, CLASS_XML_OBJECT);
             {
                 CodeWriter.IntervalLevel(builder);
@@ -349,7 +349,7 @@ namespace ConfigGen.Export
             CodeWriter.End(builder);
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.String, "SaveConfig<T>",
+            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "SaveConfig<T>",
                 new string[] { "List<T>", Base.String }, new string[] { "x", "file" }, CLASS_XML_OBJECT);
             {
                 CodeWriter.IntervalLevel(builder);
@@ -490,12 +490,12 @@ namespace ConfigGen.Export
                                     if (valueInfo.EType == TypeType.Base)
                                     {
                                         string value = string.Format("Read{0}(GetOnlyChild(_3, \"Value\"))", Util.FirstCharUpper(dictType.ValueType));
-                                        reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add({1}, {2}); break;", field.Name, key, value));
+                                        reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add({1}, {2})); break;", field.Name, key, value));
                                     }
                                     else if (valueInfo.EType == TypeType.Enum)
                                     {
-                                        string value = string.Format("({0}.{1})ReadInt(GetOnlyChild(_3, \"Value\"))", Values.XmlRootNode, field.BaseInfo.GetFullName());
-                                        reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add({1}, {2}); break;", field.Name, key, value));
+                                        string value = string.Format("({0}.{1})ReadInt(GetOnlyChild(_3, \"Value\"))", Values.XmlRootNode, valueInfo.GetFullName());
+                                        reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add({1}, {2})); break;", field.Name, key, value));
                                     }
                                     else if (valueInfo.EType == TypeType.Class)
                                     {
@@ -503,10 +503,10 @@ namespace ConfigGen.Export
                                         string value = null;
                                         string classFullName = string.Format("{0}.{1}", Values.XmlRootNode, classInfo.GetFullName());
                                         if (classInfo.Inherit == null)
-                                            value = string.Format("ReadObject<{0}>(GetChilds(_3, \"Value\", \"{0}\")", classFullName);
+                                            value = string.Format("ReadObject<{0}>(_3, \"{0}\")", classFullName);
                                         else
-                                            value = string.Format("ReadDynamicObject<{0}>(GetChilds(_3, \"value\", \"{1}\")", classFullName, classInfo.NamespaceName);
-                                        reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add({1}, {2}); break;", field.Name, key, value));
+                                            value = string.Format("ReadDynamicObject<{0}>(_3, \"{1}\")", classFullName, classInfo.NamespaceName);
+                                        reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add({1}, {2})); break;", field.Name, key, value));
                                     }
                                     break;
                                 }
