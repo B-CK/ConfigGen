@@ -58,7 +58,7 @@ namespace ConfigGen
                 {
                     Util.Start();
                     Util.TryDeleteDirectory(Values.ExportXmlCode);
-                    ExportCSharp.Export_LsonOp();
+                    ExportCSharp.Export_XmlOp();
                     Util.Stop("==>> XmlCode 类导出完毕");
                 }
                 if (canExportLua)

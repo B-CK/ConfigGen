@@ -16,12 +16,12 @@ namespace ConfigGen.Export
         /// <summary>
         /// 编辑模式下的Xml读写操作
         /// </summary>
-        public static void Export_LsonOp()
+        public static void Export_XmlOp()
         {
-            DefineLsonObject();
-            GenLsonClassScripts();
+            DefineXmlObject();
+            GenXmlClassScripts();
         }
-        private static void DefineLsonObject()
+        private static void DefineXmlObject()
         {
             StringBuilder builder = new StringBuilder();
             string path = Path.Combine(Values.ExportXmlCode, CLASS_XML_OBJECT + ".cs");
@@ -366,7 +366,7 @@ namespace ConfigGen.Export
             Util.SaveFile(path, builder.ToString());
             builder.Clear();
         }
-        private static void GenLsonClassScripts()
+        private static void GenXmlClassScripts()
         {
             StringBuilder builder = new StringBuilder();
             List<string> writer = new List<string>();

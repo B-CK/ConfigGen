@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using System.Collections.Generic;
 
@@ -174,28 +175,28 @@ namespace XmlCode
 				throw new Exception("unknown Lson type; " + x.GetType());
 		}
 
-		public string LoadAConfig(string file)
+		public void LoadAConfig(string file)
 		{
 			var doc = new XmlDocument();
 			doc.Load(file);
 			Read(doc.DocumentElement);
 		}
 
-		public string SaveAConfig(string file)
+		public void SaveAConfig(string file)
 		{
 			var os = new StringWriter();
 			Write(os, "Root", this);
 			File.WriteAllText(file, os.ToString());
 		}
 
-		public static string LoadConfig<T>(List<T> x, string file) where T :XmlObject
+		public static void LoadConfig<T>(List<T> x, string file) where T :XmlObject
 		{
 			var doc = new XmlDocument();
 			doc.Load(file);
 			x.AddRange(GetChilds(doc.DocumentElement).Select(_ => ReadDynamicObject<T>(_, typeof(T).Namespace)));
 		}
 
-		public static string SaveConfig<T>(List<T> x, string file) where T :XmlObject
+		public static void SaveConfig<T>(List<T> x, string file) where T :XmlObject
 		{
 			var os = new StringWriter();
 			Write(os, "Root", x);

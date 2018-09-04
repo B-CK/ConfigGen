@@ -172,13 +172,22 @@ namespace ConfigGen.Export
                 }
                 else
                 {
-                    CodeWriter.ClassBase(builder, CodeWriter.Public, CodeWriter.Sealed, baseType.Name);
+                    //CodeWriter.ClassBase(builder, CodeWriter.Public, CodeWriter.Sealed, baseType.Name);
+                    //EnumTypeInfo enumType = baseType as EnumTypeInfo;
+                    //foreach (ConstInfo item in enumType.Enums)
+                    //{
+                    //    if (!string.IsNullOrWhiteSpace(item.Des))
+                    //        CodeWriter.Comments(builder, item.Des);
+                    //    CodeWriter.FieldInit(builder, CodeWriter.Public, CodeWriter.Const, Base.Int, item.Name, item.Value);
+                    //}
+
                     EnumTypeInfo enumType = baseType as EnumTypeInfo;
+                    CodeWriter.Enum(builder, CodeWriter.Public, enumType.Name);
                     foreach (ConstInfo item in enumType.Enums)
                     {
                         if (!string.IsNullOrWhiteSpace(item.Des))
                             CodeWriter.Comments(builder, item.Des);
-                        CodeWriter.FieldInit(builder, CodeWriter.Public, CodeWriter.Const, Base.Int, item.Name, item.Value);
+                        CodeWriter.EnumField(builder, item.Name, item.Value);
                     }
                 }
 
@@ -196,7 +205,7 @@ namespace ConfigGen.Export
             switch (typeType)
             {
                 case TypeType.Base:
-                    string baseFunc = string.Format("{0}.Get{1}{2}()", argName, Char.ToUpper(type[0]), type.Substring(1));
+                    string baseFunc = string.Format("{0}.Get{1}()", argName, Util.FirstCharUpper(type));
                     builder.AppendFormat("this.{0} = {1};\n", varName, baseFunc);
                     break;
                 case TypeType.Enum:
@@ -237,23 +246,22 @@ namespace ConfigGen.Export
                     CodeWriter.IntervalLevel(builder);
                     DictTypeInfo dictType = typeInfo as DictTypeInfo;
                     if (TypeInfo.GetTypeType(dictType.KeyType) == TypeType.Base)
-                        builder.AppendFormat("{0} k = {1}.Get{2}{3}();\n", dictType.KeyType, argName,
-                            Char.ToUpper(dictType.KeyType[0]), dictType.KeyType.Substring(1));
+                        builder.AppendFormat("{0} k = {1}.Get{2}();\n", dictType.KeyType, argName, Util.FirstCharUpper(dictType.KeyType));
                     else if (TypeInfo.GetTypeType(dictType.KeyType) == TypeType.Enum)
                         builder.AppendFormat("{0} k = {1}.GetInt();\n", "int", argName);
 
+                    CodeWriter.IntervalLevel(builder);
                     BaseTypeInfo vTypeInfo = dictType.ValueInfo.BaseInfo;
                     switch (vTypeInfo.EType)
                     {
                         case TypeType.Base:
-                            builder.AppendFormat("this.{0}[k] = {1}.Get{2}{3}();\n", varName, argName,
-                            Char.ToUpper(dictType.ValueType[0]), dictType.ValueType.Substring(1));
+                            builder.AppendFormat("this.{0}[k] = {1}.Get{2}();\n", varName, argName, Util.FirstCharUpper(dictType.ValueType));
                             break;
                         case TypeType.Class:
                             builder.AppendFormat("this.{0}[k] = {1};\n", varName, GetClassVarValue(vTypeInfo, dictType.ValueType, argName));
                             break;
                         case TypeType.Enum:
-                            builder.AppendFormat("this.{0}[k] = {1}.GetInt();\n", varName, argName);
+                            builder.AppendFormat("this.{0}[k] = ({1}){2}.GetInt();\n", varName, vTypeInfo.GetFullName(), argName);
                             break;
                         case TypeType.List:
                         case TypeType.Dict:

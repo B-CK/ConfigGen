@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using System.Collections.Generic;
 
@@ -100,9 +101,9 @@ namespace XmlCode.AllType
 				case "VarListBase": GetChilds(_2).ForEach (_3 => this.VarListBase.Add(ReadString(_3))); break;
 				case "VarListClass": GetChilds(_2).ForEach (_3 => this.VarListClass.Add(ReadObject<XmlCode.AllType.SingleClass>(_3, "XmlCode.AllType.SingleClass"))); break;
 				case "VarListCardElem": GetChilds(_2).ForEach (_3 => this.VarListCardElem.Add(ReadString(_3))); break;
-				case "VarDictBase": GetChilds(_2).ForEach (_3 => this.VarDictBase.Add(ReadInt(GetOnlyChild(_3, "Key")), ReadString(GetOnlyChild(_3, "Value"))); break;
-				case "VarDictEnum": GetChilds(_2).ForEach (_3 => this.VarDictEnum.Add(ReadLong(GetOnlyChild(_3, "Key")), (XmlCode.G.dict:long:CardElement)ReadInt(GetOnlyChild(_3, "Value"))); break;
-				case "VarDictClass": GetChilds(_2).ForEach (_3 => this.VarDictClass.Add(ReadString(GetOnlyChild(_3, "Key")), ReadObject<XmlCode.AllType.SingleClass>(GetChilds(_3, "Value", "XmlCode.AllType.SingleClass")); break;
+				case "VarDictBase": GetChilds(_2).ForEach (_3 => this.VarDictBase.Add(ReadInt(GetOnlyChild(_3, "Key")), ReadString(GetOnlyChild(_3, "Value")))); break;
+				case "VarDictEnum": GetChilds(_2).ForEach (_3 => this.VarDictEnum.Add(ReadLong(GetOnlyChild(_3, "Key")), (XmlCode.AllType.CardElement)ReadInt(GetOnlyChild(_3, "Value")))); break;
+				case "VarDictClass": GetChilds(_2).ForEach (_3 => this.VarDictClass.Add(ReadString(GetOnlyChild(_3, "Key")), ReadObject<XmlCode.AllType.SingleClass>(_3, "XmlCode.AllType.SingleClass"))); break;
 			}
 		}
 	}

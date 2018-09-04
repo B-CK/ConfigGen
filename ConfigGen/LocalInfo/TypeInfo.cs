@@ -27,7 +27,6 @@ namespace ConfigGen.LocalInfo
         public const string BOOL = "bool";
         public const string FLOAT = "float";
         public const string STRING = "string";
-        public const string GLOBAL_SPACE = "G";
 
         public static TypeInfo Instance
         {
@@ -106,8 +105,8 @@ namespace ConfigGen.LocalInfo
             HashSet<string> _baseType = new HashSet<string>() { INT, LONG, BOOL, FLOAT, STRING };
             foreach (var item in _baseType)
             {
-                Instance.Add(new BaseTypeInfo(GLOBAL_SPACE, item));
-                Instance.BaseTypeSet.Add(string.Format("{0}.{1}", GLOBAL_SPACE, item));
+                Instance.Add(new BaseTypeInfo("", item));
+                Instance.BaseTypeSet.Add(item);
             }
             //初始化类型
             foreach (var item in Instance.ClassInfos)
@@ -537,7 +536,7 @@ namespace ConfigGen.LocalInfo
         public FieldInfo ItemInfo { get; private set; }
         public BaseTypeInfo Parent { get; private set; }
         public ListTypeInfo(BaseTypeInfo parent, string listType)
-            : base(TypeInfo.GLOBAL_SPACE, listType)
+            : base("", listType)
         {
             EType = TypeType.List;
             string[] nodes = listType.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
@@ -564,7 +563,7 @@ namespace ConfigGen.LocalInfo
         private HashSet<string> _dictKeyLimit = new HashSet<string>() { TypeInfo.INT, TypeInfo.LONG, TypeInfo.STRING };
 
         public DictTypeInfo(BaseTypeInfo parent, string dictType)
-                : base(TypeInfo.GLOBAL_SPACE, dictType)
+                : base("", dictType)
         {
             EType = TypeType.Dict;
             string[] nodes = dictType.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
@@ -632,7 +631,7 @@ namespace ConfigGen.LocalInfo
                 Group = string.Format("{0}|{1}", _des.Group, Values.DefualtGroup);
 
             //--基础类型或者集合类型
-            string type = Util.Combine(TypeInfo.GLOBAL_SPACE, Type);
+            string type = Type;
             BaseInfo = TypeInfo.GetTypeInfo(type);
             if (BaseInfo == null)
             {

@@ -102,7 +102,7 @@ namespace ConfigGen.Export
                                         itemType = Util.FirstCharUpper("int");
                                         break;
                                     case TypeType.Class:
-                                        itemType = string.Format("{0}{1}", Values.ConfigRootNode, listType.ItemType.Replace(".", ""));
+                                        itemType = string.Format("{0}{1}", Values.ConfigRootNode, itemInfo.GetFullName().Replace(".", ""));
                                         break;
                                     case TypeType.List:
                                     case TypeType.Dict:
@@ -144,7 +144,7 @@ namespace ConfigGen.Export
                                         valueType = Util.FirstCharUpper("int");
                                         break;
                                     case TypeType.Class:
-                                        valueType = string.Format("{0}{1}", Values.ConfigRootNode, dictType.ValueType.Replace(".", ""));
+                                        valueType = string.Format("{0}{1}", Values.ConfigRootNode, valueInfo.GetFullName().Replace(".", ""));
                                         break;
                                     case TypeType.List:
                                     case TypeType.Dict:
@@ -180,28 +180,7 @@ namespace ConfigGen.Export
             //--DataStruct
             StringBuilder structBuilder = new StringBuilder();
             structBuilder.AppendLine("local Stream = require(\"Cfg.DataStream\")");
-            structBuilder.AppendLine("local find = string.find");
-            structBuilder.AppendLine("local sub = string.sub");
-            structBuilder.AppendLine();
-            structBuilder.AppendLine("local function GetOrCreate(namespace)");
-            structBuilder.AppendLine("\tlocal t = _G");
-            structBuilder.AppendLine("\tlocal idx = 1");
-            structBuilder.AppendLine("\twhile true do");
-            structBuilder.AppendLine("\t\tlocal start, ends = find(namespace, '.', idx, true)");
-            structBuilder.AppendLine("\t\tlocal subname = sub(namespace, idx, start and start - 1)");
-            structBuilder.AppendLine("\t\tlocal subt = t[subname]");
-            structBuilder.AppendLine("\t\tif not subt then");
-            structBuilder.AppendLine("\t\t\tsubt = {}");
-            structBuilder.AppendLine("\t\t\tt[subname] = subt");
-            structBuilder.AppendLine("\t\tend");
-            structBuilder.AppendLine("\t\tt = subt");
-            structBuilder.AppendLine("\t\tif start then");
-            structBuilder.AppendLine("\t\t\tidx = ends + 1");
-            structBuilder.AppendLine("\t\telse");
-            structBuilder.AppendLine("\t\t\treturn t");
-            structBuilder.AppendLine("\t\tend");
-            structBuilder.AppendLine("\tend");
-            structBuilder.AppendLine("end");
+            structBuilder.AppendLine("local GetOrCreate = Util.GetOrCreate");
             structBuilder.AppendLine();
             structBuilder.AppendLine("local meta");
             structBuilder.AppendLine(dsLoopBuilder.ToString());
@@ -238,36 +217,24 @@ namespace ConfigGen.Export
             builder.AppendLine("local lower = string.lower");
             builder.AppendLine("local setmetatable = setmetatable");
             builder.AppendLine("local tonumber = tonumber");
-            builder.AppendLine("local root = Util.DataPath");
+            builder.AppendLine("local lines = io.lines");
+            builder.AppendLine("local split = string.split");
+            builder.AppendLine("local format= string.format");
+            builder.AppendLine("local root = CSUtil.DataPath");
             builder.AppendLine("local Stream = {}");
             builder.AppendLine("Stream.__index = Stream");
             builder.AppendLine("Stream.name = \"Stream\"");
             builder.AppendLine("local out = ''\n");
 
-            builder.AppendLine("local Split = function (str)");
-            builder.AppendLine("\tlocal fields = {}");
-            builder.AppendLine("\tlocal flag = \"(.-)\" .. '▃'");
-            builder.AppendLine("\tlocal last_end = 1");
-            builder.AppendLine("\tlocal s, e, cap = str:find(flag, 1)");
-            builder.AppendLine("\twhile s do");
-            builder.AppendLine("\t\tif s ~= 1 or cap ~= \"\" then");
-            builder.AppendLine("\t\t\tinsert(fields, cap)");
-            builder.AppendLine("\t\tend");
-            builder.AppendLine("\t\tlast_end = e + 1");
-            builder.AppendLine("\t\ts, e, cap = str:find(flag, last_end)");
-            builder.AppendLine("\tend");
-            builder.AppendLine("\tif last_end <= #str then");
-            builder.AppendLine("\t\tcap = str:sub(last_end)");
-            builder.AppendLine("\t\tinsert(fields, cap)");
-            builder.AppendLine("\tend");
-            builder.AppendLine("\treturn fields");
+            builder.AppendLine("local Split = function (line)");
+            builder.AppendLine("\treturn split(line, '▃')");
             builder.AppendLine("end");
 
             builder.AppendLine("function Stream.new(dataFile)");
             builder.AppendLine("\tlocal o = {}");
             builder.AppendLine("\tsetmetatable(o, Stream)");
             builder.AppendLine("\to.dataFile = dataFile");
-            builder.AppendLine("\to.GetLine = io.lines(root .. dataFile)");
+            builder.AppendLine("\to.GetLine = lines(format('%sConfig/%s', root, dataFile))");
             builder.AppendLine("\to.idx = 0");
             builder.AppendLine("\to.line = 0");
             builder.AppendLine("\treturn o");
