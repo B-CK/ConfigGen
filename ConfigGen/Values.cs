@@ -13,6 +13,10 @@ namespace ConfigGen
         /// </summary>
         public static string ConfigDir { get; set; }
         /// <summary>
+        /// 需要导出的数据和结构文件的描述文件
+        /// </summary>
+        public static string ConfigXml { get; set; }
+        /// <summary>
         /// 导出CSharp类型
         /// </summary>
         public static string ExportCode { get; set; }
@@ -61,13 +65,9 @@ namespace ConfigGen
         /// </summary>
         public const string DataFileFlag = "data";
         /// <summary>
-        /// 数据类型表格Sheet名定义格式
-        /// </summary>
-        public const string ClassDesFileExt = ".xml";
-        /// <summary>
         /// 数据填写扩展文件后缀名
         /// </summary>
-        public const string TableExtFileExt = ".xsl";
+        public const string TableExtFileExt = ".xml";
         /// <summary>
         /// 数据表前四行分别声明字段检查规则,字段描述,字段名,字段数据类型.
         /// </summary>
@@ -102,7 +102,7 @@ namespace ConfigGen
         /// </summary>
         public const string PolymorphismFlag = "Type";
         /// <summary>
-        /// 导出Lson数据读写类命名空间根节点
+        /// 导出Xml数据读写类命名空间根节点
         /// </summary>
         public const string XmlRootNode = "XmlCode";
         /// <summary>

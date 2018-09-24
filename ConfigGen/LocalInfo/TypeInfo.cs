@@ -57,21 +57,34 @@ namespace ConfigGen.LocalInfo
 
             //解析类型定义
             Dictionary<string, TypeDescription> pairs = new Dictionary<string, TypeDescription>();
-            string[] defines = Directory.GetFiles(Values.ConfigDir, "*" + Values.ClassDesFileExt, SearchOption.AllDirectories);
-            for (int i = 0; i < defines.Length; i++)
+            var configXml = Util.Deserialize(Values.ConfigXml, typeof(ConfigXml)) as ConfigXml;
+            List<string> defines = configXml.Include;
+            string path = "xmlDes";
+            try
             {
-                var typeDes = Util.Deserialize(defines[i], typeof(TypeDescription)) as TypeDescription;
-                if (pairs.ContainsKey(typeDes.Namespace))
+                for (int i = 0; i < defines.Count; i++)
                 {
-                    pairs[typeDes.Namespace].Classes.AddRange(typeDes.Classes);
-                    pairs[typeDes.Namespace].Enums.AddRange(typeDes.Enums);
-                }
-                else
-                {
-                    typeDes.XmlDirPath = Path.GetDirectoryName(defines[i]);
-                    pairs.Add(typeDes.Namespace, typeDes);
+                    path = Path.Combine(Values.ConfigDir, defines[i]);
+                    var typeDes = Util.Deserialize(path, typeof(TypeDescription)) as TypeDescription;
+                    if (pairs.ContainsKey(typeDes.Namespace))
+                    {
+                        pairs[typeDes.Namespace].Classes.AddRange(typeDes.Classes);
+                        pairs[typeDes.Namespace].Enums.AddRange(typeDes.Enums);
+                    }
+                    else
+                    {
+                        typeDes.XmlDirPath = Path.GetDirectoryName(path);
+                        pairs.Add(typeDes.Namespace, typeDes);
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                Util.LogError(path);
+                throw new Exception(e.Message);
+            }
+
+            HashSet<string> exclude = new HashSet<string>(configXml.NoStruct);
             //类型重名检查
             HashSet<string> fullHash = new HashSet<string>();
             foreach (var item in pairs)
@@ -79,6 +92,7 @@ namespace ConfigGen.LocalInfo
                 foreach (var c in item.Value.Classes)
                 {
                     string name = string.Format("{0}.{1}", item.Key, c.Name);
+                    if (exclude.Contains(name)) continue;
                     if (fullHash.Contains(name))
                         Util.LogErrorFormat("{0} Class重复定义!\t{1}", name, item.Value.XmlDirPath);
 
@@ -89,6 +103,7 @@ namespace ConfigGen.LocalInfo
                 foreach (var e in item.Value.Enums)
                 {
                     string name = string.Format("{0}.{1}", item.Key, e.Name);
+                    if (exclude.Contains(name)) continue;
                     if (fullHash.Contains(name))
                         Util.LogErrorFormat("{0} Enum重复定义!\t{1}", name, item.Value.XmlDirPath);
 
@@ -98,9 +113,9 @@ namespace ConfigGen.LocalInfo
                 }
             }
             //类型分组
-            DoGrouping();
+            //DoGrouping();            
             //过滤导出类型
-            FilterInfo();
+            //FilterInfo();
             //添加基础类型
             HashSet<string> _baseType = new HashSet<string>() { INT, LONG, BOOL, FLOAT, STRING };
             foreach (var item in _baseType)
@@ -113,83 +128,6 @@ namespace ConfigGen.LocalInfo
                 item.Init();
             foreach (var item in Instance.EnumInfos)
                 item.Init();
-        }
-        private static void DoGrouping()
-        {
-            if (Values.ExportGroup == null)
-                Values.ExportGroup = new HashSet<string>() { Values.DefualtGroup };
-
-            List<BaseTypeInfo> infoList = new List<BaseTypeInfo>();
-            infoList.AddRange(Instance.ClassInfos);
-            infoList.AddRange(Instance.EnumInfos);
-            for (int i = 0; i < infoList.Count; i++)
-            {
-                //Class/Enum型分组
-                BaseTypeInfo baseType = infoList[i];
-                if (baseType.EType == TypeType.Class)
-                {
-                    ClassTypeInfo classType = baseType as ClassTypeInfo;
-                    if (!Values.ExportGroup.Overlaps(classType.GroupHashSet))
-                    {
-                        Instance.Remove(classType);
-                        continue;
-                    }
-
-                    var fields = new List<FieldInfo>(classType.Fields);
-                    for (int j = 0; j < fields.Count; j++)
-                    {
-                        FieldInfo field = fields[j];
-                        if (!Values.ExportGroup.Overlaps(field.GroupHashSet))
-                            classType.Fields.Remove(field);
-                    }
-                    classType.UpdateFieldDict();
-                    fields.Clear();
-                    fields.AddRange(classType.Consts);
-                    for (int j = 0; j < fields.Count; j++)
-                    {
-                        ConstInfo field = fields[j] as ConstInfo;
-                        if (!Values.ExportGroup.Overlaps(field.GroupHashSet))
-                            classType.Consts.Remove(field);
-                    }
-                    classType.UpdateConstDict();
-                }
-                else if (baseType.EType == TypeType.Enum)
-                {
-                    EnumTypeInfo enumType = baseType as EnumTypeInfo;
-                    var kvs = new List<ConstInfo>(enumType.Enums);
-                    for (int j = 0; j < kvs.Count; j++)
-                    {
-                        ConstInfo kv = kvs[j];
-                        if (!Values.ExportGroup.Overlaps(enumType.GroupHashSet))
-                            enumType.Enums.Remove(kv);
-                    }
-                    enumType.UpdateEnumDict();
-                }
-            }
-            return;
-        }
-        private static void FilterInfo()
-        {
-            if (string.IsNullOrWhiteSpace(Values.ExportFilter)) return;
-
-            var export = Util.Deserialize(Values.ExportFilter, typeof(ExportInfo)) as ExportInfo;
-            List<BaseTypeInfo> infos = new List<BaseTypeInfo>();
-            HashSet<string> hash = new HashSet<string>(export.Exports);
-            foreach (var info in Instance.TypeInfoDict)
-            {
-                if (hash.Contains(info.Key))
-                    export.Exports.Remove(info.Key);
-                else if (hash.Contains(info.Value.NamespaceName))
-                    export.Exports.Remove(info.Value.NamespaceName);
-                else
-                    infos.Add(info.Value);
-            }
-
-            foreach (var item in export.Exports)
-                Util.LogWarningFormat("导出定义{0},无法与任何类型或者命名空间匹配..", item);
-
-            foreach (var info in infos)
-                Instance.Remove(info);
         }
 
         public void Add(BaseTypeInfo info)
@@ -761,3 +699,86 @@ namespace ConfigGen.LocalInfo
         }
     }
 }
+
+
+
+
+
+//private static void DoGrouping()
+//{
+//    if (Values.ExportGroup == null)
+//        Values.ExportGroup = new HashSet<string>() { Values.DefualtGroup };
+
+//    List<BaseTypeInfo> infoList = new List<BaseTypeInfo>();
+//    infoList.AddRange(Instance.ClassInfos);
+//    infoList.AddRange(Instance.EnumInfos);
+//    for (int i = 0; i < infoList.Count; i++)
+//    {
+//        //Class/Enum型分组
+//        BaseTypeInfo baseType = infoList[i];
+//        if (baseType.EType == TypeType.Class)
+//        {
+//            ClassTypeInfo classType = baseType as ClassTypeInfo;
+//            if (!Values.ExportGroup.Overlaps(classType.GroupHashSet))
+//            {
+//                Instance.Remove(classType);
+//                continue;
+//            }
+
+//            var fields = new List<FieldInfo>(classType.Fields);
+//            for (int j = 0; j < fields.Count; j++)
+//            {
+//                FieldInfo field = fields[j];
+//                if (!Values.ExportGroup.Overlaps(field.GroupHashSet))
+//                    classType.Fields.Remove(field);
+//            }
+//            classType.UpdateFieldDict();
+//            fields.Clear();
+//            fields.AddRange(classType.Consts);
+//            for (int j = 0; j < fields.Count; j++)
+//            {
+//                ConstInfo field = fields[j] as ConstInfo;
+//                if (!Values.ExportGroup.Overlaps(field.GroupHashSet))
+//                    classType.Consts.Remove(field);
+//            }
+//            classType.UpdateConstDict();
+//        }
+//        else if (baseType.EType == TypeType.Enum)
+//        {
+//            EnumTypeInfo enumType = baseType as EnumTypeInfo;
+//            var kvs = new List<ConstInfo>(enumType.Enums);
+//            for (int j = 0; j < kvs.Count; j++)
+//            {
+//                ConstInfo kv = kvs[j];
+//                if (!Values.ExportGroup.Overlaps(enumType.GroupHashSet))
+//                    enumType.Enums.Remove(kv);
+//            }
+//            enumType.UpdateEnumDict();
+//        }
+//    }
+//    return;
+//}
+
+//private static void FilterInfo()
+//{
+//    if (string.IsNullOrWhiteSpace(Values.ExportFilter)) return;
+
+//    var export = Util.Deserialize(Values.ExportFilter, typeof(ExportInfo)) as ExportInfo;
+//    List<BaseTypeInfo> infos = new List<BaseTypeInfo>();
+//    HashSet<string> hash = new HashSet<string>(export.Exports);
+//    foreach (var info in Instance.TypeInfoDict)
+//    {
+//        if (hash.Contains(info.Key))
+//            export.Exports.Remove(info.Key);
+//        else if (hash.Contains(info.Value.NamespaceName))
+//            export.Exports.Remove(info.Value.NamespaceName);
+//        else
+//            infos.Add(info.Value);
+//    }
+
+//    foreach (var item in export.Exports)
+//        Util.LogWarningFormat("导出定义{0},无法与任何类型或者命名空间匹配..", item);
+
+//    foreach (var info in infos)
+//        Instance.Remove(info);
+//}

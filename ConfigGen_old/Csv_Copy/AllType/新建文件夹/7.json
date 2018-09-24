@@ -1,0 +1,44 @@
+{
+  "ID": 888,
+  "VarLong": 90,
+  "VarFloat": 9.9,
+  "VarString": "9999",
+  "VarBool": true,
+  "VarEnum": 9,
+  "VarClass": {
+    "$type": "Lson.AllType.LInherit1, Assembly-CSharp",
+    "Var3": 9999,
+    "Var1": "999",
+    "Var2": true
+  },
+  "VarListBase": [
+    "9",
+    "99",
+    "999",
+    "9999"
+  ],
+  "VarListClass": [
+    {
+      "Var1": "9999",
+      "Var2": true
+    }
+  ],
+  "VarListCardElem": [
+    5
+  ],
+  "VarDictBase": {
+    "9": "99",
+    "999": "9999"
+  },
+  "VarDictEnum": {
+    "999": 7
+  },
+  "VarDictClass": {
+    "9999": {
+      "$type": "Lson.AllType.LInherit1, Assembly-CSharp",
+      "Var3": 9999,
+      "Var1": "99",
+      "Var2": true
+    }
+  }
+}

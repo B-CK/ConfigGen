@@ -13,3 +13,9 @@ F:\__GitHub\ConfigGen\ConfigGen\obj\Debug\ConfigGen.pdb
 E:\C#Project\ConfigGen\ConfigGen\obj\Debug\ConfigGen.csproj.CopyComplete
 E:\C#Project\ConfigGen\ConfigGen\bin\Debug\Newtonsoft.Json.dll
 E:\C#Project\ConfigGen\ConfigGen\obj\Debug\ConfigGen.csprojAssemblyReference.cache
+E:\__Github\ConfigGen\ConfigGen\bin\Debug\ConfigGen.exe
+E:\__Github\ConfigGen\ConfigGen\bin\Debug\ConfigGen.pdb
+E:\__Github\ConfigGen\ConfigGen\obj\Debug\ConfigGen.csproj.CoreCompileInputs.cache
+E:\__Github\ConfigGen\ConfigGen\obj\Debug\ConfigGen.exe
+E:\__Github\ConfigGen\ConfigGen\obj\Debug\ConfigGen.pdb
+E:\__Github\ConfigGen\ConfigGen\obj\Debug\ConfigGen.csprojAssemblyReference.cache

@@ -1,0 +1,44 @@
+{
+  "ID": 1,
+  "VarLong": 10,
+  "VarFloat": 1.1,
+  "VarString": "Res/Cube",
+  "VarBool": true,
+  "VarEnum": 1,
+  "VarClass": {
+    "$type": "Lson.LsonAllClass.LInherit1, Assembly-CSharp",
+    "Var3": 111,
+    "Var1": "1",
+    "Var2": true
+  },
+  "VarListBase": [
+    "1",
+    "11",
+    "111",
+    "1111"
+  ],
+  "VarListClass": [
+    {
+      "Var1": "1111",
+      "Var2": true
+    }
+  ],
+  "VarListCardElem": [
+    1
+  ],
+  "VarDictBase": {
+    "1": "11",
+    "111": "1111"
+  },
+  "VarDictEnum": {
+    "1": 7
+  },
+  "VarDictClass": {
+    "9999": {
+      "$type": "Lson.LsonAllClass.LInherit1, Assembly-CSharp",
+      "Var3": 111,
+      "Var1": "1",
+      "Var2": true
+    }
+  }
+}

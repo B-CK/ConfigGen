@@ -7,29 +7,29 @@ namespace ConfigGen
 {
     class CmdOption
     {
-        public const string CONFIG_DIR = "-configDir";
+        public const string CONFIG_XML = "-configXml";
         public const string OPTION_MODE = "-optMode";
         public const string EXPORT_CSV = "-dataDir";
         public const string EXPORT_CSHARP = "-codeDir";
         public const string EXPORT_CS_LSON = "-xmlCodeDir";
         public const string EXPORT_LUA = "-luaDir";
         public const string GROUP = "-group";
-        public const string EXPORT_INFO = "-export";
         public const string HELP = "-help";
+        //public const string EXPORT_INFO = "-export";
         //public const string REPLACE = "-replace";
         //public const string FIND = "-find";
 
         void Usage()
         {
-            Console.WriteLine("-configDir [path] 数据文件根目录路径");
+            Console.WriteLine("-configXml [path] 数据导出文件路径");
             Console.WriteLine("-optMode [all|part] 导出模式,全部导出或者只导出被修改文件");
             Console.WriteLine("-dataDir [path] 导出数据到指定目录路径");
             Console.WriteLine("-codeDir [path] 导出结构到指定目录路径");
             Console.WriteLine("-xmlCodeDir [path] 导出xml类到指定目录路径");
             Console.WriteLine("-luaDir [path] 导出lua脚本到指定目录路径");
             Console.WriteLine("-group [client|editor|server] 按分组导出数据,分组可自定义");
-            Console.WriteLine("-export [path] 按配置文件导出数据或者结构类,配置可自定义");
             Console.WriteLine("--help 打印指令说明");
+            //Console.WriteLine("-export [path] 按配置文件导出数据或者结构类,配置可自定义");
         }
 
 
@@ -76,12 +76,14 @@ namespace ConfigGen
                     string cmdName = cmd.Key;
                     switch (cmdName)
                     {
-                        case CONFIG_DIR:
+                        case CONFIG_XML:
                             if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ConfigDir = Util.NormalizePath(string.Format(@"{0}\{1}\", Values.ApplicationDir, cmd.Value[0]));
-                            if (!Directory.Exists(Values.ConfigDir))
-                            {
-                                Util.LogErrorFormat("[{0}]Config文件夹不在此路径{1}", cmdName, Values.ConfigDir);
+                            Values.ConfigXml = Util.NormalizePath(string.Format(@"{0}\{1}", Values.ApplicationDir, cmd.Value[0]));
+                            Values.ConfigDir = Path.GetDirectoryName(Values.ConfigXml);
+                            if (!File.Exists(Values.ConfigXml))
+                            {                                
+                                Util.LogErrorFormat("[{0}]ConfigXml导出文件不在此路径{1}", cmdName, Values.ConfigXml);
+                                Values.ConfigXml = null;
                                 Values.ConfigDir = null;
                                 return false;
                             }
@@ -130,16 +132,16 @@ namespace ConfigGen
                             Values.ExportGroup = new HashSet<string>(groups);
                             Values.ExportGroup.Add(Values.DefualtGroup);
                             break;
-                        case EXPORT_INFO:
-                            if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ExportFilter = Util.NormalizePath((string.Format(@"{0}\{1}", Values.ApplicationDir, cmd.Value[0])));
-                            if (!File.Exists(Values.ExportFilter))
-                            {
-                                Util.LogErrorFormat("[{0}]导出定义文件不在此路径{1}", cmdName, Values.ExportFilter);
-                                Values.ExportFilter = null;
-                                return false;
-                            }
-                            break;
+                        //case EXPORT_INFO:
+                        //    if (!CheckArgList(cmdName, cmd.Value)) return false;
+                        //    Values.ExportFilter = Util.NormalizePath((string.Format(@"{0}\{1}", Values.ApplicationDir, cmd.Value[0])));
+                        //    if (!File.Exists(Values.ExportFilter))
+                        //    {
+                        //        Util.LogErrorFormat("[{0}]导出定义文件不在此路径{1}", cmdName, Values.ExportFilter);
+                        //        Values.ExportFilter = null;
+                        //        return false;
+                        //    }
+                        //    break;
                         //case REPLACE:
                         //    if (!CheckArgList(cmdName, cmd.Value)) return false;
                         //    break;
