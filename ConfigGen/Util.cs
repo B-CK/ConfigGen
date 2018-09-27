@@ -242,6 +242,16 @@ namespace ConfigGen
         {
             return string.Format("{0}.{1}", nameSpace, name);
         }
+        /// <summary>
+        /// 获取完整命名空间名,不包含类名
+        /// </summary>
+        public static string GetFullNamespace(string root, string _namespace)
+        {
+            if (string.IsNullOrWhiteSpace(_namespace))
+                return root;
+            else
+                return string.Format("{0}.{1}", root, _namespace);
+        }
         public static string FirstCharUpper(string name)
         {
             return Char.ToUpper(name[0]) + name.Substring(1);
@@ -251,6 +261,7 @@ namespace ConfigGen
             if (Directory.Exists(path))
                 Directory.Delete(path, true);
         }
+
 
 
         public static string ListStringSplit(string[] array, string split = ",")

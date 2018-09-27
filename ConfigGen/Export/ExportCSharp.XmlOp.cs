@@ -378,7 +378,7 @@ namespace ConfigGen.Export
             {
                 CodeWriter.UsingNamespace(builder, XmlNameSpaces);
                 builder.AppendLine();
-                CodeWriter.NameSpace(builder, string.Format("{0}.{1}", Values.XmlRootNode, baseType.NamespaceName));
+                CodeWriter.NameSpace(builder, Util.GetFullNamespace(Values.XmlRootNode, baseType.NamespaceName));
 
                 bool isWrited = false;
                 if (baseType.EType == TypeType.Class)

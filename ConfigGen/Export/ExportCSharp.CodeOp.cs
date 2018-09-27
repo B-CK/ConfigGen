@@ -63,7 +63,7 @@ namespace ConfigGen.Export
 
                 CodeWriter.UsingNamespace(builder, CsvNameSpaces);
                 builder.AppendLine();
-                CodeWriter.NameSpace(builder, string.Format("{0}.{1}", Values.ConfigRootNode, baseType.NamespaceName));
+                CodeWriter.NameSpace(builder, Util.GetFullNamespace(Values.ConfigRootNode, baseType.NamespaceName));
                 if (baseType.EType == TypeType.Class)
                 {
                     ClassTypeInfo classInfo = baseType as ClassTypeInfo;
