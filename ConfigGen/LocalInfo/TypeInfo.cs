@@ -113,7 +113,7 @@ namespace ConfigGen.LocalInfo
                 }
             }
             //类型分组
-            //DoGrouping();            
+            DoGrouping();
             //过滤导出类型
             //FilterInfo();
             //添加基础类型
@@ -129,7 +129,60 @@ namespace ConfigGen.LocalInfo
             foreach (var item in Instance.EnumInfos)
                 item.Init();
         }
+        private static void DoGrouping()
+        {
+            if (Values.ExportGroup == null)
+                Values.ExportGroup = new HashSet<string>() { Values.DefualtGroup };
 
+            List<BaseTypeInfo> infoList = new List<BaseTypeInfo>();
+            infoList.AddRange(Instance.ClassInfos);
+            infoList.AddRange(Instance.EnumInfos);
+            for (int i = 0; i < infoList.Count; i++)
+            {
+                //Class/Enum型分组
+                BaseTypeInfo baseType = infoList[i];
+                if (baseType.EType == TypeType.Class)
+                {
+                    ClassTypeInfo classType = baseType as ClassTypeInfo;
+                    if (!Values.ExportGroup.Overlaps(classType.GroupHashSet))
+                    {
+                        Instance.Remove(classType);
+                        continue;
+                    }
+
+                    var fields = new List<FieldInfo>(classType.Fields);
+                    for (int j = 0; j < fields.Count; j++)
+                    {
+                        FieldInfo field = fields[j];
+                        if (!Values.ExportGroup.Overlaps(field.GroupHashSet))
+                            classType.Fields.Remove(field);
+                    }
+                    classType.UpdateFieldDict();
+                    fields.Clear();
+                    fields.AddRange(classType.Consts);
+                    for (int j = 0; j < fields.Count; j++)
+                    {
+                        ConstInfo field = fields[j] as ConstInfo;
+                        if (!Values.ExportGroup.Overlaps(field.GroupHashSet))
+                            classType.Consts.Remove(field);
+                    }
+                    classType.UpdateConstDict();
+                }
+                else if (baseType.EType == TypeType.Enum)
+                {
+                    EnumTypeInfo enumType = baseType as EnumTypeInfo;
+                    var kvs = new List<ConstInfo>(enumType.Enums);
+                    for (int j = 0; j < kvs.Count; j++)
+                    {
+                        ConstInfo kv = kvs[j];
+                        if (!Values.ExportGroup.Overlaps(enumType.GroupHashSet))
+                            enumType.Enums.Remove(kv);
+                    }
+                    enumType.UpdateEnumDict();
+                }
+            }
+            return;
+        }
         public void Add(BaseTypeInfo info)
         {
             switch (info.EType)
@@ -296,7 +349,10 @@ namespace ConfigGen.LocalInfo
             }
         }
         public string Group { get; private set; }
-
+        /// <summary>
+        /// 是多态类型
+        /// </summary>
+        public bool IsPolyClass { get { return SubClassDict.Count > 0; } }
         public List<ConstInfo> Consts { get; private set; }
         public List<FieldInfo> Fields { get; private set; }
         public Dictionary<string, ConstInfo> ConstDict { get; private set; }
@@ -700,65 +756,7 @@ namespace ConfigGen.LocalInfo
     }
 }
 
-
-
-
-
-//private static void DoGrouping()
-//{
-//    if (Values.ExportGroup == null)
-//        Values.ExportGroup = new HashSet<string>() { Values.DefualtGroup };
-
-//    List<BaseTypeInfo> infoList = new List<BaseTypeInfo>();
-//    infoList.AddRange(Instance.ClassInfos);
-//    infoList.AddRange(Instance.EnumInfos);
-//    for (int i = 0; i < infoList.Count; i++)
-//    {
-//        //Class/Enum型分组
-//        BaseTypeInfo baseType = infoList[i];
-//        if (baseType.EType == TypeType.Class)
-//        {
-//            ClassTypeInfo classType = baseType as ClassTypeInfo;
-//            if (!Values.ExportGroup.Overlaps(classType.GroupHashSet))
-//            {
-//                Instance.Remove(classType);
-//                continue;
-//            }
-
-//            var fields = new List<FieldInfo>(classType.Fields);
-//            for (int j = 0; j < fields.Count; j++)
-//            {
-//                FieldInfo field = fields[j];
-//                if (!Values.ExportGroup.Overlaps(field.GroupHashSet))
-//                    classType.Fields.Remove(field);
-//            }
-//            classType.UpdateFieldDict();
-//            fields.Clear();
-//            fields.AddRange(classType.Consts);
-//            for (int j = 0; j < fields.Count; j++)
-//            {
-//                ConstInfo field = fields[j] as ConstInfo;
-//                if (!Values.ExportGroup.Overlaps(field.GroupHashSet))
-//                    classType.Consts.Remove(field);
-//            }
-//            classType.UpdateConstDict();
-//        }
-//        else if (baseType.EType == TypeType.Enum)
-//        {
-//            EnumTypeInfo enumType = baseType as EnumTypeInfo;
-//            var kvs = new List<ConstInfo>(enumType.Enums);
-//            for (int j = 0; j < kvs.Count; j++)
-//            {
-//                ConstInfo kv = kvs[j];
-//                if (!Values.ExportGroup.Overlaps(enumType.GroupHashSet))
-//                    enumType.Enums.Remove(kv);
-//            }
-//            enumType.UpdateEnumDict();
-//        }
-//    }
-//    return;
-//}
-
+//--指定导出内容
 //private static void FilterInfo()
 //{
 //    if (string.IsNullOrWhiteSpace(Values.ExportFilter)) return;

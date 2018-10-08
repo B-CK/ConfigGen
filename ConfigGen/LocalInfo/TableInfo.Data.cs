@@ -113,7 +113,20 @@ namespace ConfigGen.LocalInfo
             column++;
             ClassTypeInfo classType = info.BaseInfo as ClassTypeInfo;
             DataClass dataClass = new DataClass();
-            //dataClass.Set(info.Name, info.Type, info.Check, info.Group);
+            if (classType.IsPolyClass)
+            {
+                string polyClass = dt.Rows[Values.DataSheetFieldIndex][column].ToString();
+                if (classType.SubClassDict.ContainsKey(polyClass))
+                {
+                    ClassTypeInfo cti = classType.SubClassDict[polyClass];
+                    dataClass.Type = cti.GetFullName();
+                    column++;
+                }
+                else
+                {
+                    Util.LogErrorFormat("类型{0} 未继承类型{1}", polyClass, classType.GetFullName());
+                }
+            }
             var fieldDict = classType.FieldDict;
             for (int i = 0; i < classType.Fields.Count; i++, column++)
             {
