@@ -153,17 +153,42 @@ namespace ConfigGen.LocalInfo
     {
         public object Data;
 
-        public static implicit operator double(DataBase value)
+        public static implicit operator int(DataBase value)
         {
-            return Convert.ToDouble(value.Data);
+            if (value.Data == null)
+                return -1;
+            return Convert.ToInt32(value.Data);
         }
         public static implicit operator long(DataBase value)
         {
+            if (value.Data == null)
+                return -1;
             return Convert.ToInt64(value.Data);
+        }
+        public static implicit operator float(DataBase value)
+        {
+            if (value.Data == null)
+                return -1;
+            return Convert.ToSingle(value.Data);
+        }
+        public static implicit operator double(DataBase value)
+        {
+            if (value.Data == null)
+                return -1;
+            return Convert.ToDouble(value.Data);
         }
         public static implicit operator string(DataBase value)
         {
+            if (value.Data == null)
+                return "";
             return Convert.ToString(value.Data);
+        }
+        public static implicit operator bool(DataBase value)
+        {
+            if (value.Data == null)
+                return false;
+            string v = value.Data as string;
+            return v.ToLower().Equals("true") ? true : false;
         }
     }
     public class DataClass : Data

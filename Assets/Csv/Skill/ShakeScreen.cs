@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Csv;
+using Cfg;
 
-namespace Csv.Skill
+namespace Cfg.Skill
 {
-	public  class ShakeScreen : Csv.Skill.Action
+	public  class ShakeScreen : Cfg.Skill.Action
 	{
 		/// <summary>
 		/// 震屏方式

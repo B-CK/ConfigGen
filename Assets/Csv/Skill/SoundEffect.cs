@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Csv;
+using Cfg;
 
-namespace Csv.Skill
+namespace Cfg.Skill
 {
-	public  class SoundEffect : Csv.Skill.Action
+	public  class SoundEffect : Cfg.Skill.Action
 	{
 		/// <summary>
 		/// 触发概率

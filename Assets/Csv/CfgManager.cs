@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
-namespace Csv
+namespace Cfg
 {
 	public  class CfgManager
 	{
@@ -11,8 +11,8 @@ namespace Csv
 		/// <summary>
 		public static string ConfigDir;
 
-		public static readonly Dictionary<int, Csv.AllType.AllClass> AllClass = new Dictionary<int, Csv.AllType.AllClass>();
-		public static readonly Dictionary<string, Csv.Skill.ModelActions> ModelActions = new Dictionary<string, Csv.Skill.ModelActions>();
+		public static readonly Dictionary<int, Cfg.AllType.AllClass> AllClass = new Dictionary<int, Cfg.AllType.AllClass>();
+		public static readonly Dictionary<string, Cfg.Skill.ModelActions> ModelActions = new Dictionary<string, Cfg.Skill.ModelActions>();
 
 		/// <summary>
 		/// constructor参数为指定类型的构造函数

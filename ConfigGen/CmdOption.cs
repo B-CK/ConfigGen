@@ -28,7 +28,7 @@ namespace ConfigGen
             Console.WriteLine("-xmlCodeDir [path] 导出xml类到指定目录路径");
             Console.WriteLine("-luaDir [path] 导出lua脚本到指定目录路径");
             Console.WriteLine("-group [client|editor|server] 按分组导出数据,分组可自定义");
-            Console.WriteLine("--help 打印指令说明");
+            Console.WriteLine("-help 打印指令说明");
             //Console.WriteLine("-export [path] 按配置文件导出数据或者结构类,配置可自定义");
         }
 

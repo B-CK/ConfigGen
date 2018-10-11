@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Csv;
+using Cfg;
 
-namespace Csv.Skill
+namespace Cfg.Skill
 {
-	public  class Attack : Csv.Skill.Action
+	public  class Attack : Cfg.Skill.Action
 	{
 		/// <summary>
 		/// 打击点id

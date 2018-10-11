@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Csv;
+using Cfg;
 
-namespace Csv.Skill
+namespace Cfg.Skill
 {
-	public  class Movement : Csv.Skill.Action
+	public  class Movement : Cfg.Skill.Action
 	{
 		/// <summary>
 		/// 移动方式

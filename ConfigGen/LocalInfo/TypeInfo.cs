@@ -58,6 +58,9 @@ namespace ConfigGen.LocalInfo
             //解析类型定义
             Dictionary<string, TypeDescription> pairs = new Dictionary<string, TypeDescription>();
             var configXml = Util.Deserialize(Values.ConfigXml, typeof(ConfigXml)) as ConfigXml;
+            if (string.IsNullOrWhiteSpace(configXml.Root))
+                throw new Exception("数据结构导出时必须指定命名空间根节点<Config Root=\"**\">");
+            Values.ConfigRootNode = configXml.Root;
             List<string> defines = configXml.Include;
             string path = "xmlDes";
             try
@@ -292,6 +295,24 @@ namespace ConfigGen.LocalInfo
 
             return baseTypeInfo;
         }
+        /// <summary>
+        /// 1.name=全路径,直接识别类型
+        /// 2.name=相对路径,组合当前调用空间名去识别类型,未必能识别到类型.
+        /// 3.当2无法识别类型时,则只能使用全路径去识别类型.
+        /// </summary>
+        /// <param name="_namespace">当前调用位置的命名空间</param>
+        /// <param name="name">全路径或者相对路径</param>
+        /// <returns></returns>
+        public static BaseTypeInfo GetBaseTypeInfo(string _namespace, string name)
+        {
+            BaseTypeInfo bt = GetTypeInfo(name);
+            if (bt == null)
+            {
+                string combineName = Util.Combine(_namespace, name);
+                bt = GetTypeInfo(combineName);
+            }
+            return bt;
+        }
         public static HashSet<string> AnalyzeGroup(string group)
         {
             if (string.IsNullOrWhiteSpace(group)) return new HashSet<string>() { Values.DefualtGroup };
@@ -361,7 +382,8 @@ namespace ConfigGen.LocalInfo
         public ClassTypeInfo Inherit { get; private set; }
         public HashSet<string> GroupHashSet { get; private set; }
 
-        //----------------------继承功能:父类查找,优先查找当前命名空间;其次直接当做全路径类型查找
+        //继承功能:父类查找,优先查找当前命名空间;其次直接当做全路径类型查找
+        //一般子类与父类在同一命名空间,否则需要填写全路径名
         public Dictionary<string, ClassTypeInfo> SubClassDict { get; private set; }
 
         private ClassDes _des;
@@ -388,7 +410,7 @@ namespace ConfigGen.LocalInfo
             UpdateFieldDict();
             GroupHashSet = TypeInfo.AnalyzeGroup(Group);
 
-            SubClassDict = new Dictionary<string, ClassTypeInfo>();
+            SubClassDict = new Dictionary<string, ClassTypeInfo>() { { GetFullName(), this } };
             if (!string.IsNullOrWhiteSpace(inherit))
             {
                 string localSpace = Util.Combine(NamespaceName, inherit);
@@ -401,8 +423,8 @@ namespace ConfigGen.LocalInfo
                     return;
                 }
                 string fullName = GetFullName();
-                if (!SubClassDict.ContainsKey(fullName))
-                    SubClassDict.Add(fullName, this);
+                if (!Inherit.SubClassDict.ContainsKey(fullName))
+                    Inherit.SubClassDict.Add(fullName, this);
             }
         }
         public override void Init()

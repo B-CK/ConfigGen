@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Csv;
+using Cfg;
 
-namespace Csv.Skill
+namespace Cfg.Skill
 {
-	public  class Bomb : Csv.Skill.TraceObject
+	public  class Bomb : Cfg.Skill.TraceObject
 	{
 		/// <summary>
 		/// 打击点组(HitPointGroup)ID

@@ -36,7 +36,7 @@ namespace ConfigGen.Export
                 builder.Clear();
             }
         }
-        //isNesting - 是否为嵌套Class类型
+
         private static string AnalyzeField(FieldInfo info, Data data, bool isNesting = false)
         {
             string v = "";
@@ -44,12 +44,32 @@ namespace ConfigGen.Export
             switch (typeInfo.EType)
             {
                 case TypeType.Base:
-                case TypeType.Enum:
                     DataBase dataBase = data as DataBase;
-                    object temp = dataBase.Data;
-                    v = temp.ToString().Trim();
-                    if (info.Type.Equals("bool"))
-                        v = v.ToLower().Equals("true") ? "1" : "0";
+                    switch (info.Type)
+                    {
+                        case TypeInfo.INT:
+                            v = ((int)dataBase).ToString();
+                            break;
+                        case TypeInfo.LONG:
+                            v = ((long)dataBase).ToString();
+                            break;
+                        case TypeInfo.FLOAT:
+                            v = ((float)dataBase).ToString();
+                            break;
+                        case TypeInfo.BOOL:
+                            v = dataBase ? "1" : "0";
+                            break;
+                        case TypeInfo.STRING:
+                            v = dataBase;
+                            break;
+                        default:
+                            Util.LogErrorFormat("导出Csv基础类型数据异常" + info.Type);
+                            break;
+                    }
+                    break;
+                case TypeType.Enum:
+                    DataBase enumData = data as DataBase;
+                    v = enumData.Data as string;
                     break;
                 case TypeType.Class:
                     v = AnalyzeClass(info, data, isNesting);
@@ -70,14 +90,15 @@ namespace ConfigGen.Export
         {
             StringBuilder builder = new StringBuilder();
             DataClass dataClass = data as DataClass;
-            ClassTypeInfo baseClassType = info.BaseInfo as ClassTypeInfo;
-            if (baseClassType.Inherit != null)
+            ClassTypeInfo classType = info.BaseInfo as ClassTypeInfo;
+            if (classType.IsPolyClass)
             {
                 string polyType = dataClass.Type;
-                builder.AppendFormat("{0}{1}", polyType, Values.CsvSplitFlag);
-                for (int j = 0; j < baseClassType.Fields.Count; j++)
+                builder.AppendFormat("{0}.{1}{2}", Values.ConfigRootNode, polyType, Values.CsvSplitFlag);
+                //--父类字段
+                for (int j = 0; j < classType.Fields.Count; j++)
                 {
-                    FieldInfo fieldInfo = baseClassType.Fields[j];
+                    FieldInfo fieldInfo = classType.Fields[j];
                     Data dataBase = dataClass.Fields[fieldInfo.Name];
                     string value = AnalyzeField(fieldInfo, dataBase);
                     if (isNesting && value.Equals(Values.DataSetEndFlag))
@@ -88,9 +109,9 @@ namespace ConfigGen.Export
                     else
                         builder.AppendFormat("{0}{1}", Values.CsvSplitFlag, value);
                 }
-                var polyClassType = baseClassType.SubClassDict[polyType];
+                var polyClassType = classType.SubClassDict[polyType];
                 if (polyClassType != null)
-                {
+                {   //--子类字段
                     for (int j = 0; j < polyClassType.Fields.Count; j++)
                     {
                         FieldInfo fieldInfo = polyClassType.Fields[j];
@@ -102,17 +123,21 @@ namespace ConfigGen.Export
                         builder.AppendFormat("{0}{1}", Values.CsvSplitFlag, value);
                     }
                 }
+                else
+                {
+                    Util.LogErrorFormat("类型{0} 不存在或者未继承类型{1}", polyType, classType.GetFullName());
+                }
             }
             else
             {
-                for (int j = 0; j < baseClassType.Fields.Count; j++)
+                for (int j = 0; j < classType.Fields.Count; j++)
                 {
-                    FieldInfo fieldInfo = baseClassType.Fields[j];
+                    FieldInfo fieldInfo = classType.Fields[j];
                     Data dataBase = dataClass.Fields[fieldInfo.Name];
                     string value = AnalyzeField(fieldInfo, dataBase);
                     if (isNesting && value.Equals(Values.DataSetEndFlag))
                         return Values.DataSetEndFlag;
-                    if (j + 1 == baseClassType.Fields.Count)
+                    if (j + 1 == classType.Fields.Count)
                         builder.AppendFormat(value);
                     else
                         builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);

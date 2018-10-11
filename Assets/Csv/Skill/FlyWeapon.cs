@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Csv;
+using Cfg;
 
-namespace Csv.Skill
+namespace Cfg.Skill
 {
-	public  class FlyWeapon : Csv.Skill.TraceObject
+	public  class FlyWeapon : Cfg.Skill.TraceObject
 	{
 		/// <summary>
 		/// 子弹半径

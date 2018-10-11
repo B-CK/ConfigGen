@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Csv;
+using Cfg;
 
-namespace Csv.Skill
+namespace Cfg.Skill
 {
-	public  class TraceObject : Csv.Skill.SpawnObject
+	public  class TraceObject : Cfg.Skill.SpawnObject
 	{
 		/// <summary>
 		/// 身体矫正值

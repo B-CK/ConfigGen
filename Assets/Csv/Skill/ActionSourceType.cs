@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Csv;
+using Cfg;
 
-namespace Csv.Skill
+namespace Cfg.Skill
 {
 	public enum ActionSourceType
 	{

@@ -72,6 +72,8 @@ namespace ConfigGen.LocalInfo
     [XmlRoot("Config")]
     public class ConfigXml
     {
+        [XmlAttribute]
+        public string Root;
         [XmlElement("Include")]
         public List<string> Include;
         [XmlElement("NoStruct")]

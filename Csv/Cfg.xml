@@ -1,6 +1,7 @@
-<Config>
+<Config Root = "Cfg">
 	<!-- <Include></Include> -->
 	<!-- <NoStruct></NoStruct> -->
 	<Include>AllType\AllType.xml</Include>
 	<Include>Skill\Skill.xml</Include>
+	<!-- <NoStruct>AllType.M1</NoStruct> -->
 </Config>

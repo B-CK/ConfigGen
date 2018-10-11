@@ -115,6 +115,7 @@ namespace ConfigGen.LocalInfo
         }
         static void CheckClass(FieldInfo info, List<Data> datas)
         {
+            //--检查父类
             ClassTypeInfo classType = info.BaseInfo as ClassTypeInfo;
             {
                 List<FieldInfo> fields = classType.Fields;
@@ -131,7 +132,8 @@ namespace ConfigGen.LocalInfo
                     CheckField(field, dataColum);
                 }
             }
-            if (classType.Inherit != null)
+            //--检查子类
+            if (classType.IsPolyClass)
             {
                 foreach (var polyType in classType.SubClassDict)
                 {

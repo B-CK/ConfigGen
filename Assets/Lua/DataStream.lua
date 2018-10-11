@@ -1,35 +1,23 @@
 local lower = string.lower
 local setmetatable = setmetatable
 local tonumber = tonumber
-local root = Util.DataPath
+local lines = io.lines
+local split = string.split
+local format= string.format
+local root = CSUtil.DataPath
 local Stream = {}
 Stream.__index = Stream
 Stream.name = "Stream"
 local out = ''
 
-local Split = function (str)
-	local fields = {}
-	local flag = "(.-)" .. '▃'
-	local last_end = 1
-	local s, e, cap = str:find(flag, 1)
-	while s do
-		if s ~= 1 or cap ~= "" then
-			insert(fields, cap)
-		end
-		last_end = e + 1
-		s, e, cap = str:find(flag, last_end)
-	end
-	if last_end <= #str then
-		cap = str:sub(last_end)
-		insert(fields, cap)
-	end
-	return fields
+local Split = function (line)
+	return split(line, '▃')
 end
 function Stream.new(dataFile)
 	local o = {}
 	setmetatable(o, Stream)
 	o.dataFile = dataFile
-	o.GetLine = io.lines(root .. dataFile)
+	o.GetLine = lines(format('%sConfig/%s', root, dataFile))
 	o.idx = 0
 	o.line = 0
 	return o

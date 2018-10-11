@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Csv;
+using Cfg;
 
-namespace Csv.Skill
+namespace Cfg.Skill
 {
-	public  class ParticleEffect : Csv.Skill.Action
+	public  class ParticleEffect : Cfg.Skill.Action
 	{
 		/// <summary>
 		/// 粒子特效id
