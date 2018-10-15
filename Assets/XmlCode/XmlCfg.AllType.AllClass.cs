@@ -31,7 +31,7 @@ namespace XmlCfg.AllType
 		/// <summary>
 		/// 字符串
 		/// <summary>
-		public string VarString;
+		public string VarString = "";
 		/// <summary>
 		/// 布尔型
 		/// <summary>
@@ -47,27 +47,27 @@ namespace XmlCfg.AllType
 		/// <summary>
 		/// 字符串列表
 		/// <summary>
-		public List<string> VarListBase;
+		public List<string> VarListBase = new List<string>();
 		/// <summary>
 		/// Class列表
 		/// <summary>
-		public List<SingleClass> VarListClass;
+		public List<SingleClass> VarListClass = new List<SingleClass>();
 		/// <summary>
 		/// 字符串列表
 		/// <summary>
-		public List<string> VarListCardElem;
+		public List<string> VarListCardElem = new List<string>();
 		/// <summary>
 		/// 基础类型字典
 		/// <summary>
-		public Dictionary<int, string> VarDictBase;
+		public Dictionary<int, string> VarDictBase = new Dictionary<int, string>();
 		/// <summary>
 		/// 枚举类型字典
 		/// <summary>
-		public Dictionary<long, CardElement> VarDictEnum;
+		public Dictionary<long, CardElement> VarDictEnum = new Dictionary<long, CardElement>();
 		/// <summary>
 		/// 类类型字典
 		/// <summary>
-		public Dictionary<string, SingleClass> VarDictClass;
+		public Dictionary<string, SingleClass> VarDictClass = new Dictionary<string, SingleClass>();
 
 		public override void Write(TextWriter _1)
 		{

@@ -15,11 +15,11 @@ namespace XmlCfg.Skill
 		/// <summary>
 		/// 打击点组名称
 		/// <summary>
-		public string Name;
+		public string Name = "";
 		/// <summary>
 		/// 打击点列表
 		/// <summary>
-		public List<Attack> Attacks;
+		public List<Attack> Attacks = new List<Attack>();
 
 		public override void Write(TextWriter _1)
 		{

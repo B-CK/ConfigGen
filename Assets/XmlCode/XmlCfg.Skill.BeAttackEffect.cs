@@ -19,7 +19,7 @@ namespace XmlCfg.Skill
 		/// <summary>
 		/// 被打击者的受击动作，null为默认
 		/// <summary>
-		public string DefencerAction;
+		public string DefencerAction = "";
 		/// <summary>
 		/// 被打击者身上出现的被击特效，Null为默认
 		/// <summary>

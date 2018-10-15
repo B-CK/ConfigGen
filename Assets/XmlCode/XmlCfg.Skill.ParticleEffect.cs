@@ -23,7 +23,7 @@ namespace XmlCfg.Skill
 		/// <summary>
 		/// 粒子资源的路径
 		/// <summary>
-		public string Path;
+		public string Path = "";
 		/// <summary>
 		/// 粒子的存续时间，-1则与参与动画播放时间等长
 		/// <summary>
@@ -119,7 +119,7 @@ namespace XmlCfg.Skill
 		/// <summary>
 		/// 骨骼名称
 		/// <summary>
-		public string BoneName;
+		public string BoneName = "";
 		/// <summary>
 		/// 飞行时间
 		/// <summary>

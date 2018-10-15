@@ -11,7 +11,7 @@ namespace XmlCfg.AllType
 		/// <summary>
 		/// Var1
 		/// <summary>
-		public string Var1;
+		public string Var1 = "";
 		/// <summary>
 		/// Var2
 		/// <summary>

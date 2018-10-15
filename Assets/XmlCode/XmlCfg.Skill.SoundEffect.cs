@@ -23,7 +23,7 @@ namespace XmlCfg.Skill
 		/// <summary>
 		/// 音效资源路径列表
 		/// <summary>
-		public List<string> PathList;
+		public List<string> PathList = new List<string>();
 
 		public override void Write(TextWriter _1)
 		{

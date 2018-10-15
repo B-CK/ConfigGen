@@ -59,15 +59,15 @@ namespace XmlCfg.Skill
 		/// <summary>
 		/// 打击点组列表
 		/// <summary>
-		public List<HitPointGroup> HitPoints;
+		public List<HitPointGroup> HitPoints = new List<HitPointGroup>();
 		/// <summary>
 		/// 打击区域列表
 		/// <summary>
-		public List<HitZone> HitZones;
+		public List<HitZone> HitZones = new List<HitZone>();
 		/// <summary>
 		/// 被击效果列表
 		/// <summary>
-		public List<BeAttackEffect> BeAttackEffects;
+		public List<BeAttackEffect> BeAttackEffects = new List<BeAttackEffect>();
 
 		public override void Write(TextWriter _1)
 		{

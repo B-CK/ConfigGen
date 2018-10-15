@@ -11,7 +11,7 @@ namespace XmlCfg.Skill
 		/// <summary>
 		/// 震屏方式
 		/// <summary>
-		public string Type;
+		public string Type = "";
 		/// <summary>
 		/// 每秒震动的次数
 		/// <summary>

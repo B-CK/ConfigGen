@@ -15,11 +15,11 @@ namespace XmlCfg.Skill
 		/// <summary>
 		/// 特效组名称
 		/// <summary>
-		public string Name;
+		public string Name = "";
 		/// <summary>
 		/// 特效组行为列表
 		/// <summary>
-		public List<Action> Actions;
+		public List<Action> Actions = new List<Action>();
 
 		public override void Write(TextWriter _1)
 		{

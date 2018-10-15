@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
+using ConfigGen.LocalInfo;
 
 namespace ConfigGen.Export
 {
@@ -62,6 +63,10 @@ namespace ConfigGen.Export
         public static void Field(StringBuilder builder, string modifier, string identification, string type, string fieldName)
         {
             FieldInit(builder, modifier, identification, type, fieldName, null);
+        }
+        public static void FieldInit(StringBuilder builder, string modifier, string type, string fieldName, string initValue)
+        {
+            FieldInit(builder, modifier, "", type, fieldName, initValue);
         }
         public static void FieldInit(StringBuilder builder, string modifier, string identification, string type, string fieldName, string initValue)
         {

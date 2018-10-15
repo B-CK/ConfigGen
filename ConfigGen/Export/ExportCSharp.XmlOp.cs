@@ -428,7 +428,11 @@ namespace ConfigGen.Export
                                 {
                                     CodeWriter.Comments(builder, field.Des);
                                     string fullType = CodeWriter.GetFullNamespace(Values.XmlRootNode, field.Type);
-                                    CodeWriter.Field(builder, CodeWriter.Public, fullType, field.Name);
+                                    if (field.BaseInfo.EType == TypeType.Base
+                                        && fullType.Equals(TypeInfo.STRING))
+                                        CodeWriter.FieldInit(builder, CodeWriter.Public, fullType, field.Name, "\"\"");
+                                    else
+                                        CodeWriter.Field(builder, CodeWriter.Public, fullType, field.Name);
 
                                     if (field.BaseInfo.EType == TypeType.Base)
                                         reader.Add(string.Format("case \"{0}\": this.{0} = Read{1}(_2); break;", field.Name, Util.FirstCharUpper(field.Type)));
@@ -454,7 +458,7 @@ namespace ConfigGen.Export
                                     TypeType itemType = TypeInfo.GetTypeType(listType.ItemType);
                                     string fullType = CodeWriter.GetFullNamespace(Values.XmlRootNode, listType.ItemType);
                                     type = type.Replace(listType.ItemType, fullType);
-                                    CodeWriter.Field(builder, CodeWriter.Public, type, field.Name);
+                                    CodeWriter.FieldInit(builder, CodeWriter.Public, type, field.Name, initValue);
 
                                     BaseTypeInfo item = listType.ItemInfo.BaseInfo;
                                     if (item.EType == TypeType.Base)
@@ -483,7 +487,7 @@ namespace ConfigGen.Export
                                     type = type.Replace(dictType.KeyType, fullType);
                                     fullType = CodeWriter.GetFullNamespace(Values.XmlRootNode, dictType.ValueType);
                                     type = type.Replace(dictType.ValueType, fullType);
-                                    CodeWriter.Field(builder, CodeWriter.Public, type, field.Name);
+                                    CodeWriter.FieldInit(builder, CodeWriter.Public, type, field.Name, initValue);
 
                                     string key = string.Format("Read{0}(GetOnlyChild(_3, \"Key\"))", Util.FirstCharUpper(dictType.KeyType));
                                     BaseTypeInfo valueInfo = dictType.ValueInfo.BaseInfo;
