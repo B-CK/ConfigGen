@@ -368,7 +368,7 @@ namespace ConfigGen.LocalInfo
                     return null;
                 return string.Format("{0}\\{1}", XmlDirPath, Util.NormalizePath(_des.DataPath));
             }
-        }
+        }       
         public string Group { get; private set; }
         /// <summary>
         /// 是多态类型

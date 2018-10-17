@@ -4,12 +4,12 @@ using Cfg;
 
 namespace Cfg.Skill
 {
-	public  class ShakeScreen : Cfg.Skill.Action
+	public  class ShakeScreen : Cfg.Skill.Timeline
 	{
 		/// <summary>
-		/// 震屏方式
+		/// 震屏方式:0水平 1垂直 2混合
 		/// <summary>
-		public readonly string Type;
+		public readonly int Type;
 		/// <summary>
 		/// 每秒震动的次数
 		/// <summary>
@@ -31,10 +31,6 @@ namespace Cfg.Skill
 		/// <summary>
 		public readonly float AmplitudeAtten;
 		/// <summary>
-		/// 本次震动持续时间，-1表持续到下一次震动触发或技能结束为止
-		/// <summary>
-		public readonly float Life;
-		/// <summary>
 		/// 最小完整影响范围
 		/// <summary>
 		public readonly float MinRange;
@@ -45,13 +41,12 @@ namespace Cfg.Skill
 
 		public ShakeScreen(DataStream data) : base(data)
 		{
-			this.Type = data.GetString();
+			this.Type = data.GetInt();
 			this.Frequency = data.GetInt();
 			this.FrequencyDuration = data.GetFloat();
 			this.FrequencyAtten = data.GetFloat();
 			this.Amplitude = data.GetFloat();
 			this.AmplitudeAtten = data.GetFloat();
-			this.Life = data.GetFloat();
 			this.MinRange = data.GetFloat();
 			this.MaxRange = data.GetFloat();
 		}

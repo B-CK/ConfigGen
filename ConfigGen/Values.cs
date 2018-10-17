@@ -74,9 +74,13 @@ namespace ConfigGen
         /// </summary>
         public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
         /// <summary>
-        /// 数据表格Sheet名定义格式
+        /// 数据文件扩展名
         /// </summary>
         public const string DataFileFlag = "data";
+        /// <summary>
+        /// 数据表格Sheet名标识
+        /// </summary>
+        public const string ExcelSheetDataFlag = "#";
         /// <summary>
         /// 数据填写扩展文件后缀名
         /// </summary>

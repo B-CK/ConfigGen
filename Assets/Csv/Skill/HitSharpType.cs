@@ -11,12 +11,12 @@ namespace Cfg.Skill
 		/// <summary>
 		Cube = 0,
 		/// <summary>
+		/// 球
+		/// <summary>
+		Sphere = 1,
+		/// <summary>
 		/// 圆柱形
 		/// <summary>
-		Cylinder = 1,
-		/// <summary>
-		/// 三棱柱
-		/// <summary>
-		Trangle = 2,
+		Cylinder = 2,
 	}
 }

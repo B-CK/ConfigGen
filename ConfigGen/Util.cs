@@ -88,7 +88,8 @@ namespace ConfigGen
                 for (int i = 0; i < dtSheet.Rows.Count; ++i)
                 {
                     string sheetName = dtSheet.Rows[i]["TABLE_NAME"].ToString();
-                    if (!sheetName.StartsWith(Values.DataFileFlag)) continue;
+                    //var index = sheetName.IndexOf(Values.ExcelSheetDataFlag);
+                    if (sheetName.IndexOf(Values.ExcelSheetDataFlag) != 1) continue;
 
                     da = new OleDbDataAdapter();
                     da.SelectCommand = new OleDbCommand(String.Format("Select * FROM [{0}]", sheetName), conn);
