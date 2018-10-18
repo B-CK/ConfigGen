@@ -103,7 +103,7 @@ namespace ConfigGen.LocalInfo
             return dataField;
         }
         private Data AnalyzeBase(DataTable dt, FieldInfo info, int row, ref int column)
-        {         
+        {
             DataBase dataBase = new DataBase();
             dataBase.Data = dt.Rows[row][column];
             string key = dataBase;
@@ -156,7 +156,7 @@ namespace ConfigGen.LocalInfo
             {
                 string polyClass = dt.Rows[row][column].ToString();
                 BaseTypeInfo bti = TypeInfo.GetBaseTypeInfo(classType.NamespaceName, polyClass);
-                if (bti != null && classType.SubClassDict.ContainsKey(bti.GetFullName()) || bti == classType)
+                if (bti != null && classType.GetSubClass(bti.GetFullName()) != null || bti == classType)
                 {
                     dataClass.Type = bti.GetFullName();
                     subClassType = bti as ClassTypeInfo;

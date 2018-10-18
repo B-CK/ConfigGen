@@ -368,12 +368,12 @@ namespace ConfigGen.LocalInfo
                     return null;
                 return string.Format("{0}\\{1}", XmlDirPath, Util.NormalizePath(_des.DataPath));
             }
-        }       
+        }
         public string Group { get; private set; }
         /// <summary>
         /// 是多态类型
         /// </summary>
-        public bool IsPolyClass { get { return SubClassDict.Count > 0; } }
+        public bool IsPolyClass { get { return _subClassDict.Count > 0; } }
         public List<ConstInfo> Consts { get; private set; }
         public List<FieldInfo> Fields { get; private set; }
         public Dictionary<string, ConstInfo> ConstDict { get; private set; }
@@ -384,7 +384,7 @@ namespace ConfigGen.LocalInfo
 
         //继承功能:父类查找,优先查找当前命名空间;其次直接当做全路径类型查找
         //一般子类与父类在同一命名空间,否则需要填写全路径名
-        public Dictionary<string, ClassTypeInfo> SubClassDict { get; private set; }
+        private Dictionary<string, ClassTypeInfo> _subClassDict;
 
         private ClassDes _des;
         public ClassTypeInfo(string xmlDir, string namespace0, ClassDes des) : base(namespace0, des.Name)
@@ -410,7 +410,7 @@ namespace ConfigGen.LocalInfo
             UpdateFieldDict();
             GroupHashSet = TypeInfo.AnalyzeGroup(Group);
 
-            SubClassDict = new Dictionary<string, ClassTypeInfo>() { { GetFullName(), this } };
+            _subClassDict = new Dictionary<string, ClassTypeInfo>() { { GetFullName(), this } };
             if (!string.IsNullOrWhiteSpace(inherit))
             {
                 string localSpace = Util.Combine(NamespaceName, inherit);
@@ -423,8 +423,8 @@ namespace ConfigGen.LocalInfo
                     return;
                 }
                 string fullName = GetFullName();
-                if (!Inherit.SubClassDict.ContainsKey(fullName))
-                    Inherit.SubClassDict.Add(fullName, this);
+                if (!Inherit._subClassDict.ContainsKey(fullName))
+                    Inherit._subClassDict.Add(fullName, this);
             }
         }
         public override void Init()
@@ -477,10 +477,14 @@ namespace ConfigGen.LocalInfo
 
         public ClassTypeInfo GetSubClass(string fullName)
         {
-            if (SubClassDict.ContainsKey(fullName))
-                return SubClassDict[fullName];
+            if (_subClassDict.ContainsKey(fullName))
+                return _subClassDict[fullName];
             else
                 return null;
+        }
+        public IEnumerator GetSubClassEnumerator()
+        {
+            return _subClassDict.GetEnumerator();
         }
     }
     public class EnumTypeInfo : BaseTypeInfo

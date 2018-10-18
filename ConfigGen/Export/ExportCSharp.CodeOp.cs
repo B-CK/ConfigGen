@@ -281,10 +281,10 @@ namespace ConfigGen.Export
         {
             string value = "";
             ClassTypeInfo classType = baseType as ClassTypeInfo;
-            if (classType.Inherit == null)
-                value = string.Format("new {0}({1})", type, argName);
-            else
+            if (classType.IsPolyClass)
                 value = string.Format("({0}){1}.GetObject({1}.GetString())", type, argName);
+            else
+                value = string.Format("new {0}({1})", type, argName);
             return value;
         }
 
@@ -372,7 +372,7 @@ namespace ConfigGen.Export
             CodeWriter.Comments(builder, "支持多态,直接反射类型");
             CodeWriter.Function(builder, CodeWriter.Public, CLASS_CFG_OBJECT, "GetObject", types, args);
             CodeWriter.IntervalLevel(builder);
-            builder.AppendFormat("Type type = Type.GetType(\"{0}.\" + {1});\n", Values.ConfigRootNode, args[0]);
+            builder.AppendFormat("Type type = Type.GetType({0});\n",  args[0]);
             CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("if (type == null)");
             CodeWriter.Start(builder);
@@ -435,7 +435,7 @@ namespace ConfigGen.Export
 
             List<BaseTypeInfo> typeInfos = new List<BaseTypeInfo>();
             typeInfos.AddRange(TypeInfo.Instance.ClassInfos);
-            StringBuilder loadAll = new StringBuilder();
+            List<string> loadAll = new List<string>();
             StringBuilder clear = new StringBuilder();
             for (int i = 0; i < typeInfos.Count; i++)
             {
@@ -461,13 +461,12 @@ namespace ConfigGen.Export
                 }
 
                 //加载所有配置-块内语句
-                CodeWriter.IntervalLevel(loadAll);
                 string rel = classType.GetFullName().Replace(".", "/") + Values.CsvFileExt;
-                loadAll.AppendFormat("\tvar {0}s = Load({1} + \"{2}\", (d) => new {3}(d));\n",
-                    classType.Name.ToLower(), FIELD_CONFIG_DIR, rel, classType.GetFullName());
-                CodeWriter.IntervalLevel(loadAll);
-                loadAll.AppendFormat("\t{0}s.ForEach(v => {1}.Add(v.{2}, v));\n",
-                    classType.Name.ToLower(), classType.Name, classType.IndexField.Name);
+                loadAll.Add(string.Format("path = {0} + \"{1}\";\n", FIELD_CONFIG_DIR, rel));
+                loadAll.Add(string.Format("var {0}s = Load(path, (d) => new {1}(d));\n",
+                    classType.Name.ToLower(), classType.GetFullName()));
+                loadAll.Add(string.Format("{0}s.ForEach(v => {1}.Add(v.{2}, v));\n",
+                    classType.Name.ToLower(), classType.Name, classType.IndexField.Name));
 
                 //清除所有配置-块内语句
                 CodeWriter.IntervalLevel(clear);
@@ -478,6 +477,7 @@ namespace ConfigGen.Export
             //加载单个配置
             string[] types = { "string", "Func<DataStream, T>" };
             string[] args = { "path", "constructor" };
+            CodeWriter.Field(builder, CodeWriter.Private, CodeWriter.Static, Base.Int, "_row");
             CodeWriter.Comments(builder, "constructor参数为指定类型的构造函数");
             CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, "List<T>", "Load<T>", types, args);
             CodeWriter.IntervalLevel(builder);
@@ -496,6 +496,8 @@ namespace ConfigGen.Export
             builder.AppendFormat("for (int i = 0; i < data.Count; i++)");
             CodeWriter.Start(builder);
             CodeWriter.IntervalLevel(builder);
+            builder.AppendFormat("_row = i;\n");
+            CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("list.Add({0}(data));\n", args[1]);
             CodeWriter.End(builder);
             CodeWriter.IntervalLevel(builder);
@@ -505,7 +507,23 @@ namespace ConfigGen.Export
 
             //加载所有配置
             CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "LoadAll");
-            builder.Append(loadAll);
+            CodeWriter.IntervalLevel(builder);
+            builder.AppendLine("string path = \"Data Path Empty\";");
+            CodeWriter.IntervalLevel(builder);
+            builder.Append("try");
+            CodeWriter.Start(builder);
+            for (int i = 0; i < loadAll.Count; i++)
+            {
+                CodeWriter.IntervalLevel(builder);
+                builder.Append(loadAll[i]);
+            }
+            CodeWriter.End(builder);
+            CodeWriter.IntervalLevel(builder);
+            builder.Append("catch (Exception e)");
+            CodeWriter.Start(builder);
+            CodeWriter.IntervalLevel(builder);
+            builder.AppendLine("UnityEngine.Debug.LogErrorFormat(\"{0}[r{3}]\\n{1}\\n{2}\", path, e.Message, e.StackTrace, _row);");
+            CodeWriter.End(builder);
             CodeWriter.End(builder);
             builder.AppendLine();
 

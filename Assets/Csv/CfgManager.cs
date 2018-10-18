@@ -11,7 +11,11 @@ namespace Cfg
 		/// <summary>
 		public static string ConfigDir;
 
+		public static readonly Dictionary<int, Cfg.AllType.AllClass> AllClass = new Dictionary<int, Cfg.AllType.AllClass>();
+		public static readonly Dictionary<string, Cfg.Character.Model> Model = new Dictionary<string, Cfg.Character.Model>();
+		public static readonly Dictionary<string, Cfg.Skill.ActorConfig> ActorConfig = new Dictionary<string, Cfg.Skill.ActorConfig>();
 
+		private static int _row;
 		/// <summary>
 		/// constructor参数为指定类型的构造函数
 		/// <summary>
@@ -26,6 +30,7 @@ namespace Cfg
 			List<T> list = new List<T>();
 			for (int i = 0; i < data.Count; i++)
 			{
+				_row = i;
 				list.Add(constructor(data));
 			}
 			return list;
@@ -33,10 +38,30 @@ namespace Cfg
 
 		public static void LoadAll()
 		{
+			string path = "Data Path Empty";
+			try
+			{
+				path = ConfigDir + "AllType/AllClass.data";
+				var allclasss = Load(path, (d) => new AllType.AllClass(d));
+				allclasss.ForEach(v => AllClass.Add(v.ID, v));
+				path = ConfigDir + "Character/Model.data";
+				var models = Load(path, (d) => new Character.Model(d));
+				models.ForEach(v => Model.Add(v.Name, v));
+				path = ConfigDir + "Skill/ActorConfig.data";
+				var actorconfigs = Load(path, (d) => new Skill.ActorConfig(d));
+				actorconfigs.ForEach(v => ActorConfig.Add(v.ModelName, v));
+			}
+			catch (Exception e)
+			{
+				UnityEngine.Debug.LogErrorFormat("{0}[r{3}]\n{1}\n{2}", path, e.Message, e.StackTrace, _row);
+			}
 		}
 
 		public static void Clear()
 		{
+			AllClass.Clear();
+			Model.Clear();
+			ActorConfig.Clear();
 		}
 
 	}

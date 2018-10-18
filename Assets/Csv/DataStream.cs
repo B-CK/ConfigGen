@@ -49,7 +49,7 @@ namespace Cfg
 		/// <summary>
 		public CfgObject GetObject(string fullName)
 		{
-			Type type = Type.GetType("Cfg." + fullName);
+			Type type = Type.GetType(fullName);
 			if (type == null)
 			{
 				UnityEngine.Debug.LogErrorFormat("DataStream 解析{0}类型失败!", fullName);

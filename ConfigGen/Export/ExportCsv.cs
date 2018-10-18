@@ -109,8 +109,8 @@ namespace ConfigGen.Export
                     else
                         builder.AppendFormat("{0}{1}", Values.CsvSplitFlag, value);
                 }
-                var polyClassType = classType.SubClassDict[polyType];
-                if (polyClassType != null)
+                var polyClassType = classType.GetSubClass(polyType);
+                if (polyClassType != null && classType != polyClassType)
                 {   //--子类字段
                     for (int j = 0; j < polyClassType.Fields.Count; j++)
                     {
@@ -122,10 +122,6 @@ namespace ConfigGen.Export
 
                         builder.AppendFormat("{0}{1}", Values.CsvSplitFlag, value);
                     }
-                }
-                else
-                {
-                    Util.LogErrorFormat("类型{0} 不存在或者未继承类型{1}", polyType, classType.GetFullName());
                 }
             }
             else
