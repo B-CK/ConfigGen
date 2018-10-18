@@ -610,6 +610,7 @@ namespace ConfigGen.LocalInfo
         public virtual string Des { get { return _des.Des; } }
         public virtual string Check { get { return _des.Check; } }
         public virtual string Group { get; private set; }
+        //public virtual string Split { get { return _des.Split; } }
 
         public virtual BaseTypeInfo Parent { get; private set; }
         public virtual BaseTypeInfo BaseInfo { get; private set; }

@@ -59,6 +59,8 @@ namespace ConfigGen.LocalInfo
         public string Des;
         [XmlAttribute]
         public string Group;
+        //[XmlAttribute]
+        //public string Split;
     }
     [XmlInclude(typeof(ConstDes))]
     public class ConstDes : FieldDes

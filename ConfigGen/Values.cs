@@ -81,6 +81,10 @@ namespace ConfigGen
         /// 数据表格Sheet名标识
         /// </summary>
         public const string ExcelSheetDataFlag = "#";
+        ///// <summary>
+        ///// List元素默认分隔符,元素类型仅支持基础类型
+        ///// </summary>
+        //public const string SetSplitFlag = ",";
         /// <summary>
         /// 数据填写扩展文件后缀名
         /// </summary>
