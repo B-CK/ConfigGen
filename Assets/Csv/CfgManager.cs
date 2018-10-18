@@ -11,8 +11,6 @@ namespace Cfg
 		/// <summary>
 		public static string ConfigDir;
 
-		public static readonly Dictionary<string, Cfg.Character.Model> Model = new Dictionary<string, Cfg.Character.Model>();
-		public static readonly Dictionary<string, Cfg.Skill.ActorConfig> ActorConfig = new Dictionary<string, Cfg.Skill.ActorConfig>();
 
 		/// <summary>
 		/// constructor参数为指定类型的构造函数
@@ -35,16 +33,10 @@ namespace Cfg
 
 		public static void LoadAll()
 		{
-			var models = Load(ConfigDir + "Character/Model.data", (d) => new Character.Model(d));
-			models.ForEach(v => Model.Add(v.Name, v));
-			var actorconfigs = Load(ConfigDir + "Skill/ActorConfig.data", (d) => new Skill.ActorConfig(d));
-			actorconfigs.ForEach(v => ActorConfig.Add(v.ModelName, v));
 		}
 
 		public static void Clear()
 		{
-			Model.Clear();
-			ActorConfig.Clear();
 		}
 
 	}

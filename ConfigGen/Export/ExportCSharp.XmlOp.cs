@@ -371,7 +371,6 @@ namespace ConfigGen.Export
             StringBuilder builder = new StringBuilder();
             List<string> writer = new List<string>();
             List<string> reader = new List<string>();
-            List<string> expliciter = new List<string>();
             List<BaseTypeInfo> typeInfos = new List<BaseTypeInfo>();
             typeInfos.AddRange(TypeInfo.Instance.ClassInfos);
             typeInfos.AddRange(TypeInfo.Instance.EnumInfos);
@@ -417,17 +416,12 @@ namespace ConfigGen.Export
                     for (int j = 0; j < classType.Fields.Count; j++)
                     {
                         FieldInfo field = classType.Fields[j];
+                        //--Write Function
                         if (field.BaseInfo.EType == TypeType.Enum)
-                        {
                             writer.Add(string.Format("Write(_1, \"{0}\", (int)this.{0});", field.Name));
-                            string fullType = CodeWriter.GetFullNamespace(Values.XmlRootNode, field.Type);
-                            expliciter.Add(string.Format("{0} = ({1})_1.{0},", field.Name, fullType));
-                        }
                         else
-                        {
                             writer.Add(string.Format("Write(_1, \"{0}\", this.{0});", field.Name));
-                            expliciter.Add(string.Format("{0} = _1.{0},", field.Name));
-                        }
+                        //--Read Function
                         switch (field.BaseInfo.EType)
                         {
                             case TypeType.Base:
@@ -554,24 +548,6 @@ namespace ConfigGen.Export
                             }
                         }
                         CodeWriter.End(builder);
-                    }
-                    CodeWriter.End(builder);
-                    builder.AppendLine();
-                    string cfgFullType = CodeWriter.GetFullNamespace(Values.ConfigRootNode, classType.GetFullName());
-                    CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, "explicit operator", classType.Name,
-                       new string[] { cfgFullType }, new string[] { "_1" });
-                    {
-                        CodeWriter.IntervalLevel(builder);
-                        builder.AppendFormat("return new {0}()", classType.Name);
-                        CodeWriter.Start(builder);
-                        {
-                            for (int i = 0; i < expliciter.Count; i++)
-                            {
-                                CodeWriter.IntervalLevel(builder);
-                                builder.AppendLine(expliciter[i]);
-                            }
-                        }
-                        CodeWriter.End(builder, true);
                     }
                     CodeWriter.End(builder);
                 }
