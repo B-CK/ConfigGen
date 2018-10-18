@@ -166,11 +166,14 @@ namespace ConfigGen.Export
             builder.AppendLine("{");
             _level++;
         }
-        public static void End(StringBuilder builder)
+        public static void End(StringBuilder builder, bool isStatement = false)
         {
             _level--;
             IntervalLevel(builder);
-            builder.AppendLine("}");
+            if (isStatement)
+                builder.AppendLine("};");
+            else
+                builder.AppendLine("}");
         }
         public static void EndAll(StringBuilder builder)
         {

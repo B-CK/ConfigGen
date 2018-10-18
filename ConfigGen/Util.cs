@@ -259,8 +259,16 @@ namespace ConfigGen
         }
         public static void TryDeleteDirectory(string path)
         {
-            if (Directory.Exists(path))
-                Directory.Delete(path, true);
+            if (!Directory.Exists(path)) return;
+
+            var fs = Directory.GetFiles(path, "*.*");
+            for (int i = 0; i < fs.Length; i++)
+                File.Delete(fs[i]);
+            var ds = Directory.GetDirectories(path, "*");
+            for (int i = 0; i < ds.Length; i++)
+                TryDeleteDirectory(ds[i]);
+
+            Directory.Delete(path, true);
         }
 
 

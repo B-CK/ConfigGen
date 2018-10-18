@@ -74,5 +74,28 @@ namespace XmlCfg.Skill
 				case "Timelines": GetChilds(_2).ForEach (_3 => this.Timelines.Add(ReadObject<XmlCfg.Skill.Timeline>(_3, "XmlCfg.Skill.Timeline"))); break;
 			}
 		}
+
+		public static explicit operator GeneralAction(Cfg.Skill.GeneralAction _1)
+		{
+			return new GeneralAction()
+			{
+				Name = _1.Name,
+				GroupType = (XmlCfg.Character.GroupType)_1.GroupType,
+				Level = _1.Level,
+				ModelName = _1.ModelName,
+				BaseModelName = _1.BaseModelName,
+				GeneralActions = _1.GeneralActions,
+				SkillActions = _1.SkillActions,
+				ActionName = _1.ActionName,
+				IsFromOther = _1.IsFromOther,
+				OtherModelName = _1.OtherModelName,
+				ActionFile = _1.ActionFile,
+				PreActionFile = _1.PreActionFile,
+				PostActionFile = _1.PostActionFile,
+				ActionSpeed = _1.ActionSpeed,
+				LoopTimes = _1.LoopTimes,
+				Timelines = _1.Timelines,
+			};
+		}
 	}
 }

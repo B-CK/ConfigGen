@@ -38,5 +38,15 @@ namespace XmlCfg.Character
 				case "Level": this.Level = ReadInt(_2); break;
 			}
 		}
+
+		public static explicit operator Model(Cfg.Character.Model _1)
+		{
+			return new Model()
+			{
+				Name = _1.Name,
+				GroupType = (XmlCfg.Character.GroupType)_1.GroupType,
+				Level = _1.Level,
+			};
+		}
 	}
 }

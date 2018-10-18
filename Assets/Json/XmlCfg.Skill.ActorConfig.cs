@@ -44,5 +44,19 @@ namespace XmlCfg.Skill
 				case "SkillActions": GetChilds(_2).ForEach (_3 => this.SkillActions.Add(ReadDynamicObject<XmlCfg.Skill.SkillAction>(_3, "Skill"))); break;
 			}
 		}
+
+		public static explicit operator ActorConfig(Cfg.Skill.ActorConfig _1)
+		{
+			return new ActorConfig()
+			{
+				Name = _1.Name,
+				GroupType = (XmlCfg.Character.GroupType)_1.GroupType,
+				Level = _1.Level,
+				ModelName = _1.ModelName,
+				BaseModelName = _1.BaseModelName,
+				GeneralActions = _1.GeneralActions,
+				SkillActions = _1.SkillActions,
+			};
+		}
 	}
 }
