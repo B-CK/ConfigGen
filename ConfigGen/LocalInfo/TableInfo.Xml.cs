@@ -72,7 +72,7 @@ namespace ConfigGen.LocalInfo
         private Data AnalyzeBase(XmlElement data, FieldInfo info)
         {
             DataBase dataBase = new DataBase();
-            dataBase.Data = data.Value;
+            dataBase.Data = data.InnerText;
             return dataBase;
         }
         private Data AnalyzeEnum(XmlElement data, FieldInfo info)

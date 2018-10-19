@@ -11,8 +11,6 @@ namespace Cfg
 		/// <summary>
 		public static string ConfigDir;
 
-		public static readonly Dictionary<int, Cfg.AllType.AllClass> AllClass = new Dictionary<int, Cfg.AllType.AllClass>();
-		public static readonly Dictionary<string, Cfg.Character.Model> Model = new Dictionary<string, Cfg.Character.Model>();
 		public static readonly Dictionary<string, Cfg.Skill.ActorConfig> ActorConfig = new Dictionary<string, Cfg.Skill.ActorConfig>();
 
 		private static int _row;
@@ -41,12 +39,6 @@ namespace Cfg
 			string path = "Data Path Empty";
 			try
 			{
-				path = ConfigDir + "AllType/AllClass.data";
-				var allclasss = Load(path, (d) => new AllType.AllClass(d));
-				allclasss.ForEach(v => AllClass.Add(v.ID, v));
-				path = ConfigDir + "Character/Model.data";
-				var models = Load(path, (d) => new Character.Model(d));
-				models.ForEach(v => Model.Add(v.Name, v));
 				path = ConfigDir + "Skill/ActorConfig.data";
 				var actorconfigs = Load(path, (d) => new Skill.ActorConfig(d));
 				actorconfigs.ForEach(v => ActorConfig.Add(v.ModelName, v));
@@ -59,8 +51,6 @@ namespace Cfg
 
 		public static void Clear()
 		{
-			AllClass.Clear();
-			Model.Clear();
 			ActorConfig.Clear();
 		}
 
