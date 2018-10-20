@@ -50,10 +50,11 @@ namespace ConfigGen.Export
         public static void ClassChild(StringBuilder builder, string modifier, string identification, string className, string inhert)
         {
             IntervalLevel(builder);
+            identification = string.IsNullOrWhiteSpace(identification) ? "" : " " + identification;
             if (string.IsNullOrWhiteSpace(inhert))
-                builder.AppendFormat("{0} {1} class {2}", modifier, identification, className);
+                builder.AppendFormat("{0}{1} class {2}", modifier, identification, className);
             else
-                builder.AppendFormat("{0} {1} class {2} : {3}", modifier, identification, className, inhert);
+                builder.AppendFormat("{0}{1} class {2} : {3}", modifier, identification, className, inhert);
             Start(builder);
         }
         public static void Field(StringBuilder builder, string modifier, string type, string fieldName)

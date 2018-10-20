@@ -317,7 +317,7 @@ namespace ConfigGen.Export
             CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("if (_rows.Length > 0)\n");
             CodeWriter.IntervalLevel(builder);
-            builder.AppendFormat("{0} = {1}[{2}].Split(\"{3}\".ToCharArray(),  StringSplitOptions.RemoveEmptyEntries);\n",
+            builder.AppendFormat("{0} = {1}[{2}].Split(\"{3}\".ToCharArray());\n",
                 fColumns, fRows, fRIndex, Values.CsvSplitFlag);
             CodeWriter.End(builder);
             builder.AppendLine();
@@ -398,7 +398,7 @@ namespace ConfigGen.Export
             CodeWriter.IntervalLevel(builder);
             builder.AppendFormat("{0} = 0;\n", fCIndex);
             CodeWriter.IntervalLevel(builder);
-            builder.AppendFormat("{0} = {1}[{2}].Split(\"{3}\".ToCharArray(),  StringSplitOptions.RemoveEmptyEntries);\n",
+            builder.AppendFormat("{0} = {1}[{2}].Split(\"{3}\".ToCharArray());\n",
                 fColumns, fRows, fRIndex, Values.CsvSplitFlag);
             CodeWriter.End(builder);
             builder.AppendLine();
