@@ -4,7 +4,7 @@ using Cfg;
 
 namespace Cfg.Skill
 {
-	public  class CubeZone : Cfg.Skill.HitZone
+	public class CubeZone : Cfg.Skill.HitZone
 	{
 		/// <summary>
 		/// 方盒缩放大小
@@ -13,7 +13,7 @@ namespace Cfg.Skill
 
 		public CubeZone(DataStream data) : base(data)
 		{
-			this.Scale = (Vector3)data.GetObject(data.GetString());
+			this.Scale = new Vector3(data);
 		}
 	}
 }

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class Active : XmlCfg.Skill.Controller
+	public class Active : XmlCfg.Skill.Controller
 	{
 		/// <summary>
 		/// 对象激活隐藏控制
@@ -15,11 +15,13 @@ namespace XmlCfg.Skill
 
 		public override void Write(TextWriter _1)
 		{
+			base.Write(_1);
 			Write(_1, "Enable", this.Enable);
 		}
 
 		public override void Read(XmlNode _1)
 		{
+			base.Read(_1);
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{

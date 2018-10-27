@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class HitZone : XmlObject
+	public class HitZone : XmlObject
 	{
 		/// <summary>
 		/// 打击区域id

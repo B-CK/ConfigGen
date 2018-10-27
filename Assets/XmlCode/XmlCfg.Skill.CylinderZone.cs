@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class CylinderZone : XmlCfg.Skill.HitZone
+	public class CylinderZone : XmlCfg.Skill.HitZone
 	{
 		/// <summary>
 		/// 圆半径
@@ -23,6 +23,7 @@ namespace XmlCfg.Skill
 
 		public override void Write(TextWriter _1)
 		{
+			base.Write(_1);
 			Write(_1, "Radius", this.Radius);
 			Write(_1, "Height", this.Height);
 			Write(_1, "Angle", this.Angle);
@@ -30,6 +31,7 @@ namespace XmlCfg.Skill
 
 		public override void Read(XmlNode _1)
 		{
+			base.Read(_1);
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{

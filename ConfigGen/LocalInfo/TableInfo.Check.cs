@@ -154,23 +154,6 @@ namespace ConfigGen.LocalInfo
                         CheckField(field, dataColum);
                     }
                 }
-                //foreach (var polyType in classType.GetSubClassEnumerator())
-                //{
-                //    List<FieldInfo> fields = polyType.Value.Fields;
-                //    for (int column = 0; column < fields.Count; column++)//列
-                //    {
-                //        FieldInfo field = fields[column];
-                //        List<Data> dataColum = new List<Data>();
-                //        for (int row = 0; row < datas.Count; row++)//行
-                //        {
-                //            DataClass dataClass = datas[row] as DataClass;
-                //            if (dataClass.Fields.ContainsKey(field.Name))
-                //                dataColum.Add(dataClass.Fields[field.Name]);
-                //        }
-
-                //        CheckField(field, dataColum);
-                //    }
-                //}
             }
         }
         static void CheckList(FieldInfo info, List<Data> datas)

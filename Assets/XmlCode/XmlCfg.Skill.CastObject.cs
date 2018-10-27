@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class CastObject : XmlCfg.Skill.Controller
+	public class CastObject : XmlCfg.Skill.Controller
 	{
 		/// <summary>
 		/// 是否追踪目标
@@ -31,6 +31,7 @@ namespace XmlCfg.Skill
 
 		public override void Write(TextWriter _1)
 		{
+			base.Write(_1);
 			Write(_1, "IsTraceTarget", this.IsTraceTarget);
 			Write(_1, "CurveId", this.CurveId);
 			Write(_1, "PassBody", this.PassBody);
@@ -40,6 +41,7 @@ namespace XmlCfg.Skill
 
 		public override void Read(XmlNode _1)
 		{
+			base.Read(_1);
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{

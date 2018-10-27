@@ -156,7 +156,7 @@ namespace ConfigGen.LocalInfo
             {
                 string polyClass = dt.Rows[row][column].ToString();
                 BaseTypeInfo bti = TypeInfo.GetBaseTypeInfo(classType.NamespaceName, polyClass);
-                if (bti != null && classType.GetSubClass(bti.GetFullName()) != null || bti == classType)
+                if (bti != null && classType.IsPolyClass)
                 {
                     dataClass.Type = bti.GetFullName();
                     subClassType = bti as ClassTypeInfo;

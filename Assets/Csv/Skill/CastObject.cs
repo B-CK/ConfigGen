@@ -4,7 +4,7 @@ using Cfg;
 
 namespace Cfg.Skill
 {
-	public  class CastObject : Cfg.Skill.Controller
+	public class CastObject : Cfg.Skill.Controller
 	{
 		/// <summary>
 		/// 是否追踪目标
@@ -32,8 +32,8 @@ namespace Cfg.Skill
 			this.IsTraceTarget = data.GetBool();
 			this.CurveId = data.GetInt();
 			this.PassBody = data.GetBool();
-			this.Position = (Vector3)data.GetObject(data.GetString());
-			this.EulerAngles = (Vector3)data.GetObject(data.GetString());
+			this.Position = new Vector3(data);
+			this.EulerAngles = new Vector3(data);
 		}
 	}
 }

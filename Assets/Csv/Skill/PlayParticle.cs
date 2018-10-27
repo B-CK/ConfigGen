@@ -4,7 +4,7 @@ using Cfg;
 
 namespace Cfg.Skill
 {
-	public  class PlayParticle : Cfg.Skill.Timeline
+	public class PlayParticle : Cfg.Skill.Timeline
 	{
 		/// <summary>
 		/// 粒子资源的路径
@@ -45,9 +45,9 @@ namespace Cfg.Skill
 			this.IsRelateSelf = data.GetBool();
 			this.FollowDir = data.GetBool();
 			this.NodeName = data.GetString();
-			this.Position = (Vector3)data.GetObject(data.GetString());
-			this.EulerAngles = (Vector3)data.GetObject(data.GetString());
-			this.Scale = (Vector3)data.GetObject(data.GetString());
+			this.Position = new Vector3(data);
+			this.EulerAngles = new Vector3(data);
+			this.Scale = new Vector3(data);
 			this.AlignType = data.GetInt();
 		}
 	}

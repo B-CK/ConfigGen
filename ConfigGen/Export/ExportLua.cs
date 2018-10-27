@@ -77,7 +77,7 @@ namespace ConfigGen.Export
                             break;
                         case TypeType.Class:
                             ClassTypeInfo classTypeField = baseType as ClassTypeInfo;
-                            if (classTypeField.Inherit != null)
+                            if (classTypeField.IsPolyClass)
                             {
                                 dsLoopBuilder.AppendFormat("\tlocal _{0} = '{1}' .. self:GetString()\n", field.Name, Values.ConfigRootNode);
                                 dsLoopBuilder.AppendFormat("\to.{0} = self:GetObject(_{0})\n", field.Name);

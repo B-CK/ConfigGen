@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class ActorConfig : XmlObject
+	public class ActorConfig : XmlObject
 	{
 		/// <summary>
 		/// 模型名称

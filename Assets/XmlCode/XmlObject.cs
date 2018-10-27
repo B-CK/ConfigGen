@@ -101,7 +101,7 @@ namespace XmlCfg
 			}
 			catch (Exception e)
 			{
-				throw new Exception(string.Format("type:{0}create fail!", type), e);
+				throw new Exception(string.Format("type:{0} create fail!", type), e);
 			}
 		}
 
@@ -132,7 +132,7 @@ namespace XmlCfg
 
 		public static void Write(TextWriter os, string name, XmlObject x)
 		{
-			os.WriteLine("<{0} type =\"{1}\">", name, x.GetType().Name);
+			os.WriteLine("<{0} Type =\"{1}\">", name, x.GetType().Name);
 			x.Write(os);
 			os.WriteLine("</{0}>", name);
 		}

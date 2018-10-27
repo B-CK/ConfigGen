@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class CubeZone : XmlCfg.Skill.HitZone
+	public class CubeZone : XmlCfg.Skill.HitZone
 	{
 		/// <summary>
 		/// 方盒缩放大小
@@ -15,11 +15,13 @@ namespace XmlCfg.Skill
 
 		public override void Write(TextWriter _1)
 		{
+			base.Write(_1);
 			Write(_1, "Scale", this.Scale);
 		}
 
 		public override void Read(XmlNode _1)
 		{
+			base.Read(_1);
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{

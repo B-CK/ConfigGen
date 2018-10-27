@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class ShakeScreen : XmlCfg.Skill.Timeline
+	public class ShakeScreen : XmlCfg.Skill.Timeline
 	{
 		/// <summary>
 		/// 震屏方式:0水平 1垂直 2混合
@@ -43,6 +43,7 @@ namespace XmlCfg.Skill
 
 		public override void Write(TextWriter _1)
 		{
+			base.Write(_1);
 			Write(_1, "Type", (int)this.Type);
 			Write(_1, "Frequency", this.Frequency);
 			Write(_1, "FrequencyDuration", this.FrequencyDuration);
@@ -55,6 +56,7 @@ namespace XmlCfg.Skill
 
 		public override void Read(XmlNode _1)
 		{
+			base.Read(_1);
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{

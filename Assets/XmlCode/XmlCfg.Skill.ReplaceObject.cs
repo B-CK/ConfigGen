@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class ReplaceObject : XmlCfg.Skill.Controller
+	public class ReplaceObject : XmlCfg.Skill.Controller
 	{
 		/// <summary>
 		/// 新对象
@@ -23,6 +23,7 @@ namespace XmlCfg.Skill
 
 		public override void Write(TextWriter _1)
 		{
+			base.Write(_1);
 			Write(_1, "NewObject", this.NewObject);
 			Write(_1, "Offset", this.Offset);
 			Write(_1, "EulerAngles", this.EulerAngles);
@@ -30,6 +31,7 @@ namespace XmlCfg.Skill
 
 		public override void Read(XmlNode _1)
 		{
+			base.Read(_1);
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{

@@ -4,7 +4,7 @@ using Cfg;
 
 namespace Cfg.Skill
 {
-	public  class ReplaceObject : Cfg.Skill.Controller
+	public class ReplaceObject : Cfg.Skill.Controller
 	{
 		/// <summary>
 		/// 新对象
@@ -22,8 +22,8 @@ namespace Cfg.Skill
 		public ReplaceObject(DataStream data) : base(data)
 		{
 			this.NewObject = data.GetString();
-			this.Offset = (Vector3)data.GetObject(data.GetString());
-			this.EulerAngles = (Vector3)data.GetObject(data.GetString());
+			this.Offset = new Vector3(data);
+			this.EulerAngles = new Vector3(data);
 		}
 	}
 }

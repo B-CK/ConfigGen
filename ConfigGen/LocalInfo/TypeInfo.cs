@@ -356,6 +356,13 @@ namespace ConfigGen.LocalInfo
     /// </summary>
     public class ClassTypeInfo : BaseTypeInfo
     {
+        public enum InhertState
+        {
+            NonPolyClass,//-非多态类型
+            PolyParent,//-多态类型:基类
+            PolyChild,//多态类型:子类
+        }
+
         public string Index { get { return _des.Index; } }
         /// <summary>
         /// Excel或者Xml等全路径
@@ -371,9 +378,13 @@ namespace ConfigGen.LocalInfo
         }
         public string Group { get; private set; }
         /// <summary>
+        /// 类的继承状态信息
+        /// </summary>
+        public InhertState InhertType { get; private set; }
+        /// <summary>
         /// 是多态类型
         /// </summary>
-        public bool IsPolyClass { get { return _subClassDict.Count > 0; } }
+        public bool IsPolyClass { get { return InhertType == InhertState.PolyChild || InhertType == InhertState.PolyParent; } }
         public List<ConstInfo> Consts { get; private set; }
         public List<FieldInfo> Fields { get; private set; }
         public Dictionary<string, ConstInfo> ConstDict { get; private set; }
@@ -384,7 +395,7 @@ namespace ConfigGen.LocalInfo
 
         //继承功能:父类查找,优先查找当前命名空间;其次直接当做全路径类型查找
         //一般子类与父类在同一命名空间,否则需要填写全路径名
-        private Dictionary<string, ClassTypeInfo> _subClassDict;
+        private Dictionary<string, ClassTypeInfo> _allClassDict;
 
         private ClassDes _des;
         public ClassTypeInfo(string xmlDir, string namespace0, ClassDes des) : base(namespace0, des.Name)
@@ -410,7 +421,7 @@ namespace ConfigGen.LocalInfo
             UpdateFieldDict();
             GroupHashSet = TypeInfo.AnalyzeGroup(Group);
 
-            _subClassDict = new Dictionary<string, ClassTypeInfo>() { { GetFullName(), this } };
+            _allClassDict = new Dictionary<string, ClassTypeInfo>() { { GetFullName(), this } };
             if (!string.IsNullOrWhiteSpace(inherit))
             {
                 string localSpace = Util.Combine(NamespaceName, inherit);
@@ -423,8 +434,8 @@ namespace ConfigGen.LocalInfo
                     return;
                 }
                 string fullName = GetFullName();
-                if (!Inherit._subClassDict.ContainsKey(fullName))
-                    Inherit._subClassDict.Add(fullName, this);
+                if (!Inherit._allClassDict.ContainsKey(fullName))
+                    Inherit._allClassDict.Add(fullName, this);
             }
         }
         public override void Init()
@@ -443,6 +454,13 @@ namespace ConfigGen.LocalInfo
                 Consts[i].Init();
             for (int i = 0; i < Fields.Count; i++)
                 Fields[i].Init();
+
+            if (_allClassDict.Count == 1 && Inherit == null)
+                InhertType = InhertState.NonPolyClass;
+            else if (_allClassDict.Count > 1 && Inherit == null)
+                InhertType = InhertState.PolyParent;
+            else if (Inherit != null)
+                InhertType = InhertState.PolyChild;
         }
         public void UpdateFieldDict()
         {
@@ -477,14 +495,14 @@ namespace ConfigGen.LocalInfo
 
         public ClassTypeInfo GetSubClass(string fullName)
         {
-            if (_subClassDict.ContainsKey(fullName))
-                return _subClassDict[fullName];
+            if (_allClassDict.ContainsKey(fullName))
+                return _allClassDict[fullName];
             else
                 return null;
         }
         public IEnumerator GetSubClassEnumerator()
         {
-            return _subClassDict.GetEnumerator();
+            return _allClassDict.GetEnumerator();
         }
     }
     public class EnumTypeInfo : BaseTypeInfo

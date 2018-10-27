@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class Move : XmlCfg.Skill.Controller
+	public class Move : XmlCfg.Skill.Controller
 	{
 		/// <summary>
 		/// 移动方式:0向目标移动 1按指定方向移动
@@ -31,6 +31,7 @@ namespace XmlCfg.Skill
 
 		public override void Write(TextWriter _1)
 		{
+			base.Write(_1);
 			Write(_1, "Type", (int)this.Type);
 			Write(_1, "IsRelateSelf", this.IsRelateSelf);
 			Write(_1, "Offset", this.Offset);
@@ -40,6 +41,7 @@ namespace XmlCfg.Skill
 
 		public override void Read(XmlNode _1)
 		{
+			base.Read(_1);
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{

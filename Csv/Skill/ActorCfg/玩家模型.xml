@@ -1,5 +1,5 @@
-<Root type ="ActorConfig">
-<ModelName>卓洛</ModelName>
+<Root Type ="ActorConfig">
+<ModelName>玩家模型</ModelName>
 <BaseModelName></BaseModelName>
 <GeneralActions>
 </GeneralActions>

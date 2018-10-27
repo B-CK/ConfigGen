@@ -110,7 +110,7 @@ namespace ConfigGen.Export
                         builder.AppendFormat("{0}{1}", Values.CsvSplitFlag, value);
                 }
                 var polyClassType = classType.GetSubClass(polyType);
-                if (polyClassType != null && classType != polyClassType)
+                if (polyClassType != null && polyClassType.InhertType == ClassTypeInfo.InhertState.PolyChild)
                 {   //--子类字段
                     for (int j = 0; j < polyClassType.Fields.Count; j++)
                     {

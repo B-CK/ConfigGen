@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class Timeline : XmlObject
+	public class Timeline : XmlObject
 	{
 		/// <summary>
 		/// 起始帧

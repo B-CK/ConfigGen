@@ -6,16 +6,12 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class GeneralAction : XmlObject
+	public class GeneralAction : XmlObject
 	{
 		/// <summary>
 		/// 行为名称
 		/// <summary>
 		public string ActionName = "";
-		/// <summary>
-		/// 动作来源
-		/// <summary>
-		public bool IsFromOther;
 		/// <summary>
 		/// 其他模型名称,用于套用其他模型动作
 		/// <summary>
@@ -23,7 +19,7 @@ namespace XmlCfg.Skill
 		/// <summary>
 		/// 绑定的动作名称
 		/// <summary>
-		public string ActionFile = "";
+		public string ActionClip = "";
 		/// <summary>
 		/// 前摇动作名称
 		/// <summary>
@@ -48,9 +44,8 @@ namespace XmlCfg.Skill
 		public override void Write(TextWriter _1)
 		{
 			Write(_1, "ActionName", this.ActionName);
-			Write(_1, "IsFromOther", this.IsFromOther);
 			Write(_1, "OtherModelName", this.OtherModelName);
-			Write(_1, "ActionFile", this.ActionFile);
+			Write(_1, "ActionClip", this.ActionClip);
 			Write(_1, "PreActionFile", this.PreActionFile);
 			Write(_1, "PostActionFile", this.PostActionFile);
 			Write(_1, "ActionSpeed", this.ActionSpeed);
@@ -64,9 +59,8 @@ namespace XmlCfg.Skill
 			switch (_2.Name)
 			{
 				case "ActionName": this.ActionName = ReadString(_2); break;
-				case "IsFromOther": this.IsFromOther = ReadBool(_2); break;
 				case "OtherModelName": this.OtherModelName = ReadString(_2); break;
-				case "ActionFile": this.ActionFile = ReadString(_2); break;
+				case "ActionClip": this.ActionClip = ReadString(_2); break;
 				case "PreActionFile": this.PreActionFile = ReadString(_2); break;
 				case "PostActionFile": this.PostActionFile = ReadString(_2); break;
 				case "ActionSpeed": this.ActionSpeed = ReadFloat(_2); break;

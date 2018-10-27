@@ -4,7 +4,7 @@ using Cfg;
 
 namespace Cfg.Skill
 {
-	public  class Move : Cfg.Skill.Controller
+	public class Move : Cfg.Skill.Controller
 	{
 		/// <summary>
 		/// 移动方式:0向目标移动 1按指定方向移动
@@ -31,7 +31,7 @@ namespace Cfg.Skill
 		{
 			this.Type = data.GetInt();
 			this.IsRelateSelf = data.GetBool();
-			this.Offset = (Vector3)data.GetObject(data.GetString());
+			this.Offset = new Vector3(data);
 			this.Angle = data.GetFloat();
 			this.Speed = data.GetFloat();
 		}

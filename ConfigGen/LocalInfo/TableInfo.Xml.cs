@@ -97,7 +97,7 @@ namespace ConfigGen.LocalInfo
                 dataClass.Fields.Add(fieldInfo.Name, dataField);
             }
 
-            if (classType.Inherit != null)
+            if (classType.IsPolyClass)
             {
                 XmlAttribute polymorphism = data.GetAttributeNode(Values.PolymorphismFlag);
                 ClassTypeInfo polyType = classType.GetSubClass(polymorphism.Value);

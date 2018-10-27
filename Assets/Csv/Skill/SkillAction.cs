@@ -4,7 +4,7 @@ using Cfg;
 
 namespace Cfg.Skill
 {
-	public  class SkillAction : Cfg.Skill.GeneralAction
+	public class SkillAction : Cfg.Skill.GeneralAction
 	{
 		/// <summary>
 		/// 默认后续技能使用期限,用于单个技能多段输出
@@ -60,7 +60,7 @@ namespace Cfg.Skill
 			for (int n = data.GetInt(); n-- > 0;)
 			{
 				int k = data.GetInt();
-				this.SequenceDict[k] = (Sequence)data.GetObject(data.GetString());
+				this.SequenceDict[k] = new Sequence(data);
 			}
 		}
 	}

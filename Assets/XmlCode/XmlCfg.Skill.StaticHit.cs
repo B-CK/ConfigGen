@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class StaticHit : XmlCfg.Skill.Timeline
+	public class StaticHit : XmlCfg.Skill.Timeline
 	{
 		/// <summary>
 		/// 碰撞区域
@@ -19,12 +19,14 @@ namespace XmlCfg.Skill
 
 		public override void Write(TextWriter _1)
 		{
+			base.Write(_1);
 			Write(_1, "Zone", this.Zone);
 			Write(_1, "SequeueID", this.SequeueID);
 		}
 
 		public override void Read(XmlNode _1)
 		{
+			base.Read(_1);
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{

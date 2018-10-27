@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class PlayParticle : XmlCfg.Skill.Timeline
+	public class PlayParticle : XmlCfg.Skill.Timeline
 	{
 		/// <summary>
 		/// 粒子资源的路径
@@ -43,6 +43,7 @@ namespace XmlCfg.Skill
 
 		public override void Write(TextWriter _1)
 		{
+			base.Write(_1);
 			Write(_1, "Path", this.Path);
 			Write(_1, "IsRelateSelf", this.IsRelateSelf);
 			Write(_1, "FollowDir", this.FollowDir);
@@ -55,6 +56,7 @@ namespace XmlCfg.Skill
 
 		public override void Read(XmlNode _1)
 		{
+			base.Read(_1);
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class Sequence : XmlObject
+	public class Sequence : XmlObject
 	{
 		/// <summary>
 		/// 序列ID

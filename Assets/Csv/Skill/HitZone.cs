@@ -4,7 +4,7 @@ using Cfg;
 
 namespace Cfg.Skill
 {
-	public  class HitZone : CfgObject
+	public class HitZone : CfgObject
 	{
 		/// <summary>
 		/// 打击区域id
@@ -27,7 +27,7 @@ namespace Cfg.Skill
 		{
 			this.Id = data.GetInt();
 			this.Sharp = data.GetInt();
-			this.Offset = (Vector3)data.GetObject(data.GetString());
+			this.Offset = new Vector3(data);
 			this.MaxNum = data.GetInt();
 		}
 	}

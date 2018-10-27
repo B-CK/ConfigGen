@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg.Skill
 {
-	public  class SkillAction : XmlCfg.Skill.GeneralAction
+	public class SkillAction : XmlCfg.Skill.GeneralAction
 	{
 		/// <summary>
 		/// 默认后续技能使用期限,用于单个技能多段输出
@@ -51,6 +51,7 @@ namespace XmlCfg.Skill
 
 		public override void Write(TextWriter _1)
 		{
+			base.Write(_1);
 			Write(_1, "SkillExpireTime", this.SkillExpireTime);
 			Write(_1, "SkillEndTime", this.SkillEndTime);
 			Write(_1, "CanInterrupt", this.CanInterrupt);
@@ -64,6 +65,7 @@ namespace XmlCfg.Skill
 
 		public override void Read(XmlNode _1)
 		{
+			base.Read(_1);
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{
@@ -75,7 +77,7 @@ namespace XmlCfg.Skill
 				case "CanShowSkillRange": this.CanShowSkillRange = ReadBool(_2); break;
 				case "CanRotate": this.CanRotate = ReadBool(_2); break;
 				case "CanMove": this.CanMove = ReadBool(_2); break;
-				case "SequenceDict": GetChilds(_2).ForEach (_3 => this.SequenceDict.Add(ReadInt(GetOnlyChild(_3, "Key")), ReadObject<XmlCfg.Skill.Sequence>(_3, "XmlCfg.Skill.Sequence"))); break;
+				case "SequenceDict": GetChilds(_2).ForEach (_3 => this.SequenceDict.Add(ReadInt(GetOnlyChild(_3, "Key")), ReadObject<XmlCfg.Skill.Sequence>(GetOnlyChild(_3, "Value"), "XmlCfg.Skill.Sequence"))); break;
 			}
 		}
 	}

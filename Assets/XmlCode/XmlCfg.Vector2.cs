@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace XmlCfg
 {
-	public  class Vector2 : XmlObject
+	public class Vector2 : XmlObject
 	{
 		/// <summary>
 		/// 
