@@ -29,7 +29,6 @@ namespace ConfigGen.Export
                     }
                 }
 
-
                 string fileName = item.Value.ClassTypeInfo.GetFullName().Replace(".", "/");
                 string filePath = string.Format("{0}\\{1}{2}", Values.ExportCsv, fileName, Values.CsvFileExt);
                 Util.SaveFile(filePath, builder.ToString());
@@ -37,7 +36,7 @@ namespace ConfigGen.Export
             }
         }
 
-        private static string AnalyzeField(FieldInfo info, Data data, bool isNesting = false)
+        private static string AnalyzeField(FieldInfo info, Data data)
         {
             string v = "";
             BaseTypeInfo typeInfo = info.BaseInfo;
@@ -72,7 +71,7 @@ namespace ConfigGen.Export
                     v = enumData.Data as string;
                     break;
                 case TypeType.Class:
-                    v = AnalyzeClass(info, data, isNesting);
+                    v = AnalyzeClass(info, data);
                     break;
                 case TypeType.List:
                     v = AnalyzeList(info, data);
@@ -86,7 +85,7 @@ namespace ConfigGen.Export
             }
             return v;
         }
-        private static string AnalyzeClass(FieldInfo info, Data data, bool isNesting = false)
+        private static string AnalyzeClass(FieldInfo info, Data data)
         {
             StringBuilder builder = new StringBuilder();
             DataClass dataClass = data as DataClass;
@@ -95,51 +94,60 @@ namespace ConfigGen.Export
             {
                 string polyType = dataClass.Type;
                 builder.AppendFormat("{0}.{1}{2}", Values.ConfigRootNode, polyType, Values.CsvSplitFlag);
-                //--父类字段
-                for (int j = 0; j < classType.Fields.Count; j++)
-                {
-                    FieldInfo fieldInfo = classType.Fields[j];
-                    Data dataBase = dataClass.Fields[fieldInfo.Name];
-                    string value = AnalyzeField(fieldInfo, dataBase);
-                    if (isNesting && value.Equals(Values.DataSetEndFlag))
-                        return Values.DataSetEndFlag;
 
-                    if (j == 0)
-                        builder.AppendFormat("{0}", value);
-                    else
-                        builder.AppendFormat("{0}{1}", Values.CsvSplitFlag, value);
-                }
-                var polyClassType = classType.GetSubClass(polyType);
-                if (polyClassType != null && polyClassType.InhertType == ClassTypeInfo.InhertState.PolyChild)
+                AnalyzeParentClass(classType, dataClass, builder);
+                var subClassType = classType.GetSubClass(polyType);
+                if (!classType.IsTheSame(subClassType))
                 {   //--子类字段
-                    for (int j = 0; j < polyClassType.Fields.Count; j++)
+                    builder.Append(Values.CsvSplitFlag);
+                    for (int j = 0; j < subClassType.Fields.Count; j++)
                     {
-                        FieldInfo fieldInfo = polyClassType.Fields[j];
+                        FieldInfo fieldInfo = subClassType.Fields[j];
                         Data dataBase = dataClass.Fields[fieldInfo.Name];
                         string value = AnalyzeField(fieldInfo, dataBase);
-                        if (isNesting && value.Equals(Values.DataSetEndFlag))
-                            return Values.DataSetEndFlag;
-
-                        builder.AppendFormat("{0}{1}", Values.CsvSplitFlag, value);
+                        if (j + 1 == subClassType.Fields.Count)
+                            builder.AppendFormat(value);
+                        else
+                            builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
                     }
                 }
             }
             else
+            {
+                AnalyzeParentClass(classType, dataClass, builder);
+            }
+            return builder.ToString();
+        }
+        private static void AnalyzeParentClass(ClassTypeInfo classType, DataClass dataClass, StringBuilder builder)
+        {
+            ClassTypeInfo parentClassType = classType.Inherit;
+            if (parentClassType == null)
             {
                 for (int j = 0; j < classType.Fields.Count; j++)
                 {
                     FieldInfo fieldInfo = classType.Fields[j];
                     Data dataBase = dataClass.Fields[fieldInfo.Name];
                     string value = AnalyzeField(fieldInfo, dataBase);
-                    if (isNesting && value.Equals(Values.DataSetEndFlag))
-                        return Values.DataSetEndFlag;
                     if (j + 1 == classType.Fields.Count)
                         builder.AppendFormat(value);
                     else
                         builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
                 }
+                return;
             }
-            return builder.ToString();
+
+            AnalyzeParentClass(parentClassType, dataClass, builder);
+            builder.Append(Values.CsvSplitFlag);
+            for (int j = 0; j < classType.Fields.Count; j++)
+            {
+                FieldInfo fieldInfo = classType.Fields[j];
+                Data dataBase = dataClass.Fields[fieldInfo.Name];
+                string value = AnalyzeField(fieldInfo, dataBase);
+                if (j + 1 == classType.Fields.Count)
+                    builder.AppendFormat(value);
+                else
+                    builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
+            }
         }
         private static string AnalyzeList(FieldInfo info, Data data)
         {
@@ -151,7 +159,7 @@ namespace ConfigGen.Export
             var elements = dataList.Elements;
             for (int i = 0; i < elements.Count; i++)
             {
-                string value = AnalyzeField(elementInfo, elements[i], true);
+                string value = AnalyzeField(elementInfo, elements[i]);
                 if (!value.Equals(Values.DataSetEndFlag))
                 {
                     if (i + 1 == elements.Count)

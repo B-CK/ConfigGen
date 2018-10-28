@@ -19,11 +19,11 @@ namespace XmlCfg.Skill
 		/// <summary>
 		/// 普通动作
 		/// <summary>
-		public List<GeneralAction> GeneralActions = new List<GeneralAction>();
+		public Dictionary<string, GeneralAction> GeneralActions = new Dictionary<string, GeneralAction>();
 		/// <summary>
 		/// 技能动作
 		/// <summary>
-		public List<SkillAction> SkillActions = new List<SkillAction>();
+		public Dictionary<string, SkillAction> SkillActions = new Dictionary<string, SkillAction>();
 
 		public override void Write(TextWriter _1)
 		{
@@ -40,8 +40,8 @@ namespace XmlCfg.Skill
 			{
 				case "ModelName": this.ModelName = ReadString(_2); break;
 				case "BaseModelName": this.BaseModelName = ReadString(_2); break;
-				case "GeneralActions": GetChilds(_2).ForEach (_3 => this.GeneralActions.Add(ReadObject<XmlCfg.Skill.GeneralAction>(_3, "XmlCfg.Skill.GeneralAction"))); break;
-				case "SkillActions": GetChilds(_2).ForEach (_3 => this.SkillActions.Add(ReadDynamicObject<XmlCfg.Skill.SkillAction>(_3, "Skill"))); break;
+				case "GeneralActions": GetChilds(_2).ForEach (_3 => this.GeneralActions.Add(ReadString(GetOnlyChild(_3, "Key")), ReadObject<XmlCfg.Skill.GeneralAction>(GetOnlyChild(_3, "Value"), "XmlCfg.Skill.GeneralAction"))); break;
+				case "SkillActions": GetChilds(_2).ForEach (_3 => this.SkillActions.Add(ReadString(GetOnlyChild(_3, "Key")), ReadDynamicObject<XmlCfg.Skill.SkillAction>(GetOnlyChild(_3, "Value"), "XmlCfg.Skill"))); break;
 			}
 		}
 	}

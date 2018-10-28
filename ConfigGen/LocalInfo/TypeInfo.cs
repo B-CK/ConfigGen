@@ -384,7 +384,7 @@ namespace ConfigGen.LocalInfo
         /// <summary>
         /// 是多态类型
         /// </summary>
-        public bool IsPolyClass { get { return InhertType == InhertState.PolyChild || InhertType == InhertState.PolyParent; } }
+        public bool IsPolyClass { get { return InhertType != InhertState.NonPolyClass; } }
         public List<ConstInfo> Consts { get; private set; }
         public List<FieldInfo> Fields { get; private set; }
         public Dictionary<string, ConstInfo> ConstDict { get; private set; }
@@ -421,7 +421,7 @@ namespace ConfigGen.LocalInfo
             UpdateFieldDict();
             GroupHashSet = TypeInfo.AnalyzeGroup(Group);
 
-            _allClassDict = new Dictionary<string, ClassTypeInfo>() { { GetFullName(), this } };
+            _allClassDict = new Dictionary<string, ClassTypeInfo>();
             if (!string.IsNullOrWhiteSpace(inherit))
             {
                 string localSpace = Util.Combine(NamespaceName, inherit);
@@ -455,9 +455,9 @@ namespace ConfigGen.LocalInfo
             for (int i = 0; i < Fields.Count; i++)
                 Fields[i].Init();
 
-            if (_allClassDict.Count == 1 && Inherit == null)
+            if (_allClassDict.Count == 0 && Inherit == null)
                 InhertType = InhertState.NonPolyClass;
-            else if (_allClassDict.Count > 1 && Inherit == null)
+            else if (_allClassDict.Count > 0 && Inherit == null)
                 InhertType = InhertState.PolyParent;
             else if (Inherit != null)
                 InhertType = InhertState.PolyChild;
@@ -495,6 +495,8 @@ namespace ConfigGen.LocalInfo
 
         public ClassTypeInfo GetSubClass(string fullName)
         {
+            if (GetFullName().Equals(fullName))
+                return this;
             if (_allClassDict.ContainsKey(fullName))
                 return _allClassDict[fullName];
             else
@@ -504,6 +506,10 @@ namespace ConfigGen.LocalInfo
         {
             return _allClassDict.GetEnumerator();
         }
+        public bool IsTheSame(ClassTypeInfo other)
+        {
+            return GetFullName().Equals(other.GetFullName());
+        }
     }
     public class EnumTypeInfo : BaseTypeInfo
     {
@@ -512,6 +518,25 @@ namespace ConfigGen.LocalInfo
         public Dictionary<string, ConstInfo> EnumDict { get; private set; }
         public Dictionary<string, ConstInfo> AliasDict { get; private set; }
         public HashSet<string> GroupHashSet { get; private set; }
+        public string this[string key]
+        {
+            get
+            {
+                //别名 - 自定名称
+                if (AliasDict.ContainsKey(key))
+                    return AliasDict[key].Value;
+                //字符串 - 枚举字符串
+                else if (EnumDict.ContainsKey(key))
+                    return EnumDict[key].Value;
+
+                int value = int.MinValue;
+                //数值 - 枚举值
+                if (int.TryParse(key, out value))
+                    return key;
+                else
+                    return null;
+            }
+        }
 
 
         private EnumDes _des;
@@ -798,30 +823,7 @@ namespace ConfigGen.LocalInfo
         {
             _des = des;
         }
+
+
     }
 }
-
-//--指定导出内容
-//private static void FilterInfo()
-//{
-//    if (string.IsNullOrWhiteSpace(Values.ExportFilter)) return;
-
-//    var export = Util.Deserialize(Values.ExportFilter, typeof(ExportInfo)) as ExportInfo;
-//    List<BaseTypeInfo> infos = new List<BaseTypeInfo>();
-//    HashSet<string> hash = new HashSet<string>(export.Exports);
-//    foreach (var info in Instance.TypeInfoDict)
-//    {
-//        if (hash.Contains(info.Key))
-//            export.Exports.Remove(info.Key);
-//        else if (hash.Contains(info.Value.NamespaceName))
-//            export.Exports.Remove(info.Value.NamespaceName);
-//        else
-//            infos.Add(info.Value);
-//    }
-
-//    foreach (var item in export.Exports)
-//        Util.LogWarningFormat("导出定义{0},无法与任何类型或者命名空间匹配..", item);
-
-//    foreach (var info in infos)
-//        Instance.Remove(info);
-//}

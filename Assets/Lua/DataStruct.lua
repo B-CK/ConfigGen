@@ -81,8 +81,8 @@ function Stream:GetCfgSkillActorConfig()
 	setmetatable(o, Cfg.Skill.ActorConfig)
 	o.ModelName = self:GetString()
 	o.BaseModelName = self:GetString()
-	o.GeneralActions = self:GetList('CfgSkillGeneralAction')
-	o.SkillActions = self:GetList('CfgSkillSkillAction')
+	o.GeneralActions = self:GetDict('String', 'CfgSkillGeneralAction')
+	o.SkillActions = self:GetDict('String', 'CfgSkillSkillAction')
 	return o
 end
 meta= {}

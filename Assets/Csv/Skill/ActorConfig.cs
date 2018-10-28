@@ -17,23 +17,25 @@ namespace Cfg.Skill
 		/// <summary>
 		/// 普通动作
 		/// <summary>
-		public readonly List<GeneralAction> GeneralActions = new List<GeneralAction>();
+		public readonly Dictionary<string, GeneralAction> GeneralActions = new Dictionary<string, GeneralAction>();
 		/// <summary>
 		/// 技能动作
 		/// <summary>
-		public readonly List<SkillAction> SkillActions = new List<SkillAction>();
+		public readonly Dictionary<string, SkillAction> SkillActions = new Dictionary<string, SkillAction>();
 
 		public ActorConfig(DataStream data)
 		{
 			this.ModelName = data.GetString();
 			this.BaseModelName = data.GetString();
-			for (int n = data.GetInt(); n-- > 0; )
+			for (int n = data.GetInt(); n-- > 0;)
 			{
-				this.GeneralActions.Add((GeneralAction)data.GetObject(data.GetString()));
+				string k = data.GetString();
+				this.GeneralActions[k] = (GeneralAction)data.GetObject(data.GetString());
 			}
-			for (int n = data.GetInt(); n-- > 0; )
+			for (int n = data.GetInt(); n-- > 0;)
 			{
-				this.SkillActions.Add((SkillAction)data.GetObject(data.GetString()));
+				string k = data.GetString();
+				this.SkillActions[k] = (SkillAction)data.GetObject(data.GetString());
 			}
 		}
 	}

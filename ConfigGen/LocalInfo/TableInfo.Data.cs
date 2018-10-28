@@ -111,12 +111,13 @@ namespace ConfigGen.LocalInfo
             {
                 if (key.Equals(Values.DataSetEndFlag))//--集合类型结束
                     return null;
-                else if (key.Equals(Values.Null))//--占位内容空,使用类型默认值
+                else if (key.ToLower().Equals(Values.Null))//--占位内容空,使用类型默认值
                     dataBase.Data = null;
                 else if (string.IsNullOrWhiteSpace(key))//--表格DBNull类型,无内容!非集合情况下直接报错!
                     return null;
+                    //throw new Exception(string.Format("[数据DBNull]字段{0}.{1} 数据不可为空!{2}",
+                    //    info.Parent.GetFullName(), info.Name, GetErrorSite(column + 1, row + 1)));
             }
-
             return dataBase;
         }
         private Data AnalyzeEnum(DataTable dt, FieldInfo info, int row, ref int column)
@@ -127,10 +128,9 @@ namespace ConfigGen.LocalInfo
             string key = dataBase.Data as string;
             if (key != null && !key.Equals(Values.DataSetEndFlag))
             {
-                if (enumType.AliasDict.ContainsKey(key))
-                    dataBase.Data = enumType.AliasDict[key].Value;
-                else if (enumType.EnumDict.ContainsKey(key))
-                    dataBase.Data = enumType.EnumDict[key].Value;
+                string value = enumType[key];
+                if (!string.IsNullOrWhiteSpace(value))
+                    dataBase.Data = value;
                 else
                     Util.LogErrorFormat("{0}.{1}不存在,{2}", enumType.GetFullName(), key
                         , GetErrorSite(column + 1, row + 1));
@@ -151,12 +151,12 @@ namespace ConfigGen.LocalInfo
 
             ClassTypeInfo classType = info.BaseInfo as ClassTypeInfo;
             DataClass dataClass = new DataClass();
-            ClassTypeInfo subClassType = null;
             if (classType.IsPolyClass)
-            {
+            {   //--多态类型必须指明当前使用类
+                ClassTypeInfo subClassType = null;
                 string polyClass = dt.Rows[row][column].ToString();
                 BaseTypeInfo bti = TypeInfo.GetBaseTypeInfo(classType.NamespaceName, polyClass);
-                if (bti != null && classType.IsPolyClass)
+                if (bti != null)
                 {
                     dataClass.Type = bti.GetFullName();
                     subClassType = bti as ClassTypeInfo;
@@ -164,34 +164,60 @@ namespace ConfigGen.LocalInfo
                 }
                 else
                 {
-                    Util.LogErrorFormat("类型{0} 不存在或者未继承类型{1},{2}", polyClass, classType.GetFullName(), GetErrorSite(column + 1, row + 1));
+                    Util.LogErrorFormat("[解析多态]类型{0} 不存在或者未继承类型{1},{2}", polyClass, classType.GetFullName(), GetErrorSite(column + 1, row + 1));
+                }
+
+                //--解析父类
+                AnalyzeParentClass(classType, dataClass, dt, row, ref column);
+                if (!classType.IsTheSame(subClassType))
+                {
+                    //--解析子类 
+                    for (int i = 0; i < subClassType.Fields.Count; i++, column++)
+                    {
+                        FieldInfo fieldInfo = subClassType.Fields[i];
+                        Data dataField = AnalyzeField(dt, fieldInfo, row, ref column);
+                        if (dataField == null)
+                            Util.LogErrorFormat("{0}数据为空,{1}", classType.GetFullName(), GetErrorSite(column + 1, row + 1));
+
+                        dataClass.Fields.Add(fieldInfo.Name, dataField);
+                    }
                 }
             }
-            //--解析父类
+            else
+            {
+                AnalyzeParentClass(classType, dataClass, dt, row, ref column);
+            }
+
+            column--;
+            return dataClass;
+        }
+        private void AnalyzeParentClass(ClassTypeInfo classType, DataClass dataClass, DataTable dt, int row, ref int column)
+        {
+            ClassTypeInfo parentClassType = classType.Inherit;
+            if (parentClassType == null)
+            {
+                for (int i = 0; i < classType.Fields.Count; i++, column++)
+                {
+                    FieldInfo fieldInfo = classType.Fields[i];
+                    Data dataField = AnalyzeField(dt, fieldInfo, row, ref column);
+                    if (dataField == null)
+                        Util.LogErrorFormat("{0}数据为空,{1}", classType.GetFullName(), GetErrorSite(column + 1, row + 1));
+
+                    dataClass.Fields.Add(fieldInfo.Name, dataField);
+                }
+                return;
+            }
+
+            AnalyzeParentClass(parentClassType, dataClass, dt, row, ref column);
             for (int i = 0; i < classType.Fields.Count; i++, column++)
             {
                 FieldInfo fieldInfo = classType.Fields[i];
                 Data dataField = AnalyzeField(dt, fieldInfo, row, ref column);
                 if (dataField == null)
-                    Util.LogErrorFormat("{0}.{1}数据为空,{2}", info.Type, info.Name, GetErrorSite(column + 1, row + 1));
+                    Util.LogErrorFormat("{0}数据为空,{1}", classType.GetFullName(), GetErrorSite(column + 1, row + 1));
 
                 dataClass.Fields.Add(fieldInfo.Name, dataField);
             }
-            //--解析子类 
-            if (subClassType != null && classType != subClassType)
-            {
-                for (int i = 0; i < subClassType.Fields.Count; i++, column++)
-                {
-                    FieldInfo fieldInfo = subClassType.Fields[i];
-                    Data dataField = AnalyzeField(dt, fieldInfo, row, ref column);
-                    if (dataField == null)
-                        Util.LogErrorFormat("{0}.{1}数据为空,{2}", info.Type, info.Name, GetErrorSite(column + 1, row + 1));
-
-                    dataClass.Fields.Add(fieldInfo.Name, dataField);
-                }
-            }
-            column--;
-            return dataClass;
         }
         private Data AnalyzeList(DataTable dt, FieldInfo info, int row, ref int column)
         {
@@ -199,11 +225,10 @@ namespace ConfigGen.LocalInfo
             ListTypeInfo listType = info.BaseInfo as ListTypeInfo;
             FieldInfo element = listType.ItemInfo;
             DataList dataList = new DataList();
-            bool isEnd = false;
-            while (!isEnd)
+            while (true)
             {
                 Data dataField = AnalyzeField(dt, element, row, ref column);
-                if (dataField != null && !isEnd)
+                if (dataField != null)
                 {
                     dataList.Elements.Add(dataField);
                     column++;
@@ -223,8 +248,7 @@ namespace ConfigGen.LocalInfo
 
             DataDict dataDict = new DataDict();
             HashSet<object> hash = new HashSet<object>();
-            bool isEnd = false;
-            while (!isEnd)
+            while (true)
             {
                 DataBase dataKey = AnalyzeField(dt, keyInfo, row, ref column) as DataBase;
                 if (dataKey == null)
