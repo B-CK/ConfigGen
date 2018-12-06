@@ -29,9 +29,9 @@ namespace ConfigGen.Export
                     }
                 }
 
-                string fileName = item.Value.ClassTypeInfo.GetFullName().Replace(".", "/");
+                string fileName = item.Value.ClassTypeInfo.GetFullName().Replace(".", "/").ToLower();
                 string filePath = string.Format("{0}\\{1}{2}", Values.ExportCsv, fileName, Values.CsvFileExt);
-                Util.SaveFile(filePath.ToLower(), builder.ToString());
+                Util.SaveFile(filePath, builder.ToString());
                 builder.Clear();
             }
         }

@@ -382,7 +382,7 @@ namespace ConfigGen.LocalInfo
         /// </summary>
         public InhertState InhertType { get; private set; }
         /// <summary>
-        /// 是多态类型
+        /// 是多态类型,子类或者父类
         /// </summary>
         public bool IsPolyClass { get { return InhertType != InhertState.NonPolyClass; } }
         public List<ConstInfo> Consts { get; private set; }
@@ -493,6 +493,11 @@ namespace ConfigGen.LocalInfo
             }
         }
 
+        public ClassTypeInfo GetRootClassInfo()
+        {
+            if (!IsPolyClass || InhertType == InhertState.PolyParent) return this;
+            return Inherit.GetRootClassInfo();
+        }
         public ClassTypeInfo GetSubClass(string fullName)
         {
             if (GetFullName().Equals(fullName))
