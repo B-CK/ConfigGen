@@ -37,7 +37,7 @@ namespace ConfigGen.LocalInfo
     }
 
     partial class TableChecker
-    {        
+    {
         static ClassTypeInfo ClassInfo = null;
         static List<Data> DataKeys = new List<Data>();
         /// <summary>
@@ -115,6 +115,7 @@ namespace ConfigGen.LocalInfo
         }
         static void CheckClass(FieldInfo info, List<Data> datas)
         {
+            //--检查父类
             ClassTypeInfo classType = info.BaseInfo as ClassTypeInfo;
             {
                 List<FieldInfo> fields = classType.Fields;
@@ -131,10 +132,13 @@ namespace ConfigGen.LocalInfo
                     CheckField(field, dataColum);
                 }
             }
-            if (classType.Inherit != null)
+            //--检查子类
+            if (classType.IsPolyClass)
             {
-                foreach (var polyType in classType.SubClassDict)
+                var enumerator = classType.GetSubClassEnumerator();
+                while (enumerator.MoveNext())
                 {
+                    var polyType = (KeyValuePair<string, ClassTypeInfo>)enumerator.Current;
                     List<FieldInfo> fields = polyType.Value.Fields;
                     for (int column = 0; column < fields.Count; column++)//列
                     {

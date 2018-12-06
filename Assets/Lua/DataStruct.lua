@@ -17,7 +17,7 @@ function Stream:GetCfgAllTypeAllClass()
 	o.VarString = self:GetString()
 	o.VarBool = self:GetBool()
 	o.VarEnum = self:GetInt()
-	local _VarClass = 'Cfg' .. self:GetString()
+	local _VarClass = self:GetString():gsub('%.', '')
 	o.VarClass = self:GetObject(_VarClass)
 	o.VarListBase = self:GetList('String')
 	o.VarListClass = self:GetList('CfgAllTypeSingleClass')
@@ -196,7 +196,7 @@ GetOrCreate('Cfg.Skill')['StaticHit'] = meta
 function Stream:GetCfgSkillStaticHit()
 	local o = {}
 	setmetatable(o, Cfg.Skill.StaticHit)
-	local _Zone = 'Cfg' .. self:GetString()
+	local _Zone = self:GetString():gsub('%.', '')
 	o.Zone = self:GetObject(_Zone)
 	o.SequeueID = self:GetInt()
 	return o

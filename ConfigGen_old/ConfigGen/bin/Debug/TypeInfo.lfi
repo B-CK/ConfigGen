@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TypeInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ClassInfos>
+    <Class TypeType="Base" Name="string" />
+    <Class TypeType="Base" Name="float" />
+    <Class TypeType="Base" Name="bool" />
+    <Class TypeType="Base" Name="long" />
+    <Class TypeType="Base" Name="int" />
+    <Class TypeType="Class" RelPath="AllType\Data所有Class类型.xlsx" NamespaceName="AllType" Name="AllClass" Group="" DataTable="Data所有Class类型.xlsx">
+      <Const Name="ConstString" Type="string" Des="常量字符串" Group="">
+        <Value>"Hello World"</Value>
+      </Const>
+      <Const Name="ConstFloat" Type="float" Des="常量浮点值" Group="">
+        <Value>3.141527</Value>
+      </Const>
+      <Field Name="ID" Type="int" Des="ID" Group="" />
+      <Field Name="VarLong" Type="int" Des="长整型" Group="d" />
+      <Field Name="VarFloat" Type="float" Des="浮点型" Group="d" />
+      <Field Name="VarString" Type="string" Des="字符串" Group="d" />
+      <Field Name="VarBool" Type="bool" Des="布尔型" Group="d" />
+      <Field Name="VarEnum" Type="Card.CardElement" Des="枚举类型" Group="d" />
+      <Field Name="VarClass" Type="AllType.SingleClass" Des="类类型" Group="d" />
+      <Field Name="VarListBase" Type="list&lt;string&gt;" Des="字符串列表" Group="d" />
+      <Field Name="VarListClass" Type="list&lt;AllType.SingleClass&gt;" Des="Class列表" Group="d" />
+      <Field Name="VarListCardElem" Type="list&lt;string&gt;" Des="字符串列表" Group="d" />
+      <Field Name="VarDictBase" Type="dict&lt;int, string&gt;" Des="基础类型字典" Group="d" />
+      <Field Name="VarDictEnum" Type="dict&lt;long, Card.CardElement&gt;" Des="枚举类型字典" Group="d" />
+      <Field Name="VarDictClass" Type="dict&lt;string, AllType.SingleClass&gt;" Des="类类型字典" Group="" />
+    </Class>
+    <Class TypeType="Class" RelPath="AllType\Data所有Class类型.xlsx" NamespaceName="AllType" Name="SingleClass" Group="">
+      <Field Name="Var1" Type="string" Des="Var1" Group="" />
+      <Field Name="Var2" Type="float" Des="Var2" Group="" />
+    </Class>
+    <List TypeType="List" Name="list&lt;string&gt;" ItemType="string" />
+    <List TypeType="List" Name="list&lt;AllType.SingleClass&gt;" ItemType="AllType.SingleClass" />
+    <Dict TypeType="Dict" Name="dict&lt;int, string&gt;" KeyType="int" ValueType="string" />
+    <Dict TypeType="Dict" Name="dict&lt;long, Card.CardElement&gt;" KeyType="long" ValueType="Card.CardElement" />
+    <Dict TypeType="Dict" Name="dict&lt;string, AllType.SingleClass&gt;" KeyType="string" ValueType="AllType.SingleClass" />
+    <Class TypeType="Class" RelPath="Card\卡牌_Card.xlsx" NamespaceName="Card" Name="Card" Group="" DataTable="卡牌_Card.xlsx">
+      <Field Name="ID" Type="int" Des="ID编号" Group="" />
+      <Field Name="Name" Type="string" Des="名字" Group="" />
+      <Field Name="CardType" Type="Card.CardType" Des="卡牌类型" Group="" />
+      <Field Name="Cost" Type="long" Des="费用" Group="" />
+      <Field Name="Elements" Type="dict&lt;Card.CardElement, long&gt;" Des="元素数据" Group="" />
+    </Class>
+    <Dict TypeType="Dict" Name="dict&lt;Card.CardElement, long&gt;" KeyType="Card.CardElement" ValueType="long" />
+  </ClassInfos>
+  <EnumInfos>
+    <Enum TypeType="Enum" RelPath="AllType\Data所有Class类型.xlsx" NamespaceName="AllType" Name="CommondEnum" Group="">
+      <Item Name="Attack" Type="int" Des="攻击" Group="">
+        <Value>0</Value>
+      </Item>
+      <Item Name="Extract" Type="int" Des="抽牌" Group="">
+        <Value>1</Value>
+      </Item>
+      <Item Name="Renounce" Type="int" Des="弃牌" Group="">
+        <Value>2</Value>
+      </Item>
+      <Item Name="Armor" Type="int" Des="护甲" Group="">
+        <Value>3</Value>
+      </Item>
+      <Item Name="Control" Type="int" Des="控制" Group="">
+        <Value>4</Value>
+      </Item>
+      <Item Name="Cure" Type="int" Des="治疗" Group="">
+        <Value>5</Value>
+      </Item>
+      <Item Name="Oneself" Type="int" Des="自残" Group="">
+        <Value>6</Value>
+      </Item>
+      <Item Name="Hand" Type="int" Des="手牌" Group="">
+        <Value>7</Value>
+      </Item>
+      <Item Name="Brary" Type="int" Des="牌库" Group="">
+        <Value>8</Value>
+      </Item>
+      <Item Name="Handack" Type="int" Des="手牌攻击" Group="">
+        <Value>9</Value>
+      </Item>
+    </Enum>
+    <Enum TypeType="Enum" RelPath="Card\卡牌_Card.xlsx" NamespaceName="Card" Name="CardElement" Group="">
+      <Item Name="Attack" Type="int" Des="攻击" Group="">
+        <Value>0</Value>
+      </Item>
+      <Item Name="Extract" Type="int" Des="抽牌" Group="">
+        <Value>1</Value>
+      </Item>
+      <Item Name="Renounce" Type="int" Des="弃牌" Group="">
+        <Value>2</Value>
+      </Item>
+      <Item Name="Armor" Type="int" Des="护甲" Group="">
+        <Value>3</Value>
+      </Item>
+      <Item Name="Control" Type="int" Des="控制" Group="">
+        <Value>4</Value>
+      </Item>
+      <Item Name="Cure" Type="int" Des="治疗" Group="">
+        <Value>5</Value>
+      </Item>
+      <Item Name="Oneself" Type="int" Des="自残" Group="">
+        <Value>6</Value>
+      </Item>
+      <Item Name="Hand" Type="int" Des="手牌" Group="">
+        <Value>7</Value>
+      </Item>
+      <Item Name="Brary" Type="int" Des="牌库" Group="">
+        <Value>8</Value>
+      </Item>
+      <Item Name="Handack" Type="int" Des="手牌攻击" Group="">
+        <Value>9</Value>
+      </Item>
+    </Enum>
+    <Enum TypeType="Enum" RelPath="Card\卡牌_Card.xlsx" NamespaceName="Card" Name="CardType" Group="">
+      <Item Name="Attack" Type="int" Des="攻击牌" Group="">
+        <Value>0</Value>
+      </Item>
+    </Enum>
+  </EnumInfos>
+</TypeInfo>

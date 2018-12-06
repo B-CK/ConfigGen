@@ -104,7 +104,7 @@ namespace ConfigGen.LocalInfo
                     DataTable dt = ds.Tables.Count > 0 ? ds.Tables[0] : null;
                     for (int j = 1; j < ds.Tables.Count; j++)
                     {
-                        DataTable dt1 = ds.Tables[j];
+                        DataTable dt1 = ds.Tables[j].Copy();
                         if (dt1.Rows.Count < (Values.DataSheetDataStartIndex + 1) || dt1 == null)
                         {
                             Util.LogErrorFormat("{0}文件中{1}表定义异常", c.DataPath, dt1.TableName);
@@ -112,11 +112,18 @@ namespace ConfigGen.LocalInfo
                         }
                         else
                         {
-                            for (int k = Values.DataSheetDataStartIndex; k < dt1.Rows.Count; k++)
-                                dt.Rows.Add(dt1.Rows[k]);
+                            for (int k = 0; k < Values.DataSheetDataStartIndex; k++)
+                                dt1.Rows.RemoveAt(0);
+                            dt.Merge(dt1);
                         }
                     }
-                    data = new TableDataInfo(c.DataPath, dt, c);
+                    if (dt != null)
+                        data = new TableDataInfo(c.DataPath, dt, c);
+                    else
+                    {
+                        Util.LogErrorFormat(c.DataPath + " 中无数据或者无法读取不存在!");
+                        continue;
+                    }
                 }
                 else if (Directory.Exists(c.DataPath))
                 {
@@ -125,7 +132,7 @@ namespace ConfigGen.LocalInfo
                 }
                 else
                 {
-                    Util.LogErrorFormat("数据路径{0}不存在!", c.DataPath);
+                    Util.LogErrorFormat("数据路径 {0} 不存在!", c.DataPath);
                 }
 
                 if (data != null)
@@ -153,17 +160,42 @@ namespace ConfigGen.LocalInfo
     {
         public object Data;
 
-        public static implicit operator double(DataBase value)
+        public static implicit operator int(DataBase value)
         {
-            return Convert.ToDouble(value.Data);
+            if (value.Data == null)
+                return -1;
+            return Convert.ToInt32(value.Data);
         }
         public static implicit operator long(DataBase value)
         {
+            if (value.Data == null)
+                return -1;
             return Convert.ToInt64(value.Data);
+        }
+        public static implicit operator float(DataBase value)
+        {
+            if (value.Data == null)
+                return -1;
+            return Convert.ToSingle(value.Data);
+        }
+        public static implicit operator double(DataBase value)
+        {
+            if (value.Data == null)
+                return -1;
+            return Convert.ToDouble(value.Data);
         }
         public static implicit operator string(DataBase value)
         {
+            if (value.Data == null)
+                return "";
             return Convert.ToString(value.Data);
+        }
+        public static implicit operator bool(DataBase value)
+        {
+            if (value.Data == null)
+                return false;
+            string v = value.Data as string;
+            return v.ToLower().Equals("true") ? true : false;
         }
     }
     public class DataClass : Data

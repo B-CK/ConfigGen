@@ -57,21 +57,37 @@ namespace ConfigGen.LocalInfo
 
             //解析类型定义
             Dictionary<string, TypeDescription> pairs = new Dictionary<string, TypeDescription>();
-            string[] defines = Directory.GetFiles(Values.ConfigDir, "*" + Values.ClassDesFileExt, SearchOption.AllDirectories);
-            for (int i = 0; i < defines.Length; i++)
+            var configXml = Util.Deserialize(Values.ConfigXml, typeof(ConfigXml)) as ConfigXml;
+            if (string.IsNullOrWhiteSpace(configXml.Root))
+                throw new Exception("数据结构导出时必须指定命名空间根节点<Config Root=\"**\">");
+            Values.ConfigRootNode = configXml.Root;
+            List<string> defines = configXml.Include;
+            string path = "xmlDes";
+            try
             {
-                var typeDes = Util.Deserialize(defines[i], typeof(TypeDescription)) as TypeDescription;
-                if (pairs.ContainsKey(typeDes.Namespace))
+                for (int i = 0; i < defines.Count; i++)
                 {
-                    pairs[typeDes.Namespace].Classes.AddRange(typeDes.Classes);
-                    pairs[typeDes.Namespace].Enums.AddRange(typeDes.Enums);
-                }
-                else
-                {
-                    typeDes.XmlDirPath = Path.GetDirectoryName(defines[i]);
-                    pairs.Add(typeDes.Namespace, typeDes);
+                    path = Path.Combine(Values.ConfigDir, defines[i]);
+                    var typeDes = Util.Deserialize(path, typeof(TypeDescription)) as TypeDescription;
+                    if (pairs.ContainsKey(typeDes.Namespace))
+                    {
+                        pairs[typeDes.Namespace].Classes.AddRange(typeDes.Classes);
+                        pairs[typeDes.Namespace].Enums.AddRange(typeDes.Enums);
+                    }
+                    else
+                    {
+                        typeDes.XmlDirPath = Path.GetDirectoryName(path);
+                        pairs.Add(typeDes.Namespace, typeDes);
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                Util.LogError(path);
+                throw new Exception(e.Message);
+            }
+
+            HashSet<string> exclude = new HashSet<string>(configXml.NoStruct);
             //类型重名检查
             HashSet<string> fullHash = new HashSet<string>();
             foreach (var item in pairs)
@@ -79,6 +95,7 @@ namespace ConfigGen.LocalInfo
                 foreach (var c in item.Value.Classes)
                 {
                     string name = string.Format("{0}.{1}", item.Key, c.Name);
+                    if (exclude.Contains(name)) continue;
                     if (fullHash.Contains(name))
                         Util.LogErrorFormat("{0} Class重复定义!\t{1}", name, item.Value.XmlDirPath);
 
@@ -89,6 +106,7 @@ namespace ConfigGen.LocalInfo
                 foreach (var e in item.Value.Enums)
                 {
                     string name = string.Format("{0}.{1}", item.Key, e.Name);
+                    if (exclude.Contains(name)) continue;
                     if (fullHash.Contains(name))
                         Util.LogErrorFormat("{0} Enum重复定义!\t{1}", name, item.Value.XmlDirPath);
 
@@ -100,7 +118,7 @@ namespace ConfigGen.LocalInfo
             //类型分组
             DoGrouping();
             //过滤导出类型
-            FilterInfo();
+            //FilterInfo();
             //添加基础类型
             HashSet<string> _baseType = new HashSet<string>() { INT, LONG, BOOL, FLOAT, STRING };
             foreach (var item in _baseType)
@@ -168,30 +186,6 @@ namespace ConfigGen.LocalInfo
             }
             return;
         }
-        private static void FilterInfo()
-        {
-            if (string.IsNullOrWhiteSpace(Values.ExportFilter)) return;
-
-            var export = Util.Deserialize(Values.ExportFilter, typeof(ExportInfo)) as ExportInfo;
-            List<BaseTypeInfo> infos = new List<BaseTypeInfo>();
-            HashSet<string> hash = new HashSet<string>(export.Exports);
-            foreach (var info in Instance.TypeInfoDict)
-            {
-                if (hash.Contains(info.Key))
-                    export.Exports.Remove(info.Key);
-                else if (hash.Contains(info.Value.NamespaceName))
-                    export.Exports.Remove(info.Value.NamespaceName);
-                else
-                    infos.Add(info.Value);
-            }
-
-            foreach (var item in export.Exports)
-                Util.LogWarningFormat("导出定义{0},无法与任何类型或者命名空间匹配..", item);
-
-            foreach (var info in infos)
-                Instance.Remove(info);
-        }
-
         public void Add(BaseTypeInfo info)
         {
             switch (info.EType)
@@ -301,6 +295,24 @@ namespace ConfigGen.LocalInfo
 
             return baseTypeInfo;
         }
+        /// <summary>
+        /// 1.name=全路径,直接识别类型
+        /// 2.name=相对路径,组合当前调用空间名去识别类型,未必能识别到类型.
+        /// 3.当2无法识别类型时,则只能使用全路径去识别类型.
+        /// </summary>
+        /// <param name="_namespace">当前调用位置的命名空间</param>
+        /// <param name="name">全路径或者相对路径</param>
+        /// <returns></returns>
+        public static BaseTypeInfo GetBaseTypeInfo(string _namespace, string name)
+        {
+            BaseTypeInfo bt = GetTypeInfo(name);
+            if (bt == null)
+            {
+                string combineName = Util.Combine(_namespace, name);
+                bt = GetTypeInfo(combineName);
+            }
+            return bt;
+        }
         public static HashSet<string> AnalyzeGroup(string group)
         {
             if (string.IsNullOrWhiteSpace(group)) return new HashSet<string>() { Values.DefualtGroup };
@@ -344,6 +356,13 @@ namespace ConfigGen.LocalInfo
     /// </summary>
     public class ClassTypeInfo : BaseTypeInfo
     {
+        public enum InhertState
+        {
+            NonPolyClass,//-非多态类型
+            PolyParent,//-多态类型:基类
+            PolyChild,//多态类型:子类
+        }
+
         public string Index { get { return _des.Index; } }
         /// <summary>
         /// Excel或者Xml等全路径
@@ -358,7 +377,14 @@ namespace ConfigGen.LocalInfo
             }
         }
         public string Group { get; private set; }
-
+        /// <summary>
+        /// 类的继承状态信息
+        /// </summary>
+        public InhertState InhertType { get; private set; }
+        /// <summary>
+        /// 是多态类型
+        /// </summary>
+        public bool IsPolyClass { get { return InhertType != InhertState.NonPolyClass; } }
         public List<ConstInfo> Consts { get; private set; }
         public List<FieldInfo> Fields { get; private set; }
         public Dictionary<string, ConstInfo> ConstDict { get; private set; }
@@ -367,8 +393,9 @@ namespace ConfigGen.LocalInfo
         public ClassTypeInfo Inherit { get; private set; }
         public HashSet<string> GroupHashSet { get; private set; }
 
-        //----------------------继承功能:父类查找,优先查找当前命名空间;其次直接当做全路径类型查找
-        public Dictionary<string, ClassTypeInfo> SubClassDict { get; private set; }
+        //继承功能:父类查找,优先查找当前命名空间;其次直接当做全路径类型查找
+        //一般子类与父类在同一命名空间,否则需要填写全路径名
+        private Dictionary<string, ClassTypeInfo> _allClassDict;
 
         private ClassDes _des;
         public ClassTypeInfo(string xmlDir, string namespace0, ClassDes des) : base(namespace0, des.Name)
@@ -394,7 +421,7 @@ namespace ConfigGen.LocalInfo
             UpdateFieldDict();
             GroupHashSet = TypeInfo.AnalyzeGroup(Group);
 
-            SubClassDict = new Dictionary<string, ClassTypeInfo>();
+            _allClassDict = new Dictionary<string, ClassTypeInfo>();
             if (!string.IsNullOrWhiteSpace(inherit))
             {
                 string localSpace = Util.Combine(NamespaceName, inherit);
@@ -407,8 +434,8 @@ namespace ConfigGen.LocalInfo
                     return;
                 }
                 string fullName = GetFullName();
-                if (!SubClassDict.ContainsKey(fullName))
-                    SubClassDict.Add(fullName, this);
+                if (!Inherit._allClassDict.ContainsKey(fullName))
+                    Inherit._allClassDict.Add(fullName, this);
             }
         }
         public override void Init()
@@ -427,6 +454,13 @@ namespace ConfigGen.LocalInfo
                 Consts[i].Init();
             for (int i = 0; i < Fields.Count; i++)
                 Fields[i].Init();
+
+            if (_allClassDict.Count == 0 && Inherit == null)
+                InhertType = InhertState.NonPolyClass;
+            else if (_allClassDict.Count > 0 && Inherit == null)
+                InhertType = InhertState.PolyParent;
+            else if (Inherit != null)
+                InhertType = InhertState.PolyChild;
         }
         public void UpdateFieldDict()
         {
@@ -461,10 +495,20 @@ namespace ConfigGen.LocalInfo
 
         public ClassTypeInfo GetSubClass(string fullName)
         {
-            if (SubClassDict.ContainsKey(fullName))
-                return SubClassDict[fullName];
+            if (GetFullName().Equals(fullName))
+                return this;
+            if (_allClassDict.ContainsKey(fullName))
+                return _allClassDict[fullName];
             else
                 return null;
+        }
+        public IEnumerator GetSubClassEnumerator()
+        {
+            return _allClassDict.GetEnumerator();
+        }
+        public bool IsTheSame(ClassTypeInfo other)
+        {
+            return GetFullName().Equals(other.GetFullName());
         }
     }
     public class EnumTypeInfo : BaseTypeInfo
@@ -474,6 +518,25 @@ namespace ConfigGen.LocalInfo
         public Dictionary<string, ConstInfo> EnumDict { get; private set; }
         public Dictionary<string, ConstInfo> AliasDict { get; private set; }
         public HashSet<string> GroupHashSet { get; private set; }
+        public string this[string key]
+        {
+            get
+            {
+                //别名 - 自定名称
+                if (AliasDict.ContainsKey(key))
+                    return AliasDict[key].Value;
+                //字符串 - 枚举字符串
+                else if (EnumDict.ContainsKey(key))
+                    return EnumDict[key].Value;
+
+                int value = int.MinValue;
+                //数值 - 枚举值
+                if (int.TryParse(key, out value))
+                    return key;
+                else
+                    return null;
+            }
+        }
 
 
         private EnumDes _des;
@@ -594,6 +657,7 @@ namespace ConfigGen.LocalInfo
         public virtual string Des { get { return _des.Des; } }
         public virtual string Check { get { return _des.Check; } }
         public virtual string Group { get; private set; }
+        //public virtual string Split { get { return _des.Split; } }
 
         public virtual BaseTypeInfo Parent { get; private set; }
         public virtual BaseTypeInfo BaseInfo { get; private set; }
@@ -759,5 +823,7 @@ namespace ConfigGen.LocalInfo
         {
             _des = des;
         }
+
+
     }
 }

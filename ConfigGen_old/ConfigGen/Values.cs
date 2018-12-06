@@ -13,6 +13,10 @@ namespace ConfigGen
         /// </summary>
         public static string ConfigDir { get; set; }
         /// <summary>
+        /// 需要导出的数据和结构文件的描述文件
+        /// </summary>
+        public static string ConfigXml { get; set; }
+        /// <summary>
         /// 导出CSharp类型
         /// </summary>
         public static string ExportCode { get; set; }
@@ -33,13 +37,17 @@ namespace ConfigGen
         /// </summary>
         public static HashSet<string> ExportGroup { get; set; }
         /// <summary>
-        /// 类结构导出文件路径
-        /// </summary>
-        public static string ExportFilter { get; set; }
-        /// <summary>
         /// 是否只对已修改文件进行操作
         /// </summary>
         public static bool IsOptPart { get; set; }
+        /// <summary>
+        /// 导出Csv数据读写类命名空间根节点
+        /// </summary>
+        public static string ConfigRootNode { get; set; }
+        /// <summary>
+        /// 导出Xml数据读写类命名空间根节点
+        /// </summary>
+        public static string XmlRootNode { get { return "Xml" + ConfigRootNode; } }
 
 
         /// <summary>
@@ -49,6 +57,15 @@ namespace ConfigGen
 
         #region 常量
         /// <summary>
+        /// 数据表数据占位符,仅用于基础类型;不填写数据时,使用null占位.
+        /// 默认值int,long,float="";string=""[无"null"字符串];bool=false;
+        /// </summary>
+        public const string Null = "null";
+        /// <summary>
+        /// 表格每行最大数据个数
+        /// </summary>
+        public const int SheetLineDataNum = 1024;
+        /// <summary>
         /// 导出所有分组
         /// </summary>
         public const string DefualtGroup = "defualt";
@@ -57,29 +74,30 @@ namespace ConfigGen
         /// </summary>
         public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
         /// <summary>
-        /// 数据表格Sheet名定义格式
+        /// 数据文件扩展名
         /// </summary>
         public const string DataFileFlag = "data";
         /// <summary>
-        /// 数据类型表格Sheet名定义格式
+        /// 数据表格Sheet名标识
         /// </summary>
-        public const string ClassDesFileExt = ".xml";
+        public const string ExcelSheetDataFlag = "#";
+        ///// <summary>
+        ///// List元素默认分隔符,元素类型仅支持基础类型
+        ///// </summary>
+        //public const string SetSplitFlag = ",";
         /// <summary>
         /// 数据填写扩展文件后缀名
         /// </summary>
-        public const string TableExtFileExt = ".xsl";
+        public const string TableExtFileExt = ".xml";
         /// <summary>
-        /// 数据表前四行分别声明字段检查规则,字段描述,字段名,字段数据类型.
+        /// 数据表前三行用于描述,分别声明字段检查规则,字段描述,字段名,字段数据类型.
         /// </summary>
-        public const int DataSheetFieldIndex = 0;
-        //public const int DataSheetCheckIndex = 1;
-        //public const int DataSheetDesIndex = 2;
-        //public const int DataSheetTypeIndex = 3;
+        //public const int DataSheetFieldIndex = 0;
         public const int DataSheetDataStartIndex = 3;
         /// <summary>
         /// 数据集合结束符,可用在数据/子字段上.
         /// </summary>
-        public const string DataSetEndFlag = "##";
+        public const string DataSetEndFlag = "]]";
         /// <summary>
         /// 多参数分隔符,适用检查规则,分组
         /// </summary>
@@ -101,14 +119,6 @@ namespace ConfigGen
         /// 多态类型属性标识符
         /// </summary>
         public const string PolymorphismFlag = "Type";
-        /// <summary>
-        /// 导出Lson数据读写类命名空间根节点
-        /// </summary>
-        public const string XmlRootNode = "XmlCode";
-        /// <summary>
-        /// 导出Csv数据读写类命名空间根节点
-        /// </summary>
-        public const string ConfigRootNode = "Csv";
         /// <summary>
         /// 列表元素命名
         /// </summary>

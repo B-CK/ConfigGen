@@ -72,16 +72,17 @@ namespace ConfigGen.LocalInfo
         private Data AnalyzeBase(XmlElement data, FieldInfo info)
         {
             DataBase dataBase = new DataBase();
-            dataBase.Data = data.Value;
+            dataBase.Data = data.InnerText;
             return dataBase;
         }
         private Data AnalyzeEnum(XmlElement data, FieldInfo info)
         {
             DataBase dataBase = new DataBase();
             EnumTypeInfo enumType = info.BaseInfo as EnumTypeInfo;
-            string value = data.Value;
-            if (!enumType.EnumDict.ContainsKey(data.Value))
-                Util.LogErrorFormat("Enum:{0} Value:{1}不存在", enumType.GetFullName(), data.Value);
+            string key = data.InnerText;
+            string value = enumType[key];
+            if (string.IsNullOrWhiteSpace(value))
+                Util.LogErrorFormat("Enum:{0} Value:{1} 不存在", enumType.GetFullName(), key);
             dataBase.Data = value;
             return dataBase;
         }
@@ -90,32 +91,57 @@ namespace ConfigGen.LocalInfo
             ClassTypeInfo classType = info.BaseInfo as ClassTypeInfo;
             DataClass dataClass = new DataClass();
 
+            if (classType.IsPolyClass)
+            {
+                XmlAttribute polymorphism = data.GetAttributeNode(Values.PolymorphismFlag);
+                BaseTypeInfo bti = TypeInfo.GetBaseTypeInfo(classType.NamespaceName, polymorphism.Value);
+                ClassTypeInfo subClassType = null;
+                if (bti != null)
+                {
+                    subClassType = bti as ClassTypeInfo;
+                    dataClass.Type = subClassType.GetFullName();
+                }
+                else
+                    Util.LogErrorFormat("[解析多态]类型{0} 不存在或者未继承类型{1}再或者类型未定义在同一命名空间下!", polymorphism.Value, classType.GetFullName());
+                AnalyzeParentClass(classType, dataClass, data);
+                if (!classType.IsTheSame(subClassType))
+                {
+                    for (int i = 0; i < subClassType.Fields.Count; i++)
+                    {
+                        FieldInfo fieldInfo = subClassType.Fields[i];
+                        Data dataField = AnalyzeField(data[fieldInfo.Name], fieldInfo);
+                        dataClass.Fields.Add(fieldInfo.Name, dataField);
+                    }
+                }
+            }
+            else
+            {
+                AnalyzeParentClass(classType, dataClass, data);
+            }
+
+            return dataClass;
+        }
+        private void AnalyzeParentClass(ClassTypeInfo classType, DataClass dataClass, XmlElement data)
+        {
+            ClassTypeInfo parentClassType = classType.Inherit;
+            if (parentClassType == null)
+            {
+                for (int i = 0; i < classType.Fields.Count; i++)
+                {
+                    FieldInfo fieldInfo = classType.Fields[i];
+                    Data dataField = AnalyzeField(data[fieldInfo.Name], fieldInfo);
+                    dataClass.Fields.Add(fieldInfo.Name, dataField);
+                }
+                return;
+            }
+
+            AnalyzeParentClass(parentClassType, dataClass, data);
             for (int i = 0; i < classType.Fields.Count; i++)
             {
                 FieldInfo fieldInfo = classType.Fields[i];
                 Data dataField = AnalyzeField(data[fieldInfo.Name], fieldInfo);
                 dataClass.Fields.Add(fieldInfo.Name, dataField);
             }
-
-            if (classType.Inherit != null)
-            {
-                XmlAttribute polymorphism = data.GetAttributeNode(Values.PolymorphismFlag);
-                ClassTypeInfo polyType = classType.GetSubClass(polymorphism.Value);
-                if (polyType != null)
-                {
-                    dataClass.Type = polyType.GetFullName();
-                    for (int i = 0; i < polyType.Fields.Count; i++)
-                    {
-                        FieldInfo fieldInfo = polyType.Fields[i];
-                        Data dataField = AnalyzeField(data[fieldInfo.Name], fieldInfo);
-                        dataClass.Fields.Add(fieldInfo.Name, dataField);
-                    }
-                }
-                else
-                    dataClass.Type = classType.GetFullName();
-            }
-
-            return dataClass;
         }
         private Data AnalyzeList(XmlElement data, FieldInfo info)
         {

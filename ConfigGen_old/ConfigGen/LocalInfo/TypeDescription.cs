@@ -3,7 +3,7 @@ using System.Xml.Serialization;
 
 namespace ConfigGen.LocalInfo
 {
-    [XmlRoot("Configs")]
+    [XmlRoot("Define")]
     public class TypeDescription
     {
         [XmlAttribute]
@@ -59,6 +59,8 @@ namespace ConfigGen.LocalInfo
         public string Des;
         [XmlAttribute]
         public string Group;
+        //[XmlAttribute]
+        //public string Split;
     }
     [XmlInclude(typeof(ConstDes))]
     public class ConstDes : FieldDes
@@ -69,10 +71,14 @@ namespace ConfigGen.LocalInfo
         public string Alias;
     }
 
-    [XmlRoot("Exports")]
-    public class ExportInfo
+    [XmlRoot("Config")]
+    public class ConfigXml
     {
-        [XmlElement("Item")]
-        public List<string> Exports;
+        [XmlAttribute]
+        public string Root;
+        [XmlElement("Include")]
+        public List<string> Include;
+        [XmlElement("NoStruct")]
+        public List<string> NoStruct;
     }
 }

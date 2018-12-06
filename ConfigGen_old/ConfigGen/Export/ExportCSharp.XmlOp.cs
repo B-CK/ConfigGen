@@ -204,7 +204,7 @@ namespace ConfigGen.Export
                 CodeWriter.Start(builder);
                 {
                     CodeWriter.IntervalLevel(builder);
-                    builder.AppendLine("throw new Exception(string.Format(\"type:{0}create fail!\", type), e);");
+                    builder.AppendLine("throw new Exception(string.Format(\"type:{0} create fail!\", type), e);");
                 }
                 CodeWriter.End(builder);
             }
@@ -228,7 +228,7 @@ namespace ConfigGen.Export
                 new string[] { "TextWriter", Base.String, CLASS_XML_OBJECT }, new string[] { "os", "name", "x" });
             {
                 CodeWriter.IntervalLevel(builder);
-                builder.AppendLine("os.WriteLine(\"<{0} type =\\\"{1}\\\">\", name, x.GetType().Name);");
+                builder.AppendLine("os.WriteLine(\"<{0} Type =\\\"{1}\\\">\", name, x.GetType().Name);");
                 CodeWriter.IntervalLevel(builder);
                 builder.AppendLine("x.Write(os);");
                 CodeWriter.IntervalLevel(builder);
@@ -378,7 +378,7 @@ namespace ConfigGen.Export
             {
                 CodeWriter.UsingNamespace(builder, XmlNameSpaces);
                 builder.AppendLine();
-                CodeWriter.NameSpace(builder, string.Format("{0}.{1}", Values.XmlRootNode, baseType.NamespaceName));
+                CodeWriter.NameSpace(builder, Util.GetFullNamespace(Values.XmlRootNode, baseType.NamespaceName));
 
                 bool isWrited = false;
                 if (baseType.EType == TypeType.Class)
@@ -416,10 +416,13 @@ namespace ConfigGen.Export
                     for (int j = 0; j < classType.Fields.Count; j++)
                     {
                         FieldInfo field = classType.Fields[j];
+                        //--Write Function
                         if (field.BaseInfo.EType == TypeType.Enum)
                             writer.Add(string.Format("Write(_1, \"{0}\", (int)this.{0});", field.Name));
                         else
                             writer.Add(string.Format("Write(_1, \"{0}\", this.{0});", field.Name));
+
+                        //--Read Function
                         switch (field.BaseInfo.EType)
                         {
                             case TypeType.Base:
@@ -428,7 +431,11 @@ namespace ConfigGen.Export
                                 {
                                     CodeWriter.Comments(builder, field.Des);
                                     string fullType = CodeWriter.GetFullNamespace(Values.XmlRootNode, field.Type);
-                                    CodeWriter.Field(builder, CodeWriter.Public, fullType, field.Name);
+                                    if (field.BaseInfo.EType == TypeType.Base
+                                        && fullType.Equals(TypeInfo.STRING))
+                                        CodeWriter.FieldInit(builder, CodeWriter.Public, fullType, field.Name, "\"\"");
+                                    else
+                                        CodeWriter.Field(builder, CodeWriter.Public, fullType, field.Name);
 
                                     if (field.BaseInfo.EType == TypeType.Base)
                                         reader.Add(string.Format("case \"{0}\": this.{0} = Read{1}(_2); break;", field.Name, Util.FirstCharUpper(field.Type)));
@@ -441,7 +448,7 @@ namespace ConfigGen.Export
                                         if (classInfo.Inherit == null)
                                             reader.Add(string.Format("case \"{0}\": this.{0} = ReadObject<{1}>(_2, \"{1}\"); break;", field.Name, classFullName));
                                         else
-                                            reader.Add(string.Format("case \"{0}\": this.{0} = ReadDynamicObject<{1}>(_2, \"{2}\"); break;", field.Name, classFullName, classInfo.NamespaceName));
+                                            reader.Add(string.Format("case \"{0}\": this.{0} = ReadDynamicObject<{1}>(_2, \"{2}.{3}\"); break;", field.Name, classFullName, Values.XmlRootNode, classInfo.NamespaceName));
                                     }
                                 }
                                 break;
@@ -454,7 +461,7 @@ namespace ConfigGen.Export
                                     TypeType itemType = TypeInfo.GetTypeType(listType.ItemType);
                                     string fullType = CodeWriter.GetFullNamespace(Values.XmlRootNode, listType.ItemType);
                                     type = type.Replace(listType.ItemType, fullType);
-                                    CodeWriter.Field(builder, CodeWriter.Public, type, field.Name);
+                                    CodeWriter.FieldInit(builder, CodeWriter.Public, type, field.Name, initValue);
 
                                     BaseTypeInfo item = listType.ItemInfo.BaseInfo;
                                     if (item.EType == TypeType.Base)
@@ -468,8 +475,8 @@ namespace ConfigGen.Export
                                         if (classInfo.Inherit == null)
                                             reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add(ReadObject<{1}>(_3, \"{1}\"))); break;", field.Name, classFullName));
                                         else
-                                            reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add(ReadDynamicObject<{1}>(_3, \"{2}\"))); break;",
-                                                field.Name, classFullName, classInfo.NamespaceName));
+                                            reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add(ReadDynamicObject<{1}>(_3, \"{2}.{3}\"))); break;",
+                                                field.Name, classFullName, Values.XmlRootNode, classInfo.NamespaceName));
                                     }
                                     break;
                                 }
@@ -483,18 +490,19 @@ namespace ConfigGen.Export
                                     type = type.Replace(dictType.KeyType, fullType);
                                     fullType = CodeWriter.GetFullNamespace(Values.XmlRootNode, dictType.ValueType);
                                     type = type.Replace(dictType.ValueType, fullType);
-                                    CodeWriter.Field(builder, CodeWriter.Public, type, field.Name);
+                                    CodeWriter.FieldInit(builder, CodeWriter.Public, type, field.Name, initValue);
 
                                     string key = string.Format("Read{0}(GetOnlyChild(_3, \"Key\"))", Util.FirstCharUpper(dictType.KeyType));
+                                    string xmlValue = string.Format("GetOnlyChild(_3, \"Value\")");
                                     BaseTypeInfo valueInfo = dictType.ValueInfo.BaseInfo;
                                     if (valueInfo.EType == TypeType.Base)
                                     {
-                                        string value = string.Format("Read{0}(GetOnlyChild(_3, \"Value\"))", Util.FirstCharUpper(dictType.ValueType));
+                                        string value = string.Format("Read{0}({1})", Util.FirstCharUpper(dictType.ValueType), xmlValue);
                                         reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add({1}, {2})); break;", field.Name, key, value));
                                     }
                                     else if (valueInfo.EType == TypeType.Enum)
                                     {
-                                        string value = string.Format("({0}.{1})ReadInt(GetOnlyChild(_3, \"Value\"))", Values.XmlRootNode, valueInfo.GetFullName());
+                                        string value = string.Format("({0}.{1})ReadInt({2})", Values.XmlRootNode, valueInfo.GetFullName(), xmlValue);
                                         reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add({1}, {2})); break;", field.Name, key, value));
                                     }
                                     else if (valueInfo.EType == TypeType.Class)
@@ -503,9 +511,9 @@ namespace ConfigGen.Export
                                         string value = null;
                                         string classFullName = string.Format("{0}.{1}", Values.XmlRootNode, classInfo.GetFullName());
                                         if (classInfo.Inherit == null)
-                                            value = string.Format("ReadObject<{0}>(_3, \"{0}\")", classFullName);
+                                            value = string.Format("ReadObject<{0}>({1}, \"{0}\")", classFullName, xmlValue);
                                         else
-                                            value = string.Format("ReadDynamicObject<{0}>(_3, \"{1}\")", classFullName, classInfo.NamespaceName);
+                                            value = string.Format("ReadDynamicObject<{0}>({1}, \"{2}.{3}\")", classFullName, xmlValue, Values.XmlRootNode, classInfo.NamespaceName);
                                         reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add({1}, {2})); break;", field.Name, key, value));
                                     }
                                     break;
@@ -519,6 +527,11 @@ namespace ConfigGen.Export
                     builder.AppendLine();
                     CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Override, Base.Void, "Write",
                         new string[] { "TextWriter" }, new string[] { "_1" });
+                    if (classType.InhertType == ClassTypeInfo.InhertState.PolyChild)
+                    {
+                        CodeWriter.IntervalLevel(builder);
+                        builder.AppendLine("base.Write(_1);");
+                    }
                     for (int i = 0; i < writer.Count; i++)
                     {
                         CodeWriter.IntervalLevel(builder);
@@ -529,6 +542,11 @@ namespace ConfigGen.Export
                     CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Override, Base.Void, "Read",
                         new string[] { "XmlNode" }, new string[] { "_1" });
                     {
+                        if (classType.InhertType == ClassTypeInfo.InhertState.PolyChild)
+                        {
+                            CodeWriter.IntervalLevel(builder);
+                            builder.AppendLine("base.Read(_1);");
+                        }
                         CodeWriter.IntervalLevel(builder);
                         builder.AppendLine("foreach (System.Xml.XmlNode _2 in GetChilds (_1))");
                         CodeWriter.IntervalLevel(builder);

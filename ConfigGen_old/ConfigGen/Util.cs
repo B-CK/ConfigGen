@@ -88,7 +88,8 @@ namespace ConfigGen
                 for (int i = 0; i < dtSheet.Rows.Count; ++i)
                 {
                     string sheetName = dtSheet.Rows[i]["TABLE_NAME"].ToString();
-                    if (!sheetName.StartsWith(Values.DataFileFlag)) continue;
+                    //var index = sheetName.IndexOf(Values.ExcelSheetDataFlag);
+                    if (sheetName.IndexOf(Values.ExcelSheetDataFlag) != 1) continue;
 
                     da = new OleDbDataAdapter();
                     da.SelectCommand = new OleDbCommand(String.Format("Select * FROM [{0}]", sheetName), conn);
@@ -242,15 +243,34 @@ namespace ConfigGen
         {
             return string.Format("{0}.{1}", nameSpace, name);
         }
+        /// <summary>
+        /// 获取完整命名空间名,不包含类名
+        /// </summary>
+        public static string GetFullNamespace(string root, string _namespace)
+        {
+            if (string.IsNullOrWhiteSpace(_namespace))
+                return root;
+            else
+                return string.Format("{0}.{1}", root, _namespace);
+        }
         public static string FirstCharUpper(string name)
         {
             return Char.ToUpper(name[0]) + name.Substring(1);
         }
         public static void TryDeleteDirectory(string path)
         {
-            if (Directory.Exists(path))
-                Directory.Delete(path, true);
+            if (!Directory.Exists(path)) return;
+
+            var fs = Directory.GetFiles(path, "*.*");
+            for (int i = 0; i < fs.Length; i++)
+                File.Delete(fs[i]);
+            var ds = Directory.GetDirectories(path, "*");
+            for (int i = 0; i < ds.Length; i++)
+                TryDeleteDirectory(ds[i]);
+
+            Directory.Delete(path, true);
         }
+
 
 
         public static string ListStringSplit(string[] array, string split = ",")

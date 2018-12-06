@@ -72,7 +72,7 @@ namespace ConfigGen
             }
             catch (Exception e)
             {
-                Util.LogErrorFormat("数据导出异常!!!\n{0}\n{1}", e.Message, e.StackTrace);
+                Util.LogErrorFormat("{0}\n{1}", e.Message, e.StackTrace);
             }
 
             Util.Log("\n\n\n");
