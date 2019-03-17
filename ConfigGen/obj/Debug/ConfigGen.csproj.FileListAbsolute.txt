@@ -21,3 +21,4 @@ E:\__Github\ConfigGen\trunk\ConfigGen\bin\Debug\ConfigGen.pdb
 E:\__Github\ConfigGen\trunk\ConfigGen\obj\Debug\ConfigGen.csproj.CoreCompileInputs.cache
 E:\__Github\ConfigGen\trunk\ConfigGen\obj\Debug\ConfigGen.exe
 E:\__Github\ConfigGen\trunk\ConfigGen\obj\Debug\ConfigGen.pdb
+E:\__Github\ConfigGen\trunk\ConfigGen\obj\Debug\ConfigGen.csprojAssemblyReference.cache
