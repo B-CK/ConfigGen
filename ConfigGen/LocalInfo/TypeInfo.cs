@@ -56,7 +56,7 @@ namespace ConfigGen.Description
             Instance.EnumInfoDict = new Dictionary<string, EnumTypeInfo>();
 
             //解析类型定义
-            Dictionary<string, TypeDescription> pairs = new Dictionary<string, TypeDescription>();
+            Dictionary<string, NamespaceDes> pairs = new Dictionary<string, NamespaceDes>();
             var configXml = Util.Deserialize(Values.ConfigXml, typeof(ConfigXml)) as ConfigXml;
             if (string.IsNullOrWhiteSpace(configXml.Root))
                 throw new Exception("数据结构导出时必须指定命名空间根节点<Config Root=\"**\">");
@@ -68,16 +68,16 @@ namespace ConfigGen.Description
                 for (int i = 0; i < defines.Count; i++)
                 {
                     path = Path.Combine(Values.ConfigDir, defines[i]);
-                    var typeDes = Util.Deserialize(path, typeof(TypeDescription)) as TypeDescription;
-                    if (pairs.ContainsKey(typeDes.Namespace))
+                    var typeDes = Util.Deserialize(path, typeof(NamespaceDes)) as NamespaceDes;
+                    if (pairs.ContainsKey(typeDes.Name))
                     {
-                        pairs[typeDes.Namespace].Classes.AddRange(typeDes.Classes);
-                        pairs[typeDes.Namespace].Enums.AddRange(typeDes.Enums);
+                        pairs[typeDes.Name].Classes.AddRange(typeDes.Classes);
+                        pairs[typeDes.Name].Enums.AddRange(typeDes.Enums);
                     }
                     else
                     {
                         typeDes.XmlDirPath = Path.GetDirectoryName(path);
-                        pairs.Add(typeDes.Namespace, typeDes);
+                        pairs.Add(typeDes.Name, typeDes);
                     }
                 }
             }
@@ -87,7 +87,7 @@ namespace ConfigGen.Description
                 throw new Exception(e.Message);
             }
 
-            HashSet<string> exclude = new HashSet<string>(configXml.NoStruct);
+            HashSet<string> exclude = new HashSet<string>(configXml.Nonstreaming);
             //类型重名检查
             HashSet<string> fullHash = new HashSet<string>();
             foreach (var item in pairs)

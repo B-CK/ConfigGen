@@ -22,3 +22,9 @@ E:\__Github\ConfigGen\trunk\ConfigGen\obj\Debug\ConfigGen.csproj.CoreCompileInpu
 E:\__Github\ConfigGen\trunk\ConfigGen\obj\Debug\ConfigGen.exe
 E:\__Github\ConfigGen\trunk\ConfigGen\obj\Debug\ConfigGen.pdb
 E:\__Github\ConfigGen\trunk\ConfigGen\obj\Debug\ConfigGen.csprojAssemblyReference.cache
+E:\C#Project\ConfigGen_0\ConfigGen\bin\Debug\ConfigGen.exe
+E:\C#Project\ConfigGen_0\ConfigGen\bin\Debug\ConfigGen.pdb
+E:\C#Project\ConfigGen_0\ConfigGen\obj\Debug\ConfigGen.csprojAssemblyReference.cache
+E:\C#Project\ConfigGen_0\ConfigGen\obj\Debug\ConfigGen.csproj.CoreCompileInputs.cache
+E:\C#Project\ConfigGen_0\ConfigGen\obj\Debug\ConfigGen.exe
+E:\C#Project\ConfigGen_0\ConfigGen\obj\Debug\ConfigGen.pdb
