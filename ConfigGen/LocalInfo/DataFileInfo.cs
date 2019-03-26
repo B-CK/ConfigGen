@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace ConfigGen.LocalInfo
+namespace ConfigGen.Description
 {
     public class DataFileInfo
     {

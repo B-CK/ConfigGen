@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text;
-using ConfigGen.LocalInfo;
+using ConfigGen.Description;
 using System.Collections.Generic;
 using System.IO;
 

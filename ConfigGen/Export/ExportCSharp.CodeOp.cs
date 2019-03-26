@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using ConfigGen.LocalInfo;
+using ConfigGen.Description;
 using System.Collections.Generic;
 
 namespace ConfigGen.Export

@@ -3,7 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.IO;
 
-namespace ConfigGen.LocalInfo
+namespace ConfigGen.Description
 {
     partial class TableChecker
     {

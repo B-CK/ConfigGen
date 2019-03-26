@@ -4,7 +4,7 @@ using System.Data;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace ConfigGen.LocalInfo
+namespace ConfigGen.Description
 {
     //注:集合中##或者null均表示数据结束,集合数据从左至右填充,遇空则结束.
     //##结束符的功能预留,可扩展

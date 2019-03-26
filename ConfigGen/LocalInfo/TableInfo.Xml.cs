@@ -3,7 +3,7 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace ConfigGen.LocalInfo
+namespace ConfigGen.Description
 {
     public class TableXmlInfo : TableInfo
     {

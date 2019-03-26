@@ -1,6 +1,6 @@
 ﻿using System;
 using ConfigGen.Export;
-using ConfigGen.LocalInfo;
+using ConfigGen.Description;
 
 namespace ConfigGen
 {

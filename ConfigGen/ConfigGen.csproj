@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CmdOption.cs" />
+    <Compile Include="Description\ConfigXml.cs" />
     <Compile Include="Export\CodeWriter.cs" />
     <Compile Include="Export\ExportCSharp.CodeOp.cs" />
     <Compile Include="Export\ExportCSharp.XmlOp.cs" />
@@ -66,7 +67,7 @@
     <Compile Include="LocalInfo\TableInfo.Data.cs" />
     <Compile Include="LocalInfo\TableInfo.Xml.cs" />
     <Compile Include="LocalInfo\TableInfo.CheckCustom.cs" />
-    <Compile Include="LocalInfo\TypeDescription.cs" />
+    <Compile Include="Description\TypeDescription.cs" />
     <Compile Include="LocalInfo\TableInfo.cs" />
     <Compile Include="LocalInfo\TypeInfo.cs" />
     <Compile Include="Program.cs" />

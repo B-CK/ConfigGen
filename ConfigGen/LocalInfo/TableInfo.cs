@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.IO;
 
-namespace ConfigGen.LocalInfo
+namespace ConfigGen.Description
 {
     /// <summary>
     /// Sheet数据内容

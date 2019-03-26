@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
-using ConfigGen.LocalInfo;
+using ConfigGen.Description;
 
 namespace ConfigGen.Export
 {
@@ -193,8 +193,8 @@ namespace ConfigGen.Export
         public static string GetFullNamespace(string root, string relType)
         {
             string type = relType;
-            LocalInfo.TypeType typeType = LocalInfo.TypeInfo.GetTypeType(relType);
-            if (typeType == LocalInfo.TypeType.Enum || typeType == LocalInfo.TypeType.Class)
+            Description.TypeType typeType = Description.TypeInfo.GetTypeType(relType);
+            if (typeType == Description.TypeType.Enum || typeType == Description.TypeType.Class)
                 type = string.Format("{0}.{1}", root, relType);
             return type;
         }

@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace ConfigGen.LocalInfo
+namespace ConfigGen.Description
 {
     /// <summary>
     /// 表中字段类型分类
