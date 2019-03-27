@@ -18,14 +18,15 @@ namespace ConfigGen
             try
             {
                 //解析命令
-                if (!CmdOption.Instance.Init(args))
+                if (!CmdOption.Ins.Init(args))
                 {
+                    Util.LogError("命令参数解析失败!");
                     Console.ReadKey();
                     return;
                 }
 
                 //构建本地数据库               
-                TypeInfo.Init();
+                Description.TypeInfo.Init();
                 DataFileInfo.Init();
 
                 bool canExportCsv = !string.IsNullOrWhiteSpace(Values.ExportCsv);

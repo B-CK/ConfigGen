@@ -53,8 +53,8 @@ namespace ConfigGen.Export
         {
             StringBuilder builder = new StringBuilder();
             List<BaseTypeInfo> typeInfos = new List<BaseTypeInfo>();
-            typeInfos.AddRange(TypeInfo.Instance.ClassInfos);
-            typeInfos.AddRange(TypeInfo.Instance.EnumInfos);
+            typeInfos.AddRange(Description.TypeInfo.Instance.ClassInfos);
+            typeInfos.AddRange(Description.TypeInfo.Instance.EnumInfos);
             for (int i = 0; i < typeInfos.Count; i++)
             {
                 BaseTypeInfo baseType = typeInfos[i];
@@ -118,7 +118,7 @@ namespace ConfigGen.Export
                                 {
                                     ListTypeInfo listType = field.BaseInfo as ListTypeInfo;
                                     string type = string.Format("List<{0}>", listType.ItemType);
-                                    TypeType typeType = TypeInfo.GetTypeType(listType.ItemType);
+                                    TypeType typeType = Description.TypeInfo.GetTypeType(listType.ItemType);
                                     if (typeType == TypeType.Enum)
                                         type = type.Replace(listType.ItemType, Base.Int);
                                     string fullType = CodeWriter.GetFullNamespace(Values.ConfigRootNode, listType.ItemType);
@@ -133,10 +133,10 @@ namespace ConfigGen.Export
                                 {
                                     DictTypeInfo dictType = field.BaseInfo as DictTypeInfo;
                                     string type = string.Format("Dictionary<{0}, {1}>", dictType.KeyType, dictType.ValueType);
-                                    if (TypeInfo.GetTypeType(dictType.KeyType) == TypeType.Enum)
+                                    if (Description.TypeInfo.GetTypeType(dictType.KeyType) == TypeType.Enum)
                                         type = type.Replace(dictType.KeyType, Base.Int);
-                                    TypeType typeType = TypeInfo.GetTypeType(dictType.ValueType);
-                                    if (TypeInfo.GetTypeType(dictType.ValueType) == TypeType.Enum)
+                                    TypeType typeType = Description.TypeInfo.GetTypeType(dictType.ValueType);
+                                    if (Description.TypeInfo.GetTypeType(dictType.ValueType) == TypeType.Enum)
                                         type = type.Replace(dictType.ValueType, Base.Int);
 
                                     string fullType = CodeWriter.GetFullNamespace(Values.ConfigRootNode, dictType.KeyType);
@@ -245,9 +245,9 @@ namespace ConfigGen.Export
                     CodeWriter.Start(builder);
                     CodeWriter.IntervalLevel(builder);
                     DictTypeInfo dictType = typeInfo as DictTypeInfo;
-                    if (TypeInfo.GetTypeType(dictType.KeyType) == TypeType.Base)
+                    if (Description.TypeInfo.GetTypeType(dictType.KeyType) == TypeType.Base)
                         builder.AppendFormat("{0} k = {1}.Get{2}();\n", dictType.KeyType, argName, Util.FirstCharUpper(dictType.KeyType));
-                    else if (TypeInfo.GetTypeType(dictType.KeyType) == TypeType.Enum)
+                    else if (Description.TypeInfo.GetTypeType(dictType.KeyType) == TypeType.Enum)
                         builder.AppendFormat("{0} k = {1}.GetInt();\n", "int", argName);
 
                     CodeWriter.IntervalLevel(builder);
@@ -434,7 +434,7 @@ namespace ConfigGen.Export
             builder.AppendLine();
 
             List<BaseTypeInfo> typeInfos = new List<BaseTypeInfo>();
-            typeInfos.AddRange(TypeInfo.Instance.ClassInfos);
+            typeInfos.AddRange(Description.TypeInfo.Instance.ClassInfos);
             List<string> loadAll = new List<string>();
             StringBuilder clear = new StringBuilder();
             for (int i = 0; i < typeInfos.Count; i++)
@@ -449,7 +449,7 @@ namespace ConfigGen.Export
                     continue;
 
                 CodeWriter.IntervalLevel(builder);
-                TypeType keyType = TypeInfo.GetTypeType(classType.IndexField.Type);
+                TypeType keyType = Description.TypeInfo.GetTypeType(classType.IndexField.Type);
                 if (keyType == TypeType.Enum)
                     builder.AppendFormat("public static readonly Dictionary<{0}, {1}> {2} = new Dictionary<{0}, {1}>();\n",
                        Base.Int, classType.GetFullName(), classType.Name);

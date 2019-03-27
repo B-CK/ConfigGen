@@ -16,6 +16,8 @@ namespace ConfigGen.Description
         public string DataPath;
         [XmlAttribute]
         public string Group;
+        [XmlAttribute]
+        public string Desc;
 
         [XmlElement("Field")]
         public List<FieldDes> Fields;

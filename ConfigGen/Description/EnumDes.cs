@@ -10,6 +10,8 @@ namespace ConfigGen.Description
         public string Name;
         [XmlAttribute]
         public string Group;
+        [XmlAttribute]
+        public string Desc;
 
         [XmlElement("Const")]
         public List<ConstDes> Enums;

@@ -46,19 +46,19 @@ namespace ConfigGen.Export
                     DataBase dataBase = data as DataBase;
                     switch (info.Type)
                     {
-                        case TypeInfo.INT:
+                        case Description.TypeInfo.INT:
                             v = ((int)dataBase).ToString();
                             break;
-                        case TypeInfo.LONG:
+                        case Description.TypeInfo.LONG:
                             v = ((long)dataBase).ToString();
                             break;
-                        case TypeInfo.FLOAT:
+                        case Description.TypeInfo.FLOAT:
                             v = ((float)dataBase).ToString();
                             break;
-                        case TypeInfo.BOOL:
+                        case Description.TypeInfo.BOOL:
                             v = dataBase ? "1" : "0";
                             break;
-                        case TypeInfo.STRING:
+                        case Description.TypeInfo.STRING:
                             v = dataBase;
                             break;
                         default:

@@ -316,7 +316,7 @@ namespace ConfigGen.Description
         public static HashSet<string> AnalyzeGroup(string group)
         {
             if (string.IsNullOrWhiteSpace(group)) return new HashSet<string>() { Values.DefualtGroup };
-            string[] groups = group.Split(Values.ItemSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string[] groups = group.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             if (groups.Length == 0) return null;
             return new HashSet<string>(groups);
         }
@@ -373,7 +373,7 @@ namespace ConfigGen.Description
             {
                 if (string.IsNullOrWhiteSpace(_des.DataPath))
                     return null;
-                return string.Format("{0}\\{1}", XmlDirPath, Util.NormalizePath(_des.DataPath));
+                return string.Format("{0}\\{1}", XmlDirPath, (_des.DataPath));
             }
         }
         public string Group { get; private set; }
@@ -402,7 +402,7 @@ namespace ConfigGen.Description
         {
             EType = TypeType.Class;
             _des = des;
-            XmlDirPath = Util.NormalizePath(xmlDir);
+            XmlDirPath = xmlDir;
             string inherit = _des.Inherit;
 
             Consts = new List<ConstInfo>();
@@ -741,7 +741,7 @@ namespace ConfigGen.Description
         private void AnalyzeCheckRule()
         {
             if (Check == null) return;
-            string[] checks = Check.Split(Values.ItemSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string[] checks = Check.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             if (checks.Length == 0) return;
 
             string refFlag = "ref";

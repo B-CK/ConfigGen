@@ -9,11 +9,27 @@ namespace ConfigGen
     class Values
     {
         /// <summary>
+        /// 当前支持的可导出语言
+        /// </summary>
+        public static readonly HashSet<string> ExportLanguage = new HashSet<string>() { "c#", "java", "lua" };
+        public static readonly HashSet<string> RawTypes = new HashSet<string>() { "bool", "int", "float", "long", "string" };
+        public static readonly HashSet<string> ContainerTypes = new HashSet<string>() { "list", "dict" };
+        /// <summary>
+        /// 多参数分隔符,适用检查规则,分组
+        /// </summary>
+        public static readonly char[] ArgsSplitFlag = new char[1] { ':' };
+        /// <summary>
+        /// 字符串空
+        /// </summary>
+        public const string NULL_STR = "null";
+
+
+        /// <summary>
         /// 数据表文件夹路径
         /// </summary>
         public static string ConfigDir { get; set; }
         /// <summary>
-        /// 需要导出的数据和结构文件的描述文件
+        /// 需要导出的数据和结构文件的描述文件,例cfg.xml
         /// </summary>
         public static string ConfigXml { get; set; }
         /// <summary>
@@ -24,10 +40,7 @@ namespace ConfigGen
         /// 导出CSharp类型Xml操作类
         /// </summary>
         public static string ExportXmlCode { get; set; }
-        /// <summary>
-        /// 导出Lua类型类
-        /// </summary>
-        public static string ExportLua { get; set; }
+
         /// <summary>
         /// 导出csv存储路径
         /// </summary>
@@ -37,10 +50,6 @@ namespace ConfigGen
         /// </summary>
         public static HashSet<string> ExportGroup { get; set; }
         /// <summary>
-        /// 是否只对已修改文件进行操作
-        /// </summary>
-        public static bool IsOptPart { get; set; }
-        /// <summary>
         /// 导出Csv数据读写类命名空间根节点
         /// </summary>
         public static string ConfigRootNode { get; set; }
@@ -48,14 +57,21 @@ namespace ConfigGen
         /// 导出Xml数据读写类命名空间根节点
         /// </summary>
         public static string XmlRootNode { get { return "Xml" + ConfigRootNode; } }
+        public static bool OnlyCheck { get; set; }
 
+        //--弃用
+
+        /// <summary>
+        /// 导出Lua类型类
+        /// </summary>
+        public static string ExportLua { get; set; }
+        //--
 
         /// <summary>
         /// 存储运行时打印的所有信息，在程序运行完毕后输出为txt文件，从而解决如果输出内容过多控制台无法显示全部信息的问题
         /// </summary>
         public static StringBuilder LogContent = new StringBuilder();
 
-        #region 常量
         /// <summary>
         /// 数据表数据占位符,仅用于基础类型;不填写数据时,使用null占位.
         /// 默认值int,long,float="";string=""[无"null"字符串];bool=false;
@@ -98,15 +114,16 @@ namespace ConfigGen
         /// 数据集合结束符,可用在数据/子字段上.
         /// </summary>
         public const string DataSetEndFlag = "]]";
+
+
+
+
         /// <summary>
-        /// 多参数分隔符,适用检查规则,分组
+        /// 多态类型属性标识符?????
         /// </summary>
-        public const string ItemSplitFlag = "|";
-        /// <summary>
-        /// 单个检查功能中存在多个参数时,用:符号分离;
-        /// 集合元素类型分离
-        /// </summary>
-        public const string ArgsSplitFlag = ":";
+        public const string PolymorphismFlag = "Type";
+
+        #region 文件相关常量
         /// <summary>
         /// Csv数据存储分隔符
         /// </summary>
@@ -115,10 +132,6 @@ namespace ConfigGen
         /// Csv数据文件扩展名
         /// </summary>
         public const string CsvFileExt = ".data";
-        /// <summary>
-        /// 多态类型属性标识符
-        /// </summary>
-        public const string PolymorphismFlag = "Type";
         /// <summary>
         /// 列表元素命名
         /// </summary>

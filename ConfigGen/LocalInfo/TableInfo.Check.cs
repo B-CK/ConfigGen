@@ -172,15 +172,15 @@ namespace ConfigGen.Description
             DictTypeInfo dictInfo = info.BaseInfo as DictTypeInfo;
             string keyCheck, valueCheck;
             keyCheck = valueCheck = "";
-            string[] checks = info.Check.Split(Values.ItemSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string[] checks = info.Check.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < checks.Length; i++)
             {
                 int index = checks[i].IndexOf(Values.ArgsSplitFlag);
                 string checkTarget = checks[i].Substring(0, index).ToLower();
                 if (checkTarget == Values.KEY.ToLower())
-                    keyCheck = string.Format("{0}{1}{2}", keyCheck, Values.ItemSplitFlag, checks[i].Substring(index + 1));
+                    keyCheck = string.Format("{0}{1}{2}", keyCheck, Values.ArgsSplitFlag, checks[i].Substring(index + 1));
                 else if (checkTarget == Values.VALUE.ToLower())
-                    valueCheck = string.Format("{0}{1}{2}", valueCheck, Values.ItemSplitFlag, checks[i].Substring(index + 1));
+                    valueCheck = string.Format("{0}{1}{2}", valueCheck, Values.ArgsSplitFlag, checks[i].Substring(index + 1));
                 else
                 {
                     Util.LogWarningFormat("Type:{0} CheckRule:{1} 格式错误", info.Type, info.Check);
@@ -212,7 +212,7 @@ namespace ConfigGen.Description
         /// </summary>
         static bool AnalyzeCheckRule(FieldInfo info)
         {
-            string[] checks = info.Check.Split(Values.ItemSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string[] checks = info.Check.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             if (checks.Length == 0) return false;
 
             string refFlag = "ref";

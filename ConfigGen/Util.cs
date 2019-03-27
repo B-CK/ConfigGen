@@ -18,7 +18,7 @@ namespace ConfigGen
         Available,   // 当前可用
     }
 
-    class Util
+    public static class Util
     {
         [DllImport("kernel32.dll")]
         private static extern IntPtr _lopen(string lpPathName, int iReadWrite);
@@ -227,10 +227,6 @@ namespace ConfigGen
 
             File.WriteAllText(filePath, content, UTF8);
         }
-        public static string NormalizePath(string patth)
-        {
-            return patth.Replace("/", @"\");
-        }
         public static string GetConfigRelPath(string path)
         {
             return path.Replace(Values.ConfigDir, "");
@@ -271,9 +267,13 @@ namespace ConfigGen
             Directory.Delete(path, true);
         }
 
+        public static bool IsNullOrWhiteSpace(this string str)
+        {
+            return string.IsNullOrWhiteSpace(str);
+        }
+  
 
-
-        public static string ListStringSplit(string[] array, string split = ",")
+        public static string ListStringSplit(object[] array, string split = ",")
         {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < array.Length; i++)
@@ -285,33 +285,33 @@ namespace ConfigGen
             return ListStringSplit(list.ToArray(), split);
         }
 
-        public static void Log(string logString, ConsoleColor color = ConsoleColor.White)
+        public static void Log(object logString, ConsoleColor color = ConsoleColor.White)
         {
             Console.ForegroundColor = color;
             Console.WriteLine(logString);
-            Values.LogContent.AppendLine(logString);
+            Values.LogContent.AppendLine(logString.ToString());
         }
-        public static void LogWarning(string warningString)
+        public static void LogWarning(object warningString)
         {
             Log(warningString, ConsoleColor.Yellow);
         }
-        public static void LogError(string errorString)
+        public static void LogError(object errorString)
         {
             Log(errorString, ConsoleColor.Red);
         }
-        public static void LogFormat(string format, params string[] logString)
+        public static void LogFormat(string format, params object[] logString)
         {
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(format, logString);
             Values.LogContent.AppendLine(ListStringSplit(logString, "\r\n"));
         }
-        public static void LogWarningFormat(string format, params string[] warningString)
+        public static void LogWarningFormat(string format, params object[] warningString)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(format, warningString);
             Values.LogContent.AppendLine(ListStringSplit(warningString, "\r\n"));
         }
-        public static void LogErrorFormat(string format, params string[] errorString)
+        public static void LogErrorFormat(string format, params object[] errorString)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(format, errorString);

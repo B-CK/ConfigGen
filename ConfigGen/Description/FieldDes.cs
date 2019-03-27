@@ -10,7 +10,7 @@ namespace ConfigGen.Description
         [XmlAttribute]
         public string Type;
         [XmlAttribute]
-        public string Des;
+        public string Desc;
         [XmlAttribute]
         public string Group;
         [XmlAttribute]

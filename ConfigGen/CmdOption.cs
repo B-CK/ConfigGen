@@ -8,169 +8,124 @@ namespace ConfigGen
     class CmdOption
     {
         public const string CONFIG_XML = "-configXml";
-        public const string OPTION_MODE = "-optMode";
         public const string EXPORT_CSV = "-dataDir";
-        public const string EXPORT_CSHARP = "-codeDir";
-        public const string EXPORT_CS_LSON = "-xmlCodeDir";
-        public const string EXPORT_LUA = "-luaDir";
+        public const string EXPORT_CODE = "-codeDir";
+        public const string EXPORT_XML_CODE = "-xmlCodedir";
         public const string GROUP = "-group";
+        public const string CHECK = "-check";
         public const string HELP = "-help";
-        //public const string EXPORT_INFO = "-export";
-        //public const string REPLACE = "-replace";
-        //public const string FIND = "-find";
 
+        public const string OPTION_MODE = "-optMode";
+        public const string EXPORT_LUA = "-luaDir";
         void Usage()
         {
-            Console.WriteLine("-configXml [path] 数据导出文件路径");
-            Console.WriteLine("-optMode [all|part] 导出模式,全部导出或者只导出被修改文件");
-            Console.WriteLine("-dataDir [path] 导出数据到指定目录路径");
-            Console.WriteLine("-codeDir [path] 导出结构到指定目录路径");
-            Console.WriteLine("-xmlCodeDir [path] 导出xml类到指定目录路径");
-            Console.WriteLine("-luaDir [path] 导出lua脚本到指定目录路径");
-            Console.WriteLine("-group [client|editor|server] 按分组导出数据,分组可自定义");
-            Console.WriteLine("-help 打印指令说明");
-            //Console.WriteLine("-export [path] 按配置文件导出数据或者结构类,配置可自定义");
+            Console.WriteLine("语法:ConfigGen.exe [option]");
+            Console.WriteLine("     -configXml [path] 数据导出文件路径");
+            Console.WriteLine("     -dataDir [path] 导出数据到指定目录路径");
+            Console.WriteLine("     -codeDir [path] 导出结构到指定目录路径");
+            Console.WriteLine("     -xmlCodeDir [path] 导出xml类到指定目录路径");
+            Console.WriteLine("     -group [client|editor|server] 按分组导出数据,分组可自定义");
+            Console.WriteLine("     -check 检查数据及结构");
+            Console.WriteLine("     -help 打印指令说明");
+
+            Environment.Exit(0);
         }
 
-
-        public static CmdOption Instance
+        public static CmdOption Ins
         {
             get
             {
-                if (_instance == null)
-                    _instance = new CmdOption();
-                return _instance;
+                if (_ins == null)
+                    _ins = new CmdOption();
+                return _ins;
             }
         }
-        private static CmdOption _instance;
+        private static CmdOption _ins;
 
         private CmdOption() { }
-
-        public Dictionary<string, List<string>> CmdArgs { get; private set; }
-        public bool Init(string[] args)
+        private bool CheckArg(string cmd, string arg)
         {
-            CmdArgs = new Dictionary<string, List<string>>();
-            string currentArg = "";
-            for (int i = 0; i < args.Length; i++)
+            if (arg.IsNullOrWhiteSpace())
             {
-                string arg = args[i];
-                if (arg.StartsWith("-"))
-                {
-                    currentArg = arg;
-                    if (!CmdArgs.ContainsKey(arg))
-                        CmdArgs.Add(arg, new List<string>());
-                    else
-                        Util.LogWarning(string.Format("忽略重复命令{0},以第一个为主.", arg));
-                }
-                else if (CmdArgs.ContainsKey(currentArg))
-                    CmdArgs[currentArg].Add(arg);
-                else
-                    Util.LogWarning(string.Format("异常参数{0},未正常读取.", arg));
-            }
-
-            try
-            {
-                Values.IsOptPart = true;
-                foreach (var cmd in CmdArgs)
-                {
-                    string cmdName = cmd.Key;
-                    switch (cmdName)
-                    {
-                        case CONFIG_XML:
-                            if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ConfigXml = Util.NormalizePath(string.Format(@"{0}\{1}", Values.ApplicationDir, cmd.Value[0]));
-                            Values.ConfigDir = Path.GetDirectoryName(Values.ConfigXml);
-                            if (!File.Exists(Values.ConfigXml))
-                            {                                
-                                Util.LogErrorFormat("[{0}]ConfigXml导出文件不在此路径{1}", cmdName, Values.ConfigXml);
-                                Values.ConfigXml = null;
-                                Values.ConfigDir = null;
-                                return false;
-                            }
-                            break;
-                        case HELP:
-                            Usage();
-                            break;
-                        case OPTION_MODE:
-                            if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            bool isNormal = "part".Equals(cmd.Value[0]) || "all".Equals(cmd.Value[0]);
-                            if (!isNormal)
-                            {
-                                Util.LogErrorFormat("-optMode 参数异常!可选参数为all,part.错误:{0}", cmd.Value[0]);
-                                return false;
-                            }
-                            Values.IsOptPart = "part".Equals(cmd.Value[0]);
-                            break;
-                        case EXPORT_CSV://null不导出csv
-                            if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ExportCsv = Util.NormalizePath(cmd.Value[0]);
-                            if (string.IsNullOrWhiteSpace(Values.ExportCsv))
-                                Values.ExportCsv = null;
-                            break;
-                        case EXPORT_CSHARP://null不做语言类导出
-                            if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ExportCode = Util.NormalizePath(cmd.Value[0]);
-                            if (string.IsNullOrWhiteSpace(Values.ExportCode))
-                                Values.ExportCode = null;
-                            break;
-                        case EXPORT_CS_LSON://null不做语言类导出
-                            if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ExportXmlCode = Util.NormalizePath(cmd.Value[0]);
-                            if (string.IsNullOrWhiteSpace(Values.ExportXmlCode))
-                                Values.ExportXmlCode = null;
-                            break;
-                        case EXPORT_LUA:
-                            if (!CheckArgList(cmdName, cmd.Value)) return false;
-                            Values.ExportLua = Util.NormalizePath(cmd.Value[0]);
-                            if (string.IsNullOrWhiteSpace(Values.ExportLua))
-                                Values.ExportLua = null;
-                            break;
-                        case GROUP://默认导出所有分组
-                            string[] groups = cmd.Value[0].Split(Values.ItemSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                            for (int i = 0; i < groups.Length; i++)
-                                groups[i] = groups[i].ToLower();
-                            Values.ExportGroup = new HashSet<string>(groups);
-                            Values.ExportGroup.Add(Values.DefualtGroup);
-                            break;
-                        //case EXPORT_INFO:
-                        //    if (!CheckArgList(cmdName, cmd.Value)) return false;
-                        //    Values.ExportFilter = Util.NormalizePath((string.Format(@"{0}\{1}", Values.ApplicationDir, cmd.Value[0])));
-                        //    if (!File.Exists(Values.ExportFilter))
-                        //    {
-                        //        Util.LogErrorFormat("[{0}]导出定义文件不在此路径{1}", cmdName, Values.ExportFilter);
-                        //        Values.ExportFilter = null;
-                        //        return false;
-                        //    }
-                        //    break;
-                        //case REPLACE:
-                        //    if (!CheckArgList(cmdName, cmd.Value)) return false;
-                        //    break;
-                        //case FIND:
-                        //    if (!CheckArgList(cmdName, cmd.Value)) return false;
-                        //    break;
-                        default:
-                            Util.LogErrorFormat("应用无法执行此命令{0}.", cmdName);
-                            return false;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Util.LogError("初始化命令参数失败!");
-                Util.LogErrorFormat("{0}\r\n{1}", e.Message, e.StackTrace);
+                Util.LogErrorFormat("{0} 命令参数为空", cmd);
+                Usage();
                 return false;
             }
             return true;
         }
-
-        private bool CheckArgList(string cmdName, List<string> list)
+        public Dictionary<string, List<string>> CmdArgs { get; private set; }
+        public static string NormalizePath(string patth)
         {
-            if (list.Count == 0)
+            return patth.Replace("/", @"\");
+        }
+        public bool Init(string[] args)
+        {
+            CmdArgs = new Dictionary<string, List<string>>();
+            for (int i = 0; i < args.Length; i++)
             {
-                Util.LogErrorFormat("[{0}]命令参数未配置!", cmdName);
-                return false;
+                string arg = args[i];
+                switch (args[i])
+                {
+                    case CONFIG_XML:
+                        if (!CheckArg(CONFIG_XML, args[++i])) return false;
+                        Values.ConfigXml = NormalizePath(string.Format(@"{0}\{1}", Values.ApplicationDir, args[i]));
+                        Values.ConfigDir = Path.GetDirectoryName(Values.ConfigXml);
+                        if (!File.Exists(Values.ConfigXml))
+                        {
+                            Util.LogErrorFormat("[{0}]导出文件{1}不存在!", CONFIG_XML, Values.ConfigXml);
+                            return false;
+                        }
+                        break;
+                    case EXPORT_CSV:
+                        if (!CheckArg(EXPORT_CSV, args[++i])) return false;
+                        Values.ExportCsv = NormalizePath(args[i]);
+                        if (!Directory.Exists(Values.ExportCsv))
+                        {
+                            Util.LogErrorFormat("[{0}]导出数据目录{1}不存在!", EXPORT_CSV, Values.ExportCsv);
+                            return false;
+                        }
+                        break;
+                    case EXPORT_CODE:
+                        if (!CheckArg(EXPORT_CODE, args[++i])) return false;
+                        Values.ExportCode = NormalizePath(args[i]);
+                        if (!Directory.Exists(Values.ExportCode))
+                        {
+                            Util.LogErrorFormat("[{0}]导出代码目录{1}不存在!", EXPORT_CODE, Values.ExportCode);
+                            return false;
+                        }
+                        break;
+                    case EXPORT_XML_CODE:
+                        if (!CheckArg(EXPORT_XML_CODE, args[++i])) return false;
+                        Values.ExportXmlCode = NormalizePath(args[i]);
+                        if (!Directory.Exists(Values.ExportXmlCode))
+                        {
+                            Util.LogErrorFormat("[{0}]导出Xml代码目录{1}不存在!", EXPORT_XML_CODE, Values.ExportXmlCode);
+                            return false;
+                        }
+                        break;
+                    case GROUP:
+                        if (!CheckArg(GROUP, args[++i])) return false;
+                        string[] groups = args[i].Split(Values.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
+                        for (int g = 0; g < groups.Length; g++)
+                            groups[g] = groups[g].ToLower();
+                        Values.ExportGroup = new HashSet<string>(groups);
+                        Values.ExportGroup.Add(Values.DefualtGroup);
+                        break;
+                    case CHECK:
+                        Values.OnlyCheck = true;
+                        break;
+                    case HELP:
+                        Usage();
+                        break;
+                    default:
+                        Util.LogError("未知命令" + arg);
+                        Usage();
+                        break;
+                }
             }
+
             return true;
         }
     }
 }
+

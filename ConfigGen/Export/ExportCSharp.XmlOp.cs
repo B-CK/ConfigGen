@@ -372,8 +372,8 @@ namespace ConfigGen.Export
             List<string> writer = new List<string>();
             List<string> reader = new List<string>();
             List<BaseTypeInfo> typeInfos = new List<BaseTypeInfo>();
-            typeInfos.AddRange(TypeInfo.Instance.ClassInfos);
-            typeInfos.AddRange(TypeInfo.Instance.EnumInfos);
+            typeInfos.AddRange(Description.TypeInfo.Instance.ClassInfos);
+            typeInfos.AddRange(Description.TypeInfo.Instance.EnumInfos);
             foreach (BaseTypeInfo baseType in typeInfos)
             {
                 CodeWriter.UsingNamespace(builder, XmlNameSpaces);
@@ -400,10 +400,10 @@ namespace ConfigGen.Export
                         string value = field.Value;
                         switch (field.Type)
                         {
-                            case TypeInfo.FLOAT:
+                            case Description.TypeInfo.FLOAT:
                                 value = string.Format("{0}f", field.Value);
                                 break;
-                            case TypeInfo.STRING:
+                            case Description.TypeInfo.STRING:
                                 value = string.Format("@\"{0}\"", field.Value);
                                 break;
                         }
@@ -432,7 +432,7 @@ namespace ConfigGen.Export
                                     CodeWriter.Comments(builder, field.Des);
                                     string fullType = CodeWriter.GetFullNamespace(Values.XmlRootNode, field.Type);
                                     if (field.BaseInfo.EType == TypeType.Base
-                                        && fullType.Equals(TypeInfo.STRING))
+                                        && fullType.Equals(Description.TypeInfo.STRING))
                                         CodeWriter.FieldInit(builder, CodeWriter.Public, fullType, field.Name, "\"\"");
                                     else
                                         CodeWriter.Field(builder, CodeWriter.Public, fullType, field.Name);
@@ -458,7 +458,7 @@ namespace ConfigGen.Export
                                     string type = string.Format("List<{0}>", listType.ItemType);
                                     string initValue = string.Format("new {0}()", type);
                                     CodeWriter.Comments(builder, field.Des);
-                                    TypeType itemType = TypeInfo.GetTypeType(listType.ItemType);
+                                    TypeType itemType = Description.TypeInfo.GetTypeType(listType.ItemType);
                                     string fullType = CodeWriter.GetFullNamespace(Values.XmlRootNode, listType.ItemType);
                                     type = type.Replace(listType.ItemType, fullType);
                                     CodeWriter.FieldInit(builder, CodeWriter.Public, type, field.Name, initValue);

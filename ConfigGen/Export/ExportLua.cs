@@ -38,7 +38,7 @@ namespace ConfigGen.Export
                 cfgLoopBuilder.AppendFormat("\t{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
                     classType.Name, method, index, fileName.ToLower());
             }
-            foreach (var item in TypeInfo.Instance.ClassInfos)
+            foreach (var item in Description.TypeInfo.Instance.ClassInfos)
             {
                 ClassTypeInfo classInfo = item;
                 if (classInfo.EType != TypeType.Class) continue;
@@ -53,10 +53,10 @@ namespace ConfigGen.Export
                     string value = cst.Value;
                     switch (cst.Type)
                     {
-                        case TypeInfo.FLOAT:
+                        case Description.TypeInfo.FLOAT:
                             value = string.Format("{0}", cst.Value);
                             break;
-                        case TypeInfo.STRING:
+                        case Description.TypeInfo.STRING:
                             value = string.Format("'{0}'", cst.Value);
                             break;
                     }
@@ -82,7 +82,7 @@ namespace ConfigGen.Export
                 dsLoopBuilder.AppendFormat("\treturn o\n");
                 dsLoopBuilder.AppendFormat("end\n");
             }
-            foreach (var item in TypeInfo.Instance.EnumInfos)
+            foreach (var item in Description.TypeInfo.Instance.EnumInfos)
             {
                 EnumTypeInfo enumInfo = item;
                 string fullName = string.Format("{0}.{1}", Values.ConfigRootNode, enumInfo.GetFullName());
