@@ -8,8 +8,12 @@ namespace ConfigGen.TypeInfo
 {
     public class ClassInfo
     {
-        private static readonly Dictionary<string, ClassInfo> _classes = new Dictionary<string, ClassInfo>();
+        private static Dictionary<string, ClassInfo> _classes = new Dictionary<string, ClassInfo>();
         public static Dictionary<string, ClassInfo> Classes { get { return _classes; } }
+        public static ClassInfo Get(string fullName)
+        {
+            return IsClass(fullName) ? _classes[fullName] : null;
+        }
         public static bool IsClass(string fullName)
         {
             return _classes.ContainsKey(fullName);
@@ -61,10 +65,6 @@ namespace ConfigGen.TypeInfo
             _xmlDir = xmlDir;
             _namespace = namespace0;
             _fullName = string.Format("{0}.{1}", namespace0, des.Name);
-
-
-
-
         }
 
         public bool IsDynamic()

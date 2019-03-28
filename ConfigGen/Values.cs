@@ -1,29 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace ConfigGen
 {
-    class Values
+    public class Values
     {
-        /// <summary>
-        /// 当前支持的可导出语言
-        /// </summary>
-        public static readonly HashSet<string> ExportLanguage = new HashSet<string>() { "c#", "java", "lua" };
-        public static readonly HashSet<string> RawTypes = new HashSet<string>() { "bool", "int", "float", "long", "string" };
-        public static readonly HashSet<string> ContainerTypes = new HashSet<string>() { "list", "dict" };
-        /// <summary>
-        /// 多参数分隔符,适用检查规则,分组
-        /// </summary>
-        public static readonly char[] ArgsSplitFlag = new char[1] { ':' };
         /// <summary>
         /// 字符串空
         /// </summary>
         public const string NULL_STR = "null";
+        public const string BOOL = "bool";
+        public const string INT = "int";
+        public const string FLOAT = "float";
+        public const string LONG = "long";
+        public const string STRING = "string";
+        public const string LIST = "list";
+        public const string DICT = "dict";
 
+        /// <summary>
+        /// 当前支持的可导出语言
+        /// </summary>
+        public static readonly HashSet<string> ExportLanguage = new HashSet<string>() { "c#", "java", "lua" };
+        public static readonly HashSet<string> RawTypes = new HashSet<string>() { BOOL, INT, FLOAT, LONG, STRING };
+        public static readonly HashSet<string> ContainerTypes = new HashSet<string>() { LIST, DICT };
+        /// <summary>
+        /// 多参数分隔符,适用检查规则,分组
+        /// </summary>
+        public static readonly char[] ArgsSplitFlag = new char[1] { ':' };     
 
+        #region 命令配置
         /// <summary>
         /// 数据表文件夹路径
         /// </summary>
@@ -58,6 +64,8 @@ namespace ConfigGen
         /// </summary>
         public static string XmlRootNode { get { return "Xml" + ConfigRootNode; } }
         public static bool OnlyCheck { get; set; }
+        #endregion
+
 
         //--弃用
 
@@ -110,10 +118,7 @@ namespace ConfigGen
         /// </summary>
         //public const int DataSheetFieldIndex = 0;
         public const int DataSheetDataStartIndex = 3;
-        /// <summary>
-        /// 数据集合结束符,可用在数据/子字段上.
-        /// </summary>
-        public const string DataSetEndFlag = "]]";
+
 
 
 
@@ -132,6 +137,14 @@ namespace ConfigGen
         /// Csv数据文件扩展名
         /// </summary>
         public const string CsvFileExt = ".data";
+        /// <summary>
+        /// Excel数据行结束符
+        /// </summary>
+        public const string RowEndFlag = "##";
+        /// <summary>
+        /// 数据集合结束符,可用在数据/子字段上.
+        /// </summary>
+        public const string SetEndFlag = "]]";
         /// <summary>
         /// 列表元素命名
         /// </summary>

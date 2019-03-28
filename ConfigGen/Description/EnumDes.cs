@@ -15,5 +15,14 @@ namespace ConfigGen.Description
 
         [XmlElement("Const")]
         public List<ConstDes> Enums;
+
+        //public void ToLower()
+        //{
+        //    Name = Name.ToLowerExt();
+        //    Group = Group.ToLowerExt();
+
+        //    for (int i = 0; i < Enums.Count; i++)
+        //        Enums[i].ToLower();
+        //}
     }
 }

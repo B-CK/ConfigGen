@@ -45,7 +45,7 @@ namespace ConfigGen
         private CmdOption() { }
         private bool CheckArg(string cmd, string arg)
         {
-            if (arg.IsNullOrWhiteSpace())
+            if (arg.IsEmpty())
             {
                 Util.LogErrorFormat("{0} 命令参数为空", cmd);
                 Usage();

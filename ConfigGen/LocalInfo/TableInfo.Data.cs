@@ -68,7 +68,7 @@ namespace ConfigGen.Description
             {
                 if (column >= dt.Rows[row].ItemArray.Length) return;
                 string flag = dt.Rows[row][column].ToString();
-                isEnd = flag.Equals(Values.DataSetEndFlag);
+                isEnd = flag.Equals(Values.SetEndFlag);
                 column++;
             } while (!isEnd);
             column--;
@@ -109,7 +109,7 @@ namespace ConfigGen.Description
             string key = dataBase;
             if (key != null)
             {
-                if (key.Equals(Values.DataSetEndFlag))//--集合类型结束
+                if (key.Equals(Values.SetEndFlag))//--集合类型结束
                     return null;
                 else if (key.ToLower().Equals(Values.Null))//--占位内容空,使用类型默认值
                     dataBase.Data = null;
@@ -126,7 +126,7 @@ namespace ConfigGen.Description
             EnumTypeInfo enumType = info.BaseInfo as EnumTypeInfo;
             dataBase.Data = dt.Rows[row][column];
             string key = dataBase.Data as string;
-            if (key != null && !key.Equals(Values.DataSetEndFlag))
+            if (key != null && !key.Equals(Values.SetEndFlag))
             {
                 string value = enumType[key];
                 if (!string.IsNullOrWhiteSpace(value))
@@ -146,7 +146,7 @@ namespace ConfigGen.Description
         {
             RemoveEmpty(dt, row, ref column);
             string flag = dt.Rows[row][column].ToString();
-            if (flag.Equals(Values.DataSetEndFlag))//--集合结束标识符
+            if (flag.Equals(Values.SetEndFlag))//--集合结束标识符
                 return null;
 
             ClassTypeInfo classType = info.BaseInfo as ClassTypeInfo;

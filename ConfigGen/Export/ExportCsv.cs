@@ -160,7 +160,7 @@ namespace ConfigGen.Export
             for (int i = 0; i < elements.Count; i++)
             {
                 string value = AnalyzeField(elementInfo, elements[i]);
-                if (!value.Equals(Values.DataSetEndFlag))
+                if (!value.Equals(Values.SetEndFlag))
                 {
                     if (i + 1 == elements.Count)
                         builder.Append(value);
@@ -192,8 +192,8 @@ namespace ConfigGen.Export
             {
                 string key = AnalyzeField(keyInfo, pairs[i].Key);
                 string value = AnalyzeField(valueInfo, pairs[i].Value);
-                if (key.Equals(Values.DataSetEndFlag)
-                    || value.Equals(Values.DataSetEndFlag))
+                if (key.Equals(Values.SetEndFlag)
+                    || value.Equals(Values.SetEndFlag))
                     break;
 
                 builder.AppendFormat("{0}{1}{2}{3}", Values.CsvSplitFlag, key, Values.CsvSplitFlag, value);

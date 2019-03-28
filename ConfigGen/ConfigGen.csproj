@@ -85,6 +85,8 @@
     <Compile Include="LocalInfo\TypeInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="IO\RCReader.cs" />
+    <Compile Include="IO\Mashal.cs" />
     <Compile Include="TypeInfo\ClassInfo.cs" />
     <Compile Include="TypeInfo\Config.cs" />
     <Compile Include="TypeInfo\ConstInfo.cs" />

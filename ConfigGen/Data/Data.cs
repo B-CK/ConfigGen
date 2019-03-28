@@ -12,14 +12,14 @@ namespace ConfigGen.Data
             {
                 switch (type)
                 {
-                    case "bool":
-                    case "int":
+                    case Values.BOOL:
+                    case Values.INT:
                         break;
-                    case "long":
+                    case Values.LONG:
                         break;
-                    case "float":
+                    case Values.FLOAT:
                         break;
-                    case "string":
+                    case Values.STRING:
                         break;
                 }
             }

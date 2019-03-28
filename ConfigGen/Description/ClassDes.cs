@@ -23,5 +23,18 @@ namespace ConfigGen.Description
         public List<FieldDes> Fields;
         [XmlElement("Const")]
         public List<ConstDes> Consts;
+
+        //public void ToLower()
+        //{
+        //    Name = Name.ToLowerExt();
+        //    Inherit = Inherit.ToLowerExt();
+        //    Index = Index.ToLowerExt();
+        //    Group = Group.ToLowerExt();
+
+        //    for (int i = 0; i < Fields.Count; i++)
+        //        Fields[i].ToLower();
+        //    for (int i = 0; i < Consts.Count; i++)
+        //        Consts[i].ToLower();
+        //}
     }
 }

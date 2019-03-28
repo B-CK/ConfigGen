@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Data;
 using System.Data.OleDb;
 using System.Diagnostics;
-
+using System.Text.RegularExpressions;
 
 namespace ConfigGen
 {
@@ -267,11 +267,7 @@ namespace ConfigGen
             Directory.Delete(path, true);
         }
 
-        public static bool IsNullOrWhiteSpace(this string str)
-        {
-            return string.IsNullOrWhiteSpace(str);
-        }
-  
+
 
         public static string ListStringSplit(object[] array, string split = ",")
         {
@@ -338,5 +334,35 @@ namespace ConfigGen
             string seconds = (ms / 1000f).ToString();
             LogFormat("{0} 耗时 {1:N3}s\n", msg, seconds);
         }
+
+
+
+        #region 字符串扩展及操作
+        /// <summary>
+        /// 符合程序化命名规则,除首字母非"_"
+        /// </summary>
+        public static bool MatchName(string name)
+        {
+            return Regex.IsMatch(name, @"[a-zA-Z]\w");
+        }
+        public static string[] Split(this string type)
+        {
+            return type.IsEmpty() ? new string[0] : type.Split(Values.ArgsSplitFlag);
+        }
+        /// <summary>
+        /// 各种空
+        /// </summary>
+        public static bool IsEmpty(this string str)
+        {
+            return string.IsNullOrWhiteSpace(str);
+        }
+        public static string ToLowerExt(this string self)
+        {
+            if (self != null)
+                return self.ToLower();
+            return null;
+        }
+        #endregion
+
     }
 }

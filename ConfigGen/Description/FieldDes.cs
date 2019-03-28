@@ -18,6 +18,13 @@ namespace ConfigGen.Description
 
         //[XmlAttribute]
         //public string Split;
+
+        //public void ToLower()
+        //{
+        //    Name = Name.ToLowerExt();
+        //    Type = Type.ToLowerExt();
+        //    Check = Check.ToLowerExt();
+        //}
     }
 
     [XmlInclude(typeof(ConstDes))]
