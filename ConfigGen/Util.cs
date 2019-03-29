@@ -227,11 +227,11 @@ namespace ConfigGen
 
             File.WriteAllText(filePath, content, UTF8);
         }
-        public static string GetConfigRelPath(string path)
+        public static string GetRelPath(string path)
         {
             return path.Replace(Values.ConfigDir, "");
         }
-        public static string GetConfigAbsPath(string relPath)
+        public static string GetAbsPath(string relPath)
         {
             return string.Format(@"{0}{1}", Values.ConfigDir, relPath);
         }
@@ -314,6 +314,8 @@ namespace ConfigGen
             Values.LogContent.AppendLine(ListStringSplit(errorString, "\r\n"));
         }
 
+
+
         static Stopwatch _sw = new Stopwatch();
         static Stack<long> _timeStack = new Stack<long>();
         public static void Start()
@@ -337,7 +339,7 @@ namespace ConfigGen
 
 
 
-        #region 字符串扩展及操作
+        #region 扩展及操作
         /// <summary>
         /// 符合程序化命名规则,除首字母非"_"
         /// </summary>
@@ -349,6 +351,7 @@ namespace ConfigGen
         {
             return type.IsEmpty() ? new string[0] : type.Split(Values.ArgsSplitFlag);
         }
+        
         /// <summary>
         /// 各种空
         /// </summary>

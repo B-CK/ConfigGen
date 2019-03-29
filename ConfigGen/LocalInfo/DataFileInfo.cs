@@ -35,7 +35,7 @@ namespace ConfigGen.Description
             var dict = _instance._stateDict;
             if (File.Exists(path))
             {
-                string refPath = Util.GetConfigRelPath(path);
+                string refPath = Util.GetRelPath(path);
                 string md5 = Util.GetMD5HashFromFile(path);
                 if (dict.ContainsKey(refPath))
                     result = !dict[refPath].Equals(md5);
@@ -48,7 +48,7 @@ namespace ConfigGen.Description
                 string[] files = Directory.GetFiles(path, "*." + Values.DataFileFlag, SearchOption.AllDirectories);
                 for (int i = 0; i < files.Length; i++)
                 {
-                    string refPath = Util.GetConfigRelPath(files[i]);
+                    string refPath = Util.GetRelPath(files[i]);
                     if (File.Exists(files[i]))
                     {
                         string md5 = Util.GetMD5HashFromFile(files[i]);

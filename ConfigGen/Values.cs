@@ -6,6 +6,9 @@ namespace ConfigGen
 {
     public class Values
     {
+        #region 基础配置
+
+        
         /// <summary>
         /// 字符串空
         /// </summary>
@@ -27,7 +30,8 @@ namespace ConfigGen
         /// <summary>
         /// 多参数分隔符,适用检查规则,分组
         /// </summary>
-        public static readonly char[] ArgsSplitFlag = new char[1] { ':' };     
+        public static readonly char[] ArgsSplitFlag = new char[1] { ':' };
+        #endregion
 
         #region 命令配置
         /// <summary>
@@ -64,6 +68,37 @@ namespace ConfigGen
         /// </summary>
         public static string XmlRootNode { get { return "Xml" + ConfigRootNode; } }
         public static bool OnlyCheck { get; set; }
+        #endregion
+
+        #region 文件相关常量
+        /// <summary>
+        /// Csv数据存储分隔符
+        /// </summary>
+        public const string CsvSplitFlag = "▃";
+        /// <summary>
+        /// Csv数据文件扩展名
+        /// </summary>
+        public const string CsvFileExt = ".data";
+        /// <summary>
+        /// Excel数据行结束符
+        /// </summary>
+        public const string RowEndFlag = "##";
+        /// <summary>
+        /// 数据集合结束符,可用在数据/子字段上.
+        /// </summary>
+        public const string SetEndFlag = "]]";
+        /// <summary>
+        /// 列表元素命名
+        /// </summary>
+        public const string ELEMENT = "Element";
+        /// <summary>
+        /// 字典Key命名
+        /// </summary>
+        public const string KEY = "Key";
+        /// <summary>
+        /// 字典Value命名
+        /// </summary>
+        public const string VALUE = "Value";
         #endregion
 
 
@@ -128,35 +163,6 @@ namespace ConfigGen
         /// </summary>
         public const string PolymorphismFlag = "Type";
 
-        #region 文件相关常量
-        /// <summary>
-        /// Csv数据存储分隔符
-        /// </summary>
-        public const string CsvSplitFlag = "▃";
-        /// <summary>
-        /// Csv数据文件扩展名
-        /// </summary>
-        public const string CsvFileExt = ".data";
-        /// <summary>
-        /// Excel数据行结束符
-        /// </summary>
-        public const string RowEndFlag = "##";
-        /// <summary>
-        /// 数据集合结束符,可用在数据/子字段上.
-        /// </summary>
-        public const string SetEndFlag = "]]";
-        /// <summary>
-        /// 列表元素命名
-        /// </summary>
-        public const string ELEMENT = "Element";
-        /// <summary>
-        /// 字典Key命名
-        /// </summary>
-        public const string KEY = "Key";
-        /// <summary>
-        /// 字典Value命名
-        /// </summary>
-        public const string VALUE = "Value";
-        #endregion
+  
     }
 }

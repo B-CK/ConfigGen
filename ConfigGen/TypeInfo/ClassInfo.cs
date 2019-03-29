@@ -1,6 +1,7 @@
 ﻿using ConfigGen.Description;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -70,6 +71,10 @@ namespace ConfigGen.TypeInfo
         public bool IsDynamic()
         {
             return _children.Count > 0;
+        }
+        public bool IsConfig(string path)
+        {
+            return !path.IsEmpty() && File.Exists(path) || Directory.Exists(path);
         }
 
 
