@@ -88,10 +88,11 @@
     <Compile Include="IO\RCReader.cs" />
     <Compile Include="IO\Mashal.cs" />
     <Compile Include="TypeInfo\ClassInfo.cs" />
-    <Compile Include="TypeInfo\Config.cs" />
+    <Compile Include="TypeInfo\ConfigInfo.cs" />
     <Compile Include="TypeInfo\ConstInfo.cs" />
     <Compile Include="TypeInfo\EnumInfo.cs" />
     <Compile Include="TypeInfo\FieldInfo.cs" />
+    <Compile Include="TypeInfo\GroupInfo.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="Values.cs" />
   </ItemGroup>
