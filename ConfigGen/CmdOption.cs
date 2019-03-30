@@ -8,9 +8,11 @@ namespace ConfigGen
     class CmdOption
     {
         public const string CONFIG_XML = "-configXml";
-        public const string EXPORT_CSV = "-dataDir";
-        public const string EXPORT_CODE = "-codeDir";
-        public const string EXPORT_XML_CODE = "-xmlCodedir";
+        public const string DATA_DIR = "-dataDir";
+        public const string CS_DIR = "-csDir";
+        public const string JAVA_DIR = "-javaDir";
+        public const string LUA_DIR = "-luaDir";
+        public const string XML_CODE_DIR = "-xmlCodeDir";
         public const string GROUP = "-group";
         public const string CHECK = "-check";
         public const string HELP = "-help";
@@ -42,6 +44,7 @@ namespace ConfigGen
         }
         private static CmdOption _ins;
 
+        private bool _result;
         private CmdOption() { }
         private bool CheckArg(string cmd, string arg)
         {
@@ -53,58 +56,69 @@ namespace ConfigGen
             }
             return true;
         }
+        private string CheckDirArg(string flag, string arg)
+        {
+            if (!CheckArg(flag, arg))
+            {
+                _result &= false;
+                return null;
+            }
+            string codeDir = NormalizePath(arg);
+            if (!Directory.Exists(codeDir))
+            {
+                Util.LogErrorFormat("[{0}]导出目录{1}不存在!", flag, codeDir);
+                _result &= false;
+            }
+            return codeDir;
+        }
         public Dictionary<string, List<string>> CmdArgs { get; private set; }
         public static string NormalizePath(string patth)
         {
             return patth.Replace("/", @"\");
         }
-        public bool Init(string[] args)
+        public void Parse(string[] args)
         {
+            _result = true;
             CmdArgs = new Dictionary<string, List<string>>();
             for (int i = 0; i < args.Length; i++)
             {
-                string arg = args[i];
                 switch (args[i])
                 {
                     case CONFIG_XML:
-                        if (!CheckArg(CONFIG_XML, args[++i])) return false;
-                        Values.ConfigXml = NormalizePath(string.Format(@"{0}\{1}", Values.ApplicationDir, args[i]));
-                        Values.ConfigDir = Path.GetDirectoryName(Values.ConfigXml);
+                        if (!CheckArg(CONFIG_XML, args[++i]))
+                        {
+                            _result &= false;
+                            break;
+                        }
+                        Values.ConfigXml = NormalizePath(args[i]);
                         if (!File.Exists(Values.ConfigXml))
                         {
-                            Util.LogErrorFormat("[{0}]导出文件{1}不存在!", CONFIG_XML, Values.ConfigXml);
-                            return false;
+                            Util.LogErrorFormat("[{0}]confgxml配置文件{1}不存在!", CONFIG_XML, Values.ConfigXml);
+                            _result &= false;
                         }
+                        Values.ConfigDir = Path.GetDirectoryName(Values.ConfigXml);
                         break;
-                    case EXPORT_CSV:
-                        if (!CheckArg(EXPORT_CSV, args[++i])) return false;
-                        Values.ExportCsv = NormalizePath(args[i]);
-                        if (!Directory.Exists(Values.ExportCsv))
-                        {
-                            Util.LogErrorFormat("[{0}]导出数据目录{1}不存在!", EXPORT_CSV, Values.ExportCsv);
-                            return false;
-                        }
+                    case DATA_DIR:
+                        Values.DataDir = CheckDirArg(DATA_DIR, args[++i]);
                         break;
-                    case EXPORT_CODE:
-                        if (!CheckArg(EXPORT_CODE, args[++i])) return false;
-                        Values.ExportCode = NormalizePath(args[i]);
-                        if (!Directory.Exists(Values.ExportCode))
-                        {
-                            Util.LogErrorFormat("[{0}]导出代码目录{1}不存在!", EXPORT_CODE, Values.ExportCode);
-                            return false;
-                        }
+                    case CS_DIR:
+                        Values.CSDir = CheckDirArg(CS_DIR, args[++i]);
                         break;
-                    case EXPORT_XML_CODE:
-                        if (!CheckArg(EXPORT_XML_CODE, args[++i])) return false;
-                        Values.ExportXmlCode = NormalizePath(args[i]);
-                        if (!Directory.Exists(Values.ExportXmlCode))
-                        {
-                            Util.LogErrorFormat("[{0}]导出Xml代码目录{1}不存在!", EXPORT_XML_CODE, Values.ExportXmlCode);
-                            return false;
-                        }
+                    case LUA_DIR:
+                        Values.LuaDir = CheckDirArg(LUA_DIR, args[++i]);
+                        break;
+                    case JAVA_DIR:
+                        Values.JavaDir = CheckDirArg(JAVA_DIR, args[++i]);
+                        break;
+                    case XML_CODE_DIR:
+                        Values.XmlCodeDir = CheckDirArg(XML_CODE_DIR, args[++i]);
                         break;
                     case GROUP:
-                        if (!CheckArg(GROUP, args[++i])) return false;
+                        if (!CheckArg(GROUP, args[++i]))
+                        {
+                            _result &= false;
+                            break;
+                        }
                         string[] groups = args[i].Split(Values.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
                         for (int g = 0; g < groups.Length; g++)
                             groups[g] = groups[g].ToLower();
@@ -112,19 +126,34 @@ namespace ConfigGen
                         Values.ExportGroup.Add(Values.DefualtGroup);
                         break;
                     case CHECK:
-                        Values.OnlyCheck = true;
+                        Values.Check = true;
                         break;
                     case HELP:
                         Usage();
                         break;
                     default:
-                        Util.LogError("未知命令" + arg);
+                        Util.LogWarning("未知命令" + args[i]);
                         Usage();
                         break;
                 }
             }
 
-            return true;
+            if (!Values.XmlCodeDir.IsEmpty() && Values.ExportGroup.Count == 0)
+            {
+                Util.LogError("导出XmlCode编辑器代码时,必须指定Group参数");
+                _result &= false;
+            }
+            if (Values.CSDir.IsEmpty() && Values.JavaDir.IsEmpty() && Values.XmlCodeDir.IsEmpty()
+                && Values.LuaDir.IsEmpty() && Values.DataDir.IsEmpty() && !Values.Check)
+            {
+                Util.LogError("检查或者导出代码,数据三种操作至少有一个存在");
+                _result &= false;
+            }
+        }
+
+        public bool CheckResult()
+        {
+            return _result;
         }
     }
 }

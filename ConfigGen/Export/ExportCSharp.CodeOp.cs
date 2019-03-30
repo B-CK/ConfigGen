@@ -34,7 +34,7 @@ namespace ConfigGen.Export
             StringBuilder builder = new StringBuilder();
 
             //构建Csv存储类基础类CfgObject.cs
-            string path = Path.Combine(Values.ExportCode, CLASS_CFG_OBJECT + ".cs");
+            string path = Path.Combine(Values.CSDir, CLASS_CFG_OBJECT + ".cs");
             CodeWriter.UsingNamespace(builder, new List<string>(CsvNameSpaces));
             CodeWriter.NameSpace(builder, Values.ConfigRootNode);
             CodeWriter.ClassBase(builder, CodeWriter.Public, CodeWriter.Abstract, CLASS_CFG_OBJECT);
@@ -193,7 +193,7 @@ namespace ConfigGen.Export
 
                 CodeWriter.EndAll(builder);
 
-                string path = Path.Combine(Values.ExportCode, baseType.NamespaceName, baseType.Name + ".cs");
+                string path = Path.Combine(Values.CSDir, baseType.NamespaceName, baseType.Name + ".cs");
                 Util.SaveFile(path, builder.ToString());
                 builder.Clear();
             }
@@ -298,7 +298,7 @@ namespace ConfigGen.Export
             List<string> NameSpaces = new List<string>() { "System", "System.Text", "System.IO", "System.Reflection" };
 
             //构建Csv数据解析类DataStream.cs
-            string path = Path.Combine(Values.ExportCode, CLASS_DATA_STREAM + ".cs");
+            string path = Path.Combine(Values.CSDir, CLASS_DATA_STREAM + ".cs");
             CodeWriter.UsingNamespace(builder, NameSpaces);
             CodeWriter.NameSpace(builder, Values.ConfigRootNode);
             CodeWriter.ClassBase(builder, CodeWriter.Public, CLASS_DATA_STREAM);
@@ -424,7 +424,7 @@ namespace ConfigGen.Export
             List<string> NameSpaces = new List<string>() { "System", "System.IO", "System.Text", "System.Collections.Generic" };
 
             //构建Csv数据解析类DataStream.cs
-            string path = Path.Combine(Values.ExportCode, CLASS_CFG_MANAGER + ".cs");
+            string path = Path.Combine(Values.CSDir, CLASS_CFG_MANAGER + ".cs");
             CodeWriter.UsingNamespace(builder, NameSpaces);
             CodeWriter.NameSpace(builder, Values.ConfigRootNode);
             CodeWriter.ClassBase(builder, CodeWriter.Public, CLASS_CFG_MANAGER);

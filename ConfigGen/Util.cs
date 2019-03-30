@@ -8,6 +8,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace ConfigGen
 {
@@ -149,7 +150,7 @@ namespace ConfigGen
             return string.Format("错误位置:{0}[{1}{2}]", relPath, GetColumnName(c), r);
         }
         /// <summary>
-        /// Xml反序列化
+        /// Xml文件反序列化
         /// </summary>
         public static object Deserialize(string filePath, Type type)
         {
@@ -164,21 +165,119 @@ namespace ConfigGen
             return result;
         }
         /// <summary>
-        /// Xml序列化
+        /// Xml文件序列化
         /// </summary>
-        public static void Serialize(string filePath, object sourceObj)
+        public static void Serialize(string filePath, object source)
         {
-            if (!string.IsNullOrEmpty(filePath) && filePath.Trim().Length != 0 && sourceObj != null)
+            if (!string.IsNullOrEmpty(filePath) && filePath.Trim().Length != 0 && source != null)
             {
                 File.Delete(filePath);
-                Type type = sourceObj.GetType();
+                Type type = source.GetType();
                 using (StreamWriter streamWriter = new StreamWriter(filePath))
                 {
                     XmlSerializer xmlSerializer = new XmlSerializer(type);
-                    xmlSerializer.Serialize(streamWriter, sourceObj);
+                    xmlSerializer.Serialize(streamWriter, source);
                 }
             }
         }
+        public static void Serialize(StringBuilder builder, object source)
+        {
+            if (builder != null && source != null)
+            {
+                Type type = source.GetType();
+                using (XmlWriter writer = XmlWriter.Create(builder))
+                {
+                    XmlSerializer xmlSerializer = new XmlSerializer(type);
+                    xmlSerializer.Serialize(writer, source);
+                }
+            }
+        }
+        /// <summary>
+        /// 匹配组,有交集则匹配
+        /// </summary>
+        public static bool MatchGroups(HashSet<string> gs)
+        {
+            if (Values.ExportGroup.Contains(Values.DefualtGroup))
+                return true;
+            if (gs.Contains(Values.DefualtGroup))
+                return true;
+            return Values.ExportGroup.Overlaps(gs);
+        }
+        public static void Log(object logString, ConsoleColor color = ConsoleColor.White)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(logString);
+            Values.LogContent.AppendLine(logString.ToString());
+        }
+        public static void LogWarning(object warningString)
+        {
+            Log(warningString, ConsoleColor.Yellow);
+        }
+        public static void LogError(object errorString)
+        {
+            Log(errorString, ConsoleColor.Red);
+        }
+        public static void LogFormat(string format, params object[] logString)
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(format, logString);
+            Values.LogContent.AppendLine(ListStringSplit(logString, "\r\n"));
+        }
+        public static void LogWarningFormat(string format, params object[] warningString)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(format, warningString);
+            Values.LogContent.AppendLine(ListStringSplit(warningString, "\r\n"));
+        }
+        public static void LogErrorFormat(string format, params object[] errorString)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(format, errorString);
+            Values.LogContent.AppendLine(ListStringSplit(errorString, "\r\n"));
+        }
+        public static string GetRelPath(string path)
+        {
+            return path.Replace(Values.ConfigDir, "");
+        }
+        public static string GetAbsPath(string relPath)
+        {
+            return Path.Combine(Values.ConfigDir, relPath);
+        }
+
+
+
+        #region 扩展及操作
+        /// <summary>
+        /// 符合程序化命名规则,除首字母非"_"
+        /// </summary>
+        public static bool MatchName(string name)
+        {
+            return Regex.IsMatch(name, @"[a-zA-Z]\w");
+        }
+        public static string[] Split(this string type)
+        {
+            return type.IsEmpty() ? new string[0] : type.Split(Values.ArgsSplitFlag);
+        }
+
+        /// <summary>
+        /// 各种空
+        /// </summary>
+        public static bool IsEmpty(this string str)
+        {
+            return string.IsNullOrWhiteSpace(str);
+        }
+        public static string ToLowerExt(this string self)
+        {
+            if (self != null)
+                return self.ToLower();
+            return null;
+        }
+        #endregion
+
+
+
+
+
         /// <summary>
         /// 获取文件MD5
         /// </summary>
@@ -227,14 +326,6 @@ namespace ConfigGen
 
             File.WriteAllText(filePath, content, UTF8);
         }
-        public static string GetRelPath(string path)
-        {
-            return path.Replace(Values.ConfigDir, "");
-        }
-        public static string GetAbsPath(string relPath)
-        {
-            return string.Format(@"{0}{1}", Values.ConfigDir, relPath);
-        }
         public static string Combine(string nameSpace, string name)
         {
             return string.Format("{0}.{1}", nameSpace, name);
@@ -281,38 +372,7 @@ namespace ConfigGen
             return ListStringSplit(list.ToArray(), split);
         }
 
-        public static void Log(object logString, ConsoleColor color = ConsoleColor.White)
-        {
-            Console.ForegroundColor = color;
-            Console.WriteLine(logString);
-            Values.LogContent.AppendLine(logString.ToString());
-        }
-        public static void LogWarning(object warningString)
-        {
-            Log(warningString, ConsoleColor.Yellow);
-        }
-        public static void LogError(object errorString)
-        {
-            Log(errorString, ConsoleColor.Red);
-        }
-        public static void LogFormat(string format, params object[] logString)
-        {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(format, logString);
-            Values.LogContent.AppendLine(ListStringSplit(logString, "\r\n"));
-        }
-        public static void LogWarningFormat(string format, params object[] warningString)
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(format, warningString);
-            Values.LogContent.AppendLine(ListStringSplit(warningString, "\r\n"));
-        }
-        public static void LogErrorFormat(string format, params object[] errorString)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(format, errorString);
-            Values.LogContent.AppendLine(ListStringSplit(errorString, "\r\n"));
-        }
+
 
 
 
@@ -339,33 +399,9 @@ namespace ConfigGen
 
 
 
-        #region 扩展及操作
-        /// <summary>
-        /// 符合程序化命名规则,除首字母非"_"
-        /// </summary>
-        public static bool MatchName(string name)
-        {
-            return Regex.IsMatch(name, @"[a-zA-Z]\w");
-        }
-        public static string[] Split(this string type)
-        {
-            return type.IsEmpty() ? new string[0] : type.Split(Values.ArgsSplitFlag);
-        }
-        
-        /// <summary>
-        /// 各种空
-        /// </summary>
-        public static bool IsEmpty(this string str)
-        {
-            return string.IsNullOrWhiteSpace(str);
-        }
-        public static string ToLowerExt(this string self)
-        {
-            if (self != null)
-                return self.ToLower();
-            return null;
-        }
-        #endregion
+
+
+
 
     }
 }

@@ -10,6 +10,9 @@ namespace ConfigGen.IO
     /// </summary>
     public class RCReader : Mashal
     {
-        
+        public override bool IsSectionEnd()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

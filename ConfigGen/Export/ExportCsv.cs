@@ -30,7 +30,7 @@ namespace ConfigGen.Export
                 }
 
                 string fileName = item.Value.ClassTypeInfo.GetFullName().Replace(".", "/").ToLower();
-                string filePath = string.Format("{0}\\{1}{2}", Values.ExportCsv, fileName, Values.CsvFileExt);
+                string filePath = string.Format("{0}\\{1}{2}", Values.DataDir, fileName, Values.CsvFileExt);
                 Util.SaveFile(filePath, builder.ToString());
                 builder.Clear();
             }

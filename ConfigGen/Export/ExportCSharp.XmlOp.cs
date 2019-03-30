@@ -24,7 +24,7 @@ namespace ConfigGen.Export
         private static void DefineXmlObject()
         {
             StringBuilder builder = new StringBuilder();
-            string path = Path.Combine(Values.ExportXmlCode, CLASS_XML_OBJECT + ".cs");
+            string path = Path.Combine(Values.XmlCodeDir, CLASS_XML_OBJECT + ".cs");
             CodeWriter.UsingNamespace(builder, XmlNameSpaces);
             builder.AppendLine();
             CodeWriter.NameSpace(builder, Values.XmlRootNode);
@@ -580,7 +580,7 @@ namespace ConfigGen.Export
                 if (isWrited)
                 {
                     string file = string.Format("{0}.{1}.cs", Values.XmlRootNode, baseType.GetFullName());
-                    string path = Path.Combine(Values.ExportXmlCode, file);
+                    string path = Path.Combine(Values.XmlCodeDir, file);
                     Util.SaveFile(path, builder.ToString());
                 }
 

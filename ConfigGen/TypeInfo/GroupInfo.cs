@@ -7,17 +7,16 @@ namespace ConfigGen.TypeInfo
 {
     public class GroupInfo
     {
-        private HashSet<string> _groups = new HashSet<string>();
+        private static HashSet<string> _groups;
+        private GroupInfo() { }
 
-        public GroupInfo(string group)
+        public static void LoadGroup(string g)
         {
-
+            _groups = new HashSet<string>(Util.Split(g));
         }
-
-        public bool CheckGroup(HashSet<string> gs)
+        public static bool IsGroup(string group)
         {
-            return _groups.con
+            return _groups.Contains(group);
         }
-
     }
 }

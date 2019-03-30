@@ -8,7 +8,7 @@ namespace ConfigGen
     {
         #region 基础配置
 
-        
+
         /// <summary>
         /// 字符串空
         /// </summary>
@@ -21,10 +21,6 @@ namespace ConfigGen
         public const string LIST = "list";
         public const string DICT = "dict";
 
-        /// <summary>
-        /// 当前支持的可导出语言
-        /// </summary>
-        public static readonly HashSet<string> ExportLanguage = new HashSet<string>() { "c#", "java", "lua" };
         public static readonly HashSet<string> RawTypes = new HashSet<string>() { BOOL, INT, FLOAT, LONG, STRING };
         public static readonly HashSet<string> ContainerTypes = new HashSet<string>() { LIST, DICT };
         /// <summary>
@@ -45,20 +41,28 @@ namespace ConfigGen
         /// <summary>
         /// 导出CSharp类型
         /// </summary>
-        public static string ExportCode { get; set; }
+        public static string CSDir { get; set; }
+        /// <summary>
+        /// 导出Java类型
+        /// </summary>
+        public static string JavaDir { get; set; }
+        /// <summary>
+        /// 导出Lua类型
+        /// </summary>
+        public static string LuaDir { get; set; }
         /// <summary>
         /// 导出CSharp类型Xml操作类
         /// </summary>
-        public static string ExportXmlCode { get; set; }
+        public static string XmlCodeDir { get; set; }
 
         /// <summary>
         /// 导出csv存储路径
         /// </summary>
-        public static string ExportCsv { get; set; }
+        public static string DataDir { get; set; }
         /// <summary>
         /// 数据导出分组
         /// </summary>
-        public static HashSet<string> ExportGroup { get; set; }
+        public static HashSet<string> ExportGroup = new HashSet<string>();
         /// <summary>
         /// 导出Csv数据读写类命名空间根节点
         /// </summary>
@@ -67,7 +71,7 @@ namespace ConfigGen
         /// 导出Xml数据读写类命名空间根节点
         /// </summary>
         public static string XmlRootNode { get { return "Xml" + ConfigRootNode; } }
-        public static bool OnlyCheck { get; set; }
+        public static bool Check { get; set; }
         #endregion
 
         #region 文件相关常量
@@ -163,6 +167,6 @@ namespace ConfigGen
         /// </summary>
         public const string PolymorphismFlag = "Type";
 
-  
+
     }
 }
