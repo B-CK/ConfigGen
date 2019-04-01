@@ -57,17 +57,17 @@ namespace ConfigGen.Description
 
             //解析类型定义
             Dictionary<string, NamespaceDes> pairs = new Dictionary<string, NamespaceDes>();
-            var configXml = Util.Deserialize(Values.ConfigXml, typeof(ConfigXml)) as ConfigXml;
+            var configXml = Util.Deserialize(Consts.ConfigXml, typeof(ConfigXml)) as ConfigXml;
             if (string.IsNullOrWhiteSpace(configXml.Root))
                 throw new Exception("数据结构导出时必须指定命名空间根节点<Config Root=\"**\">");
-            Values.ConfigRootNode = configXml.Root;
+            Consts.ConfigRootNode = configXml.Root;
             List<string> defines = configXml.Include;
             string path = "xmlDes";
             try
             {
                 for (int i = 0; i < defines.Count; i++)
                 {
-                    path = Path.Combine(Values.ConfigDir, defines[i]);
+                    path = Path.Combine(Consts.ConfigDir, defines[i]);
                     var typeDes = Util.Deserialize(path, typeof(NamespaceDes)) as NamespaceDes;
                     if (pairs.ContainsKey(typeDes.Name))
                     {
@@ -134,8 +134,8 @@ namespace ConfigGen.Description
         }
         private static void DoGrouping()
         {
-            if (Values.ExportGroup == null)
-                Values.ExportGroup = new HashSet<string>() { Values.DefualtGroup };
+            if (Consts.ExportGroup == null)
+                Consts.ExportGroup = new HashSet<string>() { Consts.DefualtGroup };
 
             List<BaseTypeInfo> infoList = new List<BaseTypeInfo>();
             infoList.AddRange(Instance.ClassInfos);
@@ -147,7 +147,7 @@ namespace ConfigGen.Description
                 if (baseType.EType == TypeType.Class)
                 {
                     ClassTypeInfo classType = baseType as ClassTypeInfo;
-                    if (!Values.ExportGroup.Overlaps(classType.GroupHashSet))
+                    if (!Consts.ExportGroup.Overlaps(classType.GroupHashSet))
                     {
                         Instance.Remove(classType);
                         continue;
@@ -157,7 +157,7 @@ namespace ConfigGen.Description
                     for (int j = 0; j < fields.Count; j++)
                     {
                         FieldInfo field = fields[j];
-                        if (!Values.ExportGroup.Overlaps(field.GroupHashSet))
+                        if (!Consts.ExportGroup.Overlaps(field.GroupHashSet))
                             classType.Fields.Remove(field);
                     }
                     classType.UpdateFieldDict();
@@ -166,7 +166,7 @@ namespace ConfigGen.Description
                     for (int j = 0; j < fields.Count; j++)
                     {
                         ConstInfo field = fields[j] as ConstInfo;
-                        if (!Values.ExportGroup.Overlaps(field.GroupHashSet))
+                        if (!Consts.ExportGroup.Overlaps(field.GroupHashSet))
                             classType.Consts.Remove(field);
                     }
                     classType.UpdateConstDict();
@@ -178,7 +178,7 @@ namespace ConfigGen.Description
                     for (int j = 0; j < kvs.Count; j++)
                     {
                         ConstInfo kv = kvs[j];
-                        if (!Values.ExportGroup.Overlaps(enumType.GroupHashSet))
+                        if (!Consts.ExportGroup.Overlaps(enumType.GroupHashSet))
                             enumType.Enums.Remove(kv);
                     }
                     enumType.UpdateEnumDict();
@@ -315,8 +315,8 @@ namespace ConfigGen.Description
         }
         public static HashSet<string> AnalyzeGroup(string group)
         {
-            if (string.IsNullOrWhiteSpace(group)) return new HashSet<string>() { Values.DefualtGroup };
-            string[] groups = group.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            if (string.IsNullOrWhiteSpace(group)) return new HashSet<string>() { Consts.DefualtGroup };
+            string[] groups = group.Split(Consts.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             if (groups.Length == 0) return null;
             return new HashSet<string>(groups);
         }

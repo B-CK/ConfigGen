@@ -10,7 +10,6 @@ namespace ConfigGen.Export
         public const string Public = "public";
         public const string Private = "private";
         public const string Static = "static";
-        public const string Const = "const";
         public const string Readonly = "readonly";
         public const string Abstract = "abstract";
         public const string Override = "override";
@@ -35,49 +34,33 @@ namespace ConfigGen.Export
             builder.AppendFormat("namespace {0}", name);
             Start(builder);
         }
-        public static void ClassBase(StringBuilder builder, string modifier, string className)
-        {
-            ClassChild(builder, modifier, "", className, null);
-        }
-        public static void ClassBase(StringBuilder builder, string modifier, string identification, string className)
-        {
-            ClassChild(builder, modifier, identification, className, null);
-        }
-        public static void ClassChild(StringBuilder builder, string modifier, string className, string inhert)
-        {
-            ClassChild(builder, modifier, "", className, inhert);
-        }
-        public static void ClassChild(StringBuilder builder, string modifier, string identification, string className, string inhert)
+        public static void Comments(StringBuilder builder, string comments)
         {
             IntervalLevel(builder);
-            identification = string.IsNullOrWhiteSpace(identification) ? "" : " " + identification;
-            if (string.IsNullOrWhiteSpace(inhert))
-                builder.AppendFormat("{0}{1} class {2}", modifier, identification, className);
-            else
-                builder.AppendFormat("{0}{1} class {2} : {3}", modifier, identification, className, inhert);
+            builder.AppendLine("/// <summary>");
+            IntervalLevel(builder);
+            builder.AppendFormat("/// {0}\n", comments);
+            IntervalLevel(builder);
+            builder.AppendLine("/// <summary>");
+        }
+        public static void DefineClass(StringBuilder builder, string modifier, string className, string inhert = null)
+        {
+            IntervalLevel(builder);
+            inhert = inhert.IsEmpty() ? "" : " : " + inhert;
+            builder.AppendFormat("{0}{1} class {2}", modifier, className, className);
             Start(builder);
         }
-        public static void Field(StringBuilder builder, string modifier, string type, string fieldName)
-        {
-            FieldInit(builder, modifier, "", type, fieldName, null);
-        }
-        public static void Field(StringBuilder builder, string modifier, string identification, string type, string fieldName)
-        {
-            FieldInit(builder, modifier, identification, type, fieldName, null);
-        }
-        public static void FieldInit(StringBuilder builder, string modifier, string type, string fieldName, string initValue)
-        {
-            FieldInit(builder, modifier, "", type, fieldName, initValue);
-        }
-        public static void FieldInit(StringBuilder builder, string modifier, string identification, string type, string fieldName, string initValue)
+        public static void DefineConst(StringBuilder builder, string type, string name, string value)
         {
             IntervalLevel(builder);
-            modifier = string.IsNullOrWhiteSpace(modifier) ? "" : modifier;
-            identification = string.IsNullOrWhiteSpace(identification) ? "" : " " + identification;
-            if (string.IsNullOrWhiteSpace(initValue))
-                builder.AppendFormat("{0}{1} {2} {3};\n", modifier, identification, type, fieldName);
-            else
-                builder.AppendFormat("{0}{1} {2} {3} = {4};\n", modifier, identification, type, fieldName, initValue);
+            builder.AppendFormat("public static readonly {0} {1} = {3};\n", type, name, value);
+        }
+        public static void DefineField(StringBuilder builder, string modifier, string type, string fieldName, string value = null)
+        {
+            IntervalLevel(builder);
+            modifier = modifier.IsEmpty() ? "" : modifier + " ";
+            value = value.IsEmpty() ? "" : " = " + value;
+            builder.AppendFormat("{0}{1} {2}{3};\n", modifier, type, fieldName, value);
         }
         public static void Constructor(StringBuilder builder, string modifier, string funcName, string[] types = null, string[] args = null, string[] baseArgs = null)
         {
@@ -114,6 +97,41 @@ namespace ConfigGen.Export
             }
             Start(builder);
         }
+        public static void SetField(StringBuilder builder, string fieldName, string value)
+        {
+            IntervalLevel(builder);
+            builder.AppendFormat("{0} = {1};\n", fieldName, value);
+        }
+        public static void Enum(StringBuilder builder, string modifier, string enumName)
+        {
+            IntervalLevel(builder);
+            builder.AppendFormat("{0} enum {1}", CodeWriter.Public, enumName);
+            Start(builder);
+        }
+        public static void DefineEnum(StringBuilder builder, string key, string value = null)
+        {
+            IntervalLevel(builder);
+            if (string.IsNullOrWhiteSpace(value))
+                builder.AppendFormat("{0},\n", key);
+            else
+                builder.AppendFormat("{0} = {1},\n", key, value);
+        }
+        public static void Start(StringBuilder builder)
+        {
+            builder.AppendLine();
+            IntervalLevel(builder);
+            builder.AppendLine("{");
+            _level++;
+        }
+        public static void End(StringBuilder builder, bool isStatement = false)
+        {
+            _level--;
+            IntervalLevel(builder);
+            if (isStatement)
+                builder.AppendLine("};");
+            else
+                builder.AppendLine("}");
+        }
         public static void Function(StringBuilder builder, string modifier, string returnType, string funcName, string[] types = null, string[] args = null)
         {
             Function(builder, modifier, "", returnType, funcName, types, args);
@@ -145,51 +163,15 @@ namespace ConfigGen.Export
 
             Start(builder);
         }
-
-        public static void Enum(StringBuilder builder, string modifier, string enumName)
-        {
-            IntervalLevel(builder);
-            builder.AppendFormat("{0} enum {1}", CodeWriter.Public, enumName);
-            Start(builder);
-        }
-        public static void EnumField(StringBuilder builder, string key, string value = null)
-        {
-            IntervalLevel(builder);
-            if (string.IsNullOrWhiteSpace(value))
-                builder.AppendFormat("{0},\n", key);
-            else
-                builder.AppendFormat("{0} = {1},\n", key, value);
-        }
-        public static void Start(StringBuilder builder)
-        {
-            builder.AppendLine();
-            IntervalLevel(builder);
-            builder.AppendLine("{");
-            _level++;
-        }
-        public static void End(StringBuilder builder, bool isStatement = false)
-        {
-            _level--;
-            IntervalLevel(builder);
-            if (isStatement)
-                builder.AppendLine("};");
-            else
-                builder.AppendLine("}");
-        }
         public static void EndAll(StringBuilder builder)
         {
             for (int i = 0; i <= _level + 1; i++)
                 End(builder);
         }
-        public static void Comments(StringBuilder builder, string comments)
-        {
-            IntervalLevel(builder);
-            builder.AppendLine("/// <summary>");
-            IntervalLevel(builder);
-            builder.AppendFormat("/// {0}\n", comments);
-            IntervalLevel(builder);
-            builder.AppendLine("/// <summary>");
-        }
+
+
+
+
         public static string GetFullNamespace(string root, string relType)
         {
             string type = relType;

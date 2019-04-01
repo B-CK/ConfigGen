@@ -56,26 +56,28 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CmdOption.cs" />
-    <Compile Include="Data\Data.cs" />
-    <Compile Include="Data\FBool.cs" />
-    <Compile Include="Data\FClass.cs" />
-    <Compile Include="Data\FDict.cs" />
-    <Compile Include="Data\FEnum.cs" />
-    <Compile Include="Data\FFloat.cs" />
-    <Compile Include="Data\FInt.cs" />
-    <Compile Include="Data\FList.cs" />
-    <Compile Include="Data\FLong.cs" />
-    <Compile Include="Data\FString.cs" />
+    <Compile Include="Config\Data.cs" />
+    <Compile Include="Config\FBool.cs" />
+    <Compile Include="Config\FClass.cs" />
+    <Compile Include="Config\FDict.cs" />
+    <Compile Include="Config\FEnum.cs" />
+    <Compile Include="Config\FFloat.cs" />
+    <Compile Include="Config\FInt.cs" />
+    <Compile Include="Config\FList.cs" />
+    <Compile Include="Config\FLong.cs" />
+    <Compile Include="Config\FString.cs" />
     <Compile Include="Description\ClassDes.cs" />
     <Compile Include="Description\ConfigXml.cs" />
     <Compile Include="Description\EnumDes.cs" />
     <Compile Include="Description\FieldDes.cs" />
     <Compile Include="Description\NamespaceDes.cs" />
     <Compile Include="Export\CodeWriter.cs" />
-    <Compile Include="Export\ExportCSharp.CodeOp.cs" />
-    <Compile Include="Export\ExportCSharp.XmlOp.cs" />
+    <Compile Include="Export\ExportCSharp.cs" />
+    <Compile Include="Export\ExportXmlCode.cs" />
     <Compile Include="Export\ExportCsv.cs" />
     <Compile Include="Export\ExportLua.cs" />
+    <Compile Include="Import\Import.cs" />
+    <Compile Include="Import\ImportXml.cs" />
     <Compile Include="LocalInfo\DataFileInfo.cs" />
     <Compile Include="LocalInfo\TableInfo.Check.cs" />
     <Compile Include="LocalInfo\TableInfo.Data.cs" />
@@ -85,8 +87,7 @@
     <Compile Include="LocalInfo\TypeInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IO\RCReader.cs" />
-    <Compile Include="IO\Mashal.cs" />
+    <Compile Include="Import\ImportExcel.cs" />
     <Compile Include="TypeInfo\ClassInfo.cs" />
     <Compile Include="TypeInfo\ConfigInfo.cs" />
     <Compile Include="TypeInfo\ConstInfo.cs" />
@@ -94,7 +95,7 @@
     <Compile Include="TypeInfo\FieldInfo.cs" />
     <Compile Include="TypeInfo\GroupInfo.cs" />
     <Compile Include="Util.cs" />
-    <Compile Include="Values.cs" />
+    <Compile Include="Consts.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace ConfigGen.Data
+namespace ConfigGen.Config
 {
     public class FString : Data
     {
@@ -14,7 +14,7 @@ namespace ConfigGen.Data
         public FString(FClass host, FieldInfo define, string value) : base(host, define)
         {
             Value = value;
-        } 
+        }
         public FString(FClass host, FieldInfo define, XmlElement value) : this(host, define, value.InnerText)
         { }
     }

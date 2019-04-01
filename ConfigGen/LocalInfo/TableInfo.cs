@@ -33,14 +33,14 @@ namespace ConfigGen.Description
         /// 字段列数据字典
         /// <para>key:字段名 value:数据列</para>
         /// </summary>
-        Dictionary<string, List<Data>> DataColumnDict = new Dictionary<string, List<Data>>();
+        Dictionary<string, List<Data>> DataColumnDict = new Dictionary<string, List<Config>>();
 
         /// <summary>
         /// 表主键列字段数据
         /// </summary>
         public List<Data> GetDataColumn(string fieldName)
         {
-            List<Data> dataColum = new List<Data>();
+            List<Config> dataColum = new List<Config>();
             var fieldDict = ClassTypeInfo.FieldDict;
             if (!fieldDict.ContainsKey(fieldName))
                 return dataColum;
@@ -83,7 +83,7 @@ namespace ConfigGen.Description
                     Util.LogErrorFormat("数据类{0}指定数据文件与其他类相同", c.GetFullName());
                     continue;
                 }
-                if (Values.IsOptPart && !DataFileInfo.HasChangeFile(c.DataPath)) continue;
+                if (Consts.IsOptPart && !DataFileInfo.HasChangeFile(c.DataPath)) continue;
 
                 //FileInfo info = new FileInfo(c.DataPath);
                 //if (info.LastWriteTime == info.CreationTime) continue;
@@ -105,14 +105,14 @@ namespace ConfigGen.Description
                     for (int j = 1; j < ds.Tables.Count; j++)
                     {
                         DataTable dt1 = ds.Tables[j].Copy();
-                        if (dt1.Rows.Count < (Values.DataSheetDataStartIndex + 1) || dt1 == null)
+                        if (dt1.Rows.Count < (Consts.DataSheetDataStartIndex + 1) || dt1 == null)
                         {
                             Util.LogErrorFormat("{0}文件中{1}表定义异常", c.DataPath, dt1.TableName);
                             continue;
                         }
                         else
                         {
-                            for (int k = 0; k < Values.DataSheetDataStartIndex; k++)
+                            for (int k = 0; k < Consts.DataSheetDataStartIndex; k++)
                                 dt1.Rows.RemoveAt(0);
                             dt.Merge(dt1);
                         }
@@ -154,73 +154,73 @@ namespace ConfigGen.Description
 
 
 
-    public abstract class Data { }
+    //public abstract class Data { }
 
-    public class DataBase : Data
-    {
-        public object Data;
+    //public class DataBase : Data
+    //{
+    //    public object Data;
 
-        public static implicit operator int(DataBase value)
-        {
-            if (value.Data == null)
-                return -1;
-            return Convert.ToInt32(value.Data);
-        }
-        public static implicit operator long(DataBase value)
-        {
-            if (value.Data == null)
-                return -1;
-            return Convert.ToInt64(value.Data);
-        }
-        public static implicit operator float(DataBase value)
-        {
-            if (value.Data == null)
-                return -1;
-            return Convert.ToSingle(value.Data);
-        }
-        public static implicit operator double(DataBase value)
-        {
-            if (value.Data == null)
-                return -1;
-            return Convert.ToDouble(value.Data);
-        }
-        public static implicit operator string(DataBase value)
-        {
-            if (value.Data == null)
-                return "";
-            return Convert.ToString(value.Data);
-        }
-        public static implicit operator bool(DataBase value)
-        {
-            if (value.Data == null)
-                return false;
-            string v = value.Data as string;
-            return v.ToLower().Equals("true") ? true : false;
-        }
-    }
-    public class DataClass : Data
-    {
-        public string Type { get; set; }
-        public Dictionary<string, Data> Fields;
-        public DataClass()
-        {
-            Fields = new Dictionary<string, Data>();
-        }
-    }
-    public class DataList : Data
-    {
-        public List<Data> Elements;
-        public DataList()
-        {
-            Elements = new List<Data>();
-        }
-    }
-    public class DataDict : Data
-    {
-        public List<KeyValuePair<DataBase, Data>> Pairs { get; set; }
-        public DataDict()
-        {
-            Pairs = new List<KeyValuePair<DataBase, Data>>();
-        }
-    }
+    //    public static implicit operator int(DataBase value)
+    //    {
+    //        if (value.Data == null)
+    //            return -1;
+    //        return Convert.ToInt32(value.Data);
+    //    }
+    //    public static implicit operator long(DataBase value)
+    //    {
+    //        if (value.Data == null)
+    //            return -1;
+    //        return Convert.ToInt64(value.Data);
+    //    }
+    //    public static implicit operator float(DataBase value)
+    //    {
+    //        if (value.Data == null)
+    //            return -1;
+    //        return Convert.ToSingle(value.Data);
+    //    }
+    //    public static implicit operator double(DataBase value)
+    //    {
+    //        if (value.Data == null)
+    //            return -1;
+    //        return Convert.ToDouble(value.Data);
+    //    }
+    //    public static implicit operator string(DataBase value)
+    //    {
+    //        if (value.Data == null)
+    //            return "";
+    //        return Convert.ToString(value.Data);
+    //    }
+    //    public static implicit operator bool(DataBase value)
+    //    {
+    //        if (value.Data == null)
+    //            return false;
+    //        string v = value.Data as string;
+    //        return v.ToLower().Equals("true") ? true : false;
+    //    }
+    //}
+    //public class DataClass : Data
+    //{
+    //    public string Type { get; set; }
+    //    public Dictionary<string, Data> Fields;
+    //    public DataClass()
+    //    {
+    //        Fields = new Dictionary<string, Data>();
+    //    }
+    //}
+    //public class DataList : Data
+    //{
+    //    public List<Data> Elements;
+    //    public DataList()
+    //    {
+    //        Elements = new List<Data>();
+    //    }
+    //}
+    //public class DataDict : Data
+    //{
+    //    public List<KeyValuePair<DataBase, Data>> Pairs { get; set; }
+    //    public DataDict()
+    //    {
+    //        Pairs = new List<KeyValuePair<DataBase, Data>>();
+    //    }
+    //}
 }

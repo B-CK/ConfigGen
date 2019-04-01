@@ -19,6 +19,9 @@ namespace ConfigGen.TypeInfo
         {
             return _classes.ContainsKey(fullName);
         }
+        /// <summary>
+        /// 当前类有子类
+        /// </summary>
         public static bool IsDynamic(string fullName)
         {
             if (IsClass(fullName))
@@ -27,6 +30,18 @@ namespace ConfigGen.TypeInfo
                 return cls != null && cls.IsDynamic();
             }
             return false;
+        }
+        public static List<ClassInfo> GetExports()
+        {
+            var exports = new List<ClassInfo>();
+            var cit = _classes.GetEnumerator();
+            while (cit.MoveNext())
+            {
+                var cls = cit.Current.Value;
+                if (Util.MatchGroups(cls._groups))
+                    exports.Add(cls);
+            }
+            return exports;
         }
         static void Add(ClassInfo info)
         {
@@ -41,13 +56,12 @@ namespace ConfigGen.TypeInfo
         public string Namespace { get { return _namespace; } }
         public string Name { get { return _des.Name; } }
         /// <summary>
-        /// 基类完整类名称;IsNullOrWhiteSpace 则无继承
+        /// 基类完整类名称;IsEmpty 则无继承
         /// </summary>
         public string Inherit { get { return _des.Inherit; } }
         public string Desc { get { return _des.Desc; } }
         public List<FieldInfo> Fields { get { return _fields; } }
         public List<ConstInfo> Consts { get { return _consts; } }
-        public HashSet<ClassInfo> Children { get { return _children; } }
         public HashSet<string> Groups { get { return _groups; } }
 
         private ClassDes _des;
@@ -56,19 +70,25 @@ namespace ConfigGen.TypeInfo
 
         private readonly List<FieldInfo> _fields;
         private readonly List<ConstInfo> _consts;
-        private readonly HashSet<ClassInfo> _children;
+        private readonly HashSet<string> _children;
         private readonly HashSet<string> _groups;
 
         public ClassInfo(ClassDes des, string namespace0)
         {
+            _des = des;
             _fields = new List<FieldInfo>();
             _consts = new List<ConstInfo>();
-            _children = new HashSet<ClassInfo>();
+            _children = new HashSet<string>();
+            if (Name.IsEmpty())
+                Error("未指定Class名称");
+            if (!Util.MatchName(Name))
+                Error("命名不合法:" + Name);
 
-            _des = des;
             _namespace = namespace0;
             _fullName = string.Format("{0}.{1}", namespace0, des.Name);
             _groups = new HashSet<string>(Util.Split(des.Group));
+            if (_groups.Count == 0)
+                _groups.Add(ConfigGen.Consts.DefualtGroup);
 
             Add(this);
             _consts = new List<ConstInfo>();
@@ -85,17 +105,36 @@ namespace ConfigGen.TypeInfo
             }
         }
 
+        /// <summary>
+        /// 当前类有子类
+        /// </summary>
         public bool IsDynamic()
         {
             return _children.Count > 0;
         }
-        public bool IsConfig(string path)
+        public bool IsConfig()
         {
-            return !path.IsEmpty() && File.Exists(path) || Directory.Exists(path);
+            return !_des.DataPath.IsEmpty();
         }
-
-        public void VerifyDefine()
+        /// <summary>
+        /// 判断是否存在该子类
+        /// </summary>
+        public bool HasChild(string child)
         {
+            return _children.Contains(child);
+        }
+        public void VerifyDefine()
+        {       
+            string inhert = Inherit;
+            while (!inhert.IsEmpty())
+            {
+                var cls = Get(inhert);
+                if (!cls.HasChild(_fullName))
+                    _children.Add(_fullName);
+
+                inhert = cls.Inherit;
+            }
+
             if (!Inherit.IsEmpty() && !IsClass(Inherit))
                 Error("未知父类" + Inherit);
             else
@@ -108,6 +147,7 @@ namespace ConfigGen.TypeInfo
                         hash.Add(name);
                     else
                         Error("Const名重复:" + name);
+                    _consts[i].VerifyDefine();
                 }
                 hash.Clear();
                 for (int i = 0; i < _fields.Count; i++)
@@ -122,11 +162,6 @@ namespace ConfigGen.TypeInfo
 
             }
         }
-        public void Error(string msg)
-        {
-            string error = string.Format("Class:{0} 错误:{1}", FullName, msg);
-            throw new Exception(error);
-        }
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
@@ -136,6 +171,11 @@ namespace ConfigGen.TypeInfo
             for (int i = 0; i < _consts.Count; i++)
                 builder.AppendFormat("\t{0}\n", _consts[i]);
             return builder.ToString();
+        }
+        private void Error(string msg)
+        {
+            string error = string.Format("Class:{0} 错误:{1}", FullName, msg);
+            throw new Exception(error);
         }
 
     }

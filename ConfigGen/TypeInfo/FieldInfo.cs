@@ -7,12 +7,15 @@ namespace ConfigGen.TypeInfo
     {
         public static bool IsRawOrEnumOrClass(string type)
         {
-            return Values.RawTypes.Contains(type)
+            return Consts.RawTypes.Contains(type)
                 || EnumInfo.IsEnum(type) || ClassInfo.IsDynamic(type);
         }
 
 
         public ClassInfo Host { get { return _host; } }
+        /// <summary>
+        /// 字段名称
+        /// </summary>
         public string Name { get { return _des.Name; } }
         /// <summary>
         /// 完整类型
@@ -20,11 +23,13 @@ namespace ConfigGen.TypeInfo
         public string FullType { get { return _des.Type; } }
         public string Desc { get { return _des.Desc; } }
         /// <summary>
-        /// 初始类型,即去除泛型后的类型
+        /// 原始类型,例泛型list:int返回list,其他直接返回类型
         /// </summary>
         public string OriginalType { get { return _types[0]; } }
-        public bool IsRaw { get { return Values.RawTypes.Contains(OriginalType); } }
-        public bool IsContainer { get { return Values.ContainerTypes.Contains(OriginalType); } }
+        public string[] Types { get { return _types; } }
+        public HashSet<string> Group { get { return _groups; } }
+        public bool IsRaw { get { return Consts.RawTypes.Contains(OriginalType); } }
+        public bool IsContainer { get { return Consts.ContainerTypes.Contains(OriginalType); } }
         public bool IsClass { get { return ClassInfo.IsClass(OriginalType); } }
         public bool IsDynamic { get { return ClassInfo.IsDynamic(OriginalType); } }
         public bool IsEnum { get { return EnumInfo.IsEnum(OriginalType); } }
@@ -35,7 +40,7 @@ namespace ConfigGen.TypeInfo
         /// 嵌套类型,例dict:int:string,则0=dict,1=int,0=string
         /// 任意类型用_types[0]描述
         /// </summary>
-        private readonly List<string> _types;
+        private readonly string[] _types;
         /// <summary>
         /// 优先Class.Group,其次才是Field.Group
         /// </summary>
@@ -44,7 +49,7 @@ namespace ConfigGen.TypeInfo
         /// <summary>
         /// 泛型类型TKV字段
         /// </summary>
-        public FieldInfo(ClassInfo host, FieldDes des, List<string> ts, HashSet<string> gs)
+        public FieldInfo(ClassInfo host, FieldDes des, string[] ts, HashSet<string> gs)
         {
             _des = des;
             _host = host;
@@ -58,19 +63,11 @@ namespace ConfigGen.TypeInfo
         {
             _des = des;
             _host = host;
-            _types = new List<string>(Util.Split(des.Type));
-            string[] gs = Util.Split(des.Group);
-            _groups = new HashSet<string>(gs ?? new string[0]);
+            _types = Util.Split(des.Type);
 
-            if (_groups.Count == 0 && !des.Group.IsEmpty())
-            {
-                var groups = des.Group.Split(Values.ArgsSplitFlag);
-                for (int i = 0; i < groups.Length; i++)
-                {
-                    if (!_groups.Contains(groups[i]))
-                        _groups.Add(groups[i]);
-                }
-            }
+            _groups = new HashSet<string>(Util.Split(des.Group));
+            if (_groups.Count == 0)
+                _groups.Add(Consts.DefualtGroup);
         }
 
         /// <summary>
@@ -78,26 +75,28 @@ namespace ConfigGen.TypeInfo
         /// </summary>
         public FieldInfo GetItemDefine()
         {
-            return new FieldInfo(_des, _host, new List<string>() { _types[1] }, _groups);
+            return new FieldInfo(_host, _des, new string[1] { _types[1] }, _groups);
         }
         /// <summary>
         /// dict key 定义
         /// </summary>
         public FieldInfo GetKeyDefine()
         {
-            return new FieldInfo(_des, _host, new List<string>() { _types[1] }, _groups);
+            return new FieldInfo(_host, _des, new string[1] { _types[1] }, _groups);
         }
         /// <summary>
         /// dict value 定义
         /// </summary>
         public FieldInfo GetValueDefine()
         {
-            return new FieldInfo(_des, _host, new List<string>() { _types[2] }, _groups);
+            return new FieldInfo(_host, _des, new string[1] { _types[2] }, _groups);
         }
 
         public void VerifyDefine()
         {
             CheckType(1);
+            if (!Util.MatchName(Name))
+                Error("命名不合法:" + Name);
             string type = OriginalType;
             if (!IsRaw && !IsClass && !IsEnum)
             {
@@ -109,21 +108,15 @@ namespace ConfigGen.TypeInfo
                         string itemType = _types[1];
                         if (!IsRawOrEnumOrClass(itemType))
                             Error("非法的list item类型:" + itemType);
-
-                        ConfigInfo config = ConfigInfo.Get(itemType);
-                        if (config != null && !config.Index.IsEmpty())
-                        {
-                             
-                        }
                     }
                     else if (type == "dict")
                     {
                         CheckType(3);
                         string key = _types[1];
-                        if (IsRawOrEnumOrClass(key))
+                        if (!Consts.RawTypes.Contains(key) && !EnumInfo.IsEnum(key))
                             Error("非法的dict key类型:" + key);
                         string value = _types[2];
-                        if (IsRawOrEnumOrClass(value))
+                        if (!IsRawOrEnumOrClass(value))
                             Error("非法的dict value类型:" + value);
                     }
                 }
@@ -138,7 +131,7 @@ namespace ConfigGen.TypeInfo
         }
         void CheckType(int size)
         {
-            if (_types.Count < size)
+            if (_types.Length < size)
                 Error("定义非法Type");
         }
         void Error(string msg)

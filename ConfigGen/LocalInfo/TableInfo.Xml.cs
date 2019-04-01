@@ -93,7 +93,7 @@ namespace ConfigGen.Description
 
             if (classType.IsPolyClass)
             {
-                XmlAttribute polymorphism = data.GetAttributeNode(Values.PolymorphismFlag);
+                XmlAttribute polymorphism = data.GetAttributeNode(Consts.PolymorphismFlag);
                 BaseTypeInfo bti = TypeInfo.GetBaseTypeInfo(classType.NamespaceName, polymorphism.Value);
                 ClassTypeInfo subClassType = null;
                 if (bti != null)
@@ -168,12 +168,12 @@ namespace ConfigGen.Description
             for (int i = 0; i < dict.Count; i++)
             {
                 XmlNode pair = dict[i];
-                XmlElement key = pair[Values.KEY];
-                XmlElement value = pair[Values.VALUE];
+                XmlElement key = pair[Consts.KEY];
+                XmlElement value = pair[Consts.VALUE];
                 DataBase dataKey = AnalyzeField(key, keyInfo) as DataBase;
                 Data dataValue = AnalyzeField(value, valueInfo);
 
-                dataDict.Pairs.Add(new KeyValuePair<DataBase, Data>(dataKey, dataValue));
+                dataDict.Pairs.Add(new KeyValuePair<DataBase, Config>(dataKey, dataValue));
             }
 
             return dataDict;

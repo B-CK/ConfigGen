@@ -17,7 +17,7 @@ namespace ConfigGen.Description
             _instance = new DataFileInfo();
             _instance._stateDict = new Dictionary<string, string>();
             _instance._newStateDict = new Dictionary<string, string>();
-            string path = string.Format(@"{0}\{1}", Values.ApplicationDir, LIB_NAME);
+            string path = string.Format(@"{0}\{1}", Consts.ApplicationDir, LIB_NAME);
             if (!File.Exists(path)) return;
 
             string content = File.ReadAllText(path);
@@ -45,7 +45,7 @@ namespace ConfigGen.Description
             }
             else if (Directory.Exists(path))
             {
-                string[] files = Directory.GetFiles(path, "*." + Values.DataFileFlag, SearchOption.AllDirectories);
+                string[] files = Directory.GetFiles(path, "*." + Consts.DataFileFlag, SearchOption.AllDirectories);
                 for (int i = 0; i < files.Length; i++)
                 {
                     string refPath = Util.GetRelPath(files[i]);
@@ -65,7 +65,7 @@ namespace ConfigGen.Description
 
         public static void Save()
         {
-            string path = string.Format(@"{0}\{1}", Values.ApplicationDir, LIB_NAME);
+            string path = string.Format(@"{0}\{1}", Consts.ApplicationDir, LIB_NAME);
             StringBuilder builder = new StringBuilder();
             foreach (var file in _instance._newStateDict)
                 builder.AppendFormat("{0}|{1}\r\n", file.Key, file.Value);

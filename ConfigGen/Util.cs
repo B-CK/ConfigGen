@@ -21,6 +21,7 @@ namespace ConfigGen
 
     public static class Util
     {
+        #region Excel 文件操作
         [DllImport("kernel32.dll")]
         private static extern IntPtr _lopen(string lpPathName, int iReadWrite);
         [DllImport("kernel32.dll")]
@@ -51,20 +52,14 @@ namespace ConfigGen
         /// <param name="filePath">excel文件路径</param>
         /// <param name="sheetDict">sheet表类型及名字列表</param>
         /// <returns>excel中多个sheet数据集</returns>
-        public static DataSet ReadXlsxFile(string filePath, out string errorString)
+        public static DataSet ReadXlsxFile(string filePath)
         {
             // 检查文件是否存在且没被打开
             FileState fileState = GetFileState(filePath);
             if (fileState == FileState.Inexist)
-            {
-                errorString = string.Format("{0}文件不存在", filePath);
-                return null;
-            }
+                new Exception(string.Format("{0}文件不存在", filePath));
             else if (fileState == FileState.IsOpen)
-            {
-                errorString = string.Format("{0}文件正在被其他软件打开，请关闭后重新运行本工具", filePath);
-                return null;
-            }
+                new Exception(string.Format("{0}文件正在被其他软件打开，请关闭后重新运行本工具", filePath));
 
             OleDbConnection conn = null;
             OleDbDataAdapter da = null;
@@ -89,9 +84,6 @@ namespace ConfigGen
                 for (int i = 0; i < dtSheet.Rows.Count; ++i)
                 {
                     string sheetName = dtSheet.Rows[i]["TABLE_NAME"].ToString();
-                    //var index = sheetName.IndexOf(Values.ExcelSheetDataFlag);
-                    if (sheetName.IndexOf(Values.ExcelSheetDataFlag) != 1) continue;
-
                     da = new OleDbDataAdapter();
                     da.SelectCommand = new OleDbCommand(String.Format("Select * FROM [{0}]", sheetName), conn);
                     da.Fill(ds, sheetName);
@@ -100,8 +92,7 @@ namespace ConfigGen
             }
             catch (Exception e)
             {
-                errorString = string.Format("{0}\n错误：连接Excel失败，你可能尚未安装Office数据连接组件\n{1}", filePath, e.Message);
-                return null;
+                new Exception(string.Format("{0}\n错误：连接Excel失败，你可能尚未安装Office数据连接组件\n{1}", filePath, e.Message));
             }
             finally
             {
@@ -116,39 +107,11 @@ namespace ConfigGen
                 }
             }
 
-            errorString = null;
             return ds;
         }
-        /// <summary>
-        /// 将Excel中的列编号转为列名称（第1列为A，第28列为AB）
-        /// </summary>
-        public static string GetColumnName(int columnNumber)
-        {
-            string result = string.Empty;
-            int temp = columnNumber;
-            int quotient;
-            int remainder;
-            do
-            {
-                quotient = temp / 26;
-                remainder = temp % 26;
-                if (remainder == 0)
-                {
-                    remainder = 26;
-                    --quotient;
-                }
+        #endregion
 
-                result = (char)(remainder - 1 + 'A') + result;
-                temp = quotient;
-            }
-            while (quotient > 0);
 
-            return result;
-        }
-        public static string GetErrorSite(string relPath, int c, int r)
-        {
-            return string.Format("错误位置:{0}[{1}{2}]", relPath, GetColumnName(c), r);
-        }
         /// <summary>
         /// Xml文件反序列化
         /// </summary>
@@ -197,17 +160,21 @@ namespace ConfigGen
         /// </summary>
         public static bool MatchGroups(HashSet<string> gs)
         {
-            if (Values.ExportGroup.Contains(Values.DefualtGroup))
+            if (Consts.ExportGroup.Contains(Consts.DefualtGroup))
                 return true;
-            if (gs.Contains(Values.DefualtGroup))
+            if (gs.Contains(Consts.DefualtGroup))
                 return true;
-            return Values.ExportGroup.Overlaps(gs);
+            return Consts.ExportGroup.Overlaps(gs);
+        }
+        public static void Error(string fmt, params object[] msg)
+        {
+            new Exception(string.Format(fmt, msg));
         }
         public static void Log(object logString, ConsoleColor color = ConsoleColor.White)
         {
             Console.ForegroundColor = color;
             Console.WriteLine(logString);
-            Values.LogContent.AppendLine(logString.ToString());
+            Consts.LogContent.AppendLine(logString.ToString());
         }
         public static void LogWarning(object warningString)
         {
@@ -221,29 +188,41 @@ namespace ConfigGen
         {
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(format, logString);
-            Values.LogContent.AppendLine(ListStringSplit(logString, "\r\n"));
+            Consts.LogContent.AppendLine(List2String(logString, "\r\n"));
         }
         public static void LogWarningFormat(string format, params object[] warningString)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(format, warningString);
-            Values.LogContent.AppendLine(ListStringSplit(warningString, "\r\n"));
+            Consts.LogContent.AppendLine(List2String(warningString, "\r\n"));
         }
         public static void LogErrorFormat(string format, params object[] errorString)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(format, errorString);
-            Values.LogContent.AppendLine(ListStringSplit(errorString, "\r\n"));
+            Consts.LogContent.AppendLine(List2String(errorString, "\r\n"));
         }
         public static string GetRelPath(string path)
         {
-            return path.Replace(Values.ConfigDir, "");
+            return path.Replace(Consts.ConfigDir, "");
         }
         public static string GetAbsPath(string relPath)
         {
-            return Path.Combine(Values.ConfigDir, relPath);
+            return Path.Combine(Consts.ConfigDir, relPath);
         }
+        public static void TryDeleteDirectory(string path)
+        {
+            if (!Directory.Exists(path)) return;
 
+            var fs = Directory.GetFiles(path, "*.*");
+            for (int i = 0; i < fs.Length; i++)
+                File.Delete(fs[i]);
+            var ds = Directory.GetDirectories(path, "*");
+            for (int i = 0; i < ds.Length; i++)
+                TryDeleteDirectory(ds[i]);
+
+            Directory.Delete(path, true);
+        }
 
 
         #region 扩展及操作
@@ -256,7 +235,7 @@ namespace ConfigGen
         }
         public static string[] Split(this string type)
         {
-            return type.IsEmpty() ? new string[0] : type.Split(Values.ArgsSplitFlag);
+            return type.IsEmpty() ? new string[0] : type.Split(Consts.ArgsSplitFlag);
         }
 
         /// <summary>
@@ -330,46 +309,24 @@ namespace ConfigGen
         {
             return string.Format("{0}.{1}", nameSpace, name);
         }
-        /// <summary>
-        /// 获取完整命名空间名,不包含类名
-        /// </summary>
-        public static string GetFullNamespace(string root, string _namespace)
-        {
-            if (string.IsNullOrWhiteSpace(_namespace))
-                return root;
-            else
-                return string.Format("{0}.{1}", root, _namespace);
-        }
         public static string FirstCharUpper(string name)
         {
             return Char.ToUpper(name[0]) + name.Substring(1);
         }
-        public static void TryDeleteDirectory(string path)
-        {
-            if (!Directory.Exists(path)) return;
-
-            var fs = Directory.GetFiles(path, "*.*");
-            for (int i = 0; i < fs.Length; i++)
-                File.Delete(fs[i]);
-            var ds = Directory.GetDirectories(path, "*");
-            for (int i = 0; i < ds.Length; i++)
-                TryDeleteDirectory(ds[i]);
-
-            Directory.Delete(path, true);
-        }
 
 
 
-        public static string ListStringSplit(object[] array, string split = ",")
+
+        public static string List2String(object[] array, string split = ",")
         {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < array.Length; i++)
                 sb.AppendFormat("{0}{1}", array[i], i != array.Length - 1 ? split : "");
             return sb.ToString();
         }
-        public static string ListStringSplit(List<string> list, string split = ",")
+        public static string List2String(List<string> list, string split = ",")
         {
-            return ListStringSplit(list.ToArray(), split);
+            return List2String(list.ToArray(), split);
         }
 
 

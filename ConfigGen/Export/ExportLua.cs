@@ -22,7 +22,7 @@ namespace ConfigGen.Export
 
         private static string GetCfgClassPath(ClassTypeInfo classType)
         {
-            return string.Format("{0}.{1}", Values.ConfigRootNode, classType.GetFullName());
+            return string.Format("{0}.{1}", Consts.ConfigRootNode, classType.GetFullName());
         }
         private static void GenDataStructAndConfig()
         {
@@ -34,7 +34,7 @@ namespace ConfigGen.Export
                 if (classType.EType != TypeType.Class) continue;
                 string method = string.Format("Get{0}", GetCfgClassPath(classType).Replace(".", ""));
                 string index = classType.IndexField.Name;
-                string fileName = classType.GetFullName().Replace(".", "/") + Values.CsvFileExt;
+                string fileName = classType.GetFullName().Replace(".", "/") + Consts.CsvFileExt;
                 cfgLoopBuilder.AppendFormat("\t{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
                     classType.Name, method, index, fileName.ToLower());
             }
@@ -62,7 +62,7 @@ namespace ConfigGen.Export
                     }
                     dsLoopBuilder.AppendFormat("meta.{0} = {1}\n", cst.Name, value);
                 }
-                dsLoopBuilder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = meta\n", Values.ConfigRootNode, classInfo.NamespaceName, classInfo.Name);
+                dsLoopBuilder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = meta\n", Consts.ConfigRootNode, classInfo.NamespaceName, classInfo.Name);
                 if (classInfo.InhertType == ClassTypeInfo.InhertState.PolyParent)
                 {
                     //-----类型选择函数,需要动态跳转到指定类型解析函数,以Maker结尾
@@ -85,8 +85,8 @@ namespace ConfigGen.Export
             foreach (var item in Description.TypeInfo.Instance.EnumInfos)
             {
                 EnumTypeInfo enumInfo = item;
-                string fullName = string.Format("{0}.{1}", Values.ConfigRootNode, enumInfo.GetFullName());
-                dsLoopBuilder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = {{\n", Values.ConfigRootNode, enumInfo.NamespaceName, enumInfo.Name);
+                string fullName = string.Format("{0}.{1}", Consts.ConfigRootNode, enumInfo.GetFullName());
+                dsLoopBuilder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = {{\n", Consts.ConfigRootNode, enumInfo.NamespaceName, enumInfo.Name);
                 dsLoopBuilder.AppendFormat("\tNULL = {0},\n", LUA_ENUM_NULL);
                 for (int i = 0; i < enumInfo.Enums.Count; i++)
                 {
@@ -104,7 +104,7 @@ namespace ConfigGen.Export
             structBuilder.AppendLine("local meta");
             structBuilder.AppendLine(dsLoopBuilder.ToString());
             structBuilder.AppendLine("return Stream");
-            string path = Path.Combine(Values.ExportLua, DATA_STRUCT + ".lua");
+            string path = Path.Combine(Consts.ExportLua, DATA_STRUCT + ".lua");
             Util.SaveFile(path, structBuilder.ToString());
             structBuilder.Clear();
 
@@ -130,7 +130,7 @@ namespace ConfigGen.Export
             configBuilder.AppendLine("return {");
             configBuilder.Append(cfgLoopBuilder.ToString());
             configBuilder.AppendLine("}");
-            path = Path.Combine(Values.ExportLua, DATA_CONFIG + ".lua");
+            path = Path.Combine(Consts.ExportLua, DATA_CONFIG + ".lua");
             Util.SaveFile(path, configBuilder.ToString());
             configBuilder.Clear();
         }
@@ -345,7 +345,7 @@ namespace ConfigGen.Export
             builder.AppendLine();
             builder.AppendLine("return Stream");
 
-            string path = Path.Combine(Values.ExportLua, DATA_STREAM + ".lua");
+            string path = Path.Combine(Consts.ExportLua, DATA_STREAM + ".lua");
             Util.SaveFile(path, builder.ToString());
         }
     }

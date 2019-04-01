@@ -25,12 +25,12 @@ namespace ConfigGen.Export
                         if (column + 1 == fields.Count)
                             builder.AppendLine(v);
                         else
-                            builder.AppendFormat("{0}{1}", v, Values.CsvSplitFlag);
+                            builder.AppendFormat("{0}{1}", v, Consts.CsvSplitFlag);
                     }
                 }
 
                 string fileName = item.Value.ClassTypeInfo.GetFullName().Replace(".", "/").ToLower();
-                string filePath = string.Format("{0}\\{1}{2}", Values.DataDir, fileName, Values.CsvFileExt);
+                string filePath = string.Format("{0}\\{1}{2}", Consts.DataDir, fileName, Consts.CsvFileExt);
                 Util.SaveFile(filePath, builder.ToString());
                 builder.Clear();
             }
@@ -93,13 +93,13 @@ namespace ConfigGen.Export
             if (classType.IsPolyClass)
             {
                 string polyType = dataClass.Type;
-                builder.AppendFormat("{0}.{1}{2}", Values.ConfigRootNode, polyType, Values.CsvSplitFlag);
+                builder.AppendFormat("{0}.{1}{2}", Consts.ConfigRootNode, polyType, Consts.CsvSplitFlag);
 
                 AnalyzeParentClass(classType, dataClass, builder);
                 var subClassType = classType.GetSubClass(polyType);
                 if (!classType.IsTheSame(subClassType))
                 {   //--子类字段
-                    builder.Append(Values.CsvSplitFlag);
+                    builder.Append(Consts.CsvSplitFlag);
                     for (int j = 0; j < subClassType.Fields.Count; j++)
                     {
                         FieldInfo fieldInfo = subClassType.Fields[j];
@@ -108,7 +108,7 @@ namespace ConfigGen.Export
                         if (j + 1 == subClassType.Fields.Count)
                             builder.AppendFormat(value);
                         else
-                            builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
+                            builder.AppendFormat("{0}{1}", value, Consts.CsvSplitFlag);
                     }
                 }
             }
@@ -131,13 +131,13 @@ namespace ConfigGen.Export
                     if (j + 1 == classType.Fields.Count)
                         builder.AppendFormat(value);
                     else
-                        builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
+                        builder.AppendFormat("{0}{1}", value, Consts.CsvSplitFlag);
                 }
                 return;
             }
 
             AnalyzeParentClass(parentClassType, dataClass, builder);
-            builder.Append(Values.CsvSplitFlag);
+            builder.Append(Consts.CsvSplitFlag);
             for (int j = 0; j < classType.Fields.Count; j++)
             {
                 FieldInfo fieldInfo = classType.Fields[j];
@@ -146,7 +146,7 @@ namespace ConfigGen.Export
                 if (j + 1 == classType.Fields.Count)
                     builder.AppendFormat(value);
                 else
-                    builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
+                    builder.AppendFormat("{0}{1}", value, Consts.CsvSplitFlag);
             }
         }
         private static string AnalyzeList(FieldInfo info, Data data)
@@ -160,12 +160,12 @@ namespace ConfigGen.Export
             for (int i = 0; i < elements.Count; i++)
             {
                 string value = AnalyzeField(elementInfo, elements[i]);
-                if (!value.Equals(Values.SetEndFlag))
+                if (!value.Equals(Consts.SetEndFlag))
                 {
                     if (i + 1 == elements.Count)
                         builder.Append(value);
                     else
-                        builder.AppendFormat("{0}{1}", value, Values.CsvSplitFlag);
+                        builder.AppendFormat("{0}{1}", value, Consts.CsvSplitFlag);
                 }
                 else
                 {
@@ -176,7 +176,7 @@ namespace ConfigGen.Export
 
                 count++;
             }
-            builder.Insert(0, count == 0 ? count.ToString() : count + Values.CsvSplitFlag);
+            builder.Insert(0, count == 0 ? count.ToString() : count + Consts.CsvSplitFlag);
             return builder.ToString();
         }
         private static string AnalyzeDict(FieldInfo info, Data data)
@@ -192,11 +192,11 @@ namespace ConfigGen.Export
             {
                 string key = AnalyzeField(keyInfo, pairs[i].Key);
                 string value = AnalyzeField(valueInfo, pairs[i].Value);
-                if (key.Equals(Values.SetEndFlag)
-                    || value.Equals(Values.SetEndFlag))
+                if (key.Equals(Consts.SetEndFlag)
+                    || value.Equals(Consts.SetEndFlag))
                     break;
 
-                builder.AppendFormat("{0}{1}{2}{3}", Values.CsvSplitFlag, key, Values.CsvSplitFlag, value);
+                builder.AppendFormat("{0}{1}{2}{3}", Consts.CsvSplitFlag, key, Consts.CsvSplitFlag, value);
                 count++;
             }
             builder.Insert(0, count.ToString());

@@ -15,6 +15,10 @@ namespace ConfigGen.TypeInfo
         {
             return _enums.ContainsKey(fullName);
         }
+        public static List<EnumInfo> GetExports()
+        {
+            return new List<EnumInfo>(Enums.Values);
+        }
         static void Add(EnumInfo info)
         {
             if (_enums.ContainsKey(info._fullName))
@@ -27,14 +31,14 @@ namespace ConfigGen.TypeInfo
         public string Namespace { get { return _namespace; } }
         public string Name { get { return _des.Name; } }
         public string Desc { get { return _des.Desc; } }
-        public Dictionary<string, int> Values { get { return _values; } }
+        public Dictionary<string, string> Values { get { return _values; } }
         public Dictionary<string, string> Aliases { get { return _aliases; } }
 
-        public int GetEnumValue(string name)
+        public string GetEnumValue(string name)
         {
             if (_values.ContainsKey(name))
                 return _values[name];
-            return NULL;
+            return Consts.Null;
         }
         public string GetEnumName(string alias)
         {
@@ -50,7 +54,7 @@ namespace ConfigGen.TypeInfo
         /// key-枚举名;
         /// value-枚举值
         /// </summary>
-        private Dictionary<string, int> _values = new Dictionary<string, int>();
+        private Dictionary<string, string> _values = new Dictionary<string, string>();
         /// <summary>
         /// key-枚举别名;
         /// value-枚举名
@@ -60,14 +64,34 @@ namespace ConfigGen.TypeInfo
         public EnumInfo(EnumDes des, string namespace0)
         {
             _des = des;
-            _xmlDir = xmlDir;
             _namespace = namespace0;
             _fullName = string.Format("{0}.{1}", namespace0, des.Name);
 
+            if (!Util.MatchName(Name))
+                Error("命名不合法:" + Name);
+
+            var consts = des.Enums;
+            for (int i = 0; i < consts.Count; i++)
+            {
+                var cst = consts[i];
+                int value = 0;
+                if (!cst.Value.IsEmpty() && !int.TryParse(cst.Value, out value))
+                    Error("值无法转换成数字:" + cst.Value);
+                if (!_values.ContainsKey(cst.Name))
+                    _values.Add(cst.Name, cst.Value);
+                else
+                    Error("Name重复定义:" + cst.Name);
+                if (!cst.Alias.IsEmpty())
+                {
+                    if (!_aliases.ContainsKey(cst.Alias))
+                        _aliases.Add(cst.Alias, cst.Name);
+                    else
+                        Error("Alias重复定义:" + cst.Alias);
+                }
+            }
+
             Add(this);
         }
-
-
 
         public override string ToString()
         {
@@ -81,9 +105,9 @@ namespace ConfigGen.TypeInfo
             }
             return builder.ToString();
         }
-        public void Error(string msg)
+        private void Error(string msg)
         {
-            string error = string.Format("Class:{0} 错误:{1}", FullName, msg);
+            string error = string.Format("Enum:{0} 错误:{1}", FullName, msg);
             throw new Exception(error);
         }
     }

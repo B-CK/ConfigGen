@@ -1,9 +1,10 @@
 ﻿using System;
-using ConfigGen.Export;
-using ConfigGen.Description;
-using System.Collections.Generic;
 using System.IO;
+using System.Collections.Generic;
+using System.Reflection;
+using ConfigGen.Description;
 using ConfigGen.TypeInfo;
+using ConfigGen.Config;
 
 namespace ConfigGen
 {
@@ -14,89 +15,63 @@ namespace ConfigGen
         //未完成内容
         //1.说明文档按功能来整理
 
+        static Data lastData;
+
+        public static void AddLastData(Data data)
+        {
+            lastData = data;
+        }
+
         static void Main(string[] args)
         {
             Util.Start();
 
-            try
+            CmdOption.Ins.Parse(args);
+            //解析命令
+            if (!CmdOption.Ins.CheckResult())
             {
-                CmdOption.Ins.Parse(args);
-                //解析命令
-                if (!CmdOption.Ins.CheckResult())
-                {
-                    Util.LogError("命令参数解析失败!");
-                    Console.ReadKey();
-                    return;
-                }
-
-                LoadDefine();
-                VerifyDefine();
-
-
-                //构建本地数据库               
-                Description.TypeInfo.Init();
-                DataFileInfo.Init();
-
-                bool canExportCsv = !string.IsNullOrWhiteSpace(Values.DataDir);
-                bool canExportCode = !string.IsNullOrWhiteSpace(Values.CSDir);
-                bool canExportXmlCode = !string.IsNullOrWhiteSpace(Values.XmlCodeDir);
-                bool canExportLua = !string.IsNullOrWhiteSpace(Values.ExportLua);
-
-                if (canExportCsv)
-                {
-                    TableInfo.Init();
-                    //类型,数据,检查操作
-                    Util.Start();
-                    TableChecker.CheckAllData();
-                    TableChecker.CheckFullTable();
-                    Util.Stop("==>> 检查数据耗时");
-
-                    Util.Start();
-                    Util.TryDeleteDirectory(Values.DataDir);
-                    ExportCsv.Export();
-                    Util.Stop("==>> Csv 数据导出完毕");
-                }
-                if (canExportCode)
-                {
-                    Util.Start();
-                    Util.TryDeleteDirectory(Values.CSDir);
-                    ExportCSharp.Export_CsvOp();
-                    Util.Stop("==>> Code 类导出完毕");
-                }
-                if (canExportXmlCode)
-                {
-                    Util.Start();
-                    Util.TryDeleteDirectory(Values.XmlCodeDir);
-                    ExportCSharp.Export_XmlOp();
-                    Util.Stop("==>> XmlCode 类导出完毕");
-                }
-                if (canExportLua)
-                {
-                    Util.Start();
-                    Util.TryDeleteDirectory(Values.ExportLua);
-                    ExportLua.Export();
-                    Util.Stop("==>> Lua 脚本导出完毕");
-                }
-
-            }
-            catch (Exception e)
-            {
-                Util.LogErrorFormat("{0}\n{1}", e.Message, e.StackTrace);
+                Util.LogError("命令参数解析失败!");
+                Console.ReadKey();
+                return;
             }
 
-            Util.Log("\n\n\n");
+            LoadDefine();
+            VerifyDefine();
+
+            if (!Consts.DataDir.IsEmpty() || Consts.Check)
+            {
+                try
+                {
+                    LoadData();
+                    VerifyData();
+                }
+                catch (Exception e)
+                {
+                    Util.Log("\n-------------最后一条数据-------------\n");
+                    Util.Log(lastData);
+                    Util.Log("\n--------------------------------------\n");
+                    Util.LogErrorFormat("{0}\n{1}\n", e.Message, e.StackTrace);
+                }
+            }
+
+            Export("CSharp", Consts.CSDir);
+            Export("Java", Consts.JavaDir);
+            Export("Lua", Consts.LuaDir);
+            Export("XmlCode", Consts.XmlCodeDir);
+            Export("Csv", Consts.DataDir);
+
+            Util.Log("\n\n");
             Util.Stop("=================>> 总共");
-            Console.ReadKey();
         }
 
         static void LoadDefine()
         {
             //解析类型定义
             Dictionary<string, NamespaceDes> pairs = new Dictionary<string, NamespaceDes>();
-            var configXml = Util.Deserialize(Values.ConfigXml, typeof(ConfigXml)) as ConfigXml;
+            var configXml = Util.Deserialize(Consts.ConfigXml, typeof(ConfigXml)) as ConfigXml;
             if (configXml.Root.IsEmpty())
                 throw new Exception("数据结构导出时必须指定命名空间根节点<Config Root=\"**\">");
-            Values.ConfigRootNode = configXml.Root;
+            Consts.ConfigRootNode = configXml.Root;
             List<string> include = configXml.Include;
             string path = "无法解析Xml.NamespaceDes";
             try
@@ -124,8 +99,10 @@ namespace ConfigGen
             }
             GroupInfo.LoadGroup(configXml.Group);
             HashSet<string> fullHash = new HashSet<string>();
-            foreach (var item in pairs)
+            var nit = pairs.GetEnumerator();
+            while (nit.MoveNext())
             {
+                var item = nit.Current;
                 string namespace0 = item.Key;
                 for (int i = 0; i < item.Value.Classes.Count; i++)
                     new ClassInfo(item.Value.Classes[i], namespace0);
@@ -136,17 +113,44 @@ namespace ConfigGen
 
         static void VerifyDefine()
         {
-
+            var cls = ClassInfo.Classes.GetEnumerator();
+            while (cls.MoveNext())
+                cls.Current.Value.VerifyDefine();
+            var cfgs = ConfigInfo.Configs.GetEnumerator();
+            while (cfgs.MoveNext())
+                cfgs.Current.Value.VerifyDefine();
         }
 
         static void LoadData()
         {
-
+            var cit = ConfigInfo.Configs.GetEnumerator();
+            while (cit.MoveNext())
+            {
+                ConfigInfo cfg = cit.Current.Value;
+                Util.Log('.');
+                long start = DateTime.Now.Ticks;
+                cfg.LoadData();
+                long end = DateTime.Now.Ticks;
+                if ((end - start) >= 1000)
+                    Util.LogFormat("{0} 耗时 {1}ms\n", cfg.FullName, end - start);
+            }
         }
 
         static void VerifyData()
         {
+            var cit = ConfigInfo.Configs.GetEnumerator();
+            while (cit.MoveNext())
+                cit.Current.Value.VerifyData();
+        }
 
+        static void Export(string code, string path)
+        {
+            if (path.IsEmpty()) return;
+
+            Util.TryDeleteDirectory(path);
+            Type type = Type.GetType("ConfigGen.Export.Export" + code);
+            var export = type.GetMethod("Export", BindingFlags.Public | BindingFlags.Static);
+            export.Invoke(null, null);
         }
     }
 }

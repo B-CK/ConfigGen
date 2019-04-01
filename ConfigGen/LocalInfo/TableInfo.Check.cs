@@ -39,7 +39,7 @@ namespace ConfigGen.Description
     partial class TableChecker
     {
         static ClassTypeInfo ClassInfo = null;
-        static List<Data> DataKeys = new List<Data>();
+        static List<Data> DataKeys = new List<Config>();
         /// <summary>
         /// 仅检查基础类型数据,不对结构进行检查
         /// </summary>
@@ -54,7 +54,7 @@ namespace ConfigGen.Description
                 for (int column = 0; column < fields.Count; column++)//列
                 {
                     FieldInfo info = fields[column];
-                    List<Data> dataColum = table.Value.GetDataColumn(info.Name);
+                    List<Config> dataColum = table.Value.GetDataColumn(info.Name);
 
                     //数据表键的唯一性检查
                     if (classType.IndexField.Name == info.Name)
@@ -122,7 +122,7 @@ namespace ConfigGen.Description
                 for (int column = 0; column < fields.Count; column++)//列
                 {
                     FieldInfo field = fields[column];
-                    List<Data> dataColum = new List<Data>();
+                    List<Config> dataColum = new List<Config>();
                     for (int row = 0; row < datas.Count; row++)//行
                     {
                         DataClass dataClass = datas[row] as DataClass;
@@ -143,7 +143,7 @@ namespace ConfigGen.Description
                     for (int column = 0; column < fields.Count; column++)//列
                     {
                         FieldInfo field = fields[column];
-                        List<Data> dataColum = new List<Data>();
+                        List<Config> dataColum = new List<Config>();
                         for (int row = 0; row < datas.Count; row++)//行
                         {
                             DataClass dataClass = datas[row] as DataClass;
@@ -160,7 +160,7 @@ namespace ConfigGen.Description
         {
             ListTypeInfo listType = info.BaseInfo as ListTypeInfo;
             FieldInfo element = listType.ItemInfo;
-            element.Set(Values.ELEMENT, listType.ItemType, info.Check, info.Group);
+            element.Set(Consts.ITEM, listType.ItemType, info.Check, info.Group);
             for (int i = 0; i < datas.Count; i++)
             {
                 DataList dataList = datas[i] as DataList;
@@ -172,15 +172,15 @@ namespace ConfigGen.Description
             DictTypeInfo dictInfo = info.BaseInfo as DictTypeInfo;
             string keyCheck, valueCheck;
             keyCheck = valueCheck = "";
-            string[] checks = info.Check.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string[] checks = info.Check.Split(Consts.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < checks.Length; i++)
             {
-                int index = checks[i].IndexOf(Values.ArgsSplitFlag);
+                int index = checks[i].IndexOf(Consts.ArgsSplitFlag);
                 string checkTarget = checks[i].Substring(0, index).ToLower();
-                if (checkTarget == Values.KEY.ToLower())
-                    keyCheck = string.Format("{0}{1}{2}", keyCheck, Values.ArgsSplitFlag, checks[i].Substring(index + 1));
-                else if (checkTarget == Values.VALUE.ToLower())
-                    valueCheck = string.Format("{0}{1}{2}", valueCheck, Values.ArgsSplitFlag, checks[i].Substring(index + 1));
+                if (checkTarget == Consts.KEY.ToLower())
+                    keyCheck = string.Format("{0}{1}{2}", keyCheck, Consts.ArgsSplitFlag, checks[i].Substring(index + 1));
+                else if (checkTarget == Consts.VALUE.ToLower())
+                    valueCheck = string.Format("{0}{1}{2}", valueCheck, Consts.ArgsSplitFlag, checks[i].Substring(index + 1));
                 else
                 {
                     Util.LogWarningFormat("Type:{0} CheckRule:{1} 格式错误", info.Type, info.Check);
@@ -188,14 +188,14 @@ namespace ConfigGen.Description
                 }
             }
             FieldInfo keyInfo = dictInfo.KeyInfo;
-            keyInfo.Set(Values.KEY, dictInfo.KeyType, keyCheck, info.Group);
+            keyInfo.Set(Consts.KEY, dictInfo.KeyType, keyCheck, info.Group);
             FieldInfo valueInfo = dictInfo.ValueInfo;
-            valueInfo.Set(Values.VALUE, dictInfo.ValueType, valueCheck, info.Group);
+            valueInfo.Set(Consts.VALUE, dictInfo.ValueType, valueCheck, info.Group);
             for (int i = 0; i < datas.Count; i++)
             {
                 DataDict dataDict = datas[i] as DataDict;
-                List<Data> keys = new List<Data>();
-                List<Data> values = new List<Data>();
+                List<Config> keys = new List<Config>();
+                List<Config> values = new List<Config>();
                 for (int j = 0; j < dataDict.Pairs.Count; j++)
                 {
                     keys.Add(dataDict.Pairs[j].Key);
@@ -212,7 +212,7 @@ namespace ConfigGen.Description
         /// </summary>
         static bool AnalyzeCheckRule(FieldInfo info)
         {
-            string[] checks = info.Check.Split(Values.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string[] checks = info.Check.Split(Consts.ArgsSplitFlag.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             if (checks.Length == 0) return false;
 
             string refFlag = "ref";
@@ -234,25 +234,25 @@ namespace ConfigGen.Description
                 if (check.StartsWith(refFlag))
                 {
                     ruleType = CheckRuleType.Ref;
-                    ruleArgs.AddRange(check.Replace(refFlag, "").Split(Values.ArgsSplitFlag.ToCharArray(),
+                    ruleArgs.AddRange(check.Replace(refFlag, "").Split(Consts.ArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
                 }
                 else if (check.StartsWith(noEmptyFlag))
                 {
                     ruleType = CheckRuleType.NoEmpty;
-                    ruleArgs.AddRange(check.Replace(noEmptyFlag, "").Split(Values.ArgsSplitFlag.ToCharArray(),
+                    ruleArgs.AddRange(check.Replace(noEmptyFlag, "").Split(Consts.ArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
                 }
                 else if (check.StartsWith(uniqueFlag))
                 {
                     ruleType = CheckRuleType.Unique;
-                    ruleArgs.AddRange(check.Replace(uniqueFlag, "").Split(Values.ArgsSplitFlag.ToCharArray(),
+                    ruleArgs.AddRange(check.Replace(uniqueFlag, "").Split(Consts.ArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
                 }
                 else if (check.StartsWith(fileExistFlags))
                 {
                     ruleType = CheckRuleType.FileExist;
-                    ruleArgs.AddRange(check.Replace(fileExistFlags, "").Split(Values.ArgsSplitFlag.ToCharArray(),
+                    ruleArgs.AddRange(check.Replace(fileExistFlags, "").Split(Consts.ArgsSplitFlag.ToCharArray(),
                         StringSplitOptions.RemoveEmptyEntries));
                 }
                 else
@@ -335,7 +335,7 @@ namespace ConfigGen.Description
             {
                 TableDataInfo table = dataInfoDict[className] as TableDataInfo;
                 ClassTypeInfo classType = table.ClassTypeInfo;
-                List<Data> keys = table.GetDataColumn(classType.IndexField.Name);
+                List<Config> keys = table.GetDataColumn(classType.IndexField.Name);
                 HashSet<string> hash = new HashSet<string>();
                 keys.ForEach(k => hash.Add(k as DataBase));
                 for (int i = 0; i < datas.Count; i++)
@@ -376,7 +376,7 @@ namespace ConfigGen.Description
             {
                 string v = datas[i] as DataBase;
                 if (string.IsNullOrWhiteSpace(v))
-                    error.AppendFormat("[notEmpty]key:{0} 第{1}行未填数据\n", GetKey(i), i + Values.DataSheetDataStartIndex + 1);
+                    error.AppendFormat("[notEmpty]key:{0} 第{1}行未填数据\n", GetKey(i), i + Consts.DataSheetDataStartIndex + 1);
             }
             return error.ToString();
         }

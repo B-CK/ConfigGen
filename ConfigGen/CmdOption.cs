@@ -9,9 +9,8 @@ namespace ConfigGen
     {
         public const string CONFIG_XML = "-configXml";
         public const string DATA_DIR = "-dataDir";
-        public const string CS_DIR = "-csDir";
-        public const string JAVA_DIR = "-javaDir";
-        public const string LUA_DIR = "-luaDir";
+        public const string CODE = "-code";
+        public const string CODE_DIR = "-codeDir";
         public const string XML_CODE_DIR = "-xmlCodeDir";
         public const string GROUP = "-group";
         public const string CHECK = "-check";
@@ -90,28 +89,25 @@ namespace ConfigGen
                             _result &= false;
                             break;
                         }
-                        Values.ConfigXml = NormalizePath(args[i]);
-                        if (!File.Exists(Values.ConfigXml))
+                        Consts.ConfigXml = NormalizePath(args[i]);
+                        if (!File.Exists(Consts.ConfigXml))
                         {
-                            Util.LogErrorFormat("[{0}]confgxml配置文件{1}不存在!", CONFIG_XML, Values.ConfigXml);
+                            Util.LogErrorFormat("[{0}]confgxml配置文件{1}不存在!", CONFIG_XML, Consts.ConfigXml);
                             _result &= false;
                         }
-                        Values.ConfigDir = Path.GetDirectoryName(Values.ConfigXml);
+                        Consts.ConfigDir = Path.GetDirectoryName(Consts.ConfigXml);
                         break;
                     case DATA_DIR:
-                        Values.DataDir = CheckDirArg(DATA_DIR, args[++i]);
+                        Consts.DataDir = CheckDirArg(DATA_DIR, args[++i]);
                         break;
-                    case CS_DIR:
-                        Values.CSDir = CheckDirArg(CS_DIR, args[++i]);
+                    case CODE:
+                        Consts.JavaDir = CheckDirArg(CODE, args[++i]);
                         break;
-                    case LUA_DIR:
-                        Values.LuaDir = CheckDirArg(LUA_DIR, args[++i]);
-                        break;
-                    case JAVA_DIR:
-                        Values.JavaDir = CheckDirArg(JAVA_DIR, args[++i]);
+                    case CODE_DIR:
+                        Consts.CSDir = CheckDirArg(CODE_DIR, args[++i]);
                         break;
                     case XML_CODE_DIR:
-                        Values.XmlCodeDir = CheckDirArg(XML_CODE_DIR, args[++i]);
+                        Consts.XmlCodeDir = CheckDirArg(XML_CODE_DIR, args[++i]);
                         break;
                     case GROUP:
                         if (!CheckArg(GROUP, args[++i]))
@@ -119,14 +115,14 @@ namespace ConfigGen
                             _result &= false;
                             break;
                         }
-                        string[] groups = args[i].Split(Values.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
+                        string[] groups = args[i].Split(Consts.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
                         for (int g = 0; g < groups.Length; g++)
                             groups[g] = groups[g].ToLower();
-                        Values.ExportGroup = new HashSet<string>(groups);
-                        Values.ExportGroup.Add(Values.DefualtGroup);
+                        Consts.ExportGroup = new HashSet<string>(groups);
+                        Consts.ExportGroup.Add(Consts.DefualtGroup);
                         break;
                     case CHECK:
-                        Values.Check = true;
+                        Consts.Check = true;
                         break;
                     case HELP:
                         Usage();
@@ -138,13 +134,13 @@ namespace ConfigGen
                 }
             }
 
-            if (!Values.XmlCodeDir.IsEmpty() && Values.ExportGroup.Count == 0)
+            if (!Consts.XmlCodeDir.IsEmpty() && Consts.ExportGroup.Count == 0)
             {
                 Util.LogError("导出XmlCode编辑器代码时,必须指定Group参数");
                 _result &= false;
             }
-            if (Values.CSDir.IsEmpty() && Values.JavaDir.IsEmpty() && Values.XmlCodeDir.IsEmpty()
-                && Values.LuaDir.IsEmpty() && Values.DataDir.IsEmpty() && !Values.Check)
+            if (Consts.CSDir.IsEmpty() && Consts.JavaDir.IsEmpty() && Consts.XmlCodeDir.IsEmpty()
+                && Consts.LuaDir.IsEmpty() && Consts.DataDir.IsEmpty() && !Consts.Check)
             {
                 Util.LogError("检查或者导出代码,数据三种操作至少有一个存在");
                 _result &= false;

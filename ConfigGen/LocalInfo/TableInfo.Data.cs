@@ -24,7 +24,7 @@ namespace ConfigGen.Description
         {
             DataTable dt = TableDataSet;
             Datas = new List<DataClass>();
-            for (int row = Values.DataSheetDataStartIndex; row < dt.Rows.Count; row++)
+            for (int row = Consts.DataSheetDataStartIndex; row < dt.Rows.Count; row++)
             {
                 DataClass dataClass = new DataClass();
                 string key = dt.Rows[row][0].ToString();
@@ -54,7 +54,7 @@ namespace ConfigGen.Description
                 string value = dt.Rows[row][column].ToString();
                 if (!string.IsNullOrWhiteSpace(value)) break;
                 column++;
-                if (column >= Values.SheetLineDataNum)
+                if (column >= Consts.SheetLineDataNum)
                     throw new Exception("数据表格(Excel)每行最大数据量1024!  " + column + ">=1024");
             } while (true);
         }
@@ -68,7 +68,7 @@ namespace ConfigGen.Description
             {
                 if (column >= dt.Rows[row].ItemArray.Length) return;
                 string flag = dt.Rows[row][column].ToString();
-                isEnd = flag.Equals(Values.SetEndFlag);
+                isEnd = flag.Equals(Consts.SetEndFlag);
                 column++;
             } while (!isEnd);
             column--;
@@ -109,9 +109,9 @@ namespace ConfigGen.Description
             string key = dataBase;
             if (key != null)
             {
-                if (key.Equals(Values.SetEndFlag))//--集合类型结束
+                if (key.Equals(Consts.SetEndFlag))//--集合类型结束
                     return null;
-                else if (key.ToLower().Equals(Values.Null))//--占位内容空,使用类型默认值
+                else if (key.ToLower().Equals(Consts.Null))//--占位内容空,使用类型默认值
                     dataBase.Data = null;
                 else if (string.IsNullOrWhiteSpace(key))//--表格DBNull类型,无内容!非集合情况下直接报错!
                     return null;
@@ -126,7 +126,7 @@ namespace ConfigGen.Description
             EnumTypeInfo enumType = info.BaseInfo as EnumTypeInfo;
             dataBase.Data = dt.Rows[row][column];
             string key = dataBase.Data as string;
-            if (key != null && !key.Equals(Values.SetEndFlag))
+            if (key != null && !key.Equals(Consts.SetEndFlag))
             {
                 string value = enumType[key];
                 if (!string.IsNullOrWhiteSpace(value))
@@ -146,7 +146,7 @@ namespace ConfigGen.Description
         {
             RemoveEmpty(dt, row, ref column);
             string flag = dt.Rows[row][column].ToString();
-            if (flag.Equals(Values.SetEndFlag))//--集合结束标识符
+            if (flag.Equals(Consts.SetEndFlag))//--集合结束标识符
                 return null;
 
             ClassTypeInfo classType = info.BaseInfo as ClassTypeInfo;
@@ -263,7 +263,7 @@ namespace ConfigGen.Description
                 else
                 {
                     hash.Add(dataKey.Data);
-                    dataDict.Pairs.Add(new KeyValuePair<DataBase, Data>(dataKey, dataValue));
+                    dataDict.Pairs.Add(new KeyValuePair<DataBase, Config>(dataKey, dataValue));
                     column++;
                 }
             }
