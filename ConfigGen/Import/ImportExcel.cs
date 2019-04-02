@@ -14,17 +14,16 @@ namespace ConfigGen.Import
         private List<List<object>> _lines;
         private int _ri;//行
         private int _ci;//列
-        private string _relPath;
+        private string _path;
 
-        public ImportExcel(string relPath)
+        public ImportExcel(string path)
         {
-            _relPath = relPath;
+            _path = path;
             _lines = new List<List<object>>();
             _ri = 0;
             _ci = -1;
 
-            string absPath = Util.GetAbsPath(relPath);
-            var tables = Util.ReadXlsxFile(absPath).Tables;
+            var tables = Util.ReadXlsxFile(path).Tables;
             for (int i = 0; i < tables.Count; i++)
             {
                 var rows = tables[i].Rows;
@@ -96,7 +95,7 @@ namespace ConfigGen.Import
         }
         protected override void Error(string msg)
         {
-            string error = string.Format("错误:{0} \n位置:{1}[{2}{3}]", msg, _relPath, GetColumnName(_ci + 1), _ri + 1);
+            string error = string.Format("错误:{0} \n位置:{1}[{2}{3}]", msg, _path, GetColumnName(_ci + 1), _ri + 1);
             throw new Exception(error);
         }
         private string GetNext()

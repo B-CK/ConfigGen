@@ -124,7 +124,7 @@ namespace ConfigGen.TypeInfo
             return _children.Contains(child);
         }
         public void VerifyDefine()
-        {       
+        {
             string inhert = Inherit;
             while (!inhert.IsEmpty())
             {
@@ -159,13 +159,17 @@ namespace ConfigGen.TypeInfo
                         Error("Field名重复:" + name);
                     _fields[i].VerifyDefine();
                 }
-
             }
+
+            var git = _groups.GetEnumerator();
+            while (git.MoveNext())
+                if (!GroupInfo.IsGroup(git.Current))
+                    Error("未知 Group:" + git.Current);
         }
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.AppendFormat("Class - FullName:{0}\tInherit:{1}\tDataPath:{2}\tGroup:{3}\n", FullName, Inherit, _des.Group);
+            builder.AppendFormat("Class - FullName:{0}\tInherit:{1}\tGroup:{2}\n", FullName, Inherit, _des.Group);
             for (int i = 0; i < _fields.Count; i++)
                 builder.AppendFormat("\t{0}\n", _fields[i]);
             for (int i = 0; i < _consts.Count; i++)

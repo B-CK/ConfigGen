@@ -20,7 +20,7 @@ namespace ConfigGen.TypeInfo
         /// <summary>
         /// 完整类型
         /// </summary>
-        public string FullType { get { return _des.Type; } }
+        public string FullType { get { return _fullType; } }
         public string Desc { get { return _des.Desc; } }
         /// <summary>
         /// 原始类型,例泛型list:int返回list,其他直接返回类型
@@ -35,17 +35,27 @@ namespace ConfigGen.TypeInfo
         public bool IsEnum { get { return EnumInfo.IsEnum(OriginalType); } }
 
         private FieldDes _des;
-        private readonly ClassInfo _host;
+        private string _fullType;
+        private ClassInfo _host;
         /// <summary>
         /// 嵌套类型,例dict:int:string,则0=dict,1=int,0=string
         /// 任意类型用_types[0]描述
         /// </summary>
-        private readonly string[] _types;
+        private string[] _types;
         /// <summary>
         /// 优先Class.Group,其次才是Field.Group
         /// </summary>
-        private readonly HashSet<string> _groups;
+        private HashSet<string> _groups;
 
+        /// <summary>
+        /// config作为字段定义
+        /// </summary>
+        public FieldInfo(string fullType, HashSet<string> gs)
+        {
+            _fullType = fullType;
+            _types = Util.Split(fullType);
+            _groups = gs;
+        }
         /// <summary>
         /// 泛型类型TKV字段
         /// </summary>
@@ -53,6 +63,7 @@ namespace ConfigGen.TypeInfo
         {
             _des = des;
             _host = host;
+            _fullType = des.Type;
             _types = ts;
             _groups = gs;
         }
@@ -63,7 +74,8 @@ namespace ConfigGen.TypeInfo
         {
             _des = des;
             _host = host;
-            _types = Util.Split(des.Type);
+            _fullType = des.Type;
+            _types = Util.Split(_fullType);
 
             _groups = new HashSet<string>(Util.Split(des.Group));
             if (_groups.Count == 0)
@@ -98,13 +110,14 @@ namespace ConfigGen.TypeInfo
             if (!Util.MatchName(Name))
                 Error("命名不合法:" + Name);
             string type = OriginalType;
-            if (!IsRaw && !IsClass && !IsEnum)
+            if (!IsRaw)
             {
                 if (IsContainer)
                 {
                     if (type == "list")
                     {
                         CheckType(2);
+                        _types[1] = VerifyType(_types[1]);
                         string itemType = _types[1];
                         if (!IsRawOrEnumOrClass(itemType))
                             Error("非法的list item类型:" + itemType);
@@ -112,6 +125,8 @@ namespace ConfigGen.TypeInfo
                     else if (type == "dict")
                     {
                         CheckType(3);
+                        _types[1] = VerifyType(_types[1]);
+                        _types[2] = VerifyType(_types[2]);
                         string key = _types[1];
                         if (!Consts.RawTypes.Contains(key) && !EnumInfo.IsEnum(key))
                             Error("非法的dict key类型:" + key);
@@ -121,13 +136,23 @@ namespace ConfigGen.TypeInfo
                     }
                 }
                 else
-                    Error("未知类型:" + type);
+                {
+                    _fullType = _types[0] = VerifyType(_types[0]);
+                    if (!IsClass && !IsEnum)
+                        Error("未知类型:" + type);
+                }
             }
 
             var git = _groups.GetEnumerator();
             while (git.MoveNext())
                 if (!GroupInfo.IsGroup(git.Current))
                     Error("未知 Group:" + git.Current);
+        }
+        string VerifyType(string type)
+        {
+            if (_host != null && type.IndexOf(Consts.ConfigRootNode) < 0)
+                type = string.Format("{0}.{1}", _host.Namespace, type);
+            return type;
         }
         void CheckType(int size)
         {

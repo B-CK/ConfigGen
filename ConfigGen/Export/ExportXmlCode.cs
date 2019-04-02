@@ -3,6 +3,7 @@ using System.Text;
 using ConfigGen.Description;
 using System.Collections.Generic;
 using System.IO;
+using ConfigGen.TypeInfo;
 
 namespace ConfigGen.Export
 {
@@ -16,576 +17,511 @@ namespace ConfigGen.Export
         /// <summary>
         /// 编辑模式下的Xml读写操作
         /// </summary>
-        public static void Export_XmlOp()
+        public static void Export()
         {
             DefineXmlObject();
-            GenXmlClassScripts();
+            GenXmlClass();
+            GenXmlEnums();
         }
         private static void DefineXmlObject()
         {
-            StringBuilder builder = new StringBuilder();
+            CodeWriter builder = new CodeWriter();
             string path = Path.Combine(Consts.XmlCodeDir, CLASS_XML_OBJECT + ".cs");
-            CodeWriter.UsingNamespace(builder, XmlNameSpaces);
+            builder.UsingNamespace(XmlNameSpaces);
             builder.AppendLine();
-            CodeWriter.NameSpace(builder, Consts.XmlRootNode);
+            builder.NameSpace(Consts.XmlRootNode);
 
-            CodeWriter.DefineClass(builder, CodeWriter.Public, CodeWriter.Abstract, CLASS_XML_OBJECT);
-            CodeWriter.IntervalLevel(builder);
+            builder.DefineClass(CodeWriter.Public, CodeWriter.Abstract, CLASS_XML_OBJECT);
+            builder.IntervalLevel();
             builder.AppendLine("public abstract void Write(TextWriter os);");
-            CodeWriter.IntervalLevel(builder);
+            builder.IntervalLevel();
             builder.AppendLine("public abstract void Read(XmlNode os);\n\n");
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.String, "ReadAttribute",
-                new string[] { "XmlNode", Base.String }, new string[] { "node", "attribute" });
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.String, "ReadAttribute",
+                new string[] { "XmlNode", CSharp.String }, new string[] { "node", "attribute" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.Append("try");
-                CodeWriter.Start(builder);
+                builder.Start();
                 {
-                    CodeWriter.IntervalLevel(builder);
+                    builder.IntervalLevel();
                     builder.AppendLine("if (node != null && node.Attributes != null && node.Attributes[attribute] != null)");
-                    CodeWriter.IntervalLevel(builder);
+                    builder.IntervalLevel();
                     builder.AppendLine("\treturn node.Attributes[attribute].Value;");
                 }
-                CodeWriter.End(builder);
-                CodeWriter.IntervalLevel(builder);
+                builder.End();
+                builder.IntervalLevel();
                 builder.Append("catch (Exception ex)");
-                CodeWriter.Start(builder);
+                builder.Start();
                 {
-                    CodeWriter.IntervalLevel(builder);
+                    builder.IntervalLevel();
                     builder.AppendLine("throw new Exception(string.Format(\"attribute:{0} not exist\", attribute), ex);");
                 }
-                CodeWriter.End(builder);
-                CodeWriter.IntervalLevel(builder);
+                builder.End();
+                builder.IntervalLevel();
                 builder.AppendLine("return \"\";");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, "XmlNode", "GetOnlyChild",
-                new string[] { "XmlNode", Base.String }, new string[] { "parent", "name" });
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, "XmlNode", "GetOnlyChild",
+                new string[] { "XmlNode", CSharp.String }, new string[] { "parent", "name" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("XmlNode child = null;");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.Append("foreach (XmlNode sub in parent.ChildNodes)");
-                CodeWriter.Start(builder);
+                builder.Start();
                 {
-                    CodeWriter.IntervalLevel(builder);
+                    builder.IntervalLevel();
                     builder.Append("if (sub.NodeType == XmlNodeType.Element && sub.Name == name)");
-                    CodeWriter.Start(builder);
+                    builder.Start();
                     {
-                        CodeWriter.IntervalLevel(builder);
+                        builder.IntervalLevel();
                         builder.AppendLine("if (child != null)");
-                        CodeWriter.IntervalLevel(builder);
+                        builder.IntervalLevel();
                         builder.AppendLine("\tthrow new Exception(string.Format(\"child:{0} duplicate\", name));");
-                        CodeWriter.IntervalLevel(builder);
+                        builder.IntervalLevel();
                         builder.AppendLine("child = sub;");
                     }
-                    CodeWriter.End(builder);
+                    builder.End();
 
                 }
-                CodeWriter.End(builder);
-                CodeWriter.IntervalLevel(builder);
+                builder.End();
+                builder.IntervalLevel();
                 builder.AppendLine("return child;");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, "List<XmlNode>", "GetChilds",
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, "List<XmlNode>", "GetChilds",
                 new string[] { "XmlNode" }, new string[] { "parent" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("var childs = new List<XmlNode>();");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("if (parent != null)");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("\tchilds.AddRange(parent.ChildNodes.Cast<XmlNode>().Where(sub => sub.NodeType == XmlNodeType.Element));");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("return childs;");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Bool, "ReadBool",
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.Bool, "ReadBool",
                 new string[] { "XmlNode" }, new string[] { "node" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("string str = node.InnerText.ToLower();");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("if (str == \"true\")");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("\treturn true;");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("else if (str == \"false\")");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("\treturn false;");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("throw new Exception(string.Format(\"'{0}' is not valid bool\", str));");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Int, "ReadInt",
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.Int, "ReadInt",
                 new string[] { "XmlNode" }, new string[] { "node" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("return int.Parse(node.InnerText);");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Long, "ReadLong",
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.Long, "ReadLong",
                 new string[] { "XmlNode" }, new string[] { "node" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("return long.Parse(node.InnerText);");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Float, "ReadFloat",
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.Float, "ReadFloat",
                 new string[] { "XmlNode" }, new string[] { "node" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("return float.Parse(node.InnerText);");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.String, "ReadString",
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.String, "ReadString",
                 new string[] { "XmlNode" }, new string[] { "node" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("return node.InnerText;");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, "T", "ReadObject<T>",
-                new string[] { "XmlNode", Base.String }, new string[] { "node", "fullTypeName" }, CLASS_XML_OBJECT);
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, "T", "ReadObject<T>",
+                new string[] { "XmlNode", CSharp.String }, new string[] { "node", "fullTypeName" }, CLASS_XML_OBJECT);
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("var obj = (T)Create(node, fullTypeName);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("obj.Read(node);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("return obj;");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, "T", "ReadDynamicObject<T>",
-                new string[] { "XmlNode", Base.String }, new string[] { "node", "ns" }, CLASS_XML_OBJECT);
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, "T", "ReadDynamicObject<T>",
+                new string[] { "XmlNode", CSharp.String }, new string[] { "node", "ns" }, CLASS_XML_OBJECT);
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("var fullTypeName = ns + \".\" + ReadAttribute(node, \"Type\");");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("return ReadObject<T>(node, fullTypeName);");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Object, "Create",
-                new string[] { "XmlNode", Base.String }, new string[] { "node", "type" });
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.Object, "Create",
+                new string[] { "XmlNode", CSharp.String }, new string[] { "node", "type" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.Append("try");
-                CodeWriter.Start(builder);
+                builder.Start();
                 {
-                    CodeWriter.IntervalLevel(builder);
+                    builder.IntervalLevel();
                     builder.AppendLine("var t = Type.GetType(type);");
-                    CodeWriter.IntervalLevel(builder);
+                    builder.IntervalLevel();
                     builder.AppendLine("return Activator.CreateInstance(t);");
                 }
-                CodeWriter.End(builder);
-                CodeWriter.IntervalLevel(builder);
+                builder.End();
+                builder.IntervalLevel();
                 builder.Append("catch (Exception e)");
-                CodeWriter.Start(builder);
+                builder.Start();
                 {
-                    CodeWriter.IntervalLevel(builder);
+                    builder.IntervalLevel();
                     builder.AppendLine("throw new Exception(string.Format(\"type:{0} create fail!\", type), e);");
                 }
-                CodeWriter.End(builder);
+                builder.End();
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            List<string> ls = new List<string>() { Base.Bool, Base.Int, Base.Long, Base.Float, Base.String };
+            List<string> ls = new List<string>() { CSharp.Bool, CSharp.Int, CSharp.Long, CSharp.Float, CSharp.String };
             foreach (var item in ls)
             {
-                CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "Write",
-                    new string[] { "TextWriter", Base.String, item }, new string[] { "os", "name", "x" });
+                builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.Void, "Write",
+                    new string[] { "TextWriter", CSharp.String, item }, new string[] { "os", "name", "x" });
                 {
-                    CodeWriter.IntervalLevel(builder);
+                    builder.IntervalLevel();
                     builder.AppendLine("os.WriteLine(\"<{0}>{1}</{0}>\", name, x);");
                 }
-                CodeWriter.End(builder);
+                builder.End();
                 builder.AppendLine();
             }
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "Write",
-                new string[] { "TextWriter", Base.String, CLASS_XML_OBJECT }, new string[] { "os", "name", "x" });
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.Void, "Write",
+                new string[] { "TextWriter", CSharp.String, CLASS_XML_OBJECT }, new string[] { "os", "name", "x" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("os.WriteLine(\"<{0} Type =\\\"{1}\\\">\", name, x.GetType().Name);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("x.Write(os);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("os.WriteLine(\"</{0}>\", name);");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "Write<V>",
-                new string[] { "TextWriter", Base.String, "List<V>" }, new string[] { "os", "name", "x" });
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.Void, "Write<V>",
+                new string[] { "TextWriter", CSharp.String, "List<V>" }, new string[] { "os", "name", "x" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("os.WriteLine(\"<{0}>\", name);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("x.ForEach(v => Write(os, \"Item\", v));");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("os.WriteLine(\"</{0}>\", name);");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "Write<K, V>",
-                new string[] { "TextWriter", Base.String, "Dictionary<K, V>" }, new string[] { "os", "name", "x" });
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.Void, "Write<K, V>",
+                new string[] { "TextWriter", CSharp.String, "Dictionary<K, V>" }, new string[] { "os", "name", "x" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("os.WriteLine(\"<{0}>\", name);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.Append("foreach (var e in x)");
-                CodeWriter.Start(builder);
+                builder.Start();
                 {
-                    CodeWriter.IntervalLevel(builder);
+                    builder.IntervalLevel();
                     builder.AppendLine("os.WriteLine(\"<Pair>\");");
-                    CodeWriter.IntervalLevel(builder);
+                    builder.IntervalLevel();
                     builder.AppendLine("Write(os, \"Key\", e.Key);");
-                    CodeWriter.IntervalLevel(builder);
+                    builder.IntervalLevel();
                     builder.AppendLine("Write(os, \"Value\", e.Value);");
-                    CodeWriter.IntervalLevel(builder);
+                    builder.IntervalLevel();
                     builder.AppendLine("os.WriteLine(\"</Pair>\");");
                 }
-                CodeWriter.End(builder);
-                CodeWriter.IntervalLevel(builder);
+                builder.End();
+                builder.IntervalLevel();
                 builder.AppendLine("os.WriteLine(\"</{0}>\", name);");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "Write",
-                new string[] { "TextWriter", Base.String, Base.Object }, new string[] { "os", "name", "x" });
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.Void, "Write",
+                new string[] { "TextWriter", CSharp.String, CSharp.Object }, new string[] { "os", "name", "x" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("if (x is bool)");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("\tWrite(os, name, (bool)x);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("else if (x is int)");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("\tWrite(os, name, (int)x);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("else if (x is long)");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("\tWrite(os, name, (long)x);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("else if (x is float)");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("\tWrite(os, name, (float)x);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("else if (x is string)");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("\tWrite(os, name, (string)x);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendFormat("else if (x is {0})\n", CLASS_XML_OBJECT);
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendFormat("\tWrite(os, name, ({0})x);\n", CLASS_XML_OBJECT);
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("else");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("\tthrow new Exception(\"unknown Lson type; \" + x.GetType());");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, Base.Void, "LoadAConfig",
-                new string[] { Base.String }, new string[] { "file" });
+            builder.Function(CodeWriter.Public, CSharp.Void, "LoadAConfig",
+                new string[] { CSharp.String }, new string[] { "file" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("var doc = new XmlDocument();");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("doc.Load(file);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("Read(doc.DocumentElement);");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, Base.Void, "SaveAConfig",
-                new string[] { Base.String }, new string[] { "file" });
+            builder.Function(CodeWriter.Public, CSharp.Void, "SaveAConfig",
+                new string[] { CSharp.String }, new string[] { "file" });
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("var os = new StringWriter();");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("Write(os, \"Root\", this);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("File.WriteAllText(file, os.ToString());");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "LoadConfig<T>",
-                new string[] { "List<T>", Base.String }, new string[] { "x", "file" }, CLASS_XML_OBJECT);
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.Void, "LoadConfig<T>",
+                new string[] { "List<T>", CSharp.String }, new string[] { "x", "file" }, CLASS_XML_OBJECT);
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("var doc = new XmlDocument();");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("doc.Load(file);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("x.AddRange(GetChilds(doc.DocumentElement).Select(_ => ReadDynamicObject<T>(_, typeof(T).Namespace)));");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Static, Base.Void, "SaveConfig<T>",
-                new string[] { "List<T>", Base.String }, new string[] { "x", "file" }, CLASS_XML_OBJECT);
+            builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.Void, "SaveConfig<T>",
+                new string[] { "List<T>", CSharp.String }, new string[] { "x", "file" }, CLASS_XML_OBJECT);
             {
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("var os = new StringWriter();");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("Write(os, \"Root\", x);");
-                CodeWriter.IntervalLevel(builder);
+                builder.IntervalLevel();
                 builder.AppendLine("File.WriteAllText(file, os.ToString());");
             }
-            CodeWriter.End(builder);
+            builder.End();
             builder.AppendLine();
 
-            CodeWriter.EndAll(builder);
+            builder.EndAll();
             Util.SaveFile(path, builder.ToString());
             builder.Clear();
         }
-        private static void GenXmlClassScripts()
+        private static void GenXmlClass()
         {
-            StringBuilder builder = new StringBuilder();
-            List<string> writer = new List<string>();
-            List<string> reader = new List<string>();
-            List<BaseTypeInfo> typeInfos = new List<BaseTypeInfo>();
-            typeInfos.AddRange(Description.TypeInfo.Instance.ClassInfos);
-            typeInfos.AddRange(Description.TypeInfo.Instance.EnumInfos);
-            foreach (BaseTypeInfo baseType in typeInfos)
+            CodeWriter builder = new CodeWriter();
+            CodeWriter reader = new CodeWriter();
+            CodeWriter writer = new CodeWriter();
+            var cit = ClassInfo.Classes.GetEnumerator();
+            while (cit.MoveNext())
             {
-                CodeWriter.UsingNamespace(builder, XmlNameSpaces);
+                var cls = cit.Current.Value;
+                builder.UsingNamespace(XmlNameSpaces);
                 builder.AppendLine();
-                CodeWriter.NameSpace(builder, Util.GetFullNamespace(Consts.XmlRootNode, baseType.NamespaceName));
+                builder.NameSpace(cls.FullName);
 
-                bool isWrited = false;
-                if (baseType.EType == TypeType.Class)
+                //常量字段
+                for (int j = 0; j < cls.Consts.Count; j++)
                 {
-                    ClassTypeInfo classType = baseType as ClassTypeInfo;
-                    if (classType.Inherit == null)
-                        CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, CLASS_XML_OBJECT);
-                    else
+                    ConstInfo field = cls.Consts[j];
+                    builder.Comments(field.Desc);
+                    string type = field.FullType;
+                    string value = CheckConst(field.OriginalType, field.Value);
+                    switch (field.OriginalType)
                     {
-                        string fullType = CodeWriter.GetFullNamespace(Consts.XmlRootNode, classType.Inherit.GetFullName());
-                        CodeWriter.ClassChild(builder, CodeWriter.Public, classType.Name, fullType);
-                    }
-
-                    //常量字段
-                    for (int j = 0; j < classType.Consts.Count; j++)
-                    {
-                        ConstInfo field = classType.Consts[j];
-                        CodeWriter.Comments(builder, field.Des);
-                        string value = field.Value;
-                        switch (field.Type)
-                        {
-                            case Description.TypeInfo.FLOAT:
-                                value = string.Format("{0}f", field.Value);
-                                break;
-                            case Description.TypeInfo.STRING:
-                                value = string.Format("@\"{0}\"", field.Value);
-                                break;
-                        }
-                        CodeWriter.FieldInit(builder, CodeWriter.Public, CodeWriter.Const, field.Type, field.Name, value);
-                    }
-
-                    writer.Clear();
-                    reader.Clear();
-                    isWrited = true;
-                    for (int j = 0; j < classType.Fields.Count; j++)
-                    {
-                        FieldInfo field = classType.Fields[j];
-                        //--Write Function
-                        if (field.BaseInfo.EType == TypeType.Enum)
-                            writer.Add(string.Format("Write(_1, \"{0}\", (int)this.{0});", field.Name));
-                        else
-                            writer.Add(string.Format("Write(_1, \"{0}\", this.{0});", field.Name));
-
-                        //--Read Function
-                        switch (field.BaseInfo.EType)
-                        {
-                            case TypeType.Base:
-                            case TypeType.Enum:
-                            case TypeType.Class:
-                                {
-                                    CodeWriter.Comments(builder, field.Des);
-                                    string fullType = CodeWriter.GetFullNamespace(Consts.XmlRootNode, field.Type);
-                                    if (field.BaseInfo.EType == TypeType.Base
-                                        && fullType.Equals(Description.TypeInfo.STRING))
-                                        CodeWriter.FieldInit(builder, CodeWriter.Public, fullType, field.Name, "\"\"");
-                                    else
-                                        CodeWriter.Field(builder, CodeWriter.Public, fullType, field.Name);
-
-                                    if (field.BaseInfo.EType == TypeType.Base)
-                                        reader.Add(string.Format("case \"{0}\": this.{0} = Read{1}(_2); break;", field.Name, Util.FirstCharUpper(field.Type)));
-                                    else if (field.BaseInfo.EType == TypeType.Enum)
-                                        reader.Add(string.Format("case \"{0}\": this.{0} = ({1}.{2})ReadInt(_2); break;", field.Name, Consts.XmlRootNode, field.BaseInfo.GetFullName()));
-                                    else if (field.BaseInfo.EType == TypeType.Class)
-                                    {
-                                        var classInfo = field.BaseInfo as ClassTypeInfo;
-                                        string classFullName = string.Format("{0}.{1}", Consts.XmlRootNode, classInfo.GetFullName());
-                                        if (classInfo.Inherit == null)
-                                            reader.Add(string.Format("case \"{0}\": this.{0} = ReadObject<{1}>(_2, \"{1}\"); break;", field.Name, classFullName));
-                                        else
-                                            reader.Add(string.Format("case \"{0}\": this.{0} = ReadDynamicObject<{1}>(_2, \"{2}.{3}\"); break;", field.Name, classFullName, Consts.XmlRootNode, classInfo.NamespaceName));
-                                    }
-                                }
-                                break;
-                            case TypeType.List:
-                                {
-                                    ListTypeInfo listType = field.BaseInfo as ListTypeInfo;
-                                    string type = string.Format("List<{0}>", listType.ItemType);
-                                    string initValue = string.Format("new {0}()", type);
-                                    CodeWriter.Comments(builder, field.Des);
-                                    TypeType itemType = Description.TypeInfo.GetTypeType(listType.ItemType);
-                                    string fullType = CodeWriter.GetFullNamespace(Consts.XmlRootNode, listType.ItemType);
-                                    type = type.Replace(listType.ItemType, fullType);
-                                    CodeWriter.FieldInit(builder, CodeWriter.Public, type, field.Name, initValue);
-
-                                    BaseTypeInfo item = listType.ItemInfo.BaseInfo;
-                                    if (item.EType == TypeType.Base)
-                                        reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add(Read{1}(_3))); break;", field.Name, Util.FirstCharUpper(listType.ItemType)));
-                                    else if (item.EType == TypeType.Enum)
-                                        reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add(({1}.{2})ReadInt(_3))); break;", field.Name, Consts.XmlRootNode, field.BaseInfo.GetFullName()));
-                                    else if (item.EType == TypeType.Class)
-                                    {
-                                        var classInfo = item as ClassTypeInfo;
-                                        string classFullName = string.Format("{0}.{1}", Consts.XmlRootNode, classInfo.GetFullName());
-                                        if (classInfo.Inherit == null)
-                                            reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add(ReadObject<{1}>(_3, \"{1}\"))); break;", field.Name, classFullName));
-                                        else
-                                            reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add(ReadDynamicObject<{1}>(_3, \"{2}.{3}\"))); break;",
-                                                field.Name, classFullName, Consts.XmlRootNode, classInfo.NamespaceName));
-                                    }
-                                    break;
-                                }
-                            case TypeType.Dict:
-                                {
-                                    DictTypeInfo dictType = field.BaseInfo as DictTypeInfo;
-                                    string type = string.Format("Dictionary<{0}, {1}>", dictType.KeyType, dictType.ValueType);
-                                    string initValue = string.Format("new {0}()", type);
-                                    CodeWriter.Comments(builder, field.Des);
-                                    string fullType = CodeWriter.GetFullNamespace(Consts.XmlRootNode, dictType.KeyType);
-                                    type = type.Replace(dictType.KeyType, fullType);
-                                    fullType = CodeWriter.GetFullNamespace(Consts.XmlRootNode, dictType.ValueType);
-                                    type = type.Replace(dictType.ValueType, fullType);
-                                    CodeWriter.FieldInit(builder, CodeWriter.Public, type, field.Name, initValue);
-
-                                    string key = string.Format("Read{0}(GetOnlyChild(_3, \"Key\"))", Util.FirstCharUpper(dictType.KeyType));
-                                    string xmlValue = string.Format("GetOnlyChild(_3, \"Value\")");
-                                    BaseTypeInfo valueInfo = dictType.ValueInfo.BaseInfo;
-                                    if (valueInfo.EType == TypeType.Base)
-                                    {
-                                        string value = string.Format("Read{0}({1})", Util.FirstCharUpper(dictType.ValueType), xmlValue);
-                                        reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add({1}, {2})); break;", field.Name, key, value));
-                                    }
-                                    else if (valueInfo.EType == TypeType.Enum)
-                                    {
-                                        string value = string.Format("({0}.{1})ReadInt({2})", Consts.XmlRootNode, valueInfo.GetFullName(), xmlValue);
-                                        reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add({1}, {2})); break;", field.Name, key, value));
-                                    }
-                                    else if (valueInfo.EType == TypeType.Class)
-                                    {
-                                        var classInfo = valueInfo as ClassTypeInfo;
-                                        string value = null;
-                                        string classFullName = string.Format("{0}.{1}", Consts.XmlRootNode, classInfo.GetFullName());
-                                        if (classInfo.Inherit == null)
-                                            value = string.Format("ReadObject<{0}>({1}, \"{0}\")", classFullName, xmlValue);
-                                        else
-                                            value = string.Format("ReadDynamicObject<{0}>({1}, \"{2}.{3}\")", classFullName, xmlValue, Consts.XmlRootNode, classInfo.NamespaceName);
-                                        reader.Add(string.Format("case \"{0}\": GetChilds(_2).ForEach (_3 => this.{0}.Add({1}, {2})); break;", field.Name, key, value));
-                                    }
-                                    break;
-                                }
-                            case TypeType.None:
-                            default:
-                                break;
-                        }
-                    }
-
-                    builder.AppendLine();
-                    CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Override, Base.Void, "Write",
-                        new string[] { "TextWriter" }, new string[] { "_1" });
-                    if (classType.InhertType == ClassTypeInfo.InhertState.PolyChild)
-                    {
-                        CodeWriter.IntervalLevel(builder);
-                        builder.AppendLine("base.Write(_1);");
-                    }
-                    for (int i = 0; i < writer.Count; i++)
-                    {
-                        CodeWriter.IntervalLevel(builder);
-                        builder.AppendLine(writer[i]);
-                    }
-                    CodeWriter.End(builder);
-                    builder.AppendLine();
-                    CodeWriter.Function(builder, CodeWriter.Public, CodeWriter.Override, Base.Void, "Read",
-                        new string[] { "XmlNode" }, new string[] { "_1" });
-                    {
-                        if (classType.InhertType == ClassTypeInfo.InhertState.PolyChild)
-                        {
-                            CodeWriter.IntervalLevel(builder);
-                            builder.AppendLine("base.Read(_1);");
-                        }
-                        CodeWriter.IntervalLevel(builder);
-                        builder.AppendLine("foreach (System.Xml.XmlNode _2 in GetChilds (_1))");
-                        CodeWriter.IntervalLevel(builder);
-                        builder.Append("switch (_2.Name)");
-                        CodeWriter.Start(builder);
-                        {
-                            for (int i = 0; i < reader.Count; i++)
+                        case Consts.LIST:
+                            type = string.Format("List<{0}>", field.Types[1]);
+                            string[] list = field.Value.Split(Consts.SplitFlag);
+                            for (int k = 0; k < list.Length; k++)
+                                list[k] = CheckConst(field.Types[1], list[k]);
+                            value = string.Format("new {0}(){{ {1} }}", type, Util.List2String(list));
+                            break;
+                        case Consts.DICT:
+                            type = string.Format("Dictionary<{0}, {1}>", field.Types[1], field.Types[2]);
+                            string[] dict = field.Value.Split(Consts.SplitFlag);
+                            for (int k = 0; k < dict.Length; k++)
                             {
-                                CodeWriter.IntervalLevel(builder);
-                                builder.AppendLine(reader[i]);
+                                string[] nodes = dict[k].Split(Consts.ArgsSplitFlag);
+                                nodes[0] = CheckConst(field.Types[1], nodes[0]);
+                                nodes[1] = CheckConst(field.Types[2], nodes[1]);
+                                dict[k] = string.Format("{{{0}, {1}}},", nodes[0], nodes[1]);
                             }
-                        }
-                        CodeWriter.End(builder);
+                            value = string.Format("new {0}(){{ {1} }}", type, Util.List2String(dict));
+                            break;
                     }
-                    CodeWriter.End(builder);
+                    builder.DefineConst(type, field.Name, value);
                 }
-                else if (baseType.EType == TypeType.Enum)
+
+                //普通字段
+                for (int i = 0; i < cls.Fields.Count; i++)
                 {
-                    isWrited = true;
-                    EnumTypeInfo enumType = baseType as EnumTypeInfo;
-                    CodeWriter.Enum(builder, CodeWriter.Public, enumType.Name);
-                    foreach (ConstInfo item in enumType.Enums)
+                    var field = cls.Fields[i];
+                    if (!Util.MatchGroups(field.Group)) continue;
+
+                    builder.Comments(field.Desc);
+                    string modifier = string.Format("{0} {1}", CodeWriter.Public, CodeWriter.Readonly);
+                    if (field.IsRaw || field.IsEnum || field.IsClass)
+                        builder.DefineField(modifier, field.FullType, field.Name);
+                    else if (field.IsContainer)
                     {
-                        if (!string.IsNullOrWhiteSpace(item.Des))
-                            CodeWriter.Comments(builder, item.Des);
-                        CodeWriter.EnumField(builder, item.Name, item.Value);
+                        string init = "-";
+                        if (field.OriginalType == Consts.LIST)
+                            init = string.Format("new List<{0}>", field.Types[1]);
+                        else if (field.OriginalType == Consts.DICT)
+                            init = string.Format("new Dictionary<{0}, {1}>", field.Types[1], field.Types[2]);
+                        builder.DefineField(modifier, field.FullType, field.Name, init);
                     }
-                }
-                CodeWriter.EndAll(builder);
 
-                if (isWrited)
+                    writer.AppendLine(WriteField(field));
+
+                    string r0 = string.Format("case \"{0}\": {0} = {1};", field.Name, ReadField(field, 2));
+                    string r1 = string.Format("case \"{0}\": {1};", field.Name, ReadField(field, 2));
+                    reader.AppendLine(field.IsContainer ? r0 : r1);
+                }
+
+                builder.Function(CodeWriter.Public + " " + CodeWriter.Override, CSharp.Void, "Write", new string[] { "TextWriter" }, new string[] { "_1" });
+                builder.AppendLine(writer.ToString());
+                builder.End();
+                builder.Function(CodeWriter.Public + " " + CodeWriter.Override, CSharp.Void, "Read", new string[] { "XmlNode" }, new string[] { "_1" });
+                builder.AppendLine("foreach (System.Xml.XmlNode _2 in GetChilds (_1))");
+                builder.AppendLine("switch (_2.Name)");
+                builder.AddLevel();
+                builder.AppendLine(reader.ToString());
+                builder.EndAll();
+
+                string file = string.Format("{0}{1}.cs", Consts.XmlRootNode, cls.FullName);
+                string path = Path.Combine(Consts.XmlCodeDir, file);
+                Util.SaveFile(path, builder.ToString());
+            }
+        }
+        private static string CheckConst(string type, string value)
+        {
+            switch (type)
+            {
+                case Consts.FLOAT:
+                    value = string.Format("{0}f", value);
+                    break;
+                case Consts.STRING:
+                    value = string.Format("@\"{0}\"", value);
+                    break;
+            }
+            return value;
+        }
+        private static string WriteField(FieldInfo field)
+        {
+            return string.Format("Write(_1, \"{0}\", this.{0});", field.Name);
+        }
+        private static string ReadField(FieldInfo field, int arg)
+        {
+            if (field.IsRaw)
+                return string.Format("Read{0}(_{1})", field.FullType, arg);
+            else if (field.IsEnum)
+                return string.Format("({0})ReadInt(_{1})", field.FullType, arg);
+            else if (field.IsClass)
+                return string.Format("ReadObject<{0}>(_{1}, {0})", field.FullType, arg);
+            else if (field.IsContainer)
+            {
+                if (field.OriginalType == Consts.LIST)
                 {
-                    string file = string.Format("{0}.{1}.cs", Consts.XmlRootNode, baseType.GetFullName());
-                    string path = Path.Combine(Consts.XmlCodeDir, file);
-                    Util.SaveFile(path, builder.ToString());
+                    var item = field.GetItemDefine();
+                    string value = ReadField(item, arg + 1);
+                    return string.Format("GetChilds(_{0}).ForEach (_{1} => {2}.Add({3}))", arg, arg + 1, field.Name, value);
+                }
+                else if (field.OriginalType == Consts.DICT)
+                {
+                    var key = field.GetKeyDefine();
+                    var value = field.GetValueDefine();
+                    int arg1 = arg + 1;
+                    string skey = ReadField(key, arg1).Replace(arg1.ToString(), "GetOnlyChild(_3, \"Key\")");
+                    string svalue = ReadField(value, arg1).Replace(arg1.ToString(), "GetOnlyChild(_3, \"Value\")");
+                    return string.Format("GetChilds(_{0}).ForEach (_{1} => {2}.Add({3}, {4}))", arg, arg1, field.Name, skey, svalue);
+                }
+            }
+
+            Util.Error("未知类型:" + field.FullType);
+            return null;
+        }
+        private static void GenXmlEnums()
+        {
+            CodeWriter builder = new CodeWriter();
+            List<EnumInfo> exports = EnumInfo.GetExports();
+            for (int i = 0; i < exports.Count; i++)
+            {
+                EnumInfo en = exports[i];
+                builder.Comments(en.Desc);
+                builder.Enum(CodeWriter.Public, en.Name);
+                var eit = en.Values.GetEnumerator();
+                while (eit.MoveNext())
+                {
+                    var item = eit.Current;
+                    builder.DefineEnum(item.Key, item.Value);
                 }
 
+                builder.EndAll();
+                string path = Path.Combine(Consts.CSDir, en.Namespace, en.Name + ".cs");
+                Util.SaveFile(path, builder.ToString());
                 builder.Clear();
-                CodeWriter.Reset();
             }
         }
     }

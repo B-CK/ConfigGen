@@ -8,23 +8,23 @@ namespace ConfigGen
     class CmdOption
     {
         public const string CONFIG_XML = "-configXml";
-        public const string DATA_DIR = "-dataDir";
-        public const string CODE = "-code";
-        public const string CODE_DIR = "-codeDir";
-        public const string XML_CODE_DIR = "-xmlCodeDir";
+        public const string DATA_DIR = "-data";
+        public const string CS_DIR = "-csharp";
+        //public const string JAVA_DIR = "-java";
+        public const string LUA_DIR = "-lua";
+        public const string XML_CODE_DIR = "-xmlCode";
         public const string GROUP = "-group";
         public const string CHECK = "-check";
         public const string HELP = "-help";
 
-        public const string OPTION_MODE = "-optMode";
-        public const string EXPORT_LUA = "-luaDir";
         void Usage()
         {
             Console.WriteLine("语法:ConfigGen.exe [option]");
             Console.WriteLine("     -configXml [path] 数据导出文件路径");
-            Console.WriteLine("     -dataDir [path] 导出数据到指定目录路径");
-            Console.WriteLine("     -codeDir [path] 导出结构到指定目录路径");
-            Console.WriteLine("     -xmlCodeDir [path] 导出xml类到指定目录路径");
+            Console.WriteLine("     -data [path] 导出数据到指定目录路径");
+            Console.WriteLine("     -csharp [path] 导出结构到指定目录路径");
+            Console.WriteLine("     -lua [path] 导出结构到指定目录路径");
+            Console.WriteLine("     -xmlCode [path] 导出xml类到指定目录路径");
             Console.WriteLine("     -group [client|editor|server] 按分组导出数据,分组可自定义");
             Console.WriteLine("     -check 检查数据及结构");
             Console.WriteLine("     -help 打印指令说明");
@@ -62,13 +62,7 @@ namespace ConfigGen
                 _result &= false;
                 return null;
             }
-            string codeDir = NormalizePath(arg);
-            if (!Directory.Exists(codeDir))
-            {
-                Util.LogErrorFormat("[{0}]导出目录{1}不存在!", flag, codeDir);
-                _result &= false;
-            }
-            return codeDir;
+            return NormalizePath(arg);
         }
         public Dictionary<string, List<string>> CmdArgs { get; private set; }
         public static string NormalizePath(string patth)
@@ -100,11 +94,11 @@ namespace ConfigGen
                     case DATA_DIR:
                         Consts.DataDir = CheckDirArg(DATA_DIR, args[++i]);
                         break;
-                    case CODE:
-                        Consts.JavaDir = CheckDirArg(CODE, args[++i]);
+                    case CS_DIR:
+                        Consts.CSDir = CheckDirArg(CS_DIR, args[++i]);
                         break;
-                    case CODE_DIR:
-                        Consts.CSDir = CheckDirArg(CODE_DIR, args[++i]);
+                    case LUA_DIR:
+                        Consts.LuaDir = CheckDirArg(LUA_DIR, args[++i]);
                         break;
                     case XML_CODE_DIR:
                         Consts.XmlCodeDir = CheckDirArg(XML_CODE_DIR, args[++i]);

@@ -7,6 +7,10 @@ namespace ConfigGen
     public class Consts
     {
         #region 基础配置
+        /// <summary>
+        /// 工具所在目录
+        /// </summary>
+        public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
 
         /// <summary>
         /// 数据表数据占位符,仅用于基础类型;不填写数据时,使用null占位.
@@ -78,7 +82,7 @@ namespace ConfigGen
         /// <summary>
         /// 导出Xml数据读写类命名空间根节点
         /// </summary>
-        public static string XmlRootNode { get { return "Xml" + ConfigRootNode; } }
+        public static string XmlRootNode { get { return "Xml"; } }
         public static bool Check { get; set; }
         #endregion
 
@@ -86,7 +90,7 @@ namespace ConfigGen
         /// <summary>
         /// Csv数据存储分隔符
         /// </summary>
-        public const string CsvSplitFlag = "▃";
+        public const string CsvSplitFlag = "\n";
         /// <summary>
         /// Csv数据文件扩展名
         /// </summary>
@@ -102,7 +106,7 @@ namespace ConfigGen
         /// <summary>
         /// 列表元素命名
         /// </summary>
-        public const string ITEM = "Item"; 
+        public const string ITEM = "Item";
         /// <summary>
         /// 字典Key命名
         /// </summary>
@@ -112,53 +116,10 @@ namespace ConfigGen
         /// </summary>
         public const string VALUE = "Value";
         #endregion
-
-
-        //--弃用
-
-        /// <summary>
-        /// 导出Lua类型类
-        /// </summary>
-        public static string ExportLua { get; set; }
-        //--
-
-        /// <summary>
-        /// 存储运行时打印的所有信息，在程序运行完毕后输出为txt文件，从而解决如果输出内容过多控制台无法显示全部信息的问题
-        /// </summary>
-        public static StringBuilder LogContent = new StringBuilder();
-
-        /// <summary>
-        /// 表格每行最大数据个数
-        /// </summary>
-        public const int SheetLineDataNum = 1024;        
-        /// <summary>
-        /// 工具所在目录
-        /// </summary>
-        public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
-        /// <summary>
-        /// 数据文件扩展名
-        /// </summary>
-        public const string DataFileFlag = "data";
-        /// <summary>
-        /// 数据表格Sheet名标识
-        /// </summary>
-        public const string ExcelSheetDataFlag = "#";
-        ///// <summary>
-        ///// List元素默认分隔符,元素类型仅支持基础类型
-        ///// </summary>
-        //public const string SetSplitFlag = ",";
-        /// <summary>
-        /// 数据填写扩展文件后缀名
-        /// </summary>
-        public const string TableExtFileExt = ".xml";
-        /// <summary>
-        /// 数据表前三行用于描述,分别声明字段检查规则,字段描述,字段名,字段数据类型.
-        /// </summary>
-        //public const int DataSheetFieldIndex = 0;
-        public const int DataSheetDataStartIndex = 3;
-
-
         
+
+
+
 
 
     }

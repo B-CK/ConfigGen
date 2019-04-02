@@ -9,32 +9,25 @@ namespace ConfigGen.Import
 {
     public class ImportXml
     {
-        private List<XmlElement> _datas = new List<XmlElement>();
-        private string _relPath;
+        public XmlElement Data { get { return _data; } }
+
+        private XmlElement _data;
+        private string _path;
         private int _index;
 
-        public ImportXml(string relPath)
+        public ImportXml(string path)
         {
-            _relPath = relPath;
+            _path = path;
             _index = -1;
 
-            string absPath = Util.GetAbsPath(relPath);
-            string[] files = Directory.GetFiles(absPath, "*.xml");
             XmlDocument doc = new XmlDocument();
-            for (int i = 0; i < files.Length; i++)
-            {
-                doc.Load(files[i]);
-                _datas.Add(doc.DocumentElement);
-            }
+            doc.Load(path);
+            _data = doc.DocumentElement;
         }
-        public XmlElement GetNext()
-        {
-            ++_index;
-            return _datas[_index];
-        }
+
         public void Error(string msg)
         {
-            string error = string.Format("错误:{0} \n位置:{1}", msg, _relPath);
+            string error = string.Format("错误:{0} \n位置:{1}", msg, _path);
             throw new Exception(error);
         }
     }

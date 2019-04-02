@@ -1,4 +1,5 @@
-﻿using ConfigGen.TypeInfo;
+﻿using ConfigGen.Import;
+using ConfigGen.TypeInfo;
 using System.Xml;
 
 namespace ConfigGen.Config
@@ -6,15 +7,23 @@ namespace ConfigGen.Config
     public class FEnum : Data
     {
         public readonly string EnumName;
-        public readonly int Value;
+        public readonly string Value;
 
-        public FEnum(FClass host, FieldInfo define, string enumName) : base(host, define)
+        public FEnum(FClass host, FieldInfo define, ImportExcel excel) : base(host, define)
         {
-            EnumName = enumName;
-            Value = EnumInfo.Enums[define.OriginalType].GetEnumValue(enumName);
+            EnumName = excel.GetEnum();
+            Value = EnumInfo.Enums[define.OriginalType].GetEnumValue(EnumName);
         }
-        public FEnum(FClass host, FieldInfo define, XmlElement value) : this(host, define, value.InnerText)
-        { }
+        public FEnum(FClass host, FieldInfo define, XmlElement xml) : base(host, define)
+        {
+            EnumName = xml.InnerText;
+            Value = EnumInfo.Enums[define.OriginalType].GetEnumValue(EnumName);
+        }
+
+        public override string ExportData()
+        {
+            return Value;
+        }
     }
 
 }

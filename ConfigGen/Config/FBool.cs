@@ -1,4 +1,5 @@
-﻿using ConfigGen.TypeInfo;
+﻿using ConfigGen.Import;
+using ConfigGen.TypeInfo;
 using System;
 using System.Xml;
 
@@ -8,13 +9,13 @@ namespace ConfigGen.Config
     {
         public readonly bool Value;
 
-        public FBool(FClass host, FieldInfo define, bool value) : base(host, define)
+        public FBool(FClass host, FieldInfo define, ImportExcel excel) : base(host, define)
         {
-            Value = value;
+            Value = excel.GetBool();
         }
-        public FBool(FClass host, FieldInfo define, XmlElement value) : base(host, define)
+        public FBool(FClass host, FieldInfo define, XmlElement xml) : base(host, define)
         {
-            string v = value.InnerText;
+            string v = xml.InnerText;
             if (v.Equals("true", StringComparison.CurrentCultureIgnoreCase))
                 Value = true;
             else if (v.Equals("false", StringComparison.CurrentCultureIgnoreCase))
@@ -24,6 +25,10 @@ namespace ConfigGen.Config
                 Util.Error("{0}非bool类型", v);
                 Value = false;
             }
+        }
+        public override string ExportData()
+        {
+            return Value.ToString();
         }
     }
 }

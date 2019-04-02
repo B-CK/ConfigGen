@@ -1,4 +1,5 @@
 ﻿using ConfigGen.Description;
+using ConfigGen.TypeInfo;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,226 +17,30 @@ namespace ConfigGen.Export
 
         public static void Export()
         {
-            GenDataStructAndConfig();
+            GenConfigTable();
             GenDataStream();
+            GenDataStruct();
         }
 
-        private static string GetCfgClassPath(ClassTypeInfo classType)
+        private static void GenConfigTable()
         {
-            return string.Format("{0}.{1}", Consts.ConfigRootNode, classType.GetFullName());
-        }
-        private static void GenDataStructAndConfig()
-        {
-            StringBuilder dsLoopBuilder = new StringBuilder();
-            StringBuilder cfgLoopBuilder = new StringBuilder();
-            foreach (var item in TableInfo.DataInfoDict)
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("return {");
+            var cit = ConfigInfo.Configs.GetEnumerator();
+            while (cit.MoveNext())
             {
-                ClassTypeInfo classType = item.Value.ClassTypeInfo;
-                if (classType.EType != TypeType.Class) continue;
-                string method = string.Format("Get{0}", GetCfgClassPath(classType).Replace(".", ""));
-                string index = classType.IndexField.Name;
-                string fileName = classType.GetFullName().Replace(".", "/") + Consts.CsvFileExt;
-                cfgLoopBuilder.AppendFormat("\t{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
-                    classType.Name, method, index, fileName.ToLower());
+                ConfigInfo cfg = cit.Current.Value;
+                string method = string.Format("Get{0}", cfg.FullName);
+                string index = cfg.Index.Name;
+                string relPath = cfg.OutputFile + Consts.CsvFileExt;
+                builder.AppendFormat("\t{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
+                    cfg.Name, method, index, relPath.ToLower());
             }
-            foreach (var item in Description.TypeInfo.Instance.ClassInfos)
-            {
-                ClassTypeInfo classInfo = item;
-                if (classInfo.EType != TypeType.Class) continue;
+            builder.AppendLine("}");
 
-                dsLoopBuilder.AppendLine("meta= {}");
-                dsLoopBuilder.AppendLine("meta.__index = meta");
-                dsLoopBuilder.AppendFormat("meta.class = '{0}'\n", GetCfgClassPath(classInfo));
-                //--常量字段
-                for (int i = 0; i < classInfo.Consts.Count; i++)
-                {
-                    ConstInfo cst = classInfo.Consts[i];
-                    string value = cst.Value;
-                    switch (cst.Type)
-                    {
-                        case Description.TypeInfo.FLOAT:
-                            value = string.Format("{0}", cst.Value);
-                            break;
-                        case Description.TypeInfo.STRING:
-                            value = string.Format("'{0}'", cst.Value);
-                            break;
-                    }
-                    dsLoopBuilder.AppendFormat("meta.{0} = {1}\n", cst.Name, value);
-                }
-                dsLoopBuilder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = meta\n", Consts.ConfigRootNode, classInfo.NamespaceName, classInfo.Name);
-                if (classInfo.InhertType == ClassTypeInfo.InhertState.PolyParent)
-                {
-                    //-----类型选择函数,需要动态跳转到指定类型解析函数,以Maker结尾
-                    dsLoopBuilder.AppendFormat("function Stream:Get{0}Maker()\n", GetCfgClassPath(classInfo).Replace(".", ""));
-                    dsLoopBuilder.AppendFormat("\treturn self['Get' .. self:GetString():gsub('%.', '')](self)\n");
-                    dsLoopBuilder.AppendFormat("end\n");
-                }
-                string noPointClassName = GetCfgClassPath(classInfo).Replace(".", "");
-                dsLoopBuilder.AppendFormat("function Stream:Get{0}()\n", noPointClassName);
-                if (classInfo.InhertType == ClassTypeInfo.InhertState.PolyChild)
-                    dsLoopBuilder.AppendFormat("\tlocal o = self:Get{0}()\n", GetCfgClassPath(classInfo.Inherit).Replace(".", ""));
-                else
-                    dsLoopBuilder.AppendFormat("\tlocal o = {{}}\n");
-                dsLoopBuilder.AppendFormat("\tsetmetatable(o, {0})\n", GetCfgClassPath(classInfo));
-                //--普通变量
-                GenStructClassCtor(dsLoopBuilder, classInfo);
-                dsLoopBuilder.AppendFormat("\treturn o\n");
-                dsLoopBuilder.AppendFormat("end\n");
-            }
-            foreach (var item in Description.TypeInfo.Instance.EnumInfos)
-            {
-                EnumTypeInfo enumInfo = item;
-                string fullName = string.Format("{0}.{1}", Consts.ConfigRootNode, enumInfo.GetFullName());
-                dsLoopBuilder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = {{\n", Consts.ConfigRootNode, enumInfo.NamespaceName, enumInfo.Name);
-                dsLoopBuilder.AppendFormat("\tNULL = {0},\n", LUA_ENUM_NULL);
-                for (int i = 0; i < enumInfo.Enums.Count; i++)
-                {
-                    string key = enumInfo.Enums[i].Name;
-                    string value = enumInfo.Enums[i].Value;
-                    dsLoopBuilder.AppendFormat("\t{0} = {1},\n", key, value);
-                }
-                dsLoopBuilder.AppendLine("}");
-            }
-            //--DataStruct
-            StringBuilder structBuilder = new StringBuilder();
-            structBuilder.AppendLine("local Stream = require(\"Cfg.DataStream\")");
-            structBuilder.AppendLine("local GetOrCreate = Util.GetOrCreate");
-            structBuilder.AppendLine();
-            structBuilder.AppendLine("local meta");
-            structBuilder.AppendLine(dsLoopBuilder.ToString());
-            structBuilder.AppendLine("return Stream");
-            string path = Path.Combine(Consts.ExportLua, DATA_STRUCT + ".lua");
-            Util.SaveFile(path, structBuilder.ToString());
-            structBuilder.Clear();
-
-            //--Config
-            //configBuilder.AppendLine("local Stream = require(\"Cfg.DataStruct\")");
-            //configBuilder.AppendLine("local createpath = create_datastream_path");
-            //configBuilder.AppendLine("local cfgs = {}");
-            //configBuilder.AppendLine("for _, s in ipairs({");
-            //configBuilder.Append(cfgLoopBuilder.ToString());
-            //configBuilder.AppendLine("}) do");
-            //configBuilder.AppendLine("\tlocal path = createpath(s.output)");
-            //configBuilder.AppendLine("\tlocal data = Stream.new(path)");
-            //configBuilder.AppendLine("\tlocal cfg = {}");
-            //configBuilder.AppendLine("\twhile data:NextRow() do");
-            //configBuilder.AppendLine("\t\tlocal value = data[s.method](data)");
-            //configBuilder.AppendLine("\t\tlocal key = value[s.index]");
-            //configBuilder.AppendLine("\t\tcfg[key] = value");
-            //configBuilder.AppendLine("\tend");
-            //configBuilder.AppendLine("\tcfgs[s.name] = cfg");
-            //configBuilder.AppendLine("end");
-            //configBuilder.AppendLine();
-            StringBuilder configBuilder = new StringBuilder();
-            configBuilder.AppendLine("return {");
-            configBuilder.Append(cfgLoopBuilder.ToString());
-            configBuilder.AppendLine("}");
-            path = Path.Combine(Consts.ExportLua, DATA_CONFIG + ".lua");
-            Util.SaveFile(path, configBuilder.ToString());
-            configBuilder.Clear();
+            string path = Path.Combine(Consts.LuaDir, DATA_CONFIG + ".lua");
+            Util.SaveFile(path, builder.ToString());
         }
-        private static void GenStructClassCtor(StringBuilder builder, ClassTypeInfo classInfo)
-        {
-            for (int i = 0; i < classInfo.Fields.Count; i++)
-            {
-                FieldInfo field = classInfo.Fields[i];
-                BaseTypeInfo baseType = field.BaseInfo;
-                switch (baseType.EType)
-                {
-                    case TypeType.Base:
-                        builder.AppendFormat("\to.{0} = self:Get{1}()\n", field.Name, Util.FirstCharUpper(field.Type));
-                        break;
-                    case TypeType.Enum:
-                        builder.AppendFormat("\to.{0} = self:GetInt()\n", field.Name);
-                        break;
-                    case TypeType.Class:
-                        ClassTypeInfo classTypeField = baseType as ClassTypeInfo;
-                        string fullName = GetCfgClassPath(classTypeField).Replace(".", "");
-                        if (classTypeField.IsPolyClass)
-                            builder.AppendFormat("\to.{0} = self:Get{1}Maker()\n", field.Name, fullName);
-                        else
-                            builder.AppendFormat("\to.{0} = self:Get{1}()\n", field.Name, fullName);
-                        break;
-                    case TypeType.List:
-                        {
-                            ListTypeInfo listType = baseType as ListTypeInfo;
-                            BaseTypeInfo itemInfo = listType.ItemInfo.BaseInfo;
-                            string itemType = null;
-                            switch (itemInfo.EType)
-                            {
-                                case TypeType.Base:
-                                    itemType = Util.FirstCharUpper(listType.ItemType);
-                                    break;
-                                case TypeType.Enum:
-                                    itemType = Util.FirstCharUpper("int");
-                                    break;
-                                case TypeType.Class:
-                                    ClassTypeInfo itemClass = itemInfo as ClassTypeInfo;
-                                    itemType = GetCfgClassPath(itemClass.GetRootClassInfo()).Replace(".", "");
-                                    if (itemClass.IsPolyClass)
-                                        itemType += "Maker";
-                                    break;
-                                case TypeType.List:
-                                case TypeType.Dict:
-                                case TypeType.None:
-                                default:
-                                    break;
-                            }
-                            builder.AppendFormat("\to.{0} = self:GetList('{1}')\n", field.Name, itemType);
-                        }
-                        break;
-                    case TypeType.Dict:
-                        {
-                            DictTypeInfo dictType = baseType as DictTypeInfo;
-                            BaseTypeInfo keyInfo = dictType.KeyInfo.BaseInfo;
-                            BaseTypeInfo valueInfo = dictType.ValueInfo.BaseInfo;
-                            string keyType = null;
-                            switch (keyInfo.EType)
-                            {
-                                case TypeType.Base:
-                                    keyType = Util.FirstCharUpper(dictType.KeyType);
-                                    break;
-                                case TypeType.Enum:
-                                    keyType = Util.FirstCharUpper("int");
-                                    break;
-                                case TypeType.Class:
-                                case TypeType.List:
-                                case TypeType.Dict:
-                                case TypeType.None:
-                                default:
-                                    break;
-                            }
-                            string valueType = null;
-                            switch (valueInfo.EType)
-                            {
-                                case TypeType.Base:
-                                    valueType = Util.FirstCharUpper(dictType.ValueType);
-                                    break;
-                                case TypeType.Enum:
-                                    valueType = Util.FirstCharUpper("int");
-                                    break;
-                                case TypeType.Class:
-                                    ClassTypeInfo valueClass = valueInfo as ClassTypeInfo;
-                                    valueType = GetCfgClassPath(valueClass.GetRootClassInfo()).Replace(".", "");
-                                    if (valueClass.IsPolyClass)
-                                        valueType += "Maker";
-                                    break;
-                                case TypeType.List:
-                                case TypeType.Dict:
-                                case TypeType.None:
-                                default:
-                                    break;
-                            }
-                            builder.AppendFormat("\to.{0} = self:GetDict('{1}', '{2}')\n", field.Name, keyType, valueType);
-                        }
-                        break;
-                    case TypeType.None:
-                    default:
-                        break;
-                }
-            }
-        }
-
         private static void GenDataStream()
         {
             StringBuilder builder = new StringBuilder();
@@ -245,7 +50,7 @@ namespace ConfigGen.Export
             builder.AppendLine("local lines = io.lines");
             builder.AppendLine("local split = string.split");
             builder.AppendLine("local format= string.format");
-            builder.AppendLine("local Stream = {}");       
+            builder.AppendLine("local Stream = {}");
             builder.AppendLine("Stream.__index = Stream");
             builder.AppendLine("Stream.name = \"Stream\"");
 
@@ -345,8 +150,135 @@ namespace ConfigGen.Export
             builder.AppendLine();
             builder.AppendLine("return Stream");
 
-            string path = Path.Combine(Consts.ExportLua, DATA_STREAM + ".lua");
+            string path = Path.Combine(Consts.LuaDir, DATA_STREAM + ".lua");
             Util.SaveFile(path, builder.ToString());
+        }
+
+        private static void GenDataStruct()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("local Stream = require(\"Cfg.DataStream\")");
+            builder.AppendLine("local GetOrCreate = Util.GetOrCreate");
+            builder.AppendLine();
+            builder.AppendLine("local meta");
+
+            var cit = ClassInfo.Classes.GetEnumerator();
+            while (cit.MoveNext())
+            {
+                var cls = cit.Current.Value;
+                builder.AppendLine("meta= {}");
+                builder.AppendLine("meta.__index = meta");
+                builder.AppendFormat("meta.class = '{0}'\n", cls.FullName);
+                //常量字段
+                for (int j = 0; j < cls.Consts.Count; j++)
+                {
+                    ConstInfo cst = cls.Consts[j];
+                    string value = CheckConst(cst.OriginalType, cst.Value);
+                    switch (cst.OriginalType)
+                    {
+                        case Consts.LIST:
+                            string[] list = cst.Value.Split(Consts.SplitFlag);
+                            for (int k = 0; k < list.Length; k++)
+                                list[k] = CheckConst(cst.Types[1], list[k]);
+                            value = string.Format("{{ {0} }}", Util.List2String(list));
+                            break;
+                        case Consts.DICT:
+                            string[] dict = cst.Value.Split(Consts.SplitFlag);
+                            for (int k = 0; k < dict.Length; k++)
+                            {
+                                string[] nodes = dict[k].Split(Consts.ArgsSplitFlag);
+                                nodes[0] = CheckConst(cst.Types[1], nodes[0]);
+                                nodes[1] = CheckConst(cst.Types[2], nodes[1]);
+                                dict[k] = string.Format("{0} = {1},", nodes[0], nodes[1]);
+                            }
+                            value = string.Format("{{ {0} }}", Util.List2String(dict));
+                            break;
+                    }
+                    builder.AppendFormat("meta.{0} = {1}\n", cst.Name, value);
+                }
+
+                builder.AppendFormat("GetOrCreate('{0}')['{1}'] = meta\n", cls.Namespace, cls.Name);
+                string funcName = cls.FullName.Replace(".", "");
+                if (!cls.Inherit.IsEmpty())
+                {
+                    builder.AppendFormat("function Stream:Get{0}Maker()\n", funcName);
+                    builder.AppendFormat("\treturn self['Get' .. self:GetString():gsub('%.', '')](self)\n");
+                    builder.AppendFormat("end\n");
+                }
+                builder.AppendFormat("function Stream:Get{0}()\n", funcName);
+                if (!cls.Inherit.IsEmpty())
+                    builder.AppendFormat("\tlocal o = self:Get{0}()\n", cls.Inherit.Replace(".", ""));
+                else
+                    builder.AppendFormat("\tlocal o = {{}}\n");
+                builder.AppendFormat("\tsetmetatable(o, {0})\n", cls.FullName);
+                //--普通变量
+                for (int j = 0; j < cls.Fields.Count; j++)
+                {
+                    FieldInfo field = cls.Fields[j];
+                    if (!Util.MatchGroups(field.Group)) continue;
+
+                    if (field.IsRaw)
+                        builder.AppendFormat("\to.{0} = self:Get{1}()\n", field.Name, field.OriginalType);
+                    else if (field.IsEnum)
+                        builder.AppendFormat("\to.{0} = self:GetInt()\n", field.Name);
+                    else if (field.IsClass)
+                        builder.AppendFormat("\to.{0} = self:Get{1}Maker()\n", field.Name, Util.List2String(field.Types, ""));
+                    else if (field.IsContainer)
+                    {
+                        if (field.OriginalType == Consts.LIST)
+                        {
+                            var item = field.GetItemDefine();
+                            string index = item.OriginalType.Replace(".", "");
+                            if (item.IsClass) index += "Maker";
+                            builder.AppendFormat("\to.{0} = self:GetList('{1}')\n", field.Name, index);
+                        }
+                        else if (field.OriginalType == Consts.DICT)
+                        {
+                            var k = field.GetKeyDefine();
+                            string key = k.OriginalType;
+                            if (k.IsEnum) key = "Int";
+                            var v = field.GetKeyDefine();
+                            string value = v.OriginalType.Replace(".", "");
+                            if (k.IsClass) value += "Maker";
+                            builder.AppendFormat("\to.{0} = self:GetDict('{1}', '{2}')\n", field.Name, key, value);
+                        }
+                    }
+                }
+                builder.AppendFormat("\treturn o\n");
+                builder.AppendFormat("end\n");
+            }
+
+            var eit = EnumInfo.Enums.GetEnumerator();
+            while (cit.MoveNext())
+            {
+                EnumInfo en = eit.Current.Value;
+                builder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = {{\n", en.Namespace, en.Name);
+                builder.AppendFormat("\tNULL = {0},\n", LUA_ENUM_NULL);
+                var vit = en.Values.GetEnumerator();
+                while (vit.MoveNext())
+                {
+                    string key = vit.Current.Key;
+                    string value = vit.Current.Value;
+                    builder.AppendFormat("\t{0} = {1},\n", key, value);
+                }
+                builder.AppendLine("}");
+            }
+            builder.AppendLine("return Stream");
+            string path = Path.Combine(Consts.LuaDir, DATA_STRUCT + ".lua");
+            Util.SaveFile(path, builder.ToString());
+        }
+        private static string CheckConst(string type, string value)
+        {
+            switch (type)
+            {
+                case Consts.FLOAT:
+                    value = string.Format("{0}f", value);
+                    break;
+                case Consts.STRING:
+                    value = string.Format("@\"{0}\"", value);
+                    break;
+            }
+            return value;
         }
     }
 }

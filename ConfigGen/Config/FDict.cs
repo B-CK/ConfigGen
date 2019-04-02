@@ -1,5 +1,7 @@
-﻿using ConfigGen.TypeInfo;
+﻿using ConfigGen.Import;
+using ConfigGen.TypeInfo;
 using System.Collections.Generic;
+using System.Text;
 using System.Xml;
 
 namespace ConfigGen.Config
@@ -12,10 +14,11 @@ namespace ConfigGen.Config
         private FieldInfo _key;
         private FieldInfo _value;
 
-        public FDict(FClass host, FieldInfo define) : base(host, define)
+        public FDict(FClass host, FieldInfo define, ImportExcel excel) : base(host, define)
         {
             _key = define.GetKeyDefine();
             _value = define.GetValueDefine();
+            excel.GetDict(this, define);
         }
         public FDict(FClass host, FieldInfo define, XmlElement data) : base(host, define)
         {
@@ -36,6 +39,20 @@ namespace ConfigGen.Config
                     Util.Error("字段:{0} Key:{1} 重复", define.Name, _key.Name);
 
             }
+        }
+
+        public override string ExportData()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(_values.Count);
+            var dit = _values.GetEnumerator();
+            while (dit.MoveNext())
+            {
+                string key = dit.Current.Key.ExportData();
+                string value = dit.Current.Value.ExportData();
+                builder.AppendFormat("{0}{1}{0}{2}", Consts.CsvSplitFlag, key, value);
+            }
+            return builder.ToString();
         }
     }
 }

@@ -21,6 +21,9 @@ namespace ConfigGen.Config
             _host = host;
         }
 
+        public virtual void ImportData(XmlElement xml) { }
+        public virtual void ImportData(ImportExcel excel) { }
+        public abstract string ExportData();
 
 
         #region 创建数据
@@ -32,38 +35,27 @@ namespace ConfigGen.Config
                 switch (type)
                 {
                     case Consts.BOOL:
-                        return new FBool(host, define, excel.GetBool());
+                        return new FBool(host, define, excel);
                     case Consts.INT:
-                        return new FInt(host, define, excel.GetInt());
+                        return new FInt(host, define, excel);
                     case Consts.LONG:
-                        return new FLong(host, define, excel.GetLong());
+                        return new FLong(host, define, excel);
                     case Consts.FLOAT:
-                        return new FFloat(host, define, excel.GetFloat());
+                        return new FFloat(host, define, excel);
                     case Consts.STRING:
-                        return new FString(host, define, excel.GetString());
+                        return new FString(host, define, excel);
                 }
             }
             else if (define.IsEnum)
-            {
-                return new FEnum(host, define, excel.GetString());
-            }
+                return new FEnum(host, define, excel);
             else if (define.IsClass)
-            {
-                FClass data = new FClass(host, define);
-                excel.GetClass(data, ClassInfo.Get(define.FullType));
-            }
+                return new FClass(host, define, excel);
             else if (define.IsContainer)
             {
                 if (define.OriginalType == "list")
-                {
-                    FList data = new FList(host, define);
-                    excel.GetList(data, define);
-                }
+                    return new FList(host, define, excel);
                 else if (define.OriginalType == "dict")
-                {
-                    FDict data = new FDict(host, define);
-                    excel.GetDict(data, define);
-                }
+                   return new FDict(host, define, excel);               
             }
 
             Util.LogError("未知类型" + type);

@@ -14,6 +14,6 @@ namespace ConfigGen.Description
         public List<EnumDes> Enums;
 
         [XmlIgnore]
-        public string XmlDirPath;
+        public string XmlDir;
     }
 }

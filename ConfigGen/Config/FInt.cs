@@ -1,4 +1,5 @@
-﻿using ConfigGen.TypeInfo;
+﻿using ConfigGen.Import;
+using ConfigGen.TypeInfo;
 using System;
 using System.Xml;
 
@@ -8,9 +9,9 @@ namespace ConfigGen.Config
     {
         public readonly int Value;
 
-        public FInt(FClass host, FieldInfo define, int value) : base(host, define)
+        public FInt(FClass host, FieldInfo define, ImportExcel excel) : base(host, define)
         {
-            Value = value;
+            Value = excel.GetInt();
         }
         public FInt(FClass host, FieldInfo define, XmlElement value) : base(host, define)
         {
@@ -22,6 +23,11 @@ namespace ConfigGen.Config
                 Value = -1;
             }
             Value = r;
+        }
+
+        public override string ExportData()
+        {
+            return Value.ToString();
         }
     }
 }

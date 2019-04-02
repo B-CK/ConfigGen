@@ -43,7 +43,7 @@ namespace ConfigGen
                 try
                 {
                     LoadData();
-                    VerifyData();
+                    //VerifyData();
                 }
                 catch (Exception e)
                 {
@@ -68,14 +68,14 @@ namespace ConfigGen
         {
             //解析类型定义
             Dictionary<string, NamespaceDes> pairs = new Dictionary<string, NamespaceDes>();
-            var configXml = Util.Deserialize(Consts.ConfigXml, typeof(ConfigXml)) as ConfigXml;
-            if (configXml.Root.IsEmpty())
-                throw new Exception("数据结构导出时必须指定命名空间根节点<Config Root=\"**\">");
-            Consts.ConfigRootNode = configXml.Root;
-            List<string> include = configXml.Include;
             string path = "无法解析Xml.NamespaceDes";
             try
             {
+                var configXml = Util.Deserialize(Consts.ConfigXml, typeof(ConfigXml)) as ConfigXml;
+                if (configXml.Root.IsEmpty())
+                    throw new Exception("数据结构导出时必须指定命名空间根节点<Config Root=\"**\">");
+                Consts.ConfigRootNode = configXml.Root;
+                List<string> include = configXml.Include;
                 for (int i = 0; i < include.Count; i++)
                 {
                     path = Util.GetAbsPath(include[i]);
@@ -87,17 +87,18 @@ namespace ConfigGen
                     }
                     else
                     {
-                        des.XmlDirPath = Path.GetDirectoryName(path);
+                        des.XmlDir = Path.GetDirectoryName(path);
                         pairs.Add(des.Name, des);
                     }
                 }
+                GroupInfo.LoadGroup(configXml.Group);
             }
             catch (Exception e)
             {
                 Util.LogErrorFormat("路径:{0} Error:{1}\n{2}", path, e.Message, e.StackTrace);
                 return;
             }
-            GroupInfo.LoadGroup(configXml.Group);
+          
             HashSet<string> fullHash = new HashSet<string>();
             var nit = pairs.GetEnumerator();
             while (nit.MoveNext())
@@ -105,7 +106,12 @@ namespace ConfigGen
                 var item = nit.Current;
                 string namespace0 = item.Key;
                 for (int i = 0; i < item.Value.Classes.Count; i++)
-                    new ClassInfo(item.Value.Classes[i], namespace0);
+                {
+                    ClassDes classDes = item.Value.Classes[i];
+                    var cls = new ClassInfo(classDes, namespace0);
+                    if (cls.IsConfig())
+                        new ConfigInfo(classDes, namespace0, item.Value.XmlDir);
+                }
                 for (int i = 0; i < item.Value.Enums.Count; i++)
                     new EnumInfo(item.Value.Enums[i], namespace0);
             }

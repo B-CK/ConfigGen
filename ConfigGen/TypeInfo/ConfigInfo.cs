@@ -1,10 +1,11 @@
-﻿using ConfigGen.Config;
-using ConfigGen.Description;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
+using ConfigGen.Config;
+using ConfigGen.Import;
+using ConfigGen.Description;
+using System.Collections.Generic;
+using System.Xml;
 
 namespace ConfigGen.TypeInfo
 {
@@ -42,13 +43,19 @@ namespace ConfigGen.TypeInfo
         private ClassDes _des;
         private string _fullName;
         private string _namespace;
+        /// <summary>
+        /// 绝对路径
+        /// </summary>
         private string[] _inputFiles;
+        /// <summary>
+        /// 相对路径
+        /// </summary>
         private string _outputFile;
         private FieldInfo _index;
         private FList _data;
         private readonly HashSet<string> _groups;
 
-        public ConfigInfo(ClassDes des, string namespace0)
+        public ConfigInfo(ClassDes des, string namespace0, string xmlDir)
         {
             _des = des;
             _namespace = namespace0;
@@ -62,14 +69,14 @@ namespace ConfigGen.TypeInfo
             ClassInfo cls = ClassInfo.Get(_fullName);
             _index = cls.Fields.Find(f => f.Name == des.Index);
 
-            if (File.Exists(_des.DataPath))
-                _inputFiles = new string[] { _des.DataPath };
-            else if (Directory.Exists(_des.DataPath))
-                _inputFiles = Directory.GetFiles(_des.DataPath);
+            string path = Path.Combine(xmlDir, _des.DataPath);
+            if (File.Exists(path))
+                _inputFiles = new string[] { path };
+            else if (Directory.Exists(path))
+                _inputFiles = Directory.GetFiles(path);
             else
-                Error("数据路径不存在:" + _des.DataPath);
-            string relPath = _fullName.Replace('.', '\\');
-            _outputFile = string.Format("{0}{1}", Consts.DataDir, relPath);
+                Error("数据路径不存在:" + path);
+            _outputFile = _fullName.Replace('.', '/');
 
             Add(this);
         }
@@ -90,7 +97,32 @@ namespace ConfigGen.TypeInfo
         }
         public void LoadData()
         {
+            for (int i = 0; i < _inputFiles.Length; i++)
+            {
+                string path = _inputFiles[i];
+                try
+                {
+                    string ext = Path.GetExtension(path);
+                    FieldInfo field = new FieldInfo(_fullName, _groups);
+                    if (ext == "xml")
+                    {
+                        var xml = new ImportXml(path);
+                        _data = new FList(null, field, xml.Data);
+                    }
+                    else
+                    {
+                        var excel = new ImportExcel(path);
+                        _data = new FList(null, field, excel);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Error("[加载文件失败]:" + path);
+                    Util.LogErrorFormat("{0}\n{1}\n", e.Message, e.StackTrace);
+                    throw;
+                }
 
+            }
         }
         public void VerifyData()
         {

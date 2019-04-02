@@ -174,7 +174,6 @@ namespace ConfigGen
         {
             Console.ForegroundColor = color;
             Console.WriteLine(logString);
-            Consts.LogContent.AppendLine(logString.ToString());
         }
         public static void LogWarning(object warningString)
         {
@@ -188,19 +187,16 @@ namespace ConfigGen
         {
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(format, logString);
-            Consts.LogContent.AppendLine(List2String(logString, "\r\n"));
         }
         public static void LogWarningFormat(string format, params object[] warningString)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(format, warningString);
-            Consts.LogContent.AppendLine(List2String(warningString, "\r\n"));
         }
         public static void LogErrorFormat(string format, params object[] errorString)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(format, errorString);
-            Consts.LogContent.AppendLine(List2String(errorString, "\r\n"));
         }
         public static string GetRelPath(string path)
         {
@@ -253,47 +249,6 @@ namespace ConfigGen
         }
         #endregion
 
-
-
-
-
-        /// <summary>
-        /// 获取文件MD5
-        /// </summary>
-        public static string GetMD5HashFromFile(string filePath)
-        {
-            try
-            {
-                FileState fileState = GetFileState(filePath);
-                if (fileState == FileState.Inexist)
-                {
-                    LogErrorFormat("{0}文件不存在", filePath);
-                    return null;
-                }
-                else if (fileState == FileState.IsOpen)
-                {
-                    LogErrorFormat("{0}文件正在被其他软件打开，请关闭后重新运行本工具", filePath);
-                    return null;
-                }
-
-                FileStream file = new FileStream(filePath, FileMode.Open);
-                System.Security.Cryptography.MD5 md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
-                byte[] retVal = md5.ComputeHash(file);
-                file.Close();
-
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < retVal.Length; i++)
-                {
-                    sb.Append(retVal[i].ToString("x2"));
-                }
-                return sb.ToString();
-            }
-            catch (Exception)
-            {
-                LogErrorFormat("文件{0} MD5生成失败.", filePath);
-                return null;
-            }
-        }
         /// <summary>
         /// 创建文本
         /// </summary>
@@ -305,18 +260,10 @@ namespace ConfigGen
 
             File.WriteAllText(filePath, content, UTF8);
         }
-        public static string Combine(string nameSpace, string name)
-        {
-            return string.Format("{0}.{1}", nameSpace, name);
-        }
         public static string FirstCharUpper(string name)
         {
             return Char.ToUpper(name[0]) + name.Substring(1);
         }
-
-
-
-
         public static string List2String(object[] array, string split = ",")
         {
             StringBuilder sb = new StringBuilder();
@@ -328,9 +275,6 @@ namespace ConfigGen
         {
             return List2String(list.ToArray(), split);
         }
-
-
-
 
 
         static Stopwatch _sw = new Stopwatch();

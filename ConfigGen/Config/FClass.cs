@@ -1,5 +1,7 @@
-﻿using ConfigGen.TypeInfo;
+﻿using ConfigGen.Import;
+using ConfigGen.TypeInfo;
 using System.Collections.Generic;
+using System.Text;
 using System.Xml;
 
 namespace ConfigGen.Config
@@ -15,9 +17,10 @@ namespace ConfigGen.Config
         private string _fullType;
         private List<Data> _values = new List<Data>();
 
-        public FClass(FClass host, FieldInfo define) : base(host, define)
+        public FClass(FClass host, FieldInfo define, ImportExcel excel) : base(host, define)
         {
             _fullType = define.FullType;
+            excel.GetClass(this, ClassInfo.Get(define.FullType));
         }
         public FClass(FClass host, FieldInfo define, XmlElement value) : base(host, define)
         {
@@ -57,6 +60,15 @@ namespace ConfigGen.Config
             var fields = info.Fields;
             for (int i = 0; i < fields.Count; i++)
                 Values.Add(Data.Create(this, fields[i], data));
+        }
+
+        public override string ExportData()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(FullType);
+            for (int i = 0; i < _values.Count; i++)
+                builder.AppendFormat("{0}{1}",Consts.CsvSplitFlag, _values[i].ExportData());
+            return builder.ToString();
         }
     }
 }

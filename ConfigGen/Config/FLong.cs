@@ -1,4 +1,5 @@
-﻿using ConfigGen.TypeInfo;
+﻿using ConfigGen.Import;
+using ConfigGen.TypeInfo;
 using System;
 using System.Xml;
 
@@ -8,13 +9,13 @@ namespace ConfigGen.Config
     {
         public readonly long Value;
 
-        public FLong(FClass host, FieldInfo define, long value) : base(host, define)
+        public FLong(FClass host, FieldInfo define, ImportExcel excel) : base(host, define)
         {
-            Value = value;
+            Value = excel.GetLong();
         }
-        public FLong(FClass host, FieldInfo define, XmlElement value) : base(host, define)
+        public FLong(FClass host, FieldInfo define, XmlElement xml) : base(host, define)
         {
-            string v = value.InnerText;
+            string v = xml.InnerText;
             long r;
             if (!long.TryParse(v, out r))
             {
@@ -22,6 +23,11 @@ namespace ConfigGen.Config
                 Value = -1;
             }
             Value = r;
+        }
+
+        public override string ExportData()
+        {
+            return Value.ToString();
         }
     }
 }
