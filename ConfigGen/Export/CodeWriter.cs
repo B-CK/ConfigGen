@@ -9,7 +9,7 @@ namespace ConfigGen.Export
     {
         public const string Public = "public";
         public const string Private = "private";
-        public const string Static = "";
+        public const string Static = "static";
         public const string Readonly = "readonly";
         public const string Abstract = "abstract";
         public const string Override = "override";
@@ -30,7 +30,7 @@ namespace ConfigGen.Export
         }
 
         private int _level = 0;
-        public void Reset() { _level = 0; }
+        public void SetLevel(int level) { _level = level; }
         public void EndLevel() { _level--; }
         public void AddLevel() { _level++; }
         public void IntervalLevel()
@@ -61,13 +61,13 @@ namespace ConfigGen.Export
         {
             IntervalLevel();
             inhert = inhert.IsEmpty() ? "" : " : " + inhert;
-            _builder.AppendFormat("{0}{1} class {2}", modifier, className, className);
+            _builder.AppendFormat("{0} class {1}{2}", modifier, className, inhert);
             Start();
         }
         public void DefineConst(string type, string name, string value)
         {
             IntervalLevel();
-            _builder.AppendFormat("public  readonly {0} {1} = {3};\n", type, name, value);
+            _builder.AppendFormat("public  readonly {0} {1} = {2};\n", type, name, value);
         }
         public void DefineField(string modifier, string type, string fieldName, string value = null)
         {
@@ -179,14 +179,17 @@ namespace ConfigGen.Export
         }
 
 
-        public void Append(string msg) {
-            IntervalLevel();
+        public void Append(string msg, bool hasLevel = true)
+        {
+            if (hasLevel)
+                IntervalLevel();
             _builder.Append(msg);
         }
-        public void AppendLine() { AppendLine(""); }
-        public void AppendLine(string msg)
+        public void AppendLine(bool hasLevel = true) { AppendLine("", hasLevel); }
+        public void AppendLine(string msg, bool hasLevel = true)
         {
-            IntervalLevel();
+            if (hasLevel)
+                IntervalLevel();
             _builder.AppendLine(msg);
         }
         public void AppendFormat(string fmt, params object[] args)

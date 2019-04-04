@@ -17,7 +17,7 @@ namespace ConfigGen.Export
             {
                 var cfg = cit.Current.Value;
                 builder.AppendLine(cfg.Data.ExportData());
-                string filePath = string.Format("{0}\\{1}{2}", Consts.DataDir, cfg.Name, Consts.CsvFileExt);
+                string filePath = string.Format("{0}\\{1}{2}", Setting.DataDir, cfg.Name, Setting.CsvFileExt);
                 Util.SaveFile(filePath, builder.ToString());
                 builder.Clear();
             }

@@ -24,44 +24,48 @@ namespace ConfigGen
 
         static void Main(string[] args)
         {
-            Util.Start();
-
+            long start = DateTime.Now.Ticks;
             CmdOption.Ins.Parse(args);
             //解析命令
             if (!CmdOption.Ins.CheckResult())
             {
                 Util.LogError("命令参数解析失败!");
+#if DEBUG
                 Console.ReadKey();
+#endif
                 return;
             }
 
             LoadDefine();
             VerifyDefine();
+            Export("CSharp", Setting.CSDir);
+            Export("Java", Setting.JavaDir);
+            Export("Lua", Setting.LuaDir);
+            Export("XmlCode", Setting.XmlCodeDir);
 
-            if (!Consts.DataDir.IsEmpty() || Consts.Check)
+            if (!Setting.DataDir.IsEmpty() || Setting.Check)
             {
                 try
                 {
                     LoadData();
-                    //VerifyData();
+                    VerifyData();
+                    Export("Csv", Setting.DataDir);
                 }
                 catch (Exception e)
                 {
                     Util.Log("\n-------------最后一条数据-------------\n");
-                    Util.Log(lastData);
+                    Util.Log(lastData.ExportData());
                     Util.Log("\n--------------------------------------\n");
                     Util.LogErrorFormat("{0}\n{1}\n", e.Message, e.StackTrace);
                 }
-            }
-
-            Export("CSharp", Consts.CSDir);
-            Export("Java", Consts.JavaDir);
-            Export("Lua", Consts.LuaDir);
-            Export("XmlCode", Consts.XmlCodeDir);
-            Export("Csv", Consts.DataDir);
+            }           
 
             Util.Log("\n\n");
-            Util.Stop("=================>> 总共");
+            long end = DateTime.Now.Ticks;
+            Util.LogFormat("=================>> 总共耗时 {0:F3}s", (end - start) * 1f / TimeSpan.TicksPerSecond);
+#if DEBUG
+            Console.ReadKey();
+#endif
         }
 
         static void LoadDefine()
@@ -71,10 +75,10 @@ namespace ConfigGen
             string path = "无法解析Xml.NamespaceDes";
             try
             {
-                var configXml = Util.Deserialize(Consts.ConfigXml, typeof(ConfigXml)) as ConfigXml;
+                var configXml = Util.Deserialize(Setting.ConfigXml, typeof(ConfigXml)) as ConfigXml;
                 if (configXml.Root.IsEmpty())
                     throw new Exception("数据结构导出时必须指定命名空间根节点<Config Root=\"**\">");
-                Consts.ConfigRootNode = configXml.Root;
+                Setting.ConfigRootNode = configXml.Root;
                 List<string> include = configXml.Include;
                 for (int i = 0; i < include.Count; i++)
                 {
@@ -98,7 +102,7 @@ namespace ConfigGen
                 Util.LogErrorFormat("路径:{0} Error:{1}\n{2}", path, e.Message, e.StackTrace);
                 return;
             }
-          
+
             HashSet<string> fullHash = new HashSet<string>();
             var nit = pairs.GetEnumerator();
             while (nit.MoveNext())
@@ -133,12 +137,11 @@ namespace ConfigGen
             while (cit.MoveNext())
             {
                 ConfigInfo cfg = cit.Current.Value;
-                Util.Log('.');
                 long start = DateTime.Now.Ticks;
                 cfg.LoadData();
                 long end = DateTime.Now.Ticks;
-                if ((end - start) >= 1000)
-                    Util.LogFormat("{0} 耗时 {1}ms\n", cfg.FullName, end - start);
+                if ((end - start) >= TimeSpan.TicksPerSecond)
+                    Util.LogFormat("{0} 耗时 {1:F3}s\n", cfg.FullName, (end - start) * 1f / TimeSpan.TicksPerSecond);
             }
         }
 

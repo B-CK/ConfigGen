@@ -21,6 +21,18 @@ namespace ConfigGen.TypeInfo
         {
             return _configs.ContainsKey(fullName);
         }
+        public static List<ConfigInfo> GetExports()
+        {
+            var exports = new List<ConfigInfo>();
+            var cit = _configs.GetEnumerator();
+            while (cit.MoveNext())
+            {
+                var cfg = cit.Current.Value;
+                if (Util.MatchGroups(cfg._groups))
+                    exports.Add(cfg);
+            }
+            return exports;
+        }
         static void Add(ConfigInfo info)
         {
             if (_configs.ContainsKey(info._fullName))
@@ -43,13 +55,7 @@ namespace ConfigGen.TypeInfo
         private ClassDes _des;
         private string _fullName;
         private string _namespace;
-        /// <summary>
-        /// 绝对路径
-        /// </summary>
         private string[] _inputFiles;
-        /// <summary>
-        /// 相对路径
-        /// </summary>
         private string _outputFile;
         private FieldInfo _index;
         private FList _data;
@@ -62,7 +68,7 @@ namespace ConfigGen.TypeInfo
             _fullName = string.Format("{0}.{1}", namespace0, des.Name);
             _groups = new HashSet<string>(Util.Split(des.Group));
             if (_groups.Count == 0)
-                _groups.Add(Consts.DefualtGroup);
+                _groups.Add(Setting.DefualtGroup);
 
             if (des.Index.IsEmpty())
                 Error("索引(Index)未填写");
@@ -90,9 +96,12 @@ namespace ConfigGen.TypeInfo
                 if (_index.IsContainer && _index.IsClass)
                     Error("Index 不能是集合类型或者类类型");
 
-                string path = _des.DataPath;
-                if (!File.Exists(path) && !Directory.Exists(path))
-                    Error("数据文件路径不存在:" + path);
+                for (int i = 0; i < _inputFiles.Length; i++)
+                {
+                    string path = _inputFiles[i];
+                    if (!File.Exists(path) && !Directory.Exists(path))
+                        Error("数据文件路径不存在:" + path);
+                }
             }
         }
         public void LoadData()
@@ -103,7 +112,7 @@ namespace ConfigGen.TypeInfo
                 try
                 {
                     string ext = Path.GetExtension(path);
-                    FieldInfo field = new FieldInfo(_fullName, _groups);
+                    FieldInfo field = new FieldInfo(null, Name, "list:" + _fullName, _groups);
                     if (ext == "xml")
                     {
                         var xml = new ImportXml(path);
@@ -117,16 +126,18 @@ namespace ConfigGen.TypeInfo
                 }
                 catch (Exception e)
                 {
-                    Error("[加载文件失败]:" + path);
                     Util.LogErrorFormat("{0}\n{1}\n", e.Message, e.StackTrace);
-                    throw;
+                    Error("[加载文件失败]:" + path);
                 }
 
             }
         }
         public void VerifyData()
         {
-
+            for (int i = 0; i < _data.Values.Count; i++)
+            {
+                //var value = _data.Values[i] as ;
+            }
         }
 
         public override string ToString()

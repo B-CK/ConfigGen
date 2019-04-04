@@ -27,7 +27,7 @@ namespace ConfigGen.Config
             for (int i = 0; i < list.Count; i++)
             {
                 var item = list[i] as XmlElement;
-                Values.Add(Data.Create(Host, _item, item));
+                Values.Add(Data.Create(Host, _item, item));               
             }
         }
 
@@ -36,7 +36,7 @@ namespace ConfigGen.Config
             StringBuilder builder = new StringBuilder();
             builder.Append(_values.Count);
             for (int i = 0; i < _values.Count; i++)
-                builder.AppendFormat("{0}{1}", Consts.CsvSplitFlag, _values[i].ExportData());
+                builder.AppendFormat("{0}{1}", Setting.CsvSplitFlag, _values[i].ExportData());
             return builder.ToString();
         }
     }

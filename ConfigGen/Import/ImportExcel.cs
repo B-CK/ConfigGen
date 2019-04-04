@@ -16,6 +16,8 @@ namespace ConfigGen.Import
         private int _ci;//列
         private string _path;
 
+        private static readonly Dictionary<string, string> BOOLS = new Dictionary<string, string> { { "真", "true" }, { "假", "false" } };
+
         public ImportExcel(string path)
         {
             _path = path;
@@ -47,14 +49,14 @@ namespace ConfigGen.Import
                 else
                 {
                     string column = row[_ci].ToString();
-                    if (column.StartsWith(Consts.RowEndFlag))
+                    if (column.StartsWith(Setting.RowEndFlag))
                     {
                         ++_ri;
                         _ci = -1;
                     }
                     else if (!column.IsEmpty())
                     {
-                        if (column.StartsWith(Consts.SetEndFlag))
+                        if (column.StartsWith(Setting.SetEndFlag))
                         {
                             return true;
                         }
@@ -93,7 +95,7 @@ namespace ConfigGen.Import
 
             return result;
         }
-        protected override void Error(string msg)
+        public override void Error(string msg)
         {
             string error = string.Format("错误:{0} \n位置:{1}[{2}{3}]", msg, _path, GetColumnName(_ci + 1), _ri + 1);
             throw new Exception(error);
@@ -112,7 +114,7 @@ namespace ConfigGen.Import
                 else
                 {
                     string column = row[_ci].ToString();
-                    if (column.StartsWith(Consts.RowEndFlag))
+                    if (column.StartsWith(Setting.RowEndFlag))
                     {
                         ++_ri;
                         _ci = -1;
@@ -135,6 +137,8 @@ namespace ConfigGen.Import
         public override bool GetBool()
         {
             string v = GetNextAndCheckNotEmpty();
+            if (BOOLS.ContainsKey(v))
+                v = BOOLS[v];
             if (v.Equals("true", StringComparison.CurrentCultureIgnoreCase))
                 return true;
             else if (v.Equals("false", StringComparison.CurrentCultureIgnoreCase))
@@ -188,22 +192,10 @@ namespace ConfigGen.Import
         }
         public override void GetClass(FClass data, ClassInfo info)
         {
-            if (info.IsDynamic())
+            if (!info.Inherit.IsEmpty())
             {
-                if (!info.Inherit.IsEmpty())
-                {
-                    ClassInfo parent = ClassInfo.Get(info.Inherit);
-                    GetClass(data, parent);
-                }
-
-                string type = GetString();
-                ClassInfo dynamic = ClassInfo.Get(type);
-                if (dynamic == null)
-                    Error("多态类型" + type + "未知");
-                if (!info.HasChild(type))
-                    Error(string.Format("数据类型{0}非{1}子类", type, info.FullName));
-                data.SetCurrentType(type);
-                info = dynamic;
+                ClassInfo parent = ClassInfo.Get(info.Inherit);
+                GetClass(data, parent);
             }
 
             var fields = info.Fields;
@@ -214,7 +206,12 @@ namespace ConfigGen.Import
         {
             FieldInfo item = define.GetItemDefine();
             while (!IsSectionEnd())
-                data.Values.Add(Data.Create(data.Host, item, this));
+            {
+                var d = Data.Create(data.Host, item, this);
+                if (data.Host == null)
+                    Program.AddLastData(d);
+                data.Values.Add(d);
+            }
         }
         public override void GetDict(FDict data, FieldInfo define)
         {

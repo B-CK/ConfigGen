@@ -29,8 +29,8 @@ namespace ConfigGen.Config
             for (int i = 0; i < dict.Count; i++)
             {
                 XmlNode pair = dict[i];
-                XmlElement key = pair[Consts.KEY];
-                XmlElement value = pair[Consts.VALUE];
+                XmlElement key = pair[Setting.KEY];
+                XmlElement value = pair[Setting.VALUE];
                 var dk = Data.Create(Host, _key, key);
                 var dv = Data.Create(Host, _value, value);
                 if (!Values.ContainsKey(dk))
@@ -50,7 +50,7 @@ namespace ConfigGen.Config
             {
                 string key = dit.Current.Key.ExportData();
                 string value = dit.Current.Value.ExportData();
-                builder.AppendFormat("{0}{1}{0}{2}", Consts.CsvSplitFlag, key, value);
+                builder.AppendFormat("{0}{1}{0}{2}", Setting.CsvSplitFlag, key, value);
             }
             return builder.ToString();
         }

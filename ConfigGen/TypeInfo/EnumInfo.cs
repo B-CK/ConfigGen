@@ -38,7 +38,7 @@ namespace ConfigGen.TypeInfo
         {
             if (_values.ContainsKey(name))
                 return _values[name];
-            return Consts.Null;
+            return Setting.Null;
         }
         public string GetEnumName(string alias)
         {

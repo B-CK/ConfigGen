@@ -32,13 +32,13 @@ namespace ConfigGen.Export
                 ConfigInfo cfg = cit.Current.Value;
                 string method = string.Format("Get{0}", cfg.FullName);
                 string index = cfg.Index.Name;
-                string relPath = cfg.OutputFile + Consts.CsvFileExt;
+                string relPath = cfg.OutputFile + Setting.CsvFileExt;
                 builder.AppendFormat("\t{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
                     cfg.Name, method, index, relPath.ToLower());
             }
             builder.AppendLine("}");
 
-            string path = Path.Combine(Consts.LuaDir, DATA_CONFIG + ".lua");
+            string path = Path.Combine(Setting.LuaDir, DATA_CONFIG + ".lua");
             Util.SaveFile(path, builder.ToString());
         }
         private static void GenDataStream()
@@ -150,7 +150,7 @@ namespace ConfigGen.Export
             builder.AppendLine();
             builder.AppendLine("return Stream");
 
-            string path = Path.Combine(Consts.LuaDir, DATA_STREAM + ".lua");
+            string path = Path.Combine(Setting.LuaDir, DATA_STREAM + ".lua");
             Util.SaveFile(path, builder.ToString());
         }
 
@@ -176,17 +176,17 @@ namespace ConfigGen.Export
                     string value = CheckConst(cst.OriginalType, cst.Value);
                     switch (cst.OriginalType)
                     {
-                        case Consts.LIST:
-                            string[] list = cst.Value.Split(Consts.SplitFlag);
+                        case Setting.LIST:
+                            string[] list = cst.Value.Split(Setting.SplitFlag);
                             for (int k = 0; k < list.Length; k++)
                                 list[k] = CheckConst(cst.Types[1], list[k]);
                             value = string.Format("{{ {0} }}", Util.List2String(list));
                             break;
-                        case Consts.DICT:
-                            string[] dict = cst.Value.Split(Consts.SplitFlag);
+                        case Setting.DICT:
+                            string[] dict = cst.Value.Split(Setting.SplitFlag);
                             for (int k = 0; k < dict.Length; k++)
                             {
-                                string[] nodes = dict[k].Split(Consts.ArgsSplitFlag);
+                                string[] nodes = dict[k].Split(Setting.ArgsSplitFlag);
                                 nodes[0] = CheckConst(cst.Types[1], nodes[0]);
                                 nodes[1] = CheckConst(cst.Types[2], nodes[1]);
                                 dict[k] = string.Format("{0} = {1},", nodes[0], nodes[1]);
@@ -225,14 +225,14 @@ namespace ConfigGen.Export
                         builder.AppendFormat("\to.{0} = self:Get{1}Maker()\n", field.Name, Util.List2String(field.Types, ""));
                     else if (field.IsContainer)
                     {
-                        if (field.OriginalType == Consts.LIST)
+                        if (field.OriginalType == Setting.LIST)
                         {
                             var item = field.GetItemDefine();
                             string index = item.OriginalType.Replace(".", "");
                             if (item.IsClass) index += "Maker";
                             builder.AppendFormat("\to.{0} = self:GetList('{1}')\n", field.Name, index);
                         }
-                        else if (field.OriginalType == Consts.DICT)
+                        else if (field.OriginalType == Setting.DICT)
                         {
                             var k = field.GetKeyDefine();
                             string key = k.OriginalType;
@@ -264,17 +264,17 @@ namespace ConfigGen.Export
                 builder.AppendLine("}");
             }
             builder.AppendLine("return Stream");
-            string path = Path.Combine(Consts.LuaDir, DATA_STRUCT + ".lua");
+            string path = Path.Combine(Setting.LuaDir, DATA_STRUCT + ".lua");
             Util.SaveFile(path, builder.ToString());
         }
         private static string CheckConst(string type, string value)
         {
             switch (type)
             {
-                case Consts.FLOAT:
+                case Setting.FLOAT:
                     value = string.Format("{0}f", value);
                     break;
-                case Consts.STRING:
+                case Setting.STRING:
                     value = string.Format("@\"{0}\"", value);
                     break;
             }

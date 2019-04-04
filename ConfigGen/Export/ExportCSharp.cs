@@ -25,7 +25,7 @@ namespace ConfigGen.Export
         private const string CLASS_CFG_MANAGER = "CfgManager";
         private const string FIELD_CONFIG_DIR = "ConfigDir";
         private const string ARG_DATASTREAM = "data";
-        private static readonly List<string> CsvNameSpaces = new List<string>() { "System", "System.Collections.Generic", Consts.ConfigRootNode };
+        private static readonly List<string> CsvNameSpaces = new List<string>() { "System", "System.Collections.Generic", Setting.ConfigRootNode };
 
         /// <summary>
         /// 导出CSharp类型Csv存储类
@@ -33,10 +33,10 @@ namespace ConfigGen.Export
         public static void Export()
         {
             //构建Csv存储类基础类CfgObject.cs
-            string path = Path.Combine(Consts.CSDir, CLASS_CFG_OBJECT + ".cs");
+            string path = Path.Combine(Setting.CSDir, CLASS_CFG_OBJECT + ".cs");
             CodeWriter cfgCode = new CodeWriter();
             cfgCode.UsingNamespace(new List<string>(CsvNameSpaces));
-            cfgCode.NameSpace(Consts.ConfigRootNode);
+            cfgCode.NameSpace(Setting.ConfigRootNode);
             cfgCode.DefineClass(string.Format("{0} {1}", CodeWriter.Public, CodeWriter.Abstract), CLASS_CFG_OBJECT);
             cfgCode.EndAll();
             Util.SaveFile(path, cfgCode.ToString());
@@ -57,9 +57,9 @@ namespace ConfigGen.Export
             List<string> NameSpaces = new List<string>() { "System", "System.Text", "System.IO", "System.Reflection" };
 
             //构建Csv数据解析类DataStream.cs
-            string path = Path.Combine(Consts.CSDir, CLASS_DATA_STREAM + ".cs");
+            string path = Path.Combine(Setting.CSDir, CLASS_DATA_STREAM + ".cs");
             builder.UsingNamespace(NameSpaces);
-            builder.NameSpace(Consts.ConfigRootNode);
+            builder.NameSpace(Setting.ConfigRootNode);
             builder.Comments("数据解析类");
             builder.DefineClass(CodeWriter.Public, CLASS_DATA_STREAM);
 
@@ -70,59 +70,41 @@ namespace ConfigGen.Export
             string[] types = { CSharp.String, "Encoding" };
             string[] args = { "path", "encoding" };
             builder.Constructor(CodeWriter.Public, CLASS_DATA_STREAM, types, args);
-            builder.IntervalLevel();
             builder.AppendFormat("{0} = File.ReadAllLines({1}, {2});\n", fRows, args[0], args[1]);
-            builder.IntervalLevel();
             builder.AppendFormat("{0} = {1} = 0;\n", fRIndex, fCIndex);
-            builder.IntervalLevel();
             builder.AppendFormat("if (_rows.Length > 0)\n");
-            builder.IntervalLevel();
-            builder.AppendFormat("{0} = {1}[{2}].Split(\"{3}\".ToCharArray());\n", fColumns, fRows, fRIndex, Consts.CsvSplitFlag);
+            builder.AppendFormat("{0} = {1}[{2}].Split(\"\\n\".ToCharArray());\n", fColumns, fRows, fRIndex);//CValues.CsvSplitFlag
             builder.End();
             builder.AppendLine();
 
-            builder.IntervalLevel();
             builder.AppendFormat("public int Count {{ get {{ return {0}.Length; }} }}\n", fRows);
             builder.AppendLine();
 
             builder.Function(CodeWriter.Public, CSharp.Int, "GetInt");
-            builder.IntervalLevel();
             builder.AppendLine("int result;");
-            builder.IntervalLevel();
             builder.AppendLine("int.TryParse(Next(), out result);");
-            builder.IntervalLevel();
             builder.AppendLine("return result;");
             builder.End();
 
             builder.Function(CodeWriter.Public, CSharp.Long, "GetLong");
-            builder.IntervalLevel();
             builder.AppendLine("long result;");
-            builder.IntervalLevel();
             builder.AppendLine("long.TryParse(Next(), out result);");
-            builder.IntervalLevel();
             builder.AppendLine("return result;");
             builder.End();
 
             builder.Function(CodeWriter.Public, CSharp.Float, "GetFloat");
-            builder.IntervalLevel();
             builder.AppendLine("float result;");
-            builder.IntervalLevel();
             builder.AppendLine("float.TryParse(Next(), out result);");
-            builder.IntervalLevel();
             builder.AppendLine("return result;");
             builder.End();
 
             builder.Function(CodeWriter.Public, CSharp.Bool, "GetBool");
-            builder.IntervalLevel();
             builder.AppendLine("string v = Next();");
-            builder.IntervalLevel();
             builder.AppendLine("if (string.IsNullOrEmpty(v)) return false;");
-            builder.IntervalLevel();
             builder.AppendLine("return !v.Equals(\"0\");");
             builder.End();
 
             builder.Function(CodeWriter.Public, CSharp.String, "GetString");
-            builder.IntervalLevel();
             builder.AppendLine("return Next();");
             builder.End();
 
@@ -130,15 +112,11 @@ namespace ConfigGen.Export
             args = new string[] { "fullName" };
             builder.Comments("支持多态,直接反射类型");
             builder.Function(CodeWriter.Public, CLASS_CFG_OBJECT, "GetObject", types, args);
-            builder.IntervalLevel();
             builder.AppendFormat("Type type = Type.GetType({0});\n", args[0]);
-            builder.IntervalLevel();
             builder.AppendFormat("if (type == null)");
             builder.Start();
-            builder.IntervalLevel();
             builder.AppendFormat("UnityEngine.Debug.LogErrorFormat(\"DataStream 解析{{0}}类型失败!\", {0});\n", args[0]);
             builder.End();
-            builder.IntervalLevel();
             builder.AppendFormat("return ({0})Activator.CreateInstance(type, new object[] {{ this }});\n", CLASS_CFG_OBJECT);
             builder.End();
             builder.AppendLine();
@@ -150,23 +128,16 @@ namespace ConfigGen.Export
             builder.DefineField(CodeWriter.Private, "string[]", fColumns);
             builder.AppendLine();
             builder.Function(CodeWriter.Private, CSharp.Void, "NextRow");
-            builder.IntervalLevel();
             builder.AppendFormat("if ({0} >= {1}.Length) return;\n", fRIndex, fRows);
-            builder.IntervalLevel();
             builder.AppendFormat("{0}++;\n", fRIndex);
-            builder.IntervalLevel();
             builder.AppendFormat("{0} = 0;\n", fCIndex);
-            builder.IntervalLevel();
-            builder.AppendFormat("{0} = {1}[{2}].Split(\"{3}\".ToCharArray());\n",
-                fColumns, fRows, fRIndex, Consts.CsvSplitFlag);
+            builder.AppendFormat("{0} = {1}[{2}].Split(\"\\n\".ToCharArray());\n", fColumns, fRows, fRIndex);//CValues.CsvSplitFlag
             builder.End();
             builder.AppendLine();
 
             builder.Function(CodeWriter.Private, CSharp.String, "Next");
-            builder.IntervalLevel();
             builder.AppendFormat("if ({0} >= {1}.Length) NextRow();\n", fCIndex, fColumns);
-            builder.IntervalLevel();
-            builder.AppendFormat("return {0}[{1}++];\n", fColumns, fCIndex, Consts.CsvSplitFlag);
+            builder.AppendFormat("return {0}[{1}++];\n", fColumns, fCIndex, Setting.CsvSplitFlag);
             builder.End();
             builder.AppendLine();
 
@@ -182,86 +153,72 @@ namespace ConfigGen.Export
             CodeWriter builder = new CodeWriter();
             List<string> NameSpaces = new List<string>() { "System", "System.IO", "System.Text", "System.Collections.Generic" };
 
-            string path = Path.Combine(Consts.CSDir, CLASS_CFG_MANAGER + ".cs");
+            string path = Path.Combine(Setting.CSDir, CLASS_CFG_MANAGER + ".cs");
             builder.UsingNamespace(NameSpaces);
-            builder.NameSpace(Consts.ConfigRootNode);
+            builder.NameSpace(Setting.ConfigRootNode);
             builder.Comments("数据管理类");
             builder.DefineClass(CodeWriter.Public, CLASS_CFG_MANAGER);
 
             builder.Comments("配置文件文件夹路径");
-            builder.DefineField(CodeWriter.Public, CodeWriter.Static, CSharp.String, FIELD_CONFIG_DIR);
+            builder.DefineField(CodeWriter.Public + " " + CodeWriter.Static, CSharp.String, FIELD_CONFIG_DIR);
             builder.AppendLine();
 
-            List<ClassInfo> exports = ClassInfo.GetExports();
+            List<ConfigInfo> exports = ConfigInfo.GetExports();
             List<string> loadAll = new List<string>();
             CodeWriter clear = new CodeWriter();
             for (int i = 0; i < exports.Count; i++)
             {
-                ClassInfo cls = exports[i];
-                ConfigInfo cfg = ConfigInfo.Get(cls.FullName);
-                builder.IntervalLevel();
-                builder.AppendFormat("public static readonly Dictionary<{0}, {1}> {2} = new Dictionary<{0}, {1}>();\n", cfg.Index.FullType, cls.Name, cls.FullName);
+                ConfigInfo cfg = exports[i];
+                ClassInfo cls = ClassInfo.Get(cfg.FullName);
+                builder.AppendFormat("public static readonly Dictionary<{0}, {1}> {2} = new Dictionary<{0}, {1}>();\n", cfg.Index.FullType, cls.FullName, cls.Name);
 
                 //加载所有配置-块内语句
-                string rel = cls.FullName.Replace(".", "/") + Consts.CsvFileExt;
+                string rel = cls.FullName.Replace(".", "/") + Setting.CsvFileExt;
                 loadAll.Add(string.Format("path = {0} + \"{1}\";\n", FIELD_CONFIG_DIR, rel));
                 loadAll.Add(string.Format("var {0}s = Load(path, (d) => new {1}(d));\n", cls.Name.ToLower(), cls.FullName));
                 loadAll.Add(string.Format("{0}s.ForEach(v => {1}.Add(v.{2}, v));\n", cls.Name.ToLower(), cls.Name, cfg.Index.Name));
 
                 //清除所有配置-块内语句
-                clear.IntervalLevel();
-                clear.AppendFormat("\t{0}.Clear();\n", cls.Name);
+                clear.AppendFormat("{0}.Clear();\n", cls.Name);
             }
             builder.AppendLine();
 
             //加载单个配置
             string[] types = { "string", "Func<DataStream, T>" };
             string[] args = { "path", "constructor" };
-            builder.DefineField(CodeWriter.Private, CodeWriter.Static, CSharp.Int, "_row");
+            builder.DefineField(CodeWriter.Public + " " + CodeWriter.Static, CSharp.Int, "_row");
             builder.Comments("constructor参数为指定类型的构造函数");
             builder.Function(CodeWriter.Public + " " + CodeWriter.Static, "List<T>", "Load<T>", types, args);
-            builder.IntervalLevel();
             builder.AppendFormat("if (!File.Exists(path))");
             builder.Start();
-            builder.IntervalLevel();
             builder.AppendFormat("UnityEngine.Debug.LogError(path + \"配置路径不存在\");\n");
-            builder.IntervalLevel();
             builder.AppendFormat("return new List<T>();\n");
             builder.End();
-            builder.IntervalLevel();
             builder.AppendFormat("{0} data = new {0}({1}, Encoding.UTF8);\n", CLASS_DATA_STREAM, args[0]);
-            builder.IntervalLevel();
             builder.AppendFormat("List<T> list = new List<T>();\n");
-            builder.IntervalLevel();
             builder.AppendFormat("for (int i = 0; i < data.Count; i++)");
             builder.Start();
-            builder.IntervalLevel();
             builder.AppendFormat("_row = i;\n");
-            builder.IntervalLevel();
             builder.AppendFormat("list.Add({0}(data));\n", args[1]);
             builder.End();
-            builder.IntervalLevel();
             builder.AppendFormat("return list;\n");
             builder.End();
             builder.AppendLine();
 
             //加载所有配置
             builder.Function(CodeWriter.Public + " " + CodeWriter.Static, CSharp.Void, "LoadAll");
-            builder.IntervalLevel();
             builder.AppendLine("string path = \"Data Path Empty\";");
-            builder.IntervalLevel();
             builder.Append("try");
             builder.Start();
             for (int i = 0; i < loadAll.Count; i++)
             {
-                builder.IntervalLevel();
+
                 builder.Append(loadAll[i]);
             }
             builder.End();
-            builder.IntervalLevel();
+
             builder.Append("catch (Exception e)");
             builder.Start();
-            builder.IntervalLevel();
             builder.AppendLine("UnityEngine.Debug.LogErrorFormat(\"{0}[r{3}]\\n{1}\\n{2}\", path, e.Message, e.StackTrace, _row);");
             builder.End();
             builder.End();
@@ -285,6 +242,9 @@ namespace ConfigGen.Export
         {
             CodeWriter builder = new CodeWriter();
             CodeWriter sb = new CodeWriter();
+            sb.AddLevel();
+            sb.AddLevel();
+            sb.AddLevel();
             List<ClassInfo> exports = ClassInfo.GetExports();
             for (int i = 0; i < exports.Count; i++)
             {
@@ -294,7 +254,7 @@ namespace ConfigGen.Export
                 builder.NameSpace(cls.Namespace);
                 builder.Comments(cls.Desc);
                 string inherit = cls.Inherit.IsEmpty() ? CLASS_CFG_OBJECT : cls.Inherit;
-                builder.DefineClass(CodeWriter.Public, cls.Name, CLASS_CFG_OBJECT);
+                builder.DefineClass(CodeWriter.Public, cls.Name, inherit);
 
                 //常量字段
                 for (int j = 0; j < cls.Consts.Count; j++)
@@ -305,19 +265,19 @@ namespace ConfigGen.Export
                     string value = CheckConst(field.OriginalType, field.Value);
                     switch (field.OriginalType)
                     {
-                        case Consts.LIST:
+                        case Setting.LIST:
                             type = string.Format("List<{0}>", field.Types[1]);
-                            string[] list = field.Value.Split(Consts.SplitFlag);
+                            string[] list = field.Value.Split(Setting.SplitFlag);
                             for (int k = 0; k < list.Length; k++)
                                 list[k] = CheckConst(field.Types[1], list[k]);
                             value = string.Format("new {0}(){{ {1} }}", type, Util.List2String(list));
                             break;
-                        case Consts.DICT:
+                        case Setting.DICT:
                             type = string.Format("Dictionary<{0}, {1}>", field.Types[1], field.Types[2]);
-                            string[] dict = field.Value.Split(Consts.SplitFlag);
+                            string[] dict = field.Value.Split(Setting.SplitFlag);
                             for (int k = 0; k < dict.Length; k++)
                             {
-                                string[] nodes = dict[k].Split(Consts.ArgsSplitFlag);
+                                string[] nodes = dict[k].Split(Setting.ArgsSplitFlag);
                                 nodes[0] = CheckConst(field.Types[1], nodes[0]);
                                 nodes[1] = CheckConst(field.Types[2], nodes[1]);
                                 dict[k] = string.Format("{{{0}, {1}}},", nodes[0], nodes[1]);
@@ -340,65 +300,69 @@ namespace ConfigGen.Export
                         builder.DefineField(modifier, field.FullType, field.Name);
                     else if (field.IsContainer)
                     {
-                        string init = "-";
-                        if (field.OriginalType == Consts.LIST)
-                            init = string.Format("new List<{0}>", field.Types[1]);
-                        else if (field.OriginalType == Consts.DICT)
-                            init = string.Format("new Dictionary<{0}, {1}>", field.Types[1], field.Types[2]);
-                        builder.DefineField(modifier, field.FullType, field.Name, init);
+                        if (field.OriginalType == Setting.LIST)
+                        {
+                            string init = string.Format("new List<{0}>()", field.Types[1]);
+                            string fullType = string.Format("List<{0}>", field.Types[1]);
+                            builder.DefineField(modifier, fullType, field.Name, init);
+                        }
+                        else if (field.OriginalType == Setting.DICT)
+                        {
+                            string init = string.Format("new Dictionary<{0}, {1}>()", field.Types[1], field.Types[2]);
+                            string fullType = string.Format("Dictionary<{0}, {1}>", field.Types[1], field.Types[2]);
+                            builder.DefineField(modifier, fullType, field.Name, init);
+                        }
                     }
 
-                    //构造函数
+                    //构造函数                   
                     if (field.IsRaw || field.IsEnum || field.IsClass)
-                        builder.SetField(field.Name, ReadType(field));
+                        sb.SetField(field.Name, ReadType(field));
                     else if (field.IsContainer)
                     {
-                        if (field.OriginalType == Consts.LIST)
+                        if (field.OriginalType == Setting.LIST)
                         {
                             sb.AppendFormat("for (int n = {0}.GetInt(); n-- > 0;)", ARG_DATASTREAM);
-                            builder.Start();
-                            builder.IntervalLevel();
+                            sb.Start();
                             FieldInfo item = field.GetItemDefine();
-                            builder.DefineField(null, item.FullType, "v", ReadType(item));
+                            sb.DefineField(null, item.FullType, "v", ReadType(item));
                             sb.AppendFormat("{0}.Add(v);\n", field.Name);
-                            builder.IntervalLevel();
-                            builder.End();
+                            sb.End();
                         }
-                        else if (field.OriginalType == Consts.DICT)
+                        else if (field.OriginalType == Setting.DICT)
                         {
                             sb.AppendFormat("for (int n = {0}.GetInt(); n-- > 0;)", ARG_DATASTREAM);
-                            builder.Start();
-                            builder.IntervalLevel();
+                            sb.Start();
                             FieldInfo key = field.GetKeyDefine();
                             FieldInfo value = field.GetValueDefine();
-                            builder.DefineField(null, key.FullType, "k", ReadType(key));
-                            builder.DefineField(null, value.FullType, "v", ReadType(value));
+                            sb.DefineField(null, key.FullType, "k", ReadType(key));
+                            sb.DefineField(null, value.FullType, "v", ReadType(value));
                             sb.AppendFormat("{0}[k] = v;\n", field.Name);
-                            builder.End();
+                            sb.End();
                         }
                     }
                 }
                 builder.AppendLine();
 
                 string[] types = new string[] { CLASS_DATA_STREAM };
-                string[] args = new string[] { CLASS_DATA_STREAM };
+                string[] args = new string[] { "data" };
                 builder.Constructor(CodeWriter.Public, cls.Name, types, args, cls.Inherit.IsEmpty() ? null : args);
-                builder.AppendLine(sb.ToString());
+                builder.Append(sb.ToString(), false);
 
                 builder.EndAll();
-                string path = Path.Combine(Consts.CSDir, cls.Namespace, cls.Name + ".cs");
+                string path = Path.Combine(Setting.CSDir, cls.Namespace.Replace(Setting.DOT[0], '\\'), cls.Name + ".cs");
                 Util.SaveFile(path, builder.ToString());
                 builder.Clear();
+                sb.Clear();
             }
         }
         private static string CheckConst(string type, string value)
         {
             switch (type)
             {
-                case Consts.FLOAT:
+                case Setting.FLOAT:
                     value = string.Format("{0}f", value);
                     break;
-                case Consts.STRING:
+                case Setting.STRING:
                     value = string.Format("@\"{0}\"", value);
                     break;
             }
@@ -429,6 +393,7 @@ namespace ConfigGen.Export
             for (int i = 0; i < exports.Count; i++)
             {
                 EnumInfo en = exports[i];
+                builder.NameSpace(en.Namespace);
                 builder.Comments(en.Desc);
                 builder.Enum(CodeWriter.Public, en.Name);
                 var eit = en.Values.GetEnumerator();
@@ -439,7 +404,7 @@ namespace ConfigGen.Export
                 }
 
                 builder.EndAll();
-                string path = Path.Combine(Consts.CSDir, en.Namespace, en.Name + ".cs");
+                string path = Path.Combine(Setting.CSDir, en.Namespace.Replace(Setting.DOT[0], '\\'), en.Name + ".cs");
                 Util.SaveFile(path, builder.ToString());
                 builder.Clear();
             }

@@ -9,7 +9,7 @@ namespace ConfigGen.Import
 {
     public abstract class Import
     {
-        protected abstract void Error(string msg);
+        public abstract void Error(string msg);
         public abstract bool GetBool();
         public abstract int GetInt();
         public abstract long GetLong();

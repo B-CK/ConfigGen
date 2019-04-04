@@ -160,11 +160,11 @@ namespace ConfigGen
         /// </summary>
         public static bool MatchGroups(HashSet<string> gs)
         {
-            if (Consts.ExportGroup.Contains(Consts.DefualtGroup))
+            if (Setting.ExportGroup.Contains(Setting.DefualtGroup))
                 return true;
-            if (gs.Contains(Consts.DefualtGroup))
+            if (gs.Contains(Setting.DefualtGroup))
                 return true;
-            return Consts.ExportGroup.Overlaps(gs);
+            return Setting.ExportGroup.Overlaps(gs);
         }
         public static void Error(string fmt, params object[] msg)
         {
@@ -200,11 +200,11 @@ namespace ConfigGen
         }
         public static string GetRelPath(string path)
         {
-            return path.Replace(Consts.ConfigDir, "");
+            return path.Replace(Setting.ConfigDir, "");
         }
         public static string GetAbsPath(string relPath)
         {
-            return Path.Combine(Consts.ConfigDir, relPath);
+            return Path.Combine(Setting.ConfigDir, relPath);
         }
         public static void TryDeleteDirectory(string path)
         {
@@ -227,11 +227,11 @@ namespace ConfigGen
         /// </summary>
         public static bool MatchName(string name)
         {
-            return Regex.IsMatch(name, @"[a-zA-Z]\w");
+            return Regex.IsMatch(name, @"[a-zA-Z]\w*");
         }
         public static string[] Split(this string type)
         {
-            return type.IsEmpty() ? new string[0] : type.Split(Consts.ArgsSplitFlag);
+            return type.IsEmpty() ? new string[0] : type.Split(Setting.ArgsSplitFlag);
         }
 
         /// <summary>
@@ -275,34 +275,6 @@ namespace ConfigGen
         {
             return List2String(list.ToArray(), split);
         }
-
-
-        static Stopwatch _sw = new Stopwatch();
-        static Stack<long> _timeStack = new Stack<long>();
-        public static void Start()
-        {
-            if (!_sw.IsRunning)
-            {
-                _sw.Reset();
-                _sw.Start();
-            }
-
-            _timeStack.Push(_sw.ElapsedMilliseconds);
-        }
-        public static void Stop(string msg)
-        {
-            if (_timeStack.Count <= 0) return;
-
-            long ms = _sw.ElapsedMilliseconds - _timeStack.Pop();
-            string seconds = (ms / 1000f).ToString();
-            LogFormat("{0} 耗时 {1:N3}s\n", msg, seconds);
-        }
-
-
-
-
-
-
 
     }
 }

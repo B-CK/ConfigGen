@@ -34,8 +34,8 @@ namespace ConfigGen.TypeInfo
             if (!Util.MatchName(Name))
                 Error("命名不合法:" + Name);
             string type = _types[0];
-            if (!Consts.RawTypes.Contains(type)
-                && !Consts.ContainerTypes.Contains(type)
+            if (!Setting.RawTypes.Contains(type)
+                && !Setting.ContainerTypes.Contains(type)
                 && !EnumInfo.IsEnum(type))
                 Error(string.Format("当前常量类型:{0} 非基础/集合/枚举类型", type));
         }

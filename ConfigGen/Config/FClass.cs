@@ -52,7 +52,7 @@ namespace ConfigGen.Config
                 if (dynamic == null)
                     Util.Error("多态类型{0}未知", type);
                 if (!info.HasChild(type))
-                    Util.Error("数据类型{0}非{1}子类", type, info.FullName);
+                    Util.Error("数据类型{0}非{2}子类", type, info.FullName);
                 SetCurrentType(type);
                 info = dynamic;
             }
@@ -67,7 +67,7 @@ namespace ConfigGen.Config
             StringBuilder builder = new StringBuilder();
             builder.Append(FullType);
             for (int i = 0; i < _values.Count; i++)
-                builder.AppendFormat("{0}{1}",Consts.CsvSplitFlag, _values[i].ExportData());
+                builder.AppendFormat("{0}{1}",Setting.CsvSplitFlag, _values[i].ExportData());
             return builder.ToString();
         }
     }

@@ -83,25 +83,25 @@ namespace ConfigGen
                             _result &= false;
                             break;
                         }
-                        Consts.ConfigXml = NormalizePath(args[i]);
-                        if (!File.Exists(Consts.ConfigXml))
+                        Setting.ConfigXml = Path.Combine(Setting.ApplicationDir, NormalizePath(args[i]));
+                        if (!File.Exists(Setting.ConfigXml))
                         {
-                            Util.LogErrorFormat("[{0}]confgxml配置文件{1}不存在!", CONFIG_XML, Consts.ConfigXml);
+                            Util.LogErrorFormat("[{0}]confgxml配置文件{1}不存在!", CONFIG_XML, Setting.ConfigXml);
                             _result &= false;
                         }
-                        Consts.ConfigDir = Path.GetDirectoryName(Consts.ConfigXml);
+                        Setting.ConfigDir = Path.GetDirectoryName(Setting.ConfigXml);
                         break;
                     case DATA_DIR:
-                        Consts.DataDir = CheckDirArg(DATA_DIR, args[++i]);
+                        Setting.DataDir = CheckDirArg(DATA_DIR, args[++i]);
                         break;
                     case CS_DIR:
-                        Consts.CSDir = CheckDirArg(CS_DIR, args[++i]);
+                        Setting.CSDir = CheckDirArg(CS_DIR, args[++i]);
                         break;
                     case LUA_DIR:
-                        Consts.LuaDir = CheckDirArg(LUA_DIR, args[++i]);
+                        Setting.LuaDir = CheckDirArg(LUA_DIR, args[++i]);
                         break;
                     case XML_CODE_DIR:
-                        Consts.XmlCodeDir = CheckDirArg(XML_CODE_DIR, args[++i]);
+                        Setting.XmlCodeDir = CheckDirArg(XML_CODE_DIR, args[++i]);
                         break;
                     case GROUP:
                         if (!CheckArg(GROUP, args[++i]))
@@ -109,14 +109,14 @@ namespace ConfigGen
                             _result &= false;
                             break;
                         }
-                        string[] groups = args[i].Split(Consts.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
+                        string[] groups = args[i].Split(Setting.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
                         for (int g = 0; g < groups.Length; g++)
                             groups[g] = groups[g].ToLower();
-                        Consts.ExportGroup = new HashSet<string>(groups);
-                        Consts.ExportGroup.Add(Consts.DefualtGroup);
+                        Setting.ExportGroup = new HashSet<string>(groups);
+                        Setting.ExportGroup.Add(Setting.DefualtGroup);
                         break;
                     case CHECK:
-                        Consts.Check = true;
+                        Setting.Check = true;
                         break;
                     case HELP:
                         Usage();
@@ -128,13 +128,13 @@ namespace ConfigGen
                 }
             }
 
-            if (!Consts.XmlCodeDir.IsEmpty() && Consts.ExportGroup.Count == 0)
+            if (!Setting.XmlCodeDir.IsEmpty() && Setting.ExportGroup.Count == 0)
             {
                 Util.LogError("导出XmlCode编辑器代码时,必须指定Group参数");
                 _result &= false;
             }
-            if (Consts.CSDir.IsEmpty() && Consts.JavaDir.IsEmpty() && Consts.XmlCodeDir.IsEmpty()
-                && Consts.LuaDir.IsEmpty() && Consts.DataDir.IsEmpty() && !Consts.Check)
+            if (Setting.CSDir.IsEmpty() && Setting.JavaDir.IsEmpty() && Setting.XmlCodeDir.IsEmpty()
+                && Setting.LuaDir.IsEmpty() && Setting.DataDir.IsEmpty() && !Setting.Check)
             {
                 Util.LogError("检查或者导出代码,数据三种操作至少有一个存在");
                 _result &= false;

@@ -43,6 +43,14 @@ namespace ConfigGen.TypeInfo
             }
             return exports;
         }
+        public static string CorrectType(ClassInfo host, string type)
+        {
+            if (host == null) return type;
+
+            if (!type.IsEmpty() && type.IndexOfAny(Setting.DOT) < 0)
+                type = string.Format("{0}.{1}", host.Namespace, type);
+            return type;
+        }
         static void Add(ClassInfo info)
         {
             if (_classes.ContainsKey(info._fullName))
@@ -58,7 +66,7 @@ namespace ConfigGen.TypeInfo
         /// <summary>
         /// 基类完整类名称;IsEmpty 则无继承
         /// </summary>
-        public string Inherit { get { return _des.Inherit; } }
+        public string Inherit { get { return _inherit; } }
         public string Desc { get { return _des.Desc; } }
         public List<FieldInfo> Fields { get { return _fields; } }
         public List<ConstInfo> Consts { get { return _consts; } }
@@ -67,6 +75,7 @@ namespace ConfigGen.TypeInfo
         private ClassDes _des;
         private string _namespace;
         private string _fullName;
+        private string _inherit;
 
         private readonly List<FieldInfo> _fields;
         private readonly List<ConstInfo> _consts;
@@ -86,9 +95,11 @@ namespace ConfigGen.TypeInfo
 
             _namespace = namespace0;
             _fullName = string.Format("{0}.{1}", namespace0, des.Name);
+            _inherit = des.Inherit;
+            _inherit = CorrectType(this, _inherit);
             _groups = new HashSet<string>(Util.Split(des.Group));
             if (_groups.Count == 0)
-                _groups.Add(ConfigGen.Consts.DefualtGroup);
+                _groups.Add(ConfigGen.Setting.DefualtGroup);
 
             Add(this);
             _consts = new List<ConstInfo>();
@@ -100,7 +111,8 @@ namespace ConfigGen.TypeInfo
             _fields = new List<FieldInfo>();
             for (int i = 0; i < des.Fields.Count; i++)
             {
-                var info = new FieldInfo(this, des.Fields[i]);
+                var fieldDes = des.Fields[i];
+                var info = new FieldInfo(this, fieldDes.Name, fieldDes.Type, fieldDes.Group, fieldDes.Desc, _groups);
                 Fields.Add(info);
             }
         }
@@ -130,7 +142,7 @@ namespace ConfigGen.TypeInfo
             {
                 var cls = Get(inhert);
                 if (!cls.HasChild(_fullName))
-                    _children.Add(_fullName);
+                    cls._children.Add(_fullName);
 
                 inhert = cls.Inherit;
             }
