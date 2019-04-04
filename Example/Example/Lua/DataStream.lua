@@ -8,7 +8,7 @@ local Stream = {}
 Stream.__index = Stream
 Stream.name = "Stream"
 local Split = function (line)
-	return split(line, '▃')
+	return split(line, '\n')
 end
 function Stream.new(dataFile)
 	local o = {}

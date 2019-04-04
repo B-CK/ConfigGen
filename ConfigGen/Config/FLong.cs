@@ -24,7 +24,13 @@ namespace ConfigGen.Config
             }
             Value = r;
         }
-
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+            else
+                return obj is FLong ? (obj as FLong).Value == Value : false;
+        }
         public override string ExportData()
         {
             return Value.ToString();

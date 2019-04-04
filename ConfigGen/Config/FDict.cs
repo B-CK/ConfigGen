@@ -54,5 +54,14 @@ namespace ConfigGen.Config
             }
             return builder.ToString();
         }
+        public override void VerifyData()
+        {
+            var dit = Values.GetEnumerator();
+            while (dit.MoveNext())
+            {
+                dit.Current.Key.VerifyData();
+                dit.Current.Value.VerifyData();
+            }
+        }
     }
 }

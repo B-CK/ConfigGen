@@ -5,19 +5,20 @@ local meta
 meta= {}
 meta.__index = meta
 meta.class = 'Cfg.AllType.AllClass'
-meta.ConstString = @"Hello World"
-meta.ConstFloat = 3.141527f
+meta.ConstString = 'Hello World'
+meta.ConstFloat = 3.141527
 GetOrCreate('Cfg.AllType')['AllClass'] = meta
 function Stream:GetCfgAllTypeAllClass()
 	local o = {}
 	setmetatable(o, Cfg.AllType.AllClass)
 	o.ID = self:Getint()
+	o.Index = self:Getint()
 	o.VarLong = self:Getlong()
 	o.VarFloat = self:Getfloat()
 	o.VarString = self:Getstring()
 	o.VarBool = self:Getbool()
 	o.VarEnum = self:GetInt()
-	o.VarClass = self:GetCfg.AllType.SingleClassMaker()
+	o.VarClass = self:GetCfgAllTypeSingleClassMaker()
 	o.VarListBase = self:GetList('string')
 	o.VarListClass = self:GetList('CfgAllTypeSingleClassMaker')
 	o.VarListCardElem = self:GetList('string')
@@ -61,6 +62,17 @@ function Stream:GetCfgAllTypeM2()
 	local o = self:GetCfgAllTypeSingleClass()
 	setmetatable(o, Cfg.AllType.M2)
 	o.V4 = self:Getbool()
+	return o
+end
+meta= {}
+meta.__index = meta
+meta.class = 'Cfg.AllType.Test'
+GetOrCreate('Cfg.AllType')['Test'] = meta
+function Stream:GetCfgAllTypeTest()
+	local o = {}
+	setmetatable(o, Cfg.AllType.Test)
+	o.TID = self:Getint()
+	o.Name = self:Getstring()
 	return o
 end
 meta= {}

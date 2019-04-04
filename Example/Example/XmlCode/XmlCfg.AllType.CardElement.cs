@@ -1,7 +1,7 @@
 namespace XmlCfg.AllType
 {
 	/// <summary>
-	/// 
+	/// 卡牌枚举
 	/// <summary>
 	public enum CardElement
 	{

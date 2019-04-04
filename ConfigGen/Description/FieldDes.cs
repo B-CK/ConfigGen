@@ -14,7 +14,10 @@ namespace ConfigGen.Description
         [XmlAttribute]
         public string Group;
         [XmlAttribute]
-        public string Check;
+        public string Ref;//引用字段
+        [XmlAttribute]
+        public string RefPath;//引用资源相对路径
+
 
         //[XmlAttribute]
         //public string Split;

@@ -447,7 +447,7 @@ namespace ConfigGen.Export
                 builder.End();
                 builder.EndAll();
 
-                string file = string.Format("{0}{1}.cs", Setting.XmlRootNode, cls.FullName);
+                string file = string.Format("{0}{1}.cs", Setting.XmlRootNode, cls.FullType);
                 string path = Path.Combine(Setting.XmlCodeDir, file);
                 Util.SaveFile(path, builder.ToString());
 

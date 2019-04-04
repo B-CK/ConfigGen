@@ -28,7 +28,19 @@ namespace ConfigGen.Config
         }
         public override string ExportData()
         {
-            return Value.ToString();
+            return Value ? "1" : "0";
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+            else
+                return obj is FBool ? (obj as FBool).Value == Value : false;
+        }
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
         }
     }
 }

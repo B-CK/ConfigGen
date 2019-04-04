@@ -29,5 +29,16 @@ namespace ConfigGen.Config
         {
             return Value.ToString();
         }
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+            else
+                return obj is FInt ? (obj as FInt).Value == Value : false;
+        }
+        public override int GetHashCode()
+        {
+            return Value;
+        }
     }
 }

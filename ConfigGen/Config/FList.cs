@@ -8,6 +8,25 @@ namespace ConfigGen.Config
 {
     public class FList : Data
     {
+        private static Dictionary<FieldInfo, HashSet<Data>> _indexs = new Dictionary<FieldInfo, HashSet<Data>>();
+        /// <summary>
+        /// 检查数据索引
+        /// </summary>
+        /// <param name="key">FullName.Index</param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static bool ContainsIndex(FieldInfo index, Data data)
+        {
+            return _indexs[index].Contains(data);
+        }
+        public static void AddIndex(FieldInfo index, Data data)
+        {
+            if (_indexs.ContainsKey(index))
+                _indexs[index].Add(data);
+            else
+                _indexs.Add(index, new HashSet<Data>() { data });
+        }
+
         public List<Data> Values { get { return _values; } }
 
         private List<Data> _values = new List<Data>();
@@ -27,10 +46,9 @@ namespace ConfigGen.Config
             for (int i = 0; i < list.Count; i++)
             {
                 var item = list[i] as XmlElement;
-                Values.Add(Data.Create(Host, _item, item));               
+                Values.Add(Data.Create(Host, _item, item));
             }
         }
-
         public override string ExportData()
         {
             StringBuilder builder = new StringBuilder();
@@ -38,6 +56,11 @@ namespace ConfigGen.Config
             for (int i = 0; i < _values.Count; i++)
                 builder.AppendFormat("{0}{1}", Setting.CsvSplitFlag, _values[i].ExportData());
             return builder.ToString();
+        }
+        public override void VerifyData()
+        {
+            for (int i = 0; i < Values.Count; i++)
+                Values[i].VerifyData();
         }
     }
 }

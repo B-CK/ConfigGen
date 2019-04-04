@@ -13,11 +13,11 @@ namespace XmlCfg.AllType
 	public class SingleClass : XmlObject
 	{
 		/// <summary>
-		/// 
+		/// Var1
 		/// <summary>
 		public string Var1;
 		/// <summary>
-		/// 
+		/// Var2
 		/// <summary>
 		public float Var2;
 

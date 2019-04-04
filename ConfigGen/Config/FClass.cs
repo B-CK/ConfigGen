@@ -36,7 +36,6 @@ namespace ConfigGen.Config
         {
             _fullType = fullType;
         }
-
         void Load(ClassInfo info, XmlElement data)
         {
             if (info.IsDynamic())
@@ -52,7 +51,7 @@ namespace ConfigGen.Config
                 if (dynamic == null)
                     Util.Error("多态类型{0}未知", type);
                 if (!info.HasChild(type))
-                    Util.Error("数据类型{0}非{2}子类", type, info.FullName);
+                    Util.Error("数据类型{0}非{2}子类", type, info.FullType);
                 SetCurrentType(type);
                 info = dynamic;
             }
@@ -65,10 +64,17 @@ namespace ConfigGen.Config
         public override string ExportData()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(FullType);
+            bool isDynamic = _define.IsDynamic;
+            if (isDynamic)
+                builder.Append(FullType + Setting.CsvSplitFlag);
             for (int i = 0; i < _values.Count; i++)
-                builder.AppendFormat("{0}{1}",Setting.CsvSplitFlag, _values[i].ExportData());
+                builder.AppendFormat("{0}{1}", i > 0 ? Setting.CsvSplitFlag : "", _values[i].ExportData());
             return builder.ToString();
+        }
+        public override void VerifyData()
+        {
+            for (int i = 0; i < Values.Count; i++)
+                Values[i].VerifyData();
         }
     }
 }

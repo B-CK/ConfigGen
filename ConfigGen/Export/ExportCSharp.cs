@@ -169,13 +169,13 @@ namespace ConfigGen.Export
             for (int i = 0; i < exports.Count; i++)
             {
                 ConfigInfo cfg = exports[i];
-                ClassInfo cls = ClassInfo.Get(cfg.FullName);
-                builder.AppendFormat("public static readonly Dictionary<{0}, {1}> {2} = new Dictionary<{0}, {1}>();\n", cfg.Index.FullType, cls.FullName, cls.Name);
+                ClassInfo cls = ClassInfo.Get(cfg.FullType);
+                builder.AppendFormat("public static readonly Dictionary<{0}, {1}> {2} = new Dictionary<{0}, {1}>();\n", cfg.Index.FullType, cls.FullType, cls.Name);
 
                 //加载所有配置-块内语句
-                string rel = cls.FullName.Replace(".", "/") + Setting.CsvFileExt;
+                string rel = cfg.OutputFile + Setting.CsvFileExt;
                 loadAll.Add(string.Format("path = {0} + \"{1}\";\n", FIELD_CONFIG_DIR, rel));
-                loadAll.Add(string.Format("var {0}s = Load(path, (d) => new {1}(d));\n", cls.Name.ToLower(), cls.FullName));
+                loadAll.Add(string.Format("var {0}s = Load(path, (d) => new {1}(d));\n", cls.Name.ToLower(), cls.FullType));
                 loadAll.Add(string.Format("{0}s.ForEach(v => {1}.Add(v.{2}, v));\n", cls.Name.ToLower(), cls.Name, cfg.Index.Name));
 
                 //清除所有配置-块内语句

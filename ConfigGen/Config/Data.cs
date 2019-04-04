@@ -24,9 +24,19 @@ namespace ConfigGen.Config
         public virtual void ImportData(XmlElement xml) { }
         public virtual void ImportData(ImportExcel excel) { }
         public abstract string ExportData();
-        public virtual void CheckData(Data data)
+        public virtual void VerifyData()
         {
-
+            if (_define.Refs == null) return;
+            for (int i = 0; i < _define.Refs.Length; i++)
+            {
+                string type = _define.Refs[i];
+                if (type.IndexOfAny(Setting.DOT) < 0)
+                    type = string.Format("{0}.{1}", _define.Host.Namespace, type);
+                ConfigInfo cfg = ConfigInfo.Get(type);
+                if (!FList.ContainsIndex(cfg.Index, this))
+                    Util.LogWarningFormat("Class:{0} {1} {2}主键无法在{3}找到",
+                        _host.FullType, _define, ExportData(), type);
+            }
         }
 
         #region 创建数据
@@ -62,9 +72,9 @@ namespace ConfigGen.Config
                 ClassInfo dynamic = ClassInfo.Get(dType);
                 if (dynamic == null)
                     excel.Error("多态类型" + dType + "未知");
-                if (cls.FullName != dType && !cls.HasChild(dType))
-                    excel.Error(string.Format("数据类型{0}非{1}子类", dType, cls.FullName));
-                var define0 = new FieldInfo(define.Host, define.Name, dType, define.Group);
+                if (cls.FullType != dType && !cls.HasChild(dType))
+                    excel.Error(string.Format("数据类型{0}非{1}子类", dType, cls.FullType));
+                var define0 = new FieldInfo(define.Host, define.Name, dType, new string[] { define.FullType }, define.Group);
                 return new FClass(host, define0, excel);
             }
             else if (define.IsContainer)
@@ -112,9 +122,9 @@ namespace ConfigGen.Config
                 ClassInfo dynamic = ClassInfo.Get(dType);
                 if (dynamic == null)
                     Util.Error("多态类型" + dType + "未知");
-                if (cls.FullName != dType && !cls.HasChild(dType))
-                    Util.Error(string.Format("数据类型{0}非{1}子类", dType, cls.FullName));
-                var define0 = new FieldInfo(define.Host, define.Name, dType, define.Group);
+                if (cls.FullType != dType && !cls.HasChild(dType))
+                    Util.Error(string.Format("数据类型{0}非{1}子类", dType, cls.FullType));
+                var define0 = new FieldInfo(define.Host, define.Name, dType, new string[] { define.FullType }, define.Group);
                 return new FClass(host, define0, xml);
             }
             else if (define.IsContainer)

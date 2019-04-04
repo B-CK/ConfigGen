@@ -53,14 +53,14 @@ namespace ConfigGen.TypeInfo
         }
         static void Add(ClassInfo info)
         {
-            if (_classes.ContainsKey(info._fullName))
-                Util.LogWarningFormat("{1} 重复定义!", info._fullName);
+            if (_classes.ContainsKey(info._fullType))
+                Util.LogWarningFormat("{1} 重复定义!", info._fullType);
             else
-                _classes.Add(info._fullName, info);
+                _classes.Add(info._fullType, info);
         }
 
 
-        public string FullName { get { return _fullName; } }
+        public string FullType { get { return _fullType; } }
         public string Namespace { get { return _namespace; } }
         public string Name { get { return _des.Name; } }
         /// <summary>
@@ -74,7 +74,7 @@ namespace ConfigGen.TypeInfo
 
         private ClassDes _des;
         private string _namespace;
-        private string _fullName;
+        private string _fullType;
         private string _inherit;
 
         private readonly List<FieldInfo> _fields;
@@ -94,7 +94,7 @@ namespace ConfigGen.TypeInfo
                 Error("命名不合法:" + Name);
 
             _namespace = namespace0;
-            _fullName = string.Format("{0}.{1}", namespace0, des.Name);
+            _fullType = string.Format("{0}.{1}", namespace0, des.Name);
             _inherit = des.Inherit;
             _inherit = CorrectType(this, _inherit);
             _groups = new HashSet<string>(Util.Split(des.Group));
@@ -105,7 +105,7 @@ namespace ConfigGen.TypeInfo
             _consts = new List<ConstInfo>();
             for (int i = 0; i < des.Consts.Count; i++)
             {
-                var info = new ConstInfo(_fullName, des.Consts[i]);
+                var info = new ConstInfo(_fullType, des.Consts[i]);
                 Consts.Add(info);
             }
             _fields = new List<FieldInfo>();
@@ -113,6 +113,7 @@ namespace ConfigGen.TypeInfo
             {
                 var fieldDes = des.Fields[i];
                 var info = new FieldInfo(this, fieldDes.Name, fieldDes.Type, fieldDes.Group, fieldDes.Desc, _groups);
+                info.InitCheck(fieldDes.Ref, fieldDes.RefPath);
                 Fields.Add(info);
             }
         }
@@ -141,8 +142,8 @@ namespace ConfigGen.TypeInfo
             while (!inhert.IsEmpty())
             {
                 var cls = Get(inhert);
-                if (!cls.HasChild(_fullName))
-                    cls._children.Add(_fullName);
+                if (!cls.HasChild(_fullType))
+                    cls._children.Add(_fullType);
 
                 inhert = cls.Inherit;
             }
@@ -181,7 +182,7 @@ namespace ConfigGen.TypeInfo
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.AppendFormat("Class - FullName:{0}\tInherit:{1}\tGroup:{2}\n", FullName, Inherit, _des.Group);
+            builder.AppendFormat("Class - FullName:{0}\tInherit:{1}\tGroup:{2}\n", FullType, Inherit, _des.Group);
             for (int i = 0; i < _fields.Count; i++)
                 builder.AppendFormat("\t{0}\n", _fields[i]);
             for (int i = 0; i < _consts.Count; i++)
@@ -190,7 +191,7 @@ namespace ConfigGen.TypeInfo
         }
         private void Error(string msg)
         {
-            string error = string.Format("Class:{0} 错误:{1}", FullName, msg);
+            string error = string.Format("Class:{0} 错误:{1}", FullType, msg);
             throw new Exception(error);
         }
 

@@ -32,13 +32,17 @@ namespace ConfigGen
         /// </summary>
         public static readonly char[] ArgsSplitFlag = new char[1] { ':' };
         /// <summary>
-        /// 集合元素分隔符
+        /// 常量集合元素分隔符
         /// </summary>
         public static readonly char[] SplitFlag = new char[1] { ',' };
         /// <summary>
         /// 类型名称分隔符
         /// </summary>
         public static readonly char[] DOT = new char[] { '.' };
+        /// <summary>
+        /// Csv数据存储分隔符
+        /// </summary>
+        public const string CsvSplitFlag = "\n";
         /// <summary>
         /// 导出所有分组
         /// </summary>
@@ -90,11 +94,7 @@ namespace ConfigGen
         public static bool Check { get; set; }
         #endregion
 
-        #region 文件相关常量
-        /// <summary>
-        /// Csv数据存储分隔符
-        /// </summary>
-        public const string CsvSplitFlag = "\n";
+        #region 文件相关常量  
         /// <summary>
         /// Csv数据文件扩展名
         /// </summary>

@@ -15,6 +15,7 @@ namespace Cfg
 		public static string ConfigDir;
 		
 		public static readonly Dictionary<int, Cfg.AllType.AllClass> AllClass = new Dictionary<int, Cfg.AllType.AllClass>();
+		public static readonly Dictionary<int, Cfg.AllType.Test> Test = new Dictionary<int, Cfg.AllType.Test>();
 		
 		public static int _row;
 		/// <summary>
@@ -42,9 +43,12 @@ namespace Cfg
 			string path = "Data Path Empty";
 			try
 			{
-				path = ConfigDir + "Cfg/AllType/AllClass.data";
+				path = ConfigDir + "AllType/AllClass.data";
 				var allclasss = Load(path, (d) => new Cfg.AllType.AllClass(d));
 				allclasss.ForEach(v => AllClass.Add(v.ID, v));
+				path = ConfigDir + "AllType/Test.data";
+				var tests = Load(path, (d) => new Cfg.AllType.Test(d));
+				tests.ForEach(v => Test.Add(v.TID, v));
 			}
 			catch (Exception e)
 			{
@@ -55,6 +59,7 @@ namespace Cfg
 		public static void Clear()
 		{
 			AllClass.Clear();
+Test.Clear();
 		}
 		
 	}

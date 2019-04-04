@@ -35,14 +35,14 @@ namespace ConfigGen.TypeInfo
         }
         static void Add(ConfigInfo info)
         {
-            if (_configs.ContainsKey(info._fullName))
-                Util.LogWarningFormat("{0} 重复定义!", info._fullName);
+            if (_configs.ContainsKey(info._fullType))
+                Util.LogWarningFormat("{0} 重复定义!", info._fullType);
             else
-                _configs.Add(info._fullName, info);
+                _configs.Add(info._fullType, info);
         }
 
 
-        public string FullName { get { return _fullName; } }
+        public string FullType { get { return _fullType; } }
         public string Namespace { get { return _namespace; } }
         public string Name { get { return _des.Name; } }
         public FieldInfo Index { get { return _index; } }
@@ -53,7 +53,7 @@ namespace ConfigGen.TypeInfo
 
 
         private ClassDes _des;
-        private string _fullName;
+        private string _fullType;
         private string _namespace;
         private string[] _inputFiles;
         private string _outputFile;
@@ -65,14 +65,14 @@ namespace ConfigGen.TypeInfo
         {
             _des = des;
             _namespace = namespace0;
-            _fullName = string.Format("{0}.{1}", namespace0, des.Name);
+            _fullType = string.Format("{0}.{1}", namespace0, des.Name);
             _groups = new HashSet<string>(Util.Split(des.Group));
             if (_groups.Count == 0)
                 _groups.Add(Setting.DefualtGroup);
 
             if (des.Index.IsEmpty())
                 Error("索引(Index)未填写");
-            ClassInfo cls = ClassInfo.Get(_fullName);
+            ClassInfo cls = ClassInfo.Get(_fullType);
             _index = cls.Fields.Find(f => f.Name == des.Index);
 
             string path = Path.Combine(xmlDir, _des.DataPath);
@@ -82,17 +82,17 @@ namespace ConfigGen.TypeInfo
                 _inputFiles = Directory.GetFiles(path);
             else
                 Error("数据路径不存在:" + path);
-            _outputFile = _fullName.Replace('.', '/');
+            _outputFile = _fullType.Replace('.', '/').Substring(Setting.ConfigRootNode.Length + 1);
 
             Add(this);
         }
 
         public void VerifyDefine()
         {
-            if (!_fullName.IsEmpty())
+            if (!_fullType.IsEmpty())
             {
                 if (_index == null)
-                    Error(string.Format("Index:{0} 不是Class:{1}的字段", _des.Index, _fullName));
+                    Error(string.Format("Index:{0} 不是Class:{1}的字段", _des.Index, _fullType));
                 if (_index.IsContainer && _index.IsClass)
                     Error("Index 不能是集合类型或者类类型");
 
@@ -112,7 +112,8 @@ namespace ConfigGen.TypeInfo
                 try
                 {
                     string ext = Path.GetExtension(path);
-                    FieldInfo field = new FieldInfo(null, Name, "list:" + _fullName, _groups);
+                    string fullType = "list:" + _fullType;
+                    FieldInfo field = new FieldInfo(null, Name, fullType, Util.Split(fullType), _groups);
                     if (ext == "xml")
                     {
                         var xml = new ImportXml(path);
@@ -134,21 +135,18 @@ namespace ConfigGen.TypeInfo
         }
         public void VerifyData()
         {
-            for (int i = 0; i < _data.Values.Count; i++)
-            {
-                //var value = _data.Values[i] as ;
-            }
+            _data.VerifyData();
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.AppendFormat("Config - FullName:{0}\tGroup:{1}\tDataPath:{2}\n", FullName, _des.Group, _des.DataPath);
+            builder.AppendFormat("Config - FullName:{0}\tGroup:{1}\tDataPath:{2}\n", FullType, _des.Group, _des.DataPath);
             return builder.ToString();
         }
         private void Error(string msg)
         {
-            string error = string.Format("Config:{0} 错误:{1}", FullName, msg);
+            string error = string.Format("Config:{0} 错误:{1}", FullType, msg);
             throw new Exception(error);
         }
     }

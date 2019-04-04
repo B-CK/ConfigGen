@@ -199,8 +199,14 @@ namespace ConfigGen.Import
             }
 
             var fields = info.Fields;
+            ConfigInfo cfg = ConfigInfo.Get(info.FullType);
             for (int i = 0; i < fields.Count; i++)
-                data.Values.Add(Data.Create(data, fields[i], this));
+            {
+                var d = Data.Create(data, fields[i], this);
+                data.Values.Add(d);
+                if (data.Host == null && fields[i] == cfg.Index)
+                    FList.AddIndex(cfg.Index, d);
+            }
         }
         public override void GetList(FList data, FieldInfo define)
         {

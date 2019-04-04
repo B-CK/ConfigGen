@@ -10,7 +10,7 @@ namespace Cfg.AllType
 	public class M1 : Cfg.AllType.SingleClass
 	{
 		/// <summary>
-		/// 
+		/// 继承1
 		/// <summary>
 		public readonly long V3;
 		

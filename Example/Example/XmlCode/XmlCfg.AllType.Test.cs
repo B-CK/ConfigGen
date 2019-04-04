@@ -1,6 +1,7 @@
 using System;
+using System.Linq;
 using System.IO;
-using Xml;
+using XmlCfg;
 using System.Xml;
 using System.Collections.Generic;
 
@@ -9,23 +10,29 @@ namespace XmlCfg.AllType
 	/// <summary>
 	/// 
 	/// <summary>
-	public class M1 : XmlObject
+	public class Test : XmlObject
 	{
 		/// <summary>
-		/// 
+		/// 继承2
 		/// <summary>
-		public readonly long V3;
+		public int TID;
+		/// <summary>
+		/// 继承2
+		/// <summary>
+		public string Name;
 
 		public override void Write(TextWriter _1)
 		{
-			Write(_1, "V3", this.V3);
+			Write(_1, "TID", this.TID);
+			Write(_1, "Name", this.Name);
 		}
 		public override void Read(XmlNode _1)
 		{
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{
-				case "V3": Readlong(_2);
+				case "TID": TID = ReadInt(_2); break;
+				case "Name": Name = ReadString(_2); break;
 			}
 		}
 	}

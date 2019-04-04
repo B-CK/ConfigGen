@@ -13,7 +13,7 @@ namespace XmlCfg.AllType
 	public class M1 : XmlObject
 	{
 		/// <summary>
-		/// 
+		/// 继承1
 		/// <summary>
 		public long V3;
 

@@ -1,5 +1,6 @@
 ﻿using ConfigGen.Config;
 using ConfigGen.Description;
+using System;
 using System.Collections.Generic;
 
 namespace ConfigGen.TypeInfo
@@ -19,11 +20,10 @@ namespace ConfigGen.TypeInfo
         /// </summary>
         public string Name { get { return _name; } }
         /// <summary>
-        /// 完整类型
+        /// 完整类型,实际类型;当为动态类型时,_fullType != _types[0]
         /// </summary>
         public string FullType { get { return _fullType; } }
         public string Desc { get { return _desc; } }
-        public string Check { get { return _check; } }
         /// <summary>
         /// 原始类型,例泛型list:int返回list,其他直接返回类型
         /// </summary>
@@ -35,13 +35,25 @@ namespace ConfigGen.TypeInfo
         public bool IsClass { get { return ClassInfo.IsClass(OriginalType); } }
         public bool IsDynamic { get { return ClassInfo.IsDynamic(OriginalType); } }
         public bool IsEnum { get { return EnumInfo.IsEnum(OriginalType); } }
+        public bool IsInherit
+        {
+            get
+            {
+                ClassInfo parent = ClassInfo.Get(OriginalType);
+                return parent.HasChild(_fullType);
+            }
+        }
+        public string[] Refs { get { return _refs; } }
+        public string[] RefPaths { get { return _refPaths; } }
 
         private ClassInfo _host;
         private string _name;
         private string _fullType;
         private string _desc;
         private string _group;
-        private string _check;
+        /// <summary>
+        /// 原始类型信息
+        /// </summary>
         private string[] _types;
         /// <summary>
         /// 嵌套类型,例dict:int:string,则0=dict,1=int,0=string
@@ -51,15 +63,21 @@ namespace ConfigGen.TypeInfo
         /// 优先Class.Group,其次才是Field.Group
         /// </summary>
         private HashSet<string> _groups;
+        private string[] _refs;
+        private string[] _refPaths;
 
+        public void InitCheck(string refs, string refPaths)
+        {
+            _refs = Util.Split(refs);
+            _refPaths = Util.Split(refPaths);
+        }
         /// <summary>
         /// Class 字段
         /// </summary>
-        public FieldInfo(ClassInfo host, string name, string type, string group, string desc, string check, HashSet<string> gs)
-            : this(host, name, type, gs)
+        public FieldInfo(ClassInfo host, string name, string type, string group, string desc, HashSet<string> gs)
+            : this(host, name, type, Util.Split(type), gs)
         {
             _group = group;
-            _check = check;
             if (_groups == null)
             {
                 _groups = new HashSet<string>(Util.Split(group));
@@ -71,12 +89,12 @@ namespace ConfigGen.TypeInfo
         /// <summary>
         /// config作为字段定义
         /// </summary>
-        public FieldInfo(ClassInfo host, string name, string fullType, HashSet<string> gs)
+        public FieldInfo(ClassInfo host, string name, string type, string[] types, HashSet<string> gs)
         {
             _host = host;
             _name = name;
-            _fullType = fullType;
-            _types = Util.Split(_fullType);
+            _fullType = type;
+            _types = types;
             _groups = gs;
 
             if (IsRaw || _host == null) return;
@@ -102,21 +120,21 @@ namespace ConfigGen.TypeInfo
         /// </summary>
         public FieldInfo GetItemDefine()
         {
-            return new FieldInfo(_host, _name, _types[1], _groups);
+            return new FieldInfo(_host, _name, _types[1], new string[] { _types[1] }, _groups);
         }
         /// <summary>
         /// dict key 定义
         /// </summary>
         public FieldInfo GetKeyDefine()
         {
-            return new FieldInfo(_host, _name, _types[1], _groups);
+            return new FieldInfo(_host, _name, _types[1], new string[] { _types[1] }, _groups);
         }
         /// <summary>
         /// dict value 定义
         /// </summary>
         public FieldInfo GetValueDefine()
         {
-            return new FieldInfo(_host, _name, _types[2], _groups);
+            return new FieldInfo(_host, _name, _types[2], new string[] { _types[2] }, _groups);
         }
 
         public void VerifyDefine()

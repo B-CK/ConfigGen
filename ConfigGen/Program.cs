@@ -49,7 +49,7 @@ namespace ConfigGen
                 {
                     LoadData();
                     VerifyData();
-                    Export("Csv", Setting.DataDir);
+                    Export("Csv", Setting.ConfigRootNode);
                 }
                 catch (Exception e)
                 {
@@ -141,7 +141,7 @@ namespace ConfigGen
                 cfg.LoadData();
                 long end = DateTime.Now.Ticks;
                 if ((end - start) >= TimeSpan.TicksPerSecond)
-                    Util.LogFormat("{0} 耗时 {1:F3}s\n", cfg.FullName, (end - start) * 1f / TimeSpan.TicksPerSecond);
+                    Util.LogFormat("{0} 耗时 {1:F3}s\n", cfg.FullType, (end - start) * 1f / TimeSpan.TicksPerSecond);
             }
         }
 

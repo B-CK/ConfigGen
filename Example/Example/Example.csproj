@@ -53,6 +53,7 @@
     <Compile Include="CSharp\Cfg\AllType\M1.cs" />
     <Compile Include="CSharp\Cfg\AllType\M2.cs" />
     <Compile Include="CSharp\Cfg\AllType\SingleClass.cs" />
+    <Compile Include="CSharp\Cfg\AllType\Test.cs" />
     <Compile Include="CSharp\Cfg\Vector2.cs" />
     <Compile Include="CSharp\Cfg\Vector3.cs" />
     <Compile Include="CSharp\DataStream.cs" />
@@ -69,7 +70,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Csv\AllClass.data" />
+    <None Include="Csv\alltype\allclass.data" />
+    <None Include="Csv\alltype\test.data" />
     <None Include="Lua\Config.lua" />
     <None Include="Lua\DataStream.lua" />
     <None Include="Lua\DataStruct.lua" />

@@ -30,7 +30,7 @@ namespace ConfigGen.Export
             while (cit.MoveNext())
             {
                 ConfigInfo cfg = cit.Current.Value;
-                string method = string.Format("Get{0}", cfg.FullName);
+                string method = string.Format("Get{0}", cfg.FullType);
                 string index = cfg.Index.Name;
                 string relPath = cfg.OutputFile + Setting.CsvFileExt;
                 builder.AppendFormat("\t{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
@@ -55,7 +55,7 @@ namespace ConfigGen.Export
             builder.AppendLine("Stream.name = \"Stream\"");
 
             builder.AppendLine("local Split = function (line)");
-            builder.AppendLine("\treturn split(line, '▃')");
+            builder.AppendLine("\treturn split(line, '\\n')");
             builder.AppendLine("end");
 
             builder.AppendLine("function Stream.new(dataFile)");
@@ -168,7 +168,7 @@ namespace ConfigGen.Export
                 var cls = cit.Current.Value;
                 builder.AppendLine("meta= {}");
                 builder.AppendLine("meta.__index = meta");
-                builder.AppendFormat("meta.class = '{0}'\n", cls.FullName);
+                builder.AppendFormat("meta.class = '{0}'\n", cls.FullType);
                 //常量字段
                 for (int j = 0; j < cls.Consts.Count; j++)
                 {
@@ -198,7 +198,7 @@ namespace ConfigGen.Export
                 }
 
                 builder.AppendFormat("GetOrCreate('{0}')['{1}'] = meta\n", cls.Namespace, cls.Name);
-                string funcName = cls.FullName.Replace(".", "");
+                string funcName = cls.FullType.Replace(".", "");
                 if (!cls.Inherit.IsEmpty())
                 {
                     builder.AppendFormat("function Stream:Get{0}Maker()\n", funcName);
@@ -210,7 +210,7 @@ namespace ConfigGen.Export
                     builder.AppendFormat("\tlocal o = self:Get{0}()\n", cls.Inherit.Replace(".", ""));
                 else
                     builder.AppendFormat("\tlocal o = {{}}\n");
-                builder.AppendFormat("\tsetmetatable(o, {0})\n", cls.FullName);
+                builder.AppendFormat("\tsetmetatable(o, {0})\n", cls.FullType);
                 //--普通变量
                 for (int j = 0; j < cls.Fields.Count; j++)
                 {
@@ -222,7 +222,7 @@ namespace ConfigGen.Export
                     else if (field.IsEnum)
                         builder.AppendFormat("\to.{0} = self:GetInt()\n", field.Name);
                     else if (field.IsClass)
-                        builder.AppendFormat("\to.{0} = self:Get{1}Maker()\n", field.Name, Util.List2String(field.Types, ""));
+                        builder.AppendFormat("\to.{0} = self:Get{1}Maker()\n", field.Name, field.FullType.Replace(".", ""));
                     else if (field.IsContainer)
                     {
                         if (field.OriginalType == Setting.LIST)
@@ -272,10 +272,10 @@ namespace ConfigGen.Export
             switch (type)
             {
                 case Setting.FLOAT:
-                    value = string.Format("{0}f", value);
+                    value = string.Format("{0}", value);
                     break;
                 case Setting.STRING:
-                    value = string.Format("@\"{0}\"", value);
+                    value = string.Format("'{0}'", value);
                     break;
             }
             return value;

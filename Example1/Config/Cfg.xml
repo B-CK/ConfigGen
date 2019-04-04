@@ -1,6 +1,0 @@
-<Config Root = "Cfg">
-	<Group>Client:Editor:Server</Group>
-
-	<Include>AllType\AllType.xml</Include>
-	<Include>Common\Vector.xml</Include>
-</Config>
