@@ -100,15 +100,15 @@ namespace ConfigGen.TypeInfo
             if (IsRaw || _host == null) return;
             if (IsContainer)
             {
-                if (OriginalType == Setting.LIST && _types[1].IndexOfAny(Setting.DOT) < 0
+                if (OriginalType == Setting.LIST && _types[1].IndexOfAny(Setting.DotSplit) < 0
                     && !Setting.RawTypes.Contains(_types[1]))
                     _types[1] = string.Format("{0}.{1}", _host.Namespace, _types[1]);
-                else if (OriginalType == Setting.DICT && _types[2].IndexOfAny(Setting.DOT) < 0
+                else if (OriginalType == Setting.DICT && _types[2].IndexOfAny(Setting.DotSplit) < 0
                     && !Setting.RawTypes.Contains(_types[2]))
                     _types[2] = string.Format("{0}.{1}", _host.Namespace, _types[2]);
                 _fullType = Util.List2String(_types, ":");
             }
-            else if (_fullType.IndexOfAny(Setting.DOT) < 0)
+            else if (_fullType.IndexOfAny(Setting.DotSplit) < 0)
             {
                 _fullType = string.Format("{0}.{1}", _host.Namespace, _fullType);
                 _types[0] = _fullType;

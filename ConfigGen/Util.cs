@@ -260,7 +260,7 @@ namespace ConfigGen
 
             File.WriteAllText(filePath, content, UTF8);
         }
-        public static string FirstCharUpper(string name)
+        public static string FirstCharUpper(this string name)
         {
             return Char.ToUpper(name[0]) + name.Substring(1);
         }

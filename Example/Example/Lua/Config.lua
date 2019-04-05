@@ -1,4 +1,4 @@
 return {
-	{ name = 'AllClass', method = 'GetCfg.AllType.AllClass', index = 'ID', output = 'alltype/allclass.data' },
-	{ name = 'Test', method = 'GetCfg.AllType.Test', index = 'TID', output = 'alltype/test.data' },
+	{ name = 'AllClass', method = 'GetCfgAllTypeAllClass', index = 'ID', output = 'alltype/allclass.data' },
+	{ name = 'Test', method = 'GetCfgAllTypeTest', index = 'TID', output = 'alltype/test.data' },
 }

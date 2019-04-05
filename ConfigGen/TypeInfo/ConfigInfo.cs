@@ -82,7 +82,7 @@ namespace ConfigGen.TypeInfo
                 _inputFiles = Directory.GetFiles(path);
             else
                 Error("数据路径不存在:" + path);
-            _outputFile = _fullType.Replace('.', '/').Substring(Setting.ConfigRootNode.Length + 1);
+            _outputFile = _fullType.Replace('.', '/').Substring(Setting.ConfigRootNode.Length + 1).ToLower();
 
             Add(this);
         }

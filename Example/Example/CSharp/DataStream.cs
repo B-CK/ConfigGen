@@ -9,76 +9,63 @@ namespace Cfg
 	/// <summary>
 	public class DataStream
 	{
+		private readonly string[] _line;
+		private int _index;
 		public DataStream(string path, Encoding encoding)
 		{
-			_rows = File.ReadAllLines(path, encoding);
-			_rIndex = _cIndex = 0;
-			if (_rows.Length > 0)
-			_columns = _rows[_rIndex].Split("\n".ToCharArray());
+			_line = File.ReadAllLines(path);
+			_index = 0;
 		}
 		
-		public int Count { get { return _rows.Length; } }
-		
-		public int GetInt()
+		public string GetNext()
 		{
-			int result;
-			int.TryParse(Next(), out result);
-			return result;
+			return _index < _line.Length ? _line[_index++] : null;
 		}
-		public long GetLong()
+		
+		private void Error(string err)
 		{
-			long result;
-			long.TryParse(Next(), out result);
-			return result;
+			throw new Exception(err);
+		}
+		
+		private string GetNextAndCheckNotEmpty()
+		{
+			string v = GetNext();
+			if (v == null) {
+				Error("read not enough");
+			}
+			return v;
+		}
+		
+		public string GetString()
+		{
+			return GetNextAndCheckNotEmpty();
 		}
 		public float GetFloat()
 		{
-			float result;
-			float.TryParse(Next(), out result);
-			return result;
+			return float.Parse(GetNextAndCheckNotEmpty());
+		}
+		public int GetInt()
+		{
+			return int.Parse(GetNextAndCheckNotEmpty());
+		}
+		public long GetLong()
+		{
+			return long.Parse(GetNextAndCheckNotEmpty());
 		}
 		public bool GetBool()
 		{
-			string v = Next();
-			if (string.IsNullOrEmpty(v)) return false;
-			return !v.Equals("0");
-		}
-		public string GetString()
-		{
-			return Next();
-		}
-		/// <summary>
-		/// 支持多态,直接反射类型
-		/// <summary>
-		public CfgObject GetObject(string fullName)
-		{
-			Type type = Type.GetType(fullName);
-			if (type == null)
-			{
-				UnityEngine.Debug.LogErrorFormat("DataStream 解析{0}类型失败!", fullName);
+			string v = GetNextAndCheckNotEmpty();
+			if (v == "true") {
+				return true;
 			}
-			return (CfgObject)Activator.CreateInstance(type, new object[] { this });
+			if (v == "false") {
+				return false;
+			}
+			Error(v + " isn't bool");
+			return false;
 		}
-		
-		
-		private int _rIndex;
-		private int _cIndex;
-		private string[] _rows;
-		private string[] _columns;
-		
-		private void NextRow()
+		public Cfg.CfgObject GetObject(string name)
 		{
-			if (_rIndex >= _rows.Length) return;
-			_rIndex++;
-			_cIndex = 0;
-			_columns = _rows[_rIndex].Split("\n".ToCharArray());
-		}
-		
-		private string Next()
-		{
-			if (_cIndex >= _columns.Length) NextRow();
-			return _columns[_cIndex++];
-		}
-		
+			return (Cfg.CfgObject)Type.GetType(name).GetConstructor(new[] { typeof(Cfg.DataStream) }).Invoke(new object[] { this });		}
 	}
 }

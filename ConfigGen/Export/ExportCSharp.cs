@@ -63,83 +63,69 @@ namespace ConfigGen.Export
             builder.Comments("数据解析类");
             builder.DefineClass(CodeWriter.Public, CLASS_DATA_STREAM);
 
-            string fRIndex = "_rIndex";
-            string fCIndex = "_cIndex";
-            string fRows = "_rows";
-            string fColumns = "_columns";
-            string[] types = { CSharp.String, "Encoding" };
-            string[] args = { "path", "encoding" };
-            builder.Constructor(CodeWriter.Public, CLASS_DATA_STREAM, types, args);
-            builder.AppendFormat("{0} = File.ReadAllLines({1}, {2});\n", fRows, args[0], args[1]);
-            builder.AppendFormat("{0} = {1} = 0;\n", fRIndex, fCIndex);
-            builder.AppendFormat("if (_rows.Length > 0)\n");
-            builder.AppendFormat("{0} = {1}[{2}].Split(\"\\n\".ToCharArray());\n", fColumns, fRows, fRIndex);//CValues.CsvSplitFlag
+            builder.DefineField(CodeWriter.Private + " " + CodeWriter.Readonly, CSharp.String + "[]", "_line");
+            builder.DefineField(CodeWriter.Private, CSharp.Int, "_index");
+            builder.Constructor(CodeWriter.Public, CLASS_DATA_STREAM, new string[] { CSharp.String, "Encoding" }, new string[] { "path", "encoding" });
+            builder.SetField("_line", "File.ReadAllLines(path)");
+            builder.SetField("_index", "0");
             builder.End();
             builder.AppendLine();
 
-            builder.AppendFormat("public int Count {{ get {{ return {0}.Length; }} }}\n", fRows);
+            builder.Function(CodeWriter.Public, CSharp.String, "GetNext");
+            builder.AppendLine("return _index < _line.Length ? _line[_index++] : null;");
+            builder.End();
             builder.AppendLine();
 
-            builder.Function(CodeWriter.Public, CSharp.Int, "GetInt");
-            builder.AppendLine("int result;");
-            builder.AppendLine("int.TryParse(Next(), out result);");
-            builder.AppendLine("return result;");
+            builder.Function(CodeWriter.Private, CSharp.Void, "Error", new string[] { CSharp.String }, new string[] { "err" });
+            builder.AppendLine("throw new Exception(err);");
             builder.End();
+            builder.AppendLine();
 
-            builder.Function(CodeWriter.Public, CSharp.Long, "GetLong");
-            builder.AppendLine("long result;");
-            builder.AppendLine("long.TryParse(Next(), out result);");
-            builder.AppendLine("return result;");
+            builder.Function(CodeWriter.Private, CSharp.String, "GetNextAndCheckNotEmpty");
+            builder.DefineField(null, CSharp.String, "v", "GetNext()");
+            builder.AppendLine("if (v == null) {");
+            builder.AddLevel();
+            builder.AppendLine("Error(\"read not enough\");");
+            builder.End();
+            builder.AppendLine("return v;");
+            builder.End();
+            builder.AppendLine();
+
+            builder.Function(CodeWriter.Public, CSharp.String, "GetString");
+            builder.AppendLine("return GetNextAndCheckNotEmpty();");
             builder.End();
 
             builder.Function(CodeWriter.Public, CSharp.Float, "GetFloat");
-            builder.AppendLine("float result;");
-            builder.AppendLine("float.TryParse(Next(), out result);");
-            builder.AppendLine("return result;");
+            builder.AppendLine("return float.Parse(GetNextAndCheckNotEmpty());");
+            builder.End();
+
+            builder.Function(CodeWriter.Public, CSharp.Int, "GetInt");
+            builder.AppendLine("return int.Parse(GetNextAndCheckNotEmpty());");
+            builder.End();
+
+            builder.Function(CodeWriter.Public, CSharp.Long, "GetLong");
+            builder.AppendLine("return long.Parse(GetNextAndCheckNotEmpty());");
             builder.End();
 
             builder.Function(CodeWriter.Public, CSharp.Bool, "GetBool");
-            builder.AppendLine("string v = Next();");
-            builder.AppendLine("if (string.IsNullOrEmpty(v)) return false;");
-            builder.AppendLine("return !v.Equals(\"0\");");
+            builder.AppendLine("string v = GetNextAndCheckNotEmpty();");
+            builder.AppendLine("if (v == \"true\") {");
+            builder.AddLevel();
+            builder.AppendLine("return true;");
+            builder.End();
+            builder.AppendLine("if (v == \"false\") {");
+            builder.AddLevel();
+            builder.AppendLine("return false;");
+            builder.End();
+            builder.AppendLine("Error(v + \" isn't bool\");");
+            builder.AppendLine("return false;");
             builder.End();
 
-            builder.Function(CodeWriter.Public, CSharp.String, "GetString");
-            builder.AppendLine("return Next();");
+            string cfgobj = Setting.ConfigRootNode + "." + CLASS_CFG_OBJECT;
+            string cfgdata = Setting.ConfigRootNode + "." + CLASS_DATA_STREAM;
+            builder.Function(CodeWriter.Public, cfgobj, "GetObject", new string[] { CSharp.String }, new string[] { "name" });
+            builder.AppendFormat("return ({0})Type.GetType(name).GetConstructor(new[] {{ typeof({1}) }}).Invoke(new object[] {{ this }});", cfgobj, cfgdata);
             builder.End();
-
-            types = new string[] { "string" };
-            args = new string[] { "fullName" };
-            builder.Comments("支持多态,直接反射类型");
-            builder.Function(CodeWriter.Public, CLASS_CFG_OBJECT, "GetObject", types, args);
-            builder.AppendFormat("Type type = Type.GetType({0});\n", args[0]);
-            builder.AppendFormat("if (type == null)");
-            builder.Start();
-            builder.AppendFormat("UnityEngine.Debug.LogErrorFormat(\"DataStream 解析{{0}}类型失败!\", {0});\n", args[0]);
-            builder.End();
-            builder.AppendFormat("return ({0})Activator.CreateInstance(type, new object[] {{ this }});\n", CLASS_CFG_OBJECT);
-            builder.End();
-            builder.AppendLine();
-            builder.AppendLine();
-
-            builder.DefineField(CodeWriter.Private, CSharp.Int, fRIndex);
-            builder.DefineField(CodeWriter.Private, CSharp.Int, fCIndex);
-            builder.DefineField(CodeWriter.Private, "string[]", fRows);
-            builder.DefineField(CodeWriter.Private, "string[]", fColumns);
-            builder.AppendLine();
-            builder.Function(CodeWriter.Private, CSharp.Void, "NextRow");
-            builder.AppendFormat("if ({0} >= {1}.Length) return;\n", fRIndex, fRows);
-            builder.AppendFormat("{0}++;\n", fRIndex);
-            builder.AppendFormat("{0} = 0;\n", fCIndex);
-            builder.AppendFormat("{0} = {1}[{2}].Split(\"\\n\".ToCharArray());\n", fColumns, fRows, fRIndex);//CValues.CsvSplitFlag
-            builder.End();
-            builder.AppendLine();
-
-            builder.Function(CodeWriter.Private, CSharp.String, "Next");
-            builder.AppendFormat("if ({0} >= {1}.Length) NextRow();\n", fCIndex, fColumns);
-            builder.AppendFormat("return {0}[{1}++];\n", fColumns, fCIndex, Setting.CsvSplitFlag);
-            builder.End();
-            builder.AppendLine();
 
             builder.EndAll();
             Util.SaveFile(path, builder.ToString());
@@ -196,7 +182,8 @@ namespace ConfigGen.Export
             builder.End();
             builder.AppendFormat("{0} data = new {0}({1}, Encoding.UTF8);\n", CLASS_DATA_STREAM, args[0]);
             builder.AppendFormat("List<T> list = new List<T>();\n");
-            builder.AppendFormat("for (int i = 0; i < data.Count; i++)");
+            builder.AppendFormat("int length = data.GetInt();");
+            builder.AppendFormat("for (int i = 0; i < length; i++)");
             builder.Start();
             builder.AppendFormat("_row = i;\n");
             builder.AppendFormat("list.Add({0}(data));\n", args[1]);
@@ -212,7 +199,6 @@ namespace ConfigGen.Export
             builder.Start();
             for (int i = 0; i < loadAll.Count; i++)
             {
-
                 builder.Append(loadAll[i]);
             }
             builder.End();
@@ -349,7 +335,7 @@ namespace ConfigGen.Export
                 builder.Append(sb.ToString(), false);
 
                 builder.EndAll();
-                string path = Path.Combine(Setting.CSDir, cls.Namespace.Replace(Setting.DOT[0], '\\'), cls.Name + ".cs");
+                string path = Path.Combine(Setting.CSDir, cls.Namespace.Replace(Setting.DotSplit[0], '\\'), cls.Name + ".cs");
                 Util.SaveFile(path, builder.ToString());
                 builder.Clear();
                 sb.Clear();
@@ -371,7 +357,7 @@ namespace ConfigGen.Export
         private static string ReadType(FieldInfo field)
         {
             if (field.IsRaw)
-                return string.Format("{0}.Get{1}()", ARG_DATASTREAM, Util.FirstCharUpper(field.FullType));
+                return string.Format("{0}.Get{1}()", ARG_DATASTREAM, field.FullType.FirstCharUpper());
             else if (field.IsEnum)
                 return string.Format("({1}){0}.GetInt()", ARG_DATASTREAM, field.FullType);
             else if (field.IsClass)
@@ -404,7 +390,7 @@ namespace ConfigGen.Export
                 }
 
                 builder.EndAll();
-                string path = Path.Combine(Setting.CSDir, en.Namespace.Replace(Setting.DOT[0], '\\'), en.Name + ".cs");
+                string path = Path.Combine(Setting.CSDir, en.Namespace.Replace(Setting.DotSplit[0], '\\'), en.Name + ".cs");
                 Util.SaveFile(path, builder.ToString());
                 builder.Clear();
             }

@@ -47,7 +47,7 @@ namespace ConfigGen.TypeInfo
         {
             if (host == null) return type;
 
-            if (!type.IsEmpty() && type.IndexOfAny(Setting.DOT) < 0)
+            if (!type.IsEmpty() && type.IndexOfAny(Setting.DotSplit) < 0)
                 type = string.Format("{0}.{1}", host.Namespace, type);
             return type;
         }

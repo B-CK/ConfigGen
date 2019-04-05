@@ -28,7 +28,7 @@ namespace ConfigGen.Config
         }
         public override string ExportData()
         {
-            return Value ? "1" : "0";
+            return Value.ToString().ToLower();
         }
 
         public override bool Equals(object obj)

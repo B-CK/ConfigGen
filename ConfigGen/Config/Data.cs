@@ -30,7 +30,7 @@ namespace ConfigGen.Config
             for (int i = 0; i < _define.Refs.Length; i++)
             {
                 string type = _define.Refs[i];
-                if (type.IndexOfAny(Setting.DOT) < 0)
+                if (type.IndexOfAny(Setting.DotSplit) < 0)
                     type = string.Format("{0}.{1}", _define.Host.Namespace, type);
                 ConfigInfo cfg = ConfigInfo.Get(type);
                 if (!FList.ContainsIndex(cfg.Index, this))

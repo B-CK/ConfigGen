@@ -38,7 +38,7 @@ namespace ConfigGen
         /// <summary>
         /// 类型名称分隔符
         /// </summary>
-        public static readonly char[] DOT = new char[] { '.' };
+        public static readonly char[] DotSplit = new char[] { '.' };
         /// <summary>
         /// Csv数据存储分隔符
         /// </summary>
@@ -47,6 +47,10 @@ namespace ConfigGen
         /// 导出所有分组
         /// </summary>
         public const string DefualtGroup = "all";
+        /// <summary>
+        /// csv中字符串换行符
+        /// </summary>
+        public const string MagicStringNewLine = ".g9~/";
         #endregion
 
         #region 命令配置

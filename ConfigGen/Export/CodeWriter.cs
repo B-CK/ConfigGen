@@ -13,6 +13,7 @@ namespace ConfigGen.Export
         public const string Readonly = "readonly";
         public const string Abstract = "abstract";
         public const string Override = "override";
+        public const string Const = "const";
         public const string Sealed = "sealed";
 
         private StringBuilder _builder;
@@ -69,6 +70,10 @@ namespace ConfigGen.Export
             IntervalLevel();
             _builder.AppendFormat("public  readonly {0} {1} = {2};\n", type, name, value);
         }
+        //public void DefineField(string type, string fieldName, string value = null)
+        //{
+        //    DefineField(null, type, fieldName, value);
+        //}
         public void DefineField(string modifier, string type, string fieldName, string value = null)
         {
             IntervalLevel();
@@ -171,6 +176,32 @@ namespace ConfigGen.Export
                 _builder.AppendFormat("{0}{1} {2}({3}) where T :{4}", modifier, returnType, funcName, strbuilder.ToString(), whereT);
 
             Start();
+        }
+        /// <summary>
+        /// 脚本语言使用,例lua
+        /// </summary>
+        /// <param name="modifier"></param>
+        /// <param name="funcName"></param>
+        /// <param name="args"></param>
+        public void Function(string modifier, string funcName, params string[] args)
+        {
+            StringBuilder strbuilder = new StringBuilder();
+            IntervalLevel();
+            if (args != null)
+            {
+                for (int i = 0; i < args.Length; i++)
+                {
+                    if (i == 0)
+                        strbuilder.Append(args[i]);
+                    else
+                        strbuilder.Append("," + args[i]);
+                }
+            }
+            _builder.AppendFormat("{0} {1}({2})", modifier, funcName, strbuilder);
+
+            _builder.AppendLine();
+            IntervalLevel();
+            _level++;
         }
         public void EndAll()
         {

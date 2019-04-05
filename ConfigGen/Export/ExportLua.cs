@@ -14,6 +14,8 @@ namespace ConfigGen.Export
         private const string DATA_STREAM = "DataStream";
         private const string DATA_CONFIG = "Config";
         private const string LUA_ENUM_NULL = "-9";
+        private const string LOCAL = "local";
+
 
         public static void Export()
         {
@@ -22,6 +24,11 @@ namespace ConfigGen.Export
             GenDataStruct();
         }
 
+        private static void End(CodeWriter builder)
+        {
+            builder.EndLevel();
+            builder.AppendLine("end");
+        }
         private static void GenConfigTable()
         {
             StringBuilder builder = new StringBuilder();
@@ -30,7 +37,7 @@ namespace ConfigGen.Export
             while (cit.MoveNext())
             {
                 ConfigInfo cfg = cit.Current.Value;
-                string method = string.Format("Get{0}", cfg.FullType);
+                string method = string.Format("Get{0}", cfg.FullType.Replace(new string(Setting.DotSplit), ""));
                 string index = cfg.Index.Name;
                 string relPath = cfg.OutputFile + Setting.CsvFileExt;
                 builder.AppendFormat("\t{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
@@ -43,111 +50,106 @@ namespace ConfigGen.Export
         }
         private static void GenDataStream()
         {
-            StringBuilder builder = new StringBuilder();
-            builder.AppendLine("local lower = string.lower");
-            builder.AppendLine("local setmetatable = setmetatable");
-            builder.AppendLine("local tonumber = tonumber");
-            builder.AppendLine("local lines = io.lines");
-            builder.AppendLine("local split = string.split");
-            builder.AppendLine("local format= string.format");
-            builder.AppendLine("local Stream = {}");
-            builder.AppendLine("Stream.__index = Stream");
-            builder.AppendLine("Stream.name = \"Stream\"");
-
-            builder.AppendLine("local Split = function (line)");
-            builder.AppendLine("\treturn split(line, '\\n')");
-            builder.AppendLine("end");
-
-            builder.AppendLine("function Stream.new(dataFile)");
-            builder.AppendLine("\tlocal o = {}");
-            builder.AppendLine("\tsetmetatable(o, Stream)");
-            builder.AppendLine("\to.dataFile = dataFile");
-            //----数据解析路径
-            builder.AppendFormat("\to.GetLine = lines(dataFile)\n");
-
-            builder.AppendLine("\to.idx = 0");
-            builder.AppendLine("\to.line = 0");
-            builder.AppendLine("\treturn o");
-            builder.AppendLine("end");
-
-            builder.AppendLine("function Stream:Count()");
-            builder.AppendLine("\treturn #self.columns");
-            builder.AppendLine("end");
-
-            builder.AppendLine("function Stream:NextRow()");
-            builder.AppendLine("\tlocal line = self.GetLine()");
-            builder.AppendLine("\tif line == nil or #line == 0 then");
-            builder.AppendLine("\t\treturn false");
-            builder.AppendLine("\tend");
-            builder.AppendLine("\tself.columns = Split(line)");
-            builder.AppendLine("\tself.idx = 1");
-            builder.AppendLine("\tself.line = self.line + 1");
-            builder.AppendLine("\treturn true");
-            builder.AppendLine("end");
-
-            builder.AppendLine("function Stream:NextColum()");
-            builder.AppendLine("\tif self.idx > #self.columns then");
-            builder.AppendLine("\t\tlocal status = self:NextRow()");
-            builder.AppendLine("\t\tif not status then");
-            builder.AppendLine("\t\t\tself.hasNext = false");
-            builder.AppendLine("\t\t\treturn nil");
-            builder.AppendLine("\t\tend");
-            builder.AppendLine("\tend");
-            builder.AppendLine("\tlocal result = self.columns[self.idx]");
-            builder.AppendLine("\tself.idx = self.idx + 1");
-            builder.AppendLine("\treturn result");
-            builder.AppendLine("end");
-
-            builder.AppendLine("function Stream:GetInt()");
-            builder.AppendLine("\tlocal next = self:NextColum()");
-            builder.AppendLine("\treturn tonumber(next)");
-            builder.AppendLine("end");
-
-            builder.AppendLine("function Stream:GetLong()");
-            builder.AppendLine("\tlocal next = self:NextColum()");
-            builder.AppendLine("\treturn tonumber(next)");
-            builder.AppendLine("end");
-
-            builder.AppendLine("function Stream:GetFloat()");
-            builder.AppendLine("\tlocal next = self:NextColum()");
-            builder.AppendLine("\treturn tonumber(next)");
-            builder.AppendLine("end");
-
-            builder.AppendLine("function Stream:GetBool()");
-            builder.AppendLine("\tlocal next = lower(self:NextColum())");
-            builder.AppendLine("\tif next == '0' then");
-            builder.AppendLine("\t\treturn false");
-            builder.AppendLine("\telse");
-            builder.AppendLine("\t\treturn true");
-            builder.AppendLine("\tend");
-            builder.AppendLine("end");
-
-            builder.AppendLine("function Stream:GetString()");
-            builder.AppendLine("\treturn self:NextColum()");
-            builder.AppendLine("end");
-
-            builder.AppendLine("function Stream:GetList(type)");
-            builder.AppendLine("\tlocal result = {}");
-            builder.AppendLine("\tlocal method = self['Get' .. type]");
-            builder.AppendLine("\tlocal length = self:GetInt()");
-            builder.AppendLine("\tfor i = 1, length do");
-            builder.AppendLine("\t\tresult[i] = method(self)");
-            builder.AppendLine("\tend");
-            builder.AppendLine("\treturn result");
-            builder.AppendLine("end");
-
-            builder.AppendLine("function Stream:GetDict(key, value)");
-            builder.AppendLine("\tlocal result = {}");
-            builder.AppendLine("\tlocal optKey = self['Get' .. key]");
-            builder.AppendLine("\tlocal optValue = self['Get' .. value]");
-            builder.AppendLine("\tlocal length = self:GetInt()");
-            builder.AppendLine("\tfor i = 1, length do");
-            builder.AppendLine("\t\tresult[optKey(self)] = optValue(self)");
-            builder.AppendLine("\tend");
-            builder.AppendLine("\treturn result");
-            builder.AppendLine("end");
-
+            CodeWriter builder = new CodeWriter();
+            builder.DefineField(null, LOCAL, "tonumber", "tonumber");
+            builder.DefineField(null, LOCAL, "gsub", "string.gsub");
+            builder.DefineField(null, LOCAL, "lower", "string.lower");
+            builder.DefineField(null, LOCAL, "error", "error");
+            builder.DefineField(null, LOCAL, "setmetatable", "setmetatable");
+            builder.DefineField(null, LOCAL, "tostring", "tostring");
+            builder.DefineField(null, LOCAL, "lines", "io.lines");
             builder.AppendLine();
+
+            builder.DefineField(null, LOCAL, "Stream", "{}");
+            builder.SetField("Stream.__index", "Stream");
+            builder.AppendLine();
+
+            builder.Function("function", "Stream.new", new string[] { "file" });
+            builder.DefineField(null, LOCAL, "o", "{}");
+            builder.AppendLine("setmetatable(o, Stream)");
+            builder.SetField("o.dataIter", "lines(file)");
+            builder.AppendLine("return o");
+            End(builder);
+            builder.AppendLine();
+
+            builder.Function("function", "Stream:Close");
+            builder.AppendLine("while self.dataIter() do");
+            builder.AddLevel();
+            End(builder);
+            End(builder);
+            builder.AppendLine();
+
+            builder.Function("function", "Stream:GetNext");
+            builder.AppendLine("return self.dataIter()");
+            End(builder);
+            builder.AppendLine();
+
+            builder.Function("function", "Stream:GetBool");
+            builder.DefineField(null, LOCAL, "next", "self:GetNext()");
+            builder.AppendLine("if next == \"true\" then");
+            builder.AddLevel();
+            builder.AppendLine("return true");
+            builder.EndLevel();
+            builder.AppendLine("elseif next == \"false\" then");
+            builder.AddLevel();
+            builder.AppendLine("return false");
+            builder.EndLevel();
+            builder.AppendLine("else");
+            builder.AddLevel();
+            builder.AppendLine("error(tostring(next) .. \" isn't bool! \")");
+            End(builder);
+            End(builder);
+            builder.AppendLine();
+
+            builder.Function("function", "Stream:GetInt");
+            builder.DefineField(null, LOCAL, "next", "self:GetNext()");
+            builder.AppendLine("return tonumber(next)");
+            End(builder);
+            builder.AppendLine();
+
+            builder.Function("function", "Stream:GetLong");
+            builder.DefineField(null, LOCAL, "next", "self:GetNext()");
+            builder.AppendLine("return tonumber(next)");
+            End(builder);
+            builder.AppendLine();
+
+            builder.Function("function", "Stream:GetFloat");
+            builder.DefineField(null, LOCAL, "next", "self:GetNext()");
+            builder.AppendLine("return tonumber(next)");
+            End(builder);
+            builder.AppendLine();
+
+            builder.Function("function", "Stream:GetString");
+            builder.DefineField(null, LOCAL, "next", "self:GetNext()");
+            builder.AppendLine("return next");
+            End(builder);
+            builder.AppendLine();
+
+            builder.Function("function", "Stream:GetList", new string[] { "type" });
+            builder.DefineField(null, LOCAL, "result", "{}");
+            builder.DefineField(null, LOCAL, "method", "self['Get' .. type]");
+            builder.DefineField(null, LOCAL, "length", "self:GetInt()");
+            builder.AppendLine("for i = 1, length do");
+            builder.AddLevel();
+            builder.SetField("result[i]", "method(self)");
+            End(builder);
+            builder.AppendLine("return result");
+            End(builder);
+            builder.AppendLine();
+
+            builder.Function("function", "Stream:GetDict", new string[] { "key", "value" });
+            builder.DefineField(null, LOCAL, "result", "{}");
+            builder.DefineField(null, LOCAL, "optKey", "self['Get' .. key]");
+            builder.DefineField(null, LOCAL, "optValue", "self['Get' .. value]");
+            builder.DefineField(null, LOCAL, "length", "self:GetInt()");
+            builder.AppendLine("for i = 1, length do");
+            builder.AddLevel();
+            builder.SetField("result[optKey(self)]", "optValue(self)");
+            End(builder);
+            builder.AppendLine("return result");
+            End(builder);
+            builder.AppendLine();
+
             builder.AppendLine("return Stream");
 
             string path = Path.Combine(Setting.LuaDir, DATA_STREAM + ".lua");
@@ -199,7 +201,7 @@ namespace ConfigGen.Export
 
                 builder.AppendFormat("GetOrCreate('{0}')['{1}'] = meta\n", cls.Namespace, cls.Name);
                 string funcName = cls.FullType.Replace(".", "");
-                if (!cls.Inherit.IsEmpty())
+                if (cls.IsDynamic())
                 {
                     builder.AppendFormat("function Stream:Get{0}Maker()\n", funcName);
                     builder.AppendFormat("\treturn self['Get' .. self:GetString():gsub('%.', '')](self)\n");
@@ -218,28 +220,29 @@ namespace ConfigGen.Export
                     if (!Util.MatchGroups(field.Group)) continue;
 
                     if (field.IsRaw)
-                        builder.AppendFormat("\to.{0} = self:Get{1}()\n", field.Name, field.OriginalType);
+                        builder.AppendFormat("\to.{0} = self:Get{1}()\n", field.Name, field.OriginalType.FirstCharUpper());
                     else if (field.IsEnum)
                         builder.AppendFormat("\to.{0} = self:GetInt()\n", field.Name);
                     else if (field.IsClass)
-                        builder.AppendFormat("\to.{0} = self:Get{1}Maker()\n", field.Name, field.FullType.Replace(".", ""));
+                        builder.AppendFormat("\to.{0} = self:Get{1}Maker()\n", field.Name, field.OriginalType.Replace(".", ""));
                     else if (field.IsContainer)
                     {
                         if (field.OriginalType == Setting.LIST)
                         {
                             var item = field.GetItemDefine();
-                            string index = item.OriginalType.Replace(".", "");
+                            string index = item.OriginalType.Replace(".", "").FirstCharUpper();
                             if (item.IsClass) index += "Maker";
                             builder.AppendFormat("\to.{0} = self:GetList('{1}')\n", field.Name, index);
                         }
                         else if (field.OriginalType == Setting.DICT)
                         {
                             var k = field.GetKeyDefine();
-                            string key = k.OriginalType;
+                            string key = k.OriginalType.FirstCharUpper();
                             if (k.IsEnum) key = "Int";
-                            var v = field.GetKeyDefine();
-                            string value = v.OriginalType.Replace(".", "");
-                            if (k.IsClass) value += "Maker";
+                            var v = field.GetValueDefine();
+                            string value = v.OriginalType.Replace(".", "").FirstCharUpper();
+                            if (v.IsClass) value += "Maker";
+                            else if (v.IsEnum) value = "Int";
                             builder.AppendFormat("\to.{0} = self:GetDict('{1}', '{2}')\n", field.Name, key, value);
                         }
                     }
@@ -249,10 +252,10 @@ namespace ConfigGen.Export
             }
 
             var eit = EnumInfo.Enums.GetEnumerator();
-            while (cit.MoveNext())
+            while (eit.MoveNext())
             {
                 EnumInfo en = eit.Current.Value;
-                builder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = {{\n", en.Namespace, en.Name);
+                builder.AppendFormat("GetOrCreate('{0}')['{1}'] = {{\n", en.Namespace, en.Name);
                 builder.AppendFormat("\tNULL = {0},\n", LUA_ENUM_NULL);
                 var vit = en.Values.GetEnumerator();
                 while (vit.MoveNext())

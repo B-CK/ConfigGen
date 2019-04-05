@@ -30,7 +30,7 @@ namespace Cfg
 			}
 			DataStream data = new DataStream(path, Encoding.UTF8);
 			List<T> list = new List<T>();
-			for (int i = 0; i < data.Count; i++)
+			int length = data.GetInt();			for (int i = 0; i < length; i++)
 			{
 				_row = i;
 				list.Add(constructor(data));
@@ -43,10 +43,10 @@ namespace Cfg
 			string path = "Data Path Empty";
 			try
 			{
-				path = ConfigDir + "AllType/AllClass.data";
+				path = ConfigDir + "alltype/allclass.data";
 				var allclasss = Load(path, (d) => new Cfg.AllType.AllClass(d));
 				allclasss.ForEach(v => AllClass.Add(v.ID, v));
-				path = ConfigDir + "AllType/Test.data";
+				path = ConfigDir + "alltype/test.data";
 				var tests = Load(path, (d) => new Cfg.AllType.Test(d));
 				tests.ForEach(v => Test.Add(v.TID, v));
 			}
