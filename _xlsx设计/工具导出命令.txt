@@ -1,8 +1,0 @@
--configXml [path] 配置目录路径
--optMode [all part] 全部导出还是只导出被修改文件
--dataDir [path] 导出成Csv配置文件到指定目录路径
--codeDir [path] 导出CS文件到指定目录路径
--xmlCodeDir [path] 导出CSXml文件到指定目录路径
--luaDir [path] 导出lua文件到指定目录路径
--group [group-editor|client|server] 按指定分组导出
--help 帮助文档

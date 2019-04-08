@@ -69,7 +69,6 @@
     <Compile Include="XmlCode\XmlObject.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="Csv\alltype\allclass.data" />
     <None Include="Csv\alltype\test.data" />
     <None Include="Lua\Config.lua" />
