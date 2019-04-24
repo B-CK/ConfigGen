@@ -183,7 +183,7 @@ namespace ConfigGen.TypeInfo
         }
         void Error(string msg)
         {
-            string error = string.Format("{0}\nField:{1} {2}", _host, Name, msg);
+            string error = string.Format("字段信息异常!\n{0}Field:{1} {2}", _host, Name, msg);
             throw new System.Exception(error);
         }
         public override string ToString()

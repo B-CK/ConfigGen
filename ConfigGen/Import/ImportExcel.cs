@@ -177,7 +177,7 @@ namespace ConfigGen.Import
             float r;
             if (!float.TryParse(v, out r))
             {
-                Error(v + "非long类型");
+                Error(v + "非float类型");
                 return 0f;
             }
             return r;

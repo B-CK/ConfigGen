@@ -321,8 +321,7 @@ namespace ConfigGen.Export
                             FieldInfo key = field.GetKeyDefine();
                             FieldInfo value = field.GetValueDefine();
                             sb.DefineField(null, key.FullType, "k", ReadType(key));
-                            sb.DefineField(null, value.FullType, "v", ReadType(value));
-                            sb.AppendFormat("{0}[k] = v;\n", field.Name);
+                            sb.AppendFormat("{0}[k] = {1};\n", field.Name, ReadType(value));
                             sb.End();
                         }
                     }
@@ -363,7 +362,7 @@ namespace ConfigGen.Export
             else if (field.IsClass)
             {
                 ClassInfo info = ClassInfo.Get(field.FullType);
-                string fmt = info.IsDynamic() ? "({0}){1}.GetObject({1}.GetString())" : "new ({0}){1}";
+                string fmt = info.IsDynamic() ? "({0}){1}.GetObject({1}.GetString())" : "new {0}({1})";
                 return string.Format(fmt, field.FullType, ARG_DATASTREAM);
             }
             Util.Error("不支持集合嵌套类型:" + field.FullType);

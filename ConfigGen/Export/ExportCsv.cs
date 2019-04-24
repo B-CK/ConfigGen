@@ -11,13 +11,15 @@ namespace ConfigGen.Export
     {
         public static void Export()
         {
+            Util.TryDeleteDirectory(Setting.DataDir);
+
             StringBuilder builder = new StringBuilder();
             var cit = ConfigInfo.Configs.GetEnumerator();
             while (cit.MoveNext())
             {
                 var cfg = cit.Current.Value;
                 builder.AppendLine(cfg.Data.ExportData());
-                string filePath = string.Format("{0}{1}{2}", Setting.DataDir, cfg.OutputFile, Setting.CsvFileExt);
+                string filePath = Path.Combine(Setting.DataDir, cfg.OutputFile + Setting.CsvFileExt);
                 Util.SaveFile(filePath.ToLower(), builder.ToString());
                 builder.Clear();
             }
