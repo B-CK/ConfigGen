@@ -66,11 +66,11 @@
     <Compile Include="Config\FList.cs" />
     <Compile Include="Config\FLong.cs" />
     <Compile Include="Config\FString.cs" />
-    <Compile Include="Description\ClassDes.cs" />
+    <Compile Include="Description\ClassXml.cs" />
     <Compile Include="Description\ConfigXml.cs" />
-    <Compile Include="Description\EnumDes.cs" />
-    <Compile Include="Description\FieldDes.cs" />
-    <Compile Include="Description\NamespaceDes.cs" />
+    <Compile Include="Description\EnumXml.cs" />
+    <Compile Include="Description\FieldXml.cs" />
+    <Compile Include="Description\NamespaceXml.cs" />
     <Compile Include="Export\CodeWriter.cs" />
     <Compile Include="Export\ExportCSharp.cs" />
     <Compile Include="Export\ExportXmlCode.cs" />

@@ -47,7 +47,7 @@ namespace ConfigGen.TypeInfo
             return "";
         }
 
-        private EnumDes _des;
+        private EnumXml _des;
         private string _namespace;
         private string _fullName;
         /// <summary>
@@ -61,7 +61,7 @@ namespace ConfigGen.TypeInfo
         /// </summary>
         private Dictionary<string, string> _aliases = new Dictionary<string, string>();
 
-        public EnumInfo(EnumDes des, string namespace0)
+        public EnumInfo(EnumXml des, string namespace0)
         {
             _des = des;
             _namespace = namespace0;

@@ -3,8 +3,8 @@ using System.Xml.Serialization;
 
 namespace ConfigGen.Description
 {
-    [XmlInclude(typeof(ClassDes))]
-    public class ClassDes
+    [XmlInclude(typeof(ClassXml))]
+    public class ClassXml
     {
         [XmlAttribute]
         public string Name;
@@ -20,7 +20,7 @@ namespace ConfigGen.Description
         public string Desc;
 
         [XmlElement("Field")]
-        public List<FieldDes> Fields;
+        public List<FieldXml> Fields;
         [XmlElement("Const")]
         public List<ConstDes> Consts;
 

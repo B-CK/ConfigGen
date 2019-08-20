@@ -8,11 +8,7 @@ namespace ConfigGen.Description
     {
         [XmlAttribute]
         public string Root;
-        [XmlElement("Group")]
-        public string Group;
-        [XmlElement("Include")]
+        [XmlElement("Import")]
         public List<string> Include;
-        [XmlElement("Nonstreaming")]
-        public List<string> Nonstreaming;
     }
 }

@@ -3,8 +3,8 @@ using System.Xml.Serialization;
 
 namespace ConfigGen.Description
 {
-    [XmlInclude(typeof(EnumDes))]
-    public class EnumDes
+    [XmlInclude(typeof(EnumXml))]
+    public class EnumXml
     {
         [XmlAttribute]
         public string Name;

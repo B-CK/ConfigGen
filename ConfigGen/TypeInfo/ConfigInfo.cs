@@ -52,7 +52,7 @@ namespace ConfigGen.TypeInfo
         public string OutputFile { get { return _outputFile; } }
 
 
-        private ClassDes _des;
+        private ClassXml _des;
         private string _fullType;
         private string _namespace;
         private string[] _inputFiles;
@@ -61,7 +61,7 @@ namespace ConfigGen.TypeInfo
         private FList _data;
         private readonly HashSet<string> _groups;
 
-        public ConfigInfo(ClassDes des, string namespace0, string xmlDir)
+        public ConfigInfo(ClassXml des, string namespace0, string xmlDir)
         {
             _des = des;
             _namespace = namespace0;

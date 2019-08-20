@@ -72,7 +72,7 @@ namespace ConfigGen.TypeInfo
         public List<ConstInfo> Consts { get { return _consts; } }
         public HashSet<string> Groups { get { return _groups; } }
 
-        private ClassDes _des;
+        private ClassXml _des;
         private string _namespace;
         private string _fullType;
         private string _inherit;
@@ -82,7 +82,7 @@ namespace ConfigGen.TypeInfo
         private readonly HashSet<string> _children;
         private readonly HashSet<string> _groups;
 
-        public ClassInfo(ClassDes des, string namespace0)
+        public ClassInfo(ClassXml des, string namespace0)
         {
             _des = des;
             _fields = new List<FieldInfo>();

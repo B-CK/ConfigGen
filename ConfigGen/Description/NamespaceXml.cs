@@ -4,14 +4,14 @@ using System.Xml.Serialization;
 namespace ConfigGen.Description
 {
     [XmlRoot("Namespace")]
-    public class NamespaceDes
+    public class NamespaceXml
     {
         [XmlAttribute]
         public string Name;
         [XmlElement("Class")]
-        public List<ClassDes> Classes;
+        public List<ClassXml> Classes;
         [XmlElement("Enum")]
-        public List<EnumDes> Enums;
+        public List<EnumXml> Enums;
 
         [XmlIgnore]
         public string XmlDir;

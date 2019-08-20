@@ -71,7 +71,7 @@ namespace ConfigGen
         static void LoadDefine()
         {
             //解析类型定义
-            Dictionary<string, NamespaceDes> pairs = new Dictionary<string, NamespaceDes>();
+            Dictionary<string, NamespaceXml> pairs = new Dictionary<string, NamespaceXml>();
             string path = "无法解析Xml.NamespaceDes";
             try
             {
@@ -83,7 +83,7 @@ namespace ConfigGen
                 for (int i = 0; i < include.Count; i++)
                 {
                     path = Util.GetAbsPath(include[i]);
-                    var des = Util.Deserialize(path, typeof(NamespaceDes)) as NamespaceDes;
+                    var des = Util.Deserialize(path, typeof(NamespaceXml)) as NamespaceXml;
                     if (pairs.ContainsKey(des.Name))
                     {
                         pairs[des.Name].Classes.AddRange(des.Classes);
@@ -111,7 +111,7 @@ namespace ConfigGen
                 string namespace0 = item.Key;
                 for (int i = 0; i < item.Value.Classes.Count; i++)
                 {
-                    ClassDes classDes = item.Value.Classes[i];
+                    ClassXml classDes = item.Value.Classes[i];
                     var cls = new ClassInfo(classDes, namespace0);
                     if (cls.IsConfig())
                         new ConfigInfo(classDes, namespace0, item.Value.XmlDir);

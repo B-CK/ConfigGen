@@ -2,8 +2,8 @@
 
 namespace ConfigGen.Description
 {
-    [XmlInclude(typeof(FieldDes))]
-    public class FieldDes
+    [XmlInclude(typeof(FieldXml))]
+    public class FieldXml
     {
         [XmlAttribute]
         public string Name;
@@ -31,7 +31,7 @@ namespace ConfigGen.Description
     }
 
     [XmlInclude(typeof(ConstDes))]
-    public class ConstDes : FieldDes
+    public class ConstDes : FieldXml
     {
         [XmlAttribute]
         public string Value;
