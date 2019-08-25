@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
-using ConfigGen.Description;
+using Description.Xml;
 
-namespace ConfigGen.Export
+namespace Description.Export
 {
     public class CodeWriter
     {

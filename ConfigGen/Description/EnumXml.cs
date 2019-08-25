@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace ConfigGen.Description
+namespace Description.Xml
 {
     [XmlInclude(typeof(EnumXml))]
     public class EnumXml
@@ -14,15 +14,6 @@ namespace ConfigGen.Description
         public string Desc;
 
         [XmlElement("Const")]
-        public List<ConstDes> Enums;
-
-        //public void ToLower()
-        //{
-        //    Name = Name.ToLowerExt();
-        //    Group = Group.ToLowerExt();
-
-        //    for (int i = 0; i < Enums.Count; i++)
-        //        Enums[i].ToLower();
-        //}
+        public List<ConstXml> Enums;
     }
 }

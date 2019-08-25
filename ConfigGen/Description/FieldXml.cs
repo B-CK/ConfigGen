@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace ConfigGen.Description
+namespace Description.Xml
 {
     [XmlInclude(typeof(FieldXml))]
     public class FieldXml
@@ -17,21 +17,10 @@ namespace ConfigGen.Description
         public string Ref;//引用字段
         [XmlAttribute]
         public string RefPath;//引用资源相对路径
-
-
-        //[XmlAttribute]
-        //public string Split;
-
-        //public void ToLower()
-        //{
-        //    Name = Name.ToLowerExt();
-        //    Type = Type.ToLowerExt();
-        //    Check = Check.ToLowerExt();
-        //}
     }
 
-    [XmlInclude(typeof(ConstDes))]
-    public class ConstDes : FieldXml
+    [XmlInclude(typeof(ConstXml))]
+    public class ConstXml : FieldXml
     {
         [XmlAttribute]
         public string Value;

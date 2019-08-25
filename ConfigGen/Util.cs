@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-namespace ConfigGen
+namespace Description
 {
     public enum FileState
     {
@@ -225,9 +225,9 @@ namespace ConfigGen
         /// <summary>
         /// 符合程序化命名规则,除首字母非"_"
         /// </summary>
-        public static bool MatchName(string name)
+        public static bool MatchIdentifier(string name)
         {
-            return Regex.IsMatch(name, @"[a-zA-Z]\w*");
+            return Regex.IsMatch(name, @"^[a-zA-Z_]\w*$");
         }
         public static string[] Split(this string type)
         {

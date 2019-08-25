@@ -1,11 +1,11 @@
-﻿using ConfigGen.Config;
-using ConfigGen.TypeInfo;
+﻿using Description.Config;
+using Description.TypeInfo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ConfigGen.Import
+namespace Description.Import
 {
     public abstract class Import
     {

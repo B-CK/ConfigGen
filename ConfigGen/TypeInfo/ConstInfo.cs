@@ -1,10 +1,10 @@
-﻿using ConfigGen.Description;
+﻿using Description.Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ConfigGen.TypeInfo
+namespace Description.TypeInfo
 {
     public class ConstInfo
     {
@@ -16,11 +16,11 @@ namespace ConfigGen.TypeInfo
         public string OriginalType { get { return _types[0]; } }
         public string[] Types { get { return _types; } }
 
-        private ConstDes _des;
+        private ConstXml _des;
         private string _hostName;
         private string[] _types;
 
-        public ConstInfo(string fullName, ConstDes des)
+        public ConstInfo(string fullName, ConstXml des)
         {
             _des = des;
             _hostName = fullName;
@@ -31,7 +31,7 @@ namespace ConfigGen.TypeInfo
 
         public void VerifyDefine()
         {
-            if (!Util.MatchName(Name))
+            if (!Util.MatchIdentifier(Name))
                 Error("命名不合法:" + Name);
             string type = _types[0];
             if (!Setting.RawTypes.Contains(type)

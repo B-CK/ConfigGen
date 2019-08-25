@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace ConfigGen
+namespace Description
 {
     public class Setting
     {

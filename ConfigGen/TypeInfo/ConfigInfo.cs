@@ -1,13 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using ConfigGen.Config;
-using ConfigGen.Import;
-using ConfigGen.Description;
+using Description.Config;
+using Description.Import;
+using Description.Xml;
 using System.Collections.Generic;
 using System.Xml;
 
-namespace ConfigGen.TypeInfo
+namespace Description.TypeInfo
 {
     public class ConfigInfo
     {

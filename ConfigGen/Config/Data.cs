@@ -1,8 +1,8 @@
-﻿using ConfigGen.Import;
-using ConfigGen.TypeInfo;
+﻿using Description.Import;
+using Description.TypeInfo;
 using System.Xml;
 
-namespace ConfigGen.Config
+namespace Description.Config
 {
     /// <summary>
     /// 数据导出控制类

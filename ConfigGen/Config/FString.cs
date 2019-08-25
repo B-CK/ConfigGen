@@ -1,5 +1,5 @@
-﻿using ConfigGen.Import;
-using ConfigGen.TypeInfo;
+﻿using Description.Import;
+using Description.TypeInfo;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace ConfigGen.Config
+namespace Description.Config
 {
     public class FString : Data
     {

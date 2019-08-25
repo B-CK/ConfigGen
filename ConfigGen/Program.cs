@@ -2,11 +2,11 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Reflection;
-using ConfigGen.Description;
-using ConfigGen.TypeInfo;
-using ConfigGen.Config;
+using Description.Xml;
+using Description.TypeInfo;
+using Description.Config;
 
-namespace ConfigGen
+namespace Description
 {
     /// 所有的路径均以应用为相对路径生成
     /// 尽可能少配置Excel文件,文件读取非常耗时
@@ -58,7 +58,7 @@ namespace ConfigGen
                     Util.Log("\n--------------------------------------\n");
                     Util.LogErrorFormat("{0}\n{1}\n", e.Message, e.StackTrace);
                 }
-            }           
+            }
 
             Util.Log("\n\n");
             long end = DateTime.Now.Ticks;
@@ -79,7 +79,7 @@ namespace ConfigGen
                 if (configXml.Root.IsEmpty())
                     throw new Exception("数据结构导出时必须指定命名空间根节点<Config Root=\"**\">");
                 Setting.ConfigRootNode = configXml.Root;
-                List<string> include = configXml.Include;
+                List<string> include = configXml.Import;
                 for (int i = 0; i < include.Count; i++)
                 {
                     path = Util.GetAbsPath(include[i]);

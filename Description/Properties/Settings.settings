@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Description.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ModuleDir" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.\Module\</Value>
+    </Setting>
+    <Setting Name="NamespaceDir" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.\Namespace\</Value>
+    </Setting>
+    <Setting Name="LastModule" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+  </Settings>
+</SettingsFile>

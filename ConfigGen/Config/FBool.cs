@@ -1,9 +1,9 @@
-﻿using ConfigGen.Import;
-using ConfigGen.TypeInfo;
+﻿using Description.Import;
+using Description.TypeInfo;
 using System;
 using System.Xml;
 
-namespace ConfigGen.Config
+namespace Description.Config
 {
     public class FBool : Data
     {

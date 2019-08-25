@@ -1,11 +1,11 @@
-﻿using ConfigGen.Description;
+﻿using Description.Xml;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace ConfigGen.TypeInfo
+namespace Description.TypeInfo
 {
     public class ClassInfo
     {
@@ -90,7 +90,7 @@ namespace ConfigGen.TypeInfo
             _children = new HashSet<string>();
             if (Name.IsEmpty())
                 Error("未指定Class名称");
-            if (!Util.MatchName(Name))
+            if (!Util.MatchIdentifier(Name))
                 Error("命名不合法:" + Name);
 
             _namespace = namespace0;
@@ -99,7 +99,7 @@ namespace ConfigGen.TypeInfo
             _inherit = CorrectType(this, _inherit);
             _groups = new HashSet<string>(Util.Split(des.Group));
             if (_groups.Count == 0)
-                _groups.Add(ConfigGen.Setting.DefualtGroup);
+                _groups.Add(global::Description.Setting.DefualtGroup);
 
             Add(this);
             _consts = new List<ConstInfo>();

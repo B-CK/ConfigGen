@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace ConfigGen.Description
+namespace Description.Xml
 {
     [XmlInclude(typeof(ClassXml))]
     public class ClassXml
@@ -22,7 +22,7 @@ namespace ConfigGen.Description
         [XmlElement("Field")]
         public List<FieldXml> Fields;
         [XmlElement("Const")]
-        public List<ConstDes> Consts;
+        public List<ConstXml> Consts;
 
         //public void ToLower()
         //{

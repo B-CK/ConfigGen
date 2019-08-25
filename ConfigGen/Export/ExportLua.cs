@@ -1,11 +1,11 @@
-﻿using ConfigGen.Description;
-using ConfigGen.TypeInfo;
+﻿using Description.Xml;
+using Description.TypeInfo;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace ConfigGen.Export
+namespace Description.Export
 {
     public class ExportLua
     {

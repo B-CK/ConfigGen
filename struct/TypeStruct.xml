@@ -1,4 +1,4 @@
-<Namespace Name = "相对命名空间">
+<Namespace Name = "相对命名空间" Desc = "描述信息">
 	<Class Name = "类名称" Inherit = "基类名称" Index = "表格索引字段" DataPath="数据源文件路径" Desc = "类描述信息">
 		<Const Name = "常量名称" Type = "变量类型" Value = "具体值" Group = "字段分组"  Desc = "变量描述信息" />
 		<Field Name = "变量名称" Type = "变量类型" Group = "字段分组" Desc = "变量描述信息" />

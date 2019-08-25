@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Text;
-using ConfigGen.Description;
+using Description.Xml;
 using System.Collections.Generic;
 using System.IO;
-using ConfigGen.TypeInfo;
+using Description.TypeInfo;
 
-namespace ConfigGen.Export
+namespace Description.Export
 {
     public class ExportXmlCode
     {

@@ -1,10 +1,10 @@
-﻿using ConfigGen.Import;
-using ConfigGen.TypeInfo;
+﻿using Description.Import;
+using Description.TypeInfo;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace ConfigGen.Config
+namespace Description.Config
 {
     public class FList : Data
     {

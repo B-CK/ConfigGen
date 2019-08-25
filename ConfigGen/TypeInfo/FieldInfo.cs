@@ -1,9 +1,9 @@
-﻿using ConfigGen.Config;
-using ConfigGen.Description;
+﻿using Description.Config;
+using Description.Xml;
 using System;
 using System.Collections.Generic;
 
-namespace ConfigGen.TypeInfo
+namespace Description.TypeInfo
 {
     public class FieldInfo
     {
@@ -140,7 +140,7 @@ namespace ConfigGen.TypeInfo
         public void VerifyDefine()
         {
             CheckType(1);
-            if (!Util.MatchName(Name))
+            if (!Util.MatchIdentifier(Name))
                 Error("命名不合法:" + Name);
             string type = OriginalType;
             if (!IsRaw && !IsClass && !IsEnum)

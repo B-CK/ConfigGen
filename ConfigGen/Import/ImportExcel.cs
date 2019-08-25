@@ -1,10 +1,10 @@
 ﻿using System;
-using ConfigGen.Config;
-using ConfigGen.TypeInfo;
+using Description.Config;
+using Description.TypeInfo;
 using System.Collections.Generic;
 using System.Data;
 
-namespace ConfigGen.Import
+namespace Description.Import
 {
     /// <summary>
     /// Excel 行列读取器

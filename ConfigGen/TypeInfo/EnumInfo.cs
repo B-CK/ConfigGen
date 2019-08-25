@@ -1,10 +1,10 @@
-﻿using ConfigGen.Description;
+﻿using Description.Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ConfigGen.TypeInfo
+namespace Description.TypeInfo
 {
     public class EnumInfo
     {
@@ -67,7 +67,7 @@ namespace ConfigGen.TypeInfo
             _namespace = namespace0;
             _fullName = string.Format("{0}.{1}", namespace0, des.Name);
 
-            if (!Util.MatchName(Name))
+            if (!Util.MatchIdentifier(Name))
                 Error("命名不合法:" + Name);
 
             var consts = des.Enums;

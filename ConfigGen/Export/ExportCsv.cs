@@ -2,10 +2,10 @@
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
-using ConfigGen.Description;
-using ConfigGen.TypeInfo;
+using Description.Xml;
+using Description.TypeInfo;
 
-namespace ConfigGen.Export
+namespace Description.Export
 {
     class ExportCsv
     {

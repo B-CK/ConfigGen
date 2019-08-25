@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using ConfigGen.Config;
-using ConfigGen.TypeInfo;
+using Description.Config;
+using Description.TypeInfo;
 
-namespace ConfigGen.Import
+namespace Description.Import
 {
     public class ImportXml
     {
