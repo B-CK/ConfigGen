@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml;
+using System.Windows.Forms;
 
 namespace Description
 {
@@ -15,12 +16,13 @@ namespace Description
         /// 工具所在目录
         /// </summary>
         public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
+        public const string DefaultModuleName = "Default";
         public static string DefaultModule
         {
             get
             {
                 if (_defaultModule.IsEmpty())
-                    _defaultModule = Path.GetFullPath(Path.Combine(ModuleDir, "Default.xml"));
+                    _defaultModule = Path.GetFullPath(Path.Combine(ModuleDir, DefaultModuleName + ".xml"));
                 return _defaultModule;
             }
         }
@@ -92,6 +94,10 @@ namespace Description
         public const string STRING = "string";
         public const string LIST = "list";
         public const string DICT = "dict";
+        /// <summary>
+        /// 空命名空间符号
+        /// </summary>
+        public const string EmptyNamespace = "@";
 
         public static readonly HashSet<string> RawTypes = new HashSet<string>() { BOOL, INT, FLOAT, LONG, STRING };
         public static readonly HashSet<string> ContainerTypes = new HashSet<string>() { LIST, DICT };
@@ -104,10 +110,9 @@ namespace Description
         /// </summary>
         public static readonly char[] DotSplit = new char[] { '.' };
 
-
         private static readonly char[] PathSplit = new char[] { '\\' };
         private static readonly StringBuilder Builder = new StringBuilder();
-        public static string Format(string fmt, params string[] args)
+        public static string Format(string fmt, params object[] args)
         {
             Builder.Clear();
             return Builder.AppendFormat(fmt, args).ToString();
@@ -160,6 +165,18 @@ namespace Description
         public static void Error(string fmt, params object[] msg)
         {
             new Exception(string.Format(fmt, msg));
+        }
+        public static void MsgWarning(string title, string fmt, params object[] msg)
+        {
+            string warning = Format(fmt, msg);
+            MessageBox.Show(warning, title, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+            ConsoleDock.Ins.LogWarning(warning);
+        }
+        public static void MsgError(string title, string fmt, params object[] msg)
+        {
+            string error = Format(fmt, msg);
+            MessageBox.Show(error, title, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Error);
+            ConsoleDock.Ins.LogError(error);
         }
         public static string GetModuleRelPath(string path)
         {

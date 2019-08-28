@@ -3,6 +3,7 @@ using Description.Properties;
 using Description.Xml;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
@@ -13,7 +14,6 @@ namespace Description
     {
         static MainWindow _ins;
         public static MainWindow Ins { get { return _ins; } }
-
         public DockPanel _dock { get { return _dockPanel; } }
 
         public MainWindow()
@@ -22,6 +22,7 @@ namespace Description
             InitializeComponent();
 
             InitSettings();
+            InitXml();
             ConsoleDock.Inspect();
             TypeEditorDock.Inspect();
             FindNamespaceDock.Inspect();
@@ -30,6 +31,8 @@ namespace Description
         }
         protected override void OnClosed(EventArgs e)
         {
+            _module = null;
+            _allNamespace.Clear();
             _ins = null;
             base.OnClosed(e);
         }
@@ -47,67 +50,246 @@ namespace Description
             if (!Directory.Exists(Util.NamespaceDir))
                 Directory.CreateDirectory(Util.NamespaceDir);
         }
-        private void DescriptorWindow_Load(object sender, EventArgs e)
+
+        #region Xml数据管理
+        public string Path { get { return _path; } }
+        public Dictionary<string, NamespaceXml> Namespaces { get { return _allNamespace; } }
+        private Dictionary<string, NamespaceXml> _allNamespace;
+        //private List<TypeEditorDock> _tempType;
+
+        private string _path;
+        private ModuleXml _module;
+        private object cs;
+
+        private void InitXml()
         {
+            _allNamespace = new Dictionary<string, NamespaceXml>();
+            string[] fs = Directory.GetFiles(Util.NamespaceDir);
+            for (int i = 0; i < fs.Length; i++)
+            {
+                string path = fs[i];
+                string name = System.IO.Path.GetFileNameWithoutExtension(path);
+                var value = Util.Deserialize<NamespaceXml>(path);
+                _allNamespace.Add(name, value);
+            }
 
-            return;
+            string epath = Util.Format("{0}\\{1}.xml", Util.NamespaceDir, Util.EmptyNamespace);
+            if (!File.Exists(epath))
+            {
+                var enamespace = new NamespaceXml();
+                Util.Serialize(epath, enamespace);
+                string ename = System.IO.Path.GetFileNameWithoutExtension(epath);
+                _allNamespace.Add(ename, enamespace);
+            }
+        }
+        public void CreateModule(string path)
+        {
+            ModuleXml module = new ModuleXml();
+            Util.Serialize(path, module);
+            ConsoleDock.Ins.LogFormat("创建模板{0}", path);
+        }
+        public void OpenDefault()
+        {
+            OpenModule(Util.DefaultModule);
+        }
+        public void OpenModule(string path)
+        {
+            this._path = path;
 
+            if (File.Exists(path))
+                _module = Util.Deserialize<ModuleXml>(path);
+            else
+                _module = new ModuleXml();
+            MainWindow.Ins.Text = Util.Format("结构描述 - {0}", path);
+            if (_module.Imports == null)
+                return;
 
-
-
-            //解析类型定义
-            Dictionary<string, NamespaceXml> pairs = new Dictionary<string, NamespaceXml>();
-            string path = "无法解析Xml.NamespaceDes";
-
-            //try
-            //{
-            //    var configXml = Util.Deserialize(Setting.ConfigXml, typeof(ConfigXml)) as ConfigXml;
-            //    if (configXml.Root.IsEmpty())
-            //        throw new Exception("数据结构导出时必须指定命名空间根节点<Config Root=\"**\">");
-            //    Setting.ConfigRootNode = configXml.Root;
-            //    List<string> include = configXml.Import;
-            //    for (int i = 0; i < include.Count; i++)
-            //    {
-            //        path = Util.GetAbsPath(include[i]);
-            //        var des = Util.Deserialize(path, typeof(NamespaceXml)) as NamespaceXml;
-            //        if (pairs.ContainsKey(des.Name))
-            //        {
-            //            pairs[des.Name].Classes.AddRange(des.Classes);
-            //            pairs[des.Name].Enums.AddRange(des.Enums);
-            //        }
-            //        else
-            //        {
-            //            des.XmlDir = Path.GetDirectoryName(path);
-            //            pairs.Add(des.Name, des);
-            //        }
-            //    }
-            //    GroupInfo.LoadGroup(configXml.Group);
-            //}
-            //catch (Exception e)
-            //{
-            //    Util.LogErrorFormat("路径:{0} Error:{1}\n{2}", path, e.Message, e.StackTrace);
-            //    return;
-            //}
-
-            //HashSet<string> fullHash = new HashSet<string>();
-            //var nit = pairs.GetEnumerator();
-            //while (nit.MoveNext())
-            //{
-            //    var item = nit.Current;
-            //    string namespace0 = item.Key;
-            //    for (int i = 0; i < item.Value.Classes.Count; i++)
-            //    {
-            //        ClassXml classDes = item.Value.Classes[i];
-            //        var cls = new ClassInfo(classDes, namespace0);
-            //        if (cls.IsConfig())
-            //            new ConfigInfo(classDes, namespace0, item.Value.XmlDir);
-            //    }
-            //    for (int i = 0; i < item.Value.Enums.Count; i++)
-            //        new EnumInfo(item.Value.Enums[i], namespace0);
-            //}
+            HashSet<string> imports = new HashSet<string>(_module.Imports);
+            foreach (var item in _allNamespace)
+                item.Value.IsValide = !imports.Contains(item.Key);
+            ConsoleDock.Ins.LogFormat("打开模板{0}", path);
+        }
+        public void CloseModule()
+        {
+            SaveModule();
+            OpenDefault();
+        }
+        public void SaveModule()
+        {
+            Util.Serialize(_path, _module);
+            ConsoleDock.Ins.LogFormat("保存模板{0}", _path);
+        }
+        public void SaveAnotherModule(string path)
+        {
+            Util.Serialize(path, _module);
+            ConsoleDock.Ins.LogFormat("另存模板{0}", path);
         }
 
+        #region 命名空间操作
+        public bool CreateNamespace(string name, string module = Util.DefaultModuleName)
+        {
+            if (_allNamespace.ContainsKey(name))
+            {
+                Util.MsgWarning("创建命名空间", "命名空间{0}已经存在.", name);
+                return false;
+            }
+            else
+            {
+                NamespaceXml namespaceXml = new NamespaceXml()
+                {
+                    Name = name,
+                    Classes = new List<ClassXml>(),
+                    Enums = new List<EnumXml>(),
+                };
+                string path = Util.Format("{0}\\{1}.xml", Util.NamespaceDir, name);
+                try
+                {
+                    Util.Serialize(path, namespaceXml);
+                }
+                catch (Exception e)
+                {
+                    ConsoleDock.Ins.LogErrorFormat("创建命名空间{0}失败!\n{1}\n{2}\n",
+                       name, e.Message, e.StackTrace);
+                    return false;
+                }
+                _allNamespace.Add(namespaceXml.Name, namespaceXml);
+                return true;
+            }
+        }
+        public bool DeleteNamespace(string name)
+        {
+            if (_allNamespace.ContainsKey(name))
+            {
+                try
+                {
+                    string path = Util.Format("{0}\\{1}.xml", Util.NamespaceDir, name);
+                    File.Delete(path);
+                }
+                catch (Exception e)
+                {
+                    ConsoleDock.Ins.LogErrorFormat("删除命名空间{0}失败!\n{1}\n{2}\n",
+                       name, e.Message, e.StackTrace);
+                    return false;
+                }
+                _allNamespace.Remove(name);
+                return true;
+            }
+            return false;
+        }
+        #endregion
+
+        #region 类型操作
+        public bool CreateType(int type, string name, string namespace1)
+        {
+            if (_allNamespace.ContainsKey(namespace1))
+            {
+                bool isExist = false;
+                string fullName = Util.Format("{0}.{1}", namespace1, name);
+                NamespaceXml namespaceXml = _allNamespace[namespace1];
+                if (type == CreatorDock.CLASS)
+                {
+                    List<ClassXml> cs = namespaceXml.Classes;
+                    for (int i = 0; i < cs.Count; i++)
+                        isExist = cs[i].FullName == fullName;
+                    if (!isExist)
+                    {
+                        ClassXml classXml = new ClassXml()
+                        {
+                            Name = name,
+                            Namespace = namespace1,
+                            Fields = new List<FieldXml>(),
+                        };
+                        namespaceXml.Classes.Add(classXml);
+                    }
+                    else
+                    {
+                        Util.MsgWarning("创建Class", "{0}已经存在!", fullName);
+                        return false;
+                    }
+                }
+                else if (type == CreatorDock.ENUM)
+                {
+                    List<EnumXml> es = namespaceXml.Enums;
+                    for (int i = 0; i < es.Count; i++)
+                        isExist = es[i].FullName == fullName;
+                    if (!isExist)
+                    {
+                        EnumXml enumXml = new EnumXml()
+                        {
+                            Name = name,
+                            Namespace = namespace1,
+                            Items = new List<EnumItemXml>(),
+                        };
+                        namespaceXml.Enums.Add(enumXml);
+                    }
+                    else
+                    {
+                        Util.MsgWarning("创建Enum", "{0}已经存在!", fullName);
+                        return false;
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                Util.MsgWarning("创建类型", "命名空间{0}不存在,请先创建命名空间.", namespace1);
+                return false;
+            }
+        }
+        public bool DeleteType(int type, string name, string namespace1)
+        {
+            if (_allNamespace.ContainsKey(namespace1))
+            {
+                string fullName = Util.Format("{0}.{1}", namespace1, name);
+                NamespaceXml namespaceXml = _allNamespace[namespace1];
+                if (type == CreatorDock.CLASS)
+                {
+                    List<ClassXml> cs = namespaceXml.Classes;
+                    for (int i = 0; i < cs.Count; i++)
+                    {
+                        if (cs[i].FullName == fullName)
+                        {
+                            namespaceXml.Classes.RemoveAt(i);
+                            break;
+                        }
+                    }
+                }
+                else if (type == CreatorDock.ENUM)
+                {
+                    List<EnumXml> es = namespaceXml.Enums;
+                    for (int i = 0; i < es.Count; i++)
+                    {
+                        if (es[i].FullName == fullName)
+                        {
+                            namespaceXml.Enums.RemoveAt(i);
+                            break;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        public void OpenType()
+        {
+
+        }
+        public void SaveType()
+        {
+
+        }
+        public void CloseType()
+        {
+
+        }
+        #endregion
+        #endregion
+
         #region 文件
+        private void CreateItem_Click(object sender, EventArgs e)
+        {
+            var creator = new CreatorDock();
+            creator.ShowDialog();
+        }
         private void CreateModuleItem_Click(object sender, EventArgs e)
         {
             _saveFileDialog.InitialDirectory = Util.ModuleDir;
@@ -117,7 +299,7 @@ namespace Description
                 try
                 {
                     string fileName = _saveFileDialog.FileName;
-                    Module.Ins.Create(fileName);
+                    CreateModule(fileName);
                 }
                 catch (Exception ex)
                 {
@@ -135,7 +317,7 @@ namespace Description
                 try
                 {
                     string fileName = _openFileDialog.FileName;
-                    Module.Ins.Open(fileName);
+                    OpenModule(fileName);
                 }
                 catch (Exception ex)
                 {
@@ -146,7 +328,7 @@ namespace Description
 
         private void SaveModuleItem_Click(object sender, EventArgs e)
         {
-            Module.Ins.Save();
+            SaveModule();
         }
 
         private void SaveAnotherModuleItem_Click(object sender, EventArgs e)
@@ -158,7 +340,7 @@ namespace Description
                 try
                 {
                     string fileName = _saveFileDialog.FileName;
-                    Module.Ins.SaveAnother(fileName);
+                    SaveAnotherModule(fileName);
                 }
                 catch (Exception ex)
                 {
@@ -169,11 +351,15 @@ namespace Description
 
         private void CloseModuleItem_Click(object sender, EventArgs e)
         {
-            Module.Ins.Close();
+            CloseModule();
         }
         #endregion
 
         #region 视图
+        private void RefreshItem_Click(object sender, EventArgs e)
+        {
+
+        }
         private void OpenFindNamespaceItem_Click(object sender, EventArgs e)
         {
             FindNamespaceDock.Inspect();
@@ -188,6 +374,7 @@ namespace Description
         {
             TypeEditorDock.Inspect();
         }
+
         #endregion
 
 

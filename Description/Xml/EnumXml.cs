@@ -7,6 +7,6 @@ namespace Description.Xml
     public class EnumXml : TypeXml
     {
         [XmlElement("Item")]
-        public List<EnumItemXml> Enums;
+        public List<EnumItemXml> Items;
     }
 }

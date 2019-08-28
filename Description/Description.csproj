@@ -61,8 +61,13 @@
     <Compile Include="ConsoleDock.Designer.cs">
       <DependentUpon>ConsoleDock.cs</DependentUpon>
     </Compile>
+    <Compile Include="CreatorDock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CreatorDock.Designer.cs">
+      <DependentUpon>CreatorDock.cs</DependentUpon>
+    </Compile>
     <Compile Include="Log.cs" />
-    <Compile Include="Module.cs" />
     <Compile Include="FindNamespaceDock.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -101,6 +106,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ConsoleDock.resx">
       <DependentUpon>ConsoleDock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CreatorDock.resx">
+      <DependentUpon>CreatorDock.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>

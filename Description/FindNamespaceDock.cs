@@ -41,34 +41,33 @@ namespace Description
 
             string path = Util.LastRecord;
             if (File.Exists(path))
-                Module.Ins.Open(path);
+                MainWindow.Ins.OpenModule(path);
             else
-                Module.Ins.OpenDefault();
+                MainWindow.Ins.OpenDefault();
 
             ///先完成命名空间的创建
-            var namespaces = Module.Ins.Namespaces;
-            for (int i = 0; i < namespaces.Count; i++)
-            {
-                NamespaceXml _namespace = namespaces[i];
-                _typeTreeView.Nodes.Add(_namespace.Name);
-                //string[] nodes = _namespace.Name.Split(Util.DotSplit, StringSplitOptions.RemoveEmptyEntries);
-                //for (int k = 0; k < nodes.Length; k++)
-                //{
-                //    _typeTreeView.Nodes.Add(nodes)
-                //}
+            //var namespaces = Module.Ins.Namespaces;
+            //for (int i = 0; i < namespaces.Count; i++)
+            //{
+            //    NamespaceXml _namespace = namespaces[i];
+            //    _typeTreeView.Nodes.Add(_namespace.Name);
+            //string[] nodes = _namespace.Name.Split(Util.DotSplit, StringSplitOptions.RemoveEmptyEntries);
+            //for (int k = 0; k < nodes.Length; k++)
+            //{
+            //    _typeTreeView.Nodes.Add(nodes)
+            //}
 
-                //string fmt = "{0}.{1}";
-                //var classes = _namespace.Classes;
-                //for (int k = 0; k < classes.Count; k++)
-                //{
-                //    string fullName = Util.Format(fmt, _namespace.Name, classes[k].Name);
-                //}
-                //var enums = _namespace.Enums;
-                //for (int k = 0; k < enums.Count; k++)
-                //{
-                //    string fullName = Util.Format(fmt, _namespace.Name, enums[k].Name);
-                //}
-            }
+            //string fmt = "{0}.{1}";
+            //var classes = _namespace.Classes;
+            //for (int k = 0; k < classes.Count; k++)
+            //{
+            //    string fullName = Util.Format(fmt, _namespace.Name, classes[k].Name);
+            //}
+            //var enums = _namespace.Enums;
+            //for (int k = 0; k < enums.Count; k++)
+            //{
+            //    string fullName = Util.Format(fmt, _namespace.Name, enums[k].Name);
+            //}
         }
 
         private void TypeTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)

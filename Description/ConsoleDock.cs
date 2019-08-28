@@ -92,18 +92,21 @@ namespace Description
         {
             SendMessage(LogType.Error, msg);
         }
-        public void LogFormat(string format, params string[] logString)
+        public void LogFormat(string format, params object[] logString)
         {
             Log(Util.Format(format, logString));
         }
-        public void LogWarningFormat(string format, params string[] warningString)
+        public void LogWarningFormat(string format, params object[] warningString)
         {
             LogWarning(Util.Format(format, warningString));
         }
-        public void LogErrorFormat(string format, params string[] errorString)
+        public void LogErrorFormat(string format, params object[] errorString)
         {
             LogError(Util.Format(format, errorString));
         }
+
+
+
         private void SendMessage(LogType type, string msg = "")
         {
             int line = _logs.Count;

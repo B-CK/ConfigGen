@@ -29,9 +29,7 @@
         private void InitializeComponent()
         {
             this._saveTypeButton = new System.Windows.Forms.Button();
-            this._locateButton = new System.Windows.Forms.Button();
             this._deleteTypeButton = new System.Windows.Forms.Button();
-            this._createTypeButton = new System.Windows.Forms.Button();
             this.MemberGroupBox = new System.Windows.Forms.GroupBox();
             this.MemberSplitContainer = new System.Windows.Forms.SplitContainer();
             this._memberListBox = new System.Windows.Forms.ListBox();
@@ -78,26 +76,12 @@
             this._saveTypeButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this._saveTypeButton.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this._saveTypeButton.ForeColor = System.Drawing.Color.LightGray;
-            this._saveTypeButton.Location = new System.Drawing.Point(652, 143);
+            this._saveTypeButton.Location = new System.Drawing.Point(652, 14);
             this._saveTypeButton.Name = "_saveTypeButton";
             this._saveTypeButton.Size = new System.Drawing.Size(166, 38);
             this._saveTypeButton.TabIndex = 8;
             this._saveTypeButton.Text = "保存";
             this._saveTypeButton.UseVisualStyleBackColor = false;
-            // 
-            // _locateButton
-            // 
-            this._locateButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._locateButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._locateButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this._locateButton.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this._locateButton.ForeColor = System.Drawing.Color.LightGray;
-            this._locateButton.Location = new System.Drawing.Point(652, 99);
-            this._locateButton.Name = "_locateButton";
-            this._locateButton.Size = new System.Drawing.Size(166, 38);
-            this._locateButton.TabIndex = 9;
-            this._locateButton.Text = "定位源文件";
-            this._locateButton.UseVisualStyleBackColor = false;
             // 
             // _deleteTypeButton
             // 
@@ -106,26 +90,12 @@
             this._deleteTypeButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this._deleteTypeButton.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this._deleteTypeButton.ForeColor = System.Drawing.Color.LightGray;
-            this._deleteTypeButton.Location = new System.Drawing.Point(652, 55);
+            this._deleteTypeButton.Location = new System.Drawing.Point(652, 56);
             this._deleteTypeButton.Name = "_deleteTypeButton";
             this._deleteTypeButton.Size = new System.Drawing.Size(166, 38);
             this._deleteTypeButton.TabIndex = 10;
             this._deleteTypeButton.Text = "删除";
             this._deleteTypeButton.UseVisualStyleBackColor = false;
-            // 
-            // _createTypeButton
-            // 
-            this._createTypeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._createTypeButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._createTypeButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this._createTypeButton.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this._createTypeButton.ForeColor = System.Drawing.Color.LightGray;
-            this._createTypeButton.Location = new System.Drawing.Point(652, 11);
-            this._createTypeButton.Name = "_createTypeButton";
-            this._createTypeButton.Size = new System.Drawing.Size(166, 38);
-            this._createTypeButton.TabIndex = 11;
-            this._createTypeButton.Text = "新增";
-            this._createTypeButton.UseVisualStyleBackColor = false;
             // 
             // MemberGroupBox
             // 
@@ -511,16 +481,14 @@
             this.TypeLabel.TabIndex = 1;
             this.TypeLabel.Text = "类型:";
             // 
-            // TypeDock
+            // TypeEditorDock
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             this.ClientSize = new System.Drawing.Size(822, 594);
             this.Controls.Add(this._saveTypeButton);
-            this.Controls.Add(this._locateButton);
             this.Controls.Add(this._deleteTypeButton);
-            this.Controls.Add(this._createTypeButton);
             this.Controls.Add(this.MemberGroupBox);
             this.Controls.Add(this.TypeGroupBox);
             this.DockAreas = ((WeifenLuo.WinFormsUI.Docking.DockAreas)((WeifenLuo.WinFormsUI.Docking.DockAreas.Float | WeifenLuo.WinFormsUI.Docking.DockAreas.Document)));
@@ -529,7 +497,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(838, 641);
-            this.Name = "TypeDock";
+            this.Name = "TypeEditorDock";
             this.ShowIcon = false;
             this.Text = "类型编辑";
             this.MemberGroupBox.ResumeLayout(false);
@@ -551,9 +519,7 @@
         #endregion
 
         private System.Windows.Forms.Button _saveTypeButton;
-        private System.Windows.Forms.Button _locateButton;
         private System.Windows.Forms.Button _deleteTypeButton;
-        private System.Windows.Forms.Button _createTypeButton;
         private System.Windows.Forms.GroupBox MemberGroupBox;
         private System.Windows.Forms.SplitContainer MemberSplitContainer;
         private System.Windows.Forms.ListBox _memberListBox;
