@@ -18,8 +18,7 @@ namespace Description.Wrap
         }
 
         public override string FullName { get { return Util.Format("{0}.{1}", _namespace.Name, Name); } }
-        public NamespaceWrap Parent { get { return _namespace; } set { _namespace = value; } }
-        public string Namespace { get { return _namespace.Name; } }
+        public NamespaceWrap Namespace { get { return _namespace; } set { _namespace = value; } }
         public string Desc { get { return _xml.Desc; } set { _xml.Desc = value; } }
         public string Group { get { return _xml.Group; } set { _xml.Group = value; } }
 

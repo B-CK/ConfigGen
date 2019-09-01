@@ -11,6 +11,9 @@
     <Setting Name="LastModule" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="Groups" Type="System.String" Scope="User">
+      <Value Profile="(Default)">All:Client:Server:Editor</Value>
+    </Setting>
     <Setting Name="DataDir" Type="System.String" Scope="User">
       <Value Profile="(Default)">.</Value>
     </Setting>

@@ -8,8 +8,6 @@ namespace Description.Xml
     {
         [XmlAttribute]
         public string Name;
-        [XmlElement("Groups")]
-        public string Groups;
         [XmlElement("Import")]
         public List<string> Imports;
     }

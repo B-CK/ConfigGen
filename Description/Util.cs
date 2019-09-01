@@ -17,12 +17,16 @@ namespace Description
         /// </summary>
         public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
         public const string DefaultModuleName = "Default";
+        /// <summary>
+        /// 空命名空间符号
+        /// </summary>
+        public const string EmptyNamespace = "@";
         public static string DefaultModule
         {
             get
             {
                 if (_defaultModule.IsEmpty())
-                    _defaultModule = Path.GetFullPath(Path.Combine(ModuleDir, DefaultModuleName + ".xml"));
+                    _defaultModule = Path.GetFullPath(GetModuleAbsPath(DefaultModuleName + ".xml"));
                 return _defaultModule;
             }
         }
@@ -99,10 +103,6 @@ namespace Description
         public const string STRING = "string";
         public const string LIST = "list";
         public const string DICT = "dict";
-        /// <summary>
-        /// 空命名空间符号
-        /// </summary>
-        public const string EmptyNamespace = "@";
 
         public static readonly HashSet<string> RawTypes = new HashSet<string>() { BOOL, INT, FLOAT, LONG, STRING };
         public static readonly HashSet<string> ContainerTypes = new HashSet<string>() { LIST, DICT };

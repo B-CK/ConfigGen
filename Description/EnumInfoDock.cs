@@ -13,7 +13,7 @@ namespace Description
             if (dock == null) dock = new EnumInfoDock(wrap);
 
             dock._nameTextBox.Text = wrap.Name;
-            int index = dock._namespaceComboBox.FindStringExact(wrap.Namespace);
+            int index = dock._namespaceComboBox.FindStringExact(wrap.Namespace.FullName);
             dock._namespaceComboBox.Select(index, 1);
             dock._desTextBox.Text = wrap.Desc;
         }

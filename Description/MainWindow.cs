@@ -17,14 +17,14 @@ namespace Description
         static MainWindow _ins;
         public static MainWindow Ins { get { return _ins; } }
         public DockPanel _dock { get { return _dockPanel; } }
-
+        
         public MainWindow()
         {
             _ins = this;
             InitializeComponent();
 
             InitSettings();
-            InitDefaultModule();
+            ModuleWrap.InitDefaultModule();
             NamespaceWrap.Init();
             ConsoleDock.Inspect();
             FindNamespaceDock.Inspect();
@@ -33,12 +33,12 @@ namespace Description
         }
         protected override void OnClosed(EventArgs e)
         {
-            _module = null;
+            ModuleWrap.Default.Save();
+            ModuleWrap.Current.Save();
             _ins = null;
             PoolManager.Ins.Clear();
             base.OnClosed(e);
         }
-
         private void InitSettings()
         {
             if (!Settings.Default.ModuleDir.IsEmpty())
@@ -52,64 +52,6 @@ namespace Description
             if (!Directory.Exists(Util.NamespaceDir))
                 Directory.CreateDirectory(Util.NamespaceDir);
         }
-
-        #region Module:模板管理
-        //private List<TypeEditorDock> _tempType;
-        public ModuleXml CurrentModule { get { return _module; } }
-        private string _path;
-        private ModuleXml _module;
-
-        private void InitDefaultModule()
-        {
-            if (!File.Exists(Util.DefaultModule))
-                CreateModule(Util.DefaultModule);
-        }
-        public void CreateModule(string path)
-        {
-            ModuleXml module = new ModuleXml();
-            Util.Serialize(path, module);
-            ConsoleDock.Ins.LogFormat("创建模板{0}", path);
-        }
-        public void OpenDefault()
-        {
-            OpenModule(Util.DefaultModule);
-        }
-        public void OpenModule(string path)
-        {
-            this._path = path;
-
-            if (File.Exists(path))
-                _module = Util.Deserialize<ModuleXml>(path);
-            else
-                _module = new ModuleXml();
-            Text = Util.Format("结构描述 - {0}", path);
-            if (_module.Imports == null)
-                return;
-
-            NamespaceWrap.UpdateImportedFlag(_module.Imports);
-            ConsoleDock.Ins.LogFormat("打开模板{0}", path);
-        }
-        public void CloseModule()
-        {
-            SaveModule();
-            OpenDefault();
-        }
-        public void SaveModule()
-        {
-            Util.Serialize(_path, _module);
-            ConsoleDock.Ins.LogFormat("保存模板{0}", _path);
-        }
-        public void SaveAnotherModule(string path)
-        {
-            Util.Serialize(path, _module);
-            ConsoleDock.Ins.LogFormat("另存模板{0}", path);
-        }
-
-        public void CreateTypeDock()
-        {
-
-        }
-        #endregion
 
         #region 文件
         private void CreateItem_Click(object sender, EventArgs e)
@@ -126,7 +68,7 @@ namespace Description
                 try
                 {
                     string fileName = _saveFileDialog.FileName;
-                    CreateModule(fileName);
+                    ModuleWrap.Create(fileName);
                 }
                 catch (Exception ex)
                 {
@@ -144,7 +86,7 @@ namespace Description
                 try
                 {
                     string fileName = _openFileDialog.FileName;
-                    OpenModule(fileName);
+                    ModuleWrap.Open(fileName);
                 }
                 catch (Exception ex)
                 {
@@ -155,7 +97,7 @@ namespace Description
 
         private void SaveModuleItem_Click(object sender, EventArgs e)
         {
-            SaveModule();
+            ModuleWrap.Current.Save();
         }
 
         private void SaveAnotherModuleItem_Click(object sender, EventArgs e)
@@ -167,7 +109,7 @@ namespace Description
                 try
                 {
                     string fileName = _saveFileDialog.FileName;
-                    SaveAnotherModule(fileName);
+                    ModuleWrap.Current.SaveAnother(fileName);
                 }
                 catch (Exception ex)
                 {
@@ -178,7 +120,8 @@ namespace Description
 
         private void CloseModuleItem_Click(object sender, EventArgs e)
         {
-            CloseModule();
+            ModuleWrap.Current.Close();
+            ModuleWrap.OpenDefault();
         }
         #endregion
 
@@ -203,9 +146,8 @@ namespace Description
 
         private void OpenTypeEditorItem_Click(object sender, EventArgs e)
         {
-             
-        }
 
+        }
         #endregion
 
 

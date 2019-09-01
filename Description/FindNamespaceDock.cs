@@ -8,9 +8,11 @@ namespace Description
 {
     public partial class FindNamespaceDock : DockContent
     {
-
         public static FindNamespaceDock Ins { get { return _ins; } }
         static FindNamespaceDock _ins;
+
+
+        TreeNode _node;
         public static void Inspect()
         {
             if (_ins == null)
@@ -33,9 +35,9 @@ namespace Description
             InitializeComponent();
 
             if (File.Exists(Util.LastRecord))
-                MainWindow.Ins.OpenModule(Util.LastRecord);
+                ModuleWrap.Open(Util.LastRecord);
             else
-                MainWindow.Ins.OpenDefault();
+                ModuleWrap.OpenDefault();
 
             var all = NamespaceWrap.AllNamespaces;
             foreach (var item in all)
@@ -43,31 +45,56 @@ namespace Description
                 NamespaceWrap root = item.Value;
                 AddRootNode(root);
                 for (int i = 0; i < root.Classes.Count; i++)
-                    AddSubNode(root.Classes[i], item.Key);
+                    AddSubNode(root.Classes[i], item.Value);
                 for (int i = 0; i < root.Enums.Count; i++)
-                    AddSubNode(root.Enums[i], item.Key);
+                    AddSubNode(root.Enums[i], item.Value);
             }
             _nodeTreeView.Sort();
         }
-        private void AddRootNode(NamespaceWrap wrap)
+        public void AddRootNode(NamespaceWrap wrap)
         {
-            TreeNode root = new TreeNode() { Tag = wrap };
-            _nodeTreeView.Nodes.Add(wrap.FullName, wrap.FullName);
+            TreeNode root = GetNode(wrap);
+            _nodeTreeView.Nodes.Add(root);
+            ModuleWrap.Default.AddImport(wrap);
+            ModuleWrap.Current.AddImport(wrap);
         }
-        private void AddSubNode(ClassWrap cWrap, string root)
+        public void AddSubNode(ClassWrap cWrap, NamespaceWrap nWrap)
         {
-            TreeNode sub = new TreeNode() { Tag = cWrap };
-            TreeNode rootNode = _nodeTreeView.Nodes[root];
-            rootNode.Nodes.Add(cWrap.FullName, cWrap.FullName);
+            TreeNode rootNode = _nodeTreeView.Nodes[nWrap.FullName];
+            TreeNode sub = GetNode(cWrap);
+            rootNode.Nodes.Add(sub);
+            nWrap.AddClass(cWrap);
         }
-        private void AddSubNode(EnumWrap eWrap, string root)
+        public void AddSubNode(EnumWrap eWrap, NamespaceWrap nWrap)
         {
-            TreeNode sub = new TreeNode() { Tag = eWrap };
-            TreeNode rootNode = _nodeTreeView.Nodes[root];
-            rootNode.Nodes.Add(eWrap.FullName, eWrap.FullName);
+            TreeNode rootNode = _nodeTreeView.Nodes[nWrap.FullName];
+            TreeNode sub = GetNode(eWrap);
+            rootNode.Nodes.Add(sub);
+            nWrap.AddEnum(eWrap);
+        }
+        private TreeNode GetNode(BaseWrap wrap)
+        {
+            TreeNode node = PoolManager.Ins.Pop<TreeNode>();
+            if (node == null)
+                node = new TreeNode()
+                {
+                    Tag = wrap,
+                    Name = wrap.FullName,
+                    Text = wrap.FullName
+                };
+            return node;
+        }
+        private void Set23MenuItem(bool state)
+        {
+            _includeMenuItem.Enabled = state;
+            _excludeMenuItem.Enabled = state;
         }
 
 
+        private void NodeTreeView_NodeMouseHover(object sender, TreeNodeMouseHoverEventArgs e)
+        {
+            _node = e.Node;
+        }
         /// <summary>
         /// 打开类型信息界面
         /// </summary>
@@ -81,25 +108,57 @@ namespace Description
             else if (data is EnumWrap)
                 TypeEditorDock.Create(data as EnumWrap);
         }
-
         private void NodeTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
             var point = _nodeTreeView.PointToScreen(e.Location);
+            _nodeTreeView.SelectedNode = _node;
+            Set23MenuItem(ModuleWrap.Default != ModuleWrap.Current
+                && _node.Tag is NamespaceWrap);
             _nodeMenu.Show(point);
         }
-
-        private void DeleteClass(object sender, EventArgs e)
+        private void NodeTreeView_DeleteNode(object sender, EventArgs e)
         {
-
+            var node = _nodeTreeView.SelectedNode;
+            object wrap = node.Tag;
+            if (wrap is NamespaceWrap)
+            {
+                var nsw = wrap as NamespaceWrap;
+                ModuleWrap.Current.RemoveImport(nsw);
+                ModuleWrap.Default.RemoveImport(nsw);
+            }
+            else if (wrap is ClassWrap)
+            {
+                var cls = wrap as ClassWrap;
+                cls.Namespace.RemoveClass(cls);
+            }
+            else if (wrap is EnumWrap)
+            {
+                var enm = wrap as EnumWrap;
+                enm.Namespace.RemoveEnum(enm);
+            }
+            _nodeTreeView.Nodes.Remove(node);
+            PoolManager.Ins.Push(node);
         }
-        private void DeleteEnum(object sender, EventArgs e)
+        private void NodeTreeView_Include(object sender, EventArgs e)
         {
-
+            var node = _nodeTreeView.SelectedNode;
+            object wrap = node.Tag;
+            if (wrap is NamespaceWrap)
+            {
+                var nsw = wrap as NamespaceWrap;
+                ModuleWrap.Current.RemoveImport(nsw);
+            }
         }
-        private void DeleteNamespace(object sender, EventArgs e)
+        private void NodeTreeView_Exclude(object sender, EventArgs e)
         {
-
+            var node = _nodeTreeView.SelectedNode;
+            object wrap = node.Tag;
+            if (wrap is NamespaceWrap)
+            {
+                var nsw = wrap as NamespaceWrap;
+                ModuleWrap.Current.AddImport(nsw);
+            }
         }
         private void CommitToLib(object sender, EventArgs e)
         {
@@ -109,5 +168,6 @@ namespace Description
         {
 
         }
+        
     }
 }

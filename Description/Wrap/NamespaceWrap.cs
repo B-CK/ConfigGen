@@ -30,6 +30,7 @@ namespace Description.Wrap
         }
         public static void UpdateImportedFlag(List<string> imports)
         {
+            if (imports == null) return;
             HashSet<string> hash = new HashSet<string>(imports);
             foreach (var item in _allNamespaces)
                 item.Value.IsContained = !hash.Contains(item.Key);
@@ -70,6 +71,7 @@ namespace Description.Wrap
         private List<EnumWrap> _enums;
         private NamespaceXml _xml;
         private bool _isDirty = false;
+        private string _path;
         protected NamespaceWrap(NamespaceXml xml) : base(xml.Name)
         {
             _xml = xml;
@@ -77,6 +79,7 @@ namespace Description.Wrap
             _enums = new List<EnumWrap>();
             _xml.Classes = _xml.Classes ?? new List<ClassXml>();
             _xml.Enums = _xml.Enums ?? new List<EnumXml>();
+            _path = Util.GetNamespaceAbsPath(_name + ".xml");
 
             var xclasses = _xml.Classes;
             for (int i = 0; i < xclasses.Count; i++)
@@ -107,7 +110,9 @@ namespace Description.Wrap
             Remove(wrap.Name);
             _classes.Remove(wrap);
             _xml.Classes.Remove(wrap);
+            wrap.Namespace = null;
         }
+
         public void AddEnum(EnumWrap wrap)
         {
             _enums.Add(wrap);
@@ -120,13 +125,13 @@ namespace Description.Wrap
             Remove(wrap.Name);
             _enums.Remove(wrap);
             _xml.Enums.Remove(wrap);
+            wrap.Namespace = null;
         }
         public void Serialize()
         {
             try
             {
-                string path = Util.GetNamespaceAbsPath(_name);
-                Util.Serialize(path, _xml);
+                Util.Serialize(_path, _xml);
             }
             catch (Exception e)
             {

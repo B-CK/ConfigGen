@@ -33,12 +33,11 @@
             this._classFilterBox = new System.Windows.Forms.TextBox();
             this._classPictureBox = new System.Windows.Forms.PictureBox();
             this._nodeMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.删除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.删除EnumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.删除命名空间ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.DeleteNodeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.提交SVNToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.提交ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._includeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._excludeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this._classPictureBox)).BeginInit();
             this._nodeMenu.SuspendLayout();
             this.SuspendLayout();
@@ -56,6 +55,7 @@
             this._nodeTreeView.PathSeparator = ".";
             this._nodeTreeView.Size = new System.Drawing.Size(232, 584);
             this._nodeTreeView.TabIndex = 2;
+            this._nodeTreeView.NodeMouseHover += new System.Windows.Forms.TreeNodeMouseHoverEventHandler(this.NodeTreeView_NodeMouseHover);
             this._nodeTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.NodeTreeView_NodeMouseClick);
             this._nodeTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.NodeTreeView_NodeMouseDoubleClick);
             // 
@@ -88,40 +88,20 @@
             // 
             this._nodeMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
             this._nodeMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.删除ToolStripMenuItem,
-            this.删除EnumToolStripMenuItem,
-            this.删除命名空间ToolStripMenuItem,
-            this.toolStripSeparator1,
+            this.DeleteNodeMenuItem,
+            this._includeMenuItem,
+            this._excludeMenuItem,
             this.提交SVNToolStripMenuItem,
             this.提交ToolStripMenuItem});
             this._nodeMenu.Name = "_nodeMenu";
-            this._nodeMenu.Size = new System.Drawing.Size(211, 158);
+            this._nodeMenu.Size = new System.Drawing.Size(169, 124);
             // 
-            // 删除ToolStripMenuItem
+            // DeleteNodeMenuItem
             // 
-            this.删除ToolStripMenuItem.Name = "删除ToolStripMenuItem";
-            this.删除ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
-            this.删除ToolStripMenuItem.Text = "删除Class";
-            this.删除ToolStripMenuItem.Click += new System.EventHandler(this.DeleteClass);
-            // 
-            // 删除EnumToolStripMenuItem
-            // 
-            this.删除EnumToolStripMenuItem.Name = "删除EnumToolStripMenuItem";
-            this.删除EnumToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
-            this.删除EnumToolStripMenuItem.Text = "删除Enum";
-            this.删除EnumToolStripMenuItem.Click += new System.EventHandler(this.DeleteEnum);
-            // 
-            // 删除命名空间ToolStripMenuItem
-            // 
-            this.删除命名空间ToolStripMenuItem.Name = "删除命名空间ToolStripMenuItem";
-            this.删除命名空间ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
-            this.删除命名空间ToolStripMenuItem.Text = "删除命名空间";
-            this.删除命名空间ToolStripMenuItem.Click += new System.EventHandler(this.DeleteNamespace);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(165, 6);
+            this.DeleteNodeMenuItem.Name = "DeleteNodeMenuItem";
+            this.DeleteNodeMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.DeleteNodeMenuItem.Text = "删除节点";
+            this.DeleteNodeMenuItem.Click += new System.EventHandler(this.NodeTreeView_DeleteNode);
             // 
             // 提交SVNToolStripMenuItem
             // 
@@ -136,6 +116,20 @@
             this.提交ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
             this.提交ToolStripMenuItem.Text = "提交";
             this.提交ToolStripMenuItem.Click += new System.EventHandler(this.CommitToLib);
+            // 
+            // _includeMenuItem
+            // 
+            this._includeMenuItem.Name = "_includeMenuItem";
+            this._includeMenuItem.Size = new System.Drawing.Size(210, 24);
+            this._includeMenuItem.Text = "包含到模块中";
+            this._includeMenuItem.Click += new System.EventHandler(this.NodeTreeView_Include);
+            // 
+            // _excludeMenuItem
+            // 
+            this._excludeMenuItem.Name = "_excludeMenuItem";
+            this._excludeMenuItem.Size = new System.Drawing.Size(210, 24);
+            this._excludeMenuItem.Text = "排除到模块外";
+            this._excludeMenuItem.Click += new System.EventHandler(this.NodeTreeView_Exclude);
             // 
             // FindNamespaceDock
             // 
@@ -167,11 +161,10 @@
         private System.Windows.Forms.TreeView _nodeTreeView;
         private System.Windows.Forms.TextBox _classFilterBox;
         private System.Windows.Forms.ContextMenuStrip _nodeMenu;
-        private System.Windows.Forms.ToolStripMenuItem 删除ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 删除EnumToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 删除命名空间ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem DeleteNodeMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 提交SVNToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 提交ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem _includeMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem _excludeMenuItem;
     }
 }

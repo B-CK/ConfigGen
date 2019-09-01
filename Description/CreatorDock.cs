@@ -14,7 +14,7 @@ namespace Description
         {
             InitializeComponent();
 
-            _modules = new string[1] { MainWindow.Ins.CurrentModule.Name };
+            _modules = new string[1] { ModuleWrap.Current.Name };
             _namespaces = new List<string>(NamespaceWrap.AllNamespaces.Keys).ToArray();
 
             _createListBox.SelectedIndex = 0;
@@ -25,6 +25,7 @@ namespace Description
             _2Label.Text = "命名空间:";
             _2ComboBox.Items.Clear();
             _2ComboBox.Items.AddRange(_namespaces);
+            _2ComboBox.Text = "";
             _2ComboBox.Enabled = true;
         }
         private void SelectNamespace()
@@ -32,6 +33,7 @@ namespace Description
             _2Label.Text = "模块名称:";
             _2ComboBox.Items.Clear();
             _2ComboBox.Items.AddRange(_modules);
+            _2ComboBox.Text = _modules[0];
             _2ComboBox.Enabled = false;
         }
         private void CreateListBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -49,59 +51,64 @@ namespace Description
         }
         private void OkButton_Click(object sender, EventArgs e)
         {
-            bool result = false;
+            Create();
+        }
+        private void Create()
+        {
             string name = _nameTextBox.Text;
-            if (CheckName(name)) return;
+            if (!CheckName(name)) return;
 
             string namespace0 = _2ComboBox.Text.IsEmpty() ? Util.EmptyNamespace : _2ComboBox.Text;
             switch (_createListBox.SelectedIndex)
             {
                 case 0:
                     {
-                        if (CheckNamespace(namespace0)) return;
+                        if (!CheckNamespace(namespace0)) return;
 
                         NamespaceWrap nsw = NamespaceWrap.GetNamespace(namespace0);
                         if (!nsw.Contains(name))
-                            TypeEditorDock.Create(ClassWrap.Create(name, nsw));
-                        else
                         {
-                            result = false;
-                            Util.MsgWarning("创建Class", "[Class]{0}已经存在!", name);
+                            var wrap = ClassWrap.Create(name, nsw);
+                            FindNamespaceDock.Ins.AddSubNode(wrap, nsw);
+                            TypeEditorDock.Create(wrap);
+                            Close();
                         }
+                        else
+                            Util.MsgWarning("创建Class", "[Class]{0}已经存在!", name);
                         break;
                     }
                 case 1:
                     {
-                        if (CheckNamespace(namespace0)) return;
+                        if (!CheckNamespace(namespace0)) return;
 
                         NamespaceWrap nsw = NamespaceWrap.GetNamespace(namespace0);
                         if (!nsw.Contains(name))
-                            TypeEditorDock.Create(EnumWrap.Create(name, nsw));
-                        else
                         {
-                            result = false;
-                            Util.MsgWarning("创建Enum", "[Class]{0}已经存在!", name);
+                            var wrap = EnumWrap.Create(name, nsw);
+                            FindNamespaceDock.Ins.AddSubNode(wrap, nsw);
+                            TypeEditorDock.Create(wrap);
+                            Close();
                         }
+                        else
+                            Util.MsgWarning("创建Enum", "[Class]{0}已经存在!", name);
                         break;
                     }
                 case 2:
                     {
                         NamespaceWrap nsw = NamespaceWrap.GetNamespace(namespace0);
                         if (nsw == null)
-                            NamespaceWrap.Create(name);
-                        else
                         {
-                            result = false;
-                            Util.MsgWarning("创建Namespace", "命名空间{0}已经存在.", name);
+                            FindNamespaceDock.Ins.AddRootNode(NamespaceWrap.Create(name));
+                            Close();
                         }
+                        else
+                            Util.MsgWarning("创建Namespace", "命名空间{0}已经存在.", name);
                         break;
                     }
                 default:
                     ConsoleDock.Ins.LogErrorFormat("创建内容选项中不存在项{0}", _createListBox.SelectedIndex);
                     break;
             }
-            if (result)
-                Close();
         }
         private bool CheckName(string name)
         {

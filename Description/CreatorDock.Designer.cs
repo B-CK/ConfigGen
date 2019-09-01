@@ -121,6 +121,7 @@
             this._2ComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             this._2ComboBox.ForeColor = System.Drawing.Color.LightGray;
             this._2ComboBox.FormattingEnabled = true;
+            this._2ComboBox.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this._2ComboBox.Location = new System.Drawing.Point(105, 275);
             this._2ComboBox.Name = "_2ComboBox";
             this._2ComboBox.Size = new System.Drawing.Size(292, 25);

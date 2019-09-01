@@ -73,6 +73,7 @@
     <Compile Include="Wrap\EnumItemWrap.cs" />
     <Compile Include="Wrap\EnumWrap.cs" />
     <Compile Include="Wrap\FieldWrap.cs" />
+    <Compile Include="Wrap\ModuleWrap.cs" />
     <Compile Include="Wrap\NamespaceWrap.cs" />
     <Compile Include="Console\ConsoleDock.cs">
       <SubType>Form</SubType>
