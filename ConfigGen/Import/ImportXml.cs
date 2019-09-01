@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using Description.Config;
+using Description.Wrap;
 using Description.TypeInfo;
 
 namespace Description.Import

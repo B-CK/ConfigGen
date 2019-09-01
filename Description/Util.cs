@@ -72,12 +72,17 @@ namespace Description
                 _lastRecord = Path.Combine(ApplicationDir, value);
             }
         }
+        /// <summary>
+        /// Excel数据目录
+        /// </summary>
+        public static string DataDir { get { return Format("{0}.{1}", ApplicationDir, _dataDir); } }
         public static string LogErrorFile { get { return Path.Combine(ApplicationDir, "error.log"); } }
 
         static string _defaultModule;
         static string _moduleDir;
         static string _namespaceDir;
         static string _lastRecord;
+        static string _dataDir;
         #endregion
 
 
@@ -169,13 +174,13 @@ namespace Description
         public static void MsgWarning(string title, string fmt, params object[] msg)
         {
             string warning = Format(fmt, msg);
-            MessageBox.Show(warning, title, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+            MessageBox.Show(warning, title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             ConsoleDock.Ins.LogWarning(warning);
         }
         public static void MsgError(string title, string fmt, params object[] msg)
         {
             string error = Format(fmt, msg);
-            MessageBox.Show(error, title, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Error);
+            MessageBox.Show(error, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
             ConsoleDock.Ins.LogError(error);
         }
         public static string GetModuleRelPath(string path)

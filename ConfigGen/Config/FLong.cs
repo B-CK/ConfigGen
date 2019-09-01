@@ -3,7 +3,7 @@ using Description.TypeInfo;
 using System;
 using System.Xml;
 
-namespace Description.Config
+namespace Description.Wrap
 {
     public class FLong : Data
     {

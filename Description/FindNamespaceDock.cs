@@ -1,13 +1,6 @@
-﻿using Description.Xml;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
+﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Description.Wrap;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -39,38 +32,80 @@ namespace Description
         {
             InitializeComponent();
 
-            string path = Util.LastRecord;
-            if (File.Exists(path))
-                MainWindow.Ins.OpenModule(path);
+            if (File.Exists(Util.LastRecord))
+                MainWindow.Ins.OpenModule(Util.LastRecord);
             else
                 MainWindow.Ins.OpenDefault();
 
-            ///先完成命名空间的创建
-            //var namespaces = Module.Ins.Namespaces;
-            //for (int i = 0; i < namespaces.Count; i++)
-            //{
-            //    NamespaceXml _namespace = namespaces[i];
-            //    _typeTreeView.Nodes.Add(_namespace.Name);
-            //string[] nodes = _namespace.Name.Split(Util.DotSplit, StringSplitOptions.RemoveEmptyEntries);
-            //for (int k = 0; k < nodes.Length; k++)
-            //{
-            //    _typeTreeView.Nodes.Add(nodes)
-            //}
-
-            //string fmt = "{0}.{1}";
-            //var classes = _namespace.Classes;
-            //for (int k = 0; k < classes.Count; k++)
-            //{
-            //    string fullName = Util.Format(fmt, _namespace.Name, classes[k].Name);
-            //}
-            //var enums = _namespace.Enums;
-            //for (int k = 0; k < enums.Count; k++)
-            //{
-            //    string fullName = Util.Format(fmt, _namespace.Name, enums[k].Name);
-            //}
+            var all = NamespaceWrap.AllNamespaces;
+            foreach (var item in all)
+            {
+                NamespaceWrap root = item.Value;
+                AddRootNode(root);
+                for (int i = 0; i < root.Classes.Count; i++)
+                    AddSubNode(root.Classes[i], item.Key);
+                for (int i = 0; i < root.Enums.Count; i++)
+                    AddSubNode(root.Enums[i], item.Key);
+            }
+            _nodeTreeView.Sort();
+        }
+        private void AddRootNode(NamespaceWrap wrap)
+        {
+            TreeNode root = new TreeNode() { Tag = wrap };
+            _nodeTreeView.Nodes.Add(wrap.FullName, wrap.FullName);
+        }
+        private void AddSubNode(ClassWrap cWrap, string root)
+        {
+            TreeNode sub = new TreeNode() { Tag = cWrap };
+            TreeNode rootNode = _nodeTreeView.Nodes[root];
+            rootNode.Nodes.Add(cWrap.FullName, cWrap.FullName);
+        }
+        private void AddSubNode(EnumWrap eWrap, string root)
+        {
+            TreeNode sub = new TreeNode() { Tag = eWrap };
+            TreeNode rootNode = _nodeTreeView.Nodes[root];
+            rootNode.Nodes.Add(eWrap.FullName, eWrap.FullName);
         }
 
-        private void TypeTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+
+        /// <summary>
+        /// 打开类型信息界面
+        /// </summary>
+        private void NodeTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            object data = e.Node.Tag;
+            if (data is NamespaceWrap) return;
+
+            if (data is ClassWrap)
+                TypeEditorDock.Create(data as ClassWrap);
+            else if (data is EnumWrap)
+                TypeEditorDock.Create(data as EnumWrap);
+        }
+
+        private void NodeTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            var point = _nodeTreeView.PointToScreen(e.Location);
+            _nodeMenu.Show(point);
+        }
+
+        private void DeleteClass(object sender, EventArgs e)
+        {
+
+        }
+        private void DeleteEnum(object sender, EventArgs e)
+        {
+
+        }
+        private void DeleteNamespace(object sender, EventArgs e)
+        {
+
+        }
+        private void CommitToLib(object sender, EventArgs e)
+        {
+
+        }
+        private void UpdateToLib(object sender, EventArgs e)
         {
 
         }

@@ -120,6 +120,7 @@
             this._logListView.ContextMenuStrip = this.contextMenuStrip;
             this._logListView.ForeColor = System.Drawing.Color.LightGray;
             this._logListView.FullRowSelect = true;
+            this._logListView.HideSelection = false;
             this._logListView.Name = "_logListView";
             this._logListView.TileSize = new System.Drawing.Size(980, 20);
             this._logListView.UseCompatibleStateImageBehavior = false;

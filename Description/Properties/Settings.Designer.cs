@@ -58,5 +58,17 @@ namespace Description.Properties {
                 this["LastModule"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(".")]
+        public string DataDir {
+            get {
+                return ((string)(this["DataDir"]));
+            }
+            set {
+                this["DataDir"] = value;
+            }
+        }
     }
 }

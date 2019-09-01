@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace Description.Config
+namespace Description.Wrap
 {
     public class FDict : Data
     {

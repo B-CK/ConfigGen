@@ -2,7 +2,7 @@
 using Description.TypeInfo;
 using System.Xml;
 
-namespace Description.Config
+namespace Description.Wrap
 {
     public class FEnum : Data
     {

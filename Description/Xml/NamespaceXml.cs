@@ -8,12 +8,11 @@ namespace Description.Xml
     {
         [XmlAttribute]
         public string Name;
+        [XmlAttribute]
+        public string Desc;
         [XmlElement("Class")]
         public List<ClassXml> Classes;
         [XmlElement("Enum")]
-        public List<EnumXml> Enums;
-
-        [XmlIgnore]
-        public bool IsValide = true;
+        public List<EnumXml> Enums;     
     }
 }

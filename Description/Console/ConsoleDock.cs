@@ -29,8 +29,6 @@ namespace Description
         protected override void OnClosed(EventArgs e)
         {
             stream.Close();
-            writer.Close();
-            writer.Dispose();
             stream.Dispose();
             stream = null;
             writer = null;
@@ -135,7 +133,8 @@ namespace Description
             if (check.Checked)
                 _logListView.Items.Add(log);
             _logListView.Refresh();
-            writer.WriteLine(log.TimeMsg);
+            if (writer != null)
+                writer.WriteLine(log.TimeMsg);
         }
 
         private void ResetLogCount()
@@ -191,9 +190,9 @@ namespace Description
         {
             //for (int i = 0; i < 111; i++)
             //{
-            //    SendMessage(LogType.Info, " -  Info|askjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdh");
-            //    SendMessage(LogType.Warn, " -  Warn|askjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdh");
-            //    SendMessage(LogType.Error, " -  Error|askjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdh");
+            //SendMessage(LogType.Info, " -  Info|askjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdh");
+            //SendMessage(LogType.Warn, " -  Warn|askjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdh");
+            //SendMessage(LogType.Error, " -  Error|askjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdh");
             //}
         }
 

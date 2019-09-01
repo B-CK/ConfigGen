@@ -17,7 +17,7 @@ namespace Description
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainWindow());
-            //Application.Run(CreatorDock.Ins);
+            //Application.Run(ConsoleDock.Ins);
         }
     }
 }

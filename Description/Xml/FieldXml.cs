@@ -34,7 +34,7 @@ namespace Description.Xml
     public class EnumItemXml : MemberXml
     {
         [XmlAttribute]
-        public string Value;
+        public int Value;
         [XmlAttribute]
         public string Alias;
     }

@@ -2,7 +2,7 @@
 using Description.TypeInfo;
 using System.Xml;
 
-namespace Description.Config
+namespace Description.Wrap
 {
     /// <summary>
     /// 数据导出控制类

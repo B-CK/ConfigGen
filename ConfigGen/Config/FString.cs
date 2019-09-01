@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Description.Config
+namespace Description.Wrap
 {
     public class FString : Data
     {

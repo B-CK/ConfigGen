@@ -28,8 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this._saveTypeButton = new System.Windows.Forms.Button();
-            this._deleteTypeButton = new System.Windows.Forms.Button();
             this.MemberGroupBox = new System.Windows.Forms.GroupBox();
             this.MemberSplitContainer = new System.Windows.Forms.SplitContainer();
             this._memberListBox = new System.Windows.Forms.ListBox();
@@ -39,24 +37,7 @@
             this._plusPictureBox = new System.Windows.Forms.PictureBox();
             this._memPictureBox = new System.Windows.Forms.PictureBox();
             this._memFilterBox = new System.Windows.Forms.TextBox();
-            this.TypeGroupBox = new System.Windows.Forms.GroupBox();
-            this._baseComboBox = new System.Windows.Forms.ComboBox();
-            this._dataPathButton = new System.Windows.Forms.Button();
-            this._keyComboBox = new System.Windows.Forms.ComboBox();
-            this._typeComboBox = new System.Windows.Forms.ComboBox();
-            this.BaseLabel = new System.Windows.Forms.Label();
-            this.ShowDataPathLabel = new System.Windows.Forms.Label();
-            this.DataPathLabel = new System.Windows.Forms.Label();
-            this._displayTextBox = new System.Windows.Forms.TextBox();
-            this.DisplayLabel = new System.Windows.Forms.Label();
-            this.NamespaceDesLabel = new System.Windows.Forms.Label();
-            this.KeyLabel = new System.Windows.Forms.Label();
-            this._typeNameTextBox = new System.Windows.Forms.TextBox();
-            this.TypeNamelabel = new System.Windows.Forms.Label();
-            this._namespaceDesTextBox = new System.Windows.Forms.TextBox();
-            this._namespaceTextBox = new System.Windows.Forms.TextBox();
-            this.NamespaceLabel = new System.Windows.Forms.Label();
-            this.TypeLabel = new System.Windows.Forms.Label();
+            this._typeGroupBox = new System.Windows.Forms.GroupBox();
             this.MemberGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MemberSplitContainer)).BeginInit();
             this.MemberSplitContainer.Panel1.SuspendLayout();
@@ -66,36 +47,7 @@
             ((System.ComponentModel.ISupportInitialize)(this._minusPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._plusPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._memPictureBox)).BeginInit();
-            this.TypeGroupBox.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // _saveTypeButton
-            // 
-            this._saveTypeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._saveTypeButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._saveTypeButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this._saveTypeButton.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this._saveTypeButton.ForeColor = System.Drawing.Color.LightGray;
-            this._saveTypeButton.Location = new System.Drawing.Point(652, 14);
-            this._saveTypeButton.Name = "_saveTypeButton";
-            this._saveTypeButton.Size = new System.Drawing.Size(166, 38);
-            this._saveTypeButton.TabIndex = 8;
-            this._saveTypeButton.Text = "保存";
-            this._saveTypeButton.UseVisualStyleBackColor = false;
-            // 
-            // _deleteTypeButton
-            // 
-            this._deleteTypeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._deleteTypeButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._deleteTypeButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this._deleteTypeButton.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this._deleteTypeButton.ForeColor = System.Drawing.Color.LightGray;
-            this._deleteTypeButton.Location = new System.Drawing.Point(652, 56);
-            this._deleteTypeButton.Name = "_deleteTypeButton";
-            this._deleteTypeButton.Size = new System.Drawing.Size(166, 38);
-            this._deleteTypeButton.TabIndex = 10;
-            this._deleteTypeButton.Text = "删除";
-            this._deleteTypeButton.UseVisualStyleBackColor = false;
             // 
             // MemberGroupBox
             // 
@@ -250,236 +202,20 @@
             this._memFilterBox.Size = new System.Drawing.Size(144, 27);
             this._memFilterBox.TabIndex = 2;
             // 
-            // TypeGroupBox
+            // _typeGroupBox
             // 
-            this.TypeGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this._typeGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.TypeGroupBox.Controls.Add(this._baseComboBox);
-            this.TypeGroupBox.Controls.Add(this._dataPathButton);
-            this.TypeGroupBox.Controls.Add(this._keyComboBox);
-            this.TypeGroupBox.Controls.Add(this._typeComboBox);
-            this.TypeGroupBox.Controls.Add(this.BaseLabel);
-            this.TypeGroupBox.Controls.Add(this.ShowDataPathLabel);
-            this.TypeGroupBox.Controls.Add(this.DataPathLabel);
-            this.TypeGroupBox.Controls.Add(this._displayTextBox);
-            this.TypeGroupBox.Controls.Add(this.DisplayLabel);
-            this.TypeGroupBox.Controls.Add(this.NamespaceDesLabel);
-            this.TypeGroupBox.Controls.Add(this.KeyLabel);
-            this.TypeGroupBox.Controls.Add(this._typeNameTextBox);
-            this.TypeGroupBox.Controls.Add(this.TypeNamelabel);
-            this.TypeGroupBox.Controls.Add(this._namespaceDesTextBox);
-            this.TypeGroupBox.Controls.Add(this._namespaceTextBox);
-            this.TypeGroupBox.Controls.Add(this.NamespaceLabel);
-            this.TypeGroupBox.Controls.Add(this.TypeLabel);
-            this.TypeGroupBox.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.TypeGroupBox.ForeColor = System.Drawing.Color.LightGray;
-            this.TypeGroupBox.Location = new System.Drawing.Point(3, 2);
-            this.TypeGroupBox.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
-            this.TypeGroupBox.Name = "TypeGroupBox";
-            this.TypeGroupBox.Padding = new System.Windows.Forms.Padding(3, 3, 3, 0);
-            this.TypeGroupBox.Size = new System.Drawing.Size(645, 202);
-            this.TypeGroupBox.TabIndex = 7;
-            this.TypeGroupBox.TabStop = false;
-            this.TypeGroupBox.Text = "类型";
-            // 
-            // _baseComboBox
-            // 
-            this._baseComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._baseComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._baseComboBox.ForeColor = System.Drawing.Color.LightGray;
-            this._baseComboBox.FormattingEnabled = true;
-            this._baseComboBox.Location = new System.Drawing.Point(95, 107);
-            this._baseComboBox.Name = "_baseComboBox";
-            this._baseComboBox.Size = new System.Drawing.Size(541, 25);
-            this._baseComboBox.TabIndex = 3;
-            // 
-            // _dataPathButton
-            // 
-            this._dataPathButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._dataPathButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._dataPathButton.Enabled = false;
-            this._dataPathButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this._dataPathButton.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this._dataPathButton.ForeColor = System.Drawing.Color.LightGray;
-            this._dataPathButton.Location = new System.Drawing.Point(572, 135);
-            this._dataPathButton.Name = "_dataPathButton";
-            this._dataPathButton.Size = new System.Drawing.Size(63, 27);
-            this._dataPathButton.TabIndex = 5;
-            this._dataPathButton.Text = "...";
-            this._dataPathButton.UseVisualStyleBackColor = false;
-            // 
-            // _keyComboBox
-            // 
-            this._keyComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._keyComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._keyComboBox.ForeColor = System.Drawing.Color.LightGray;
-            this._keyComboBox.FormattingEnabled = true;
-            this._keyComboBox.Location = new System.Drawing.Point(435, 48);
-            this._keyComboBox.Name = "_keyComboBox";
-            this._keyComboBox.Size = new System.Drawing.Size(201, 25);
-            this._keyComboBox.TabIndex = 3;
-            // 
-            // _typeComboBox
-            // 
-            this._typeComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._typeComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._typeComboBox.ForeColor = System.Drawing.Color.LightGray;
-            this._typeComboBox.FormattingEnabled = true;
-            this._typeComboBox.Location = new System.Drawing.Point(95, 19);
-            this._typeComboBox.Name = "_typeComboBox";
-            this._typeComboBox.Size = new System.Drawing.Size(541, 25);
-            this._typeComboBox.TabIndex = 3;
-            // 
-            // BaseLabel
-            // 
-            this.BaseLabel.AutoSize = true;
-            this.BaseLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.BaseLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.BaseLabel.Location = new System.Drawing.Point(6, 112);
-            this.BaseLabel.Name = "BaseLabel";
-            this.BaseLabel.Size = new System.Drawing.Size(45, 15);
-            this.BaseLabel.TabIndex = 1;
-            this.BaseLabel.Text = "父类:";
-            // 
-            // ShowDataPathLabel
-            // 
-            this.ShowDataPathLabel.AutoSize = true;
-            this.ShowDataPathLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.ShowDataPathLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.ShowDataPathLabel.Location = new System.Drawing.Point(95, 140);
-            this.ShowDataPathLabel.Name = "ShowDataPathLabel";
-            this.ShowDataPathLabel.Size = new System.Drawing.Size(0, 15);
-            this.ShowDataPathLabel.TabIndex = 1;
-            // 
-            // DataPathLabel
-            // 
-            this.DataPathLabel.AutoSize = true;
-            this.DataPathLabel.Enabled = false;
-            this.DataPathLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.DataPathLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.DataPathLabel.Location = new System.Drawing.Point(6, 141);
-            this.DataPathLabel.Name = "DataPathLabel";
-            this.DataPathLabel.Size = new System.Drawing.Size(75, 15);
-            this.DataPathLabel.TabIndex = 1;
-            this.DataPathLabel.Text = "数据路径:";
-            // 
-            // _displayTextBox
-            // 
-            this._displayTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._displayTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._displayTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this._displayTextBox.ForeColor = System.Drawing.Color.LightGray;
-            this._displayTextBox.Location = new System.Drawing.Point(95, 165);
-            this._displayTextBox.Name = "_displayTextBox";
-            this._displayTextBox.Size = new System.Drawing.Size(541, 27);
-            this._displayTextBox.TabIndex = 2;
-            // 
-            // DisplayLabel
-            // 
-            this.DisplayLabel.AutoSize = true;
-            this.DisplayLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.DisplayLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.DisplayLabel.Location = new System.Drawing.Point(6, 171);
-            this.DisplayLabel.Name = "DisplayLabel";
-            this.DisplayLabel.Size = new System.Drawing.Size(45, 15);
-            this.DisplayLabel.TabIndex = 1;
-            this.DisplayLabel.Text = "描述:";
-            // 
-            // NamespaceDesLabel
-            // 
-            this.NamespaceDesLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.NamespaceDesLabel.AutoSize = true;
-            this.NamespaceDesLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.NamespaceDesLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.NamespaceDesLabel.Location = new System.Drawing.Point(401, 81);
-            this.NamespaceDesLabel.Name = "NamespaceDesLabel";
-            this.NamespaceDesLabel.Size = new System.Drawing.Size(15, 15);
-            this.NamespaceDesLabel.TabIndex = 1;
-            this.NamespaceDesLabel.Text = "-";
-            // 
-            // KeyLabel
-            // 
-            this.KeyLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.KeyLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.KeyLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.KeyLabel.Location = new System.Drawing.Point(392, 53);
-            this.KeyLabel.Name = "KeyLabel";
-            this.KeyLabel.Size = new System.Drawing.Size(62, 15);
-            this.KeyLabel.TabIndex = 1;
-            this.KeyLabel.Text = "Key:";
-            // 
-            // _typeNameTextBox
-            // 
-            this._typeNameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._typeNameTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._typeNameTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this._typeNameTextBox.ForeColor = System.Drawing.Color.LightGray;
-            this._typeNameTextBox.Location = new System.Drawing.Point(95, 47);
-            this._typeNameTextBox.Name = "_typeNameTextBox";
-            this._typeNameTextBox.Size = new System.Drawing.Size(288, 27);
-            this._typeNameTextBox.TabIndex = 2;
-            // 
-            // TypeNamelabel
-            // 
-            this.TypeNamelabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TypeNamelabel.AutoSize = true;
-            this.TypeNamelabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.TypeNamelabel.ForeColor = System.Drawing.Color.LightGray;
-            this.TypeNamelabel.Location = new System.Drawing.Point(4, 53);
-            this.TypeNamelabel.Name = "TypeNamelabel";
-            this.TypeNamelabel.Size = new System.Drawing.Size(45, 15);
-            this.TypeNamelabel.TabIndex = 1;
-            this.TypeNamelabel.Text = "名称:";
-            // 
-            // _namespaceDesTextBox
-            // 
-            this._namespaceDesTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._namespaceDesTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._namespaceDesTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this._namespaceDesTextBox.ForeColor = System.Drawing.Color.LightGray;
-            this._namespaceDesTextBox.Location = new System.Drawing.Point(435, 77);
-            this._namespaceDesTextBox.Name = "_namespaceDesTextBox";
-            this._namespaceDesTextBox.Size = new System.Drawing.Size(200, 27);
-            this._namespaceDesTextBox.TabIndex = 2;
-            // 
-            // _namespaceTextBox
-            // 
-            this._namespaceTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._namespaceTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._namespaceTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this._namespaceTextBox.ForeColor = System.Drawing.Color.LightGray;
-            this._namespaceTextBox.Location = new System.Drawing.Point(95, 77);
-            this._namespaceTextBox.Name = "_namespaceTextBox";
-            this._namespaceTextBox.Size = new System.Drawing.Size(288, 27);
-            this._namespaceTextBox.TabIndex = 2;
-            // 
-            // NamespaceLabel
-            // 
-            this.NamespaceLabel.AutoSize = true;
-            this.NamespaceLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.NamespaceLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.NamespaceLabel.Location = new System.Drawing.Point(4, 83);
-            this.NamespaceLabel.Name = "NamespaceLabel";
-            this.NamespaceLabel.Size = new System.Drawing.Size(75, 15);
-            this.NamespaceLabel.TabIndex = 1;
-            this.NamespaceLabel.Text = "命名空间:";
-            // 
-            // TypeLabel
-            // 
-            this.TypeLabel.AutoSize = true;
-            this.TypeLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.TypeLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.TypeLabel.Location = new System.Drawing.Point(4, 24);
-            this.TypeLabel.Name = "TypeLabel";
-            this.TypeLabel.Size = new System.Drawing.Size(45, 15);
-            this.TypeLabel.TabIndex = 1;
-            this.TypeLabel.Text = "类型:";
+            this._typeGroupBox.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this._typeGroupBox.ForeColor = System.Drawing.Color.LightGray;
+            this._typeGroupBox.Location = new System.Drawing.Point(3, 2);
+            this._typeGroupBox.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
+            this._typeGroupBox.Name = "_typeGroupBox";
+            this._typeGroupBox.Padding = new System.Windows.Forms.Padding(3, 3, 3, 0);
+            this._typeGroupBox.Size = new System.Drawing.Size(815, 202);
+            this._typeGroupBox.TabIndex = 7;
+            this._typeGroupBox.TabStop = false;
+            this._typeGroupBox.Text = "类型";
             // 
             // TypeEditorDock
             // 
@@ -487,10 +223,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             this.ClientSize = new System.Drawing.Size(822, 594);
-            this.Controls.Add(this._saveTypeButton);
-            this.Controls.Add(this._deleteTypeButton);
             this.Controls.Add(this.MemberGroupBox);
-            this.Controls.Add(this.TypeGroupBox);
+            this.Controls.Add(this._typeGroupBox);
             this.DockAreas = ((WeifenLuo.WinFormsUI.Docking.DockAreas)((WeifenLuo.WinFormsUI.Docking.DockAreas.Float | WeifenLuo.WinFormsUI.Docking.DockAreas.Document)));
             this.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -510,16 +244,11 @@
             ((System.ComponentModel.ISupportInitialize)(this._minusPictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._plusPictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._memPictureBox)).EndInit();
-            this.TypeGroupBox.ResumeLayout(false);
-            this.TypeGroupBox.PerformLayout();
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button _saveTypeButton;
-        private System.Windows.Forms.Button _deleteTypeButton;
         private System.Windows.Forms.GroupBox MemberGroupBox;
         private System.Windows.Forms.SplitContainer MemberSplitContainer;
         private System.Windows.Forms.ListBox _memberListBox;
@@ -529,23 +258,6 @@
         private System.Windows.Forms.PictureBox _plusPictureBox;
         private System.Windows.Forms.PictureBox _memPictureBox;
         private System.Windows.Forms.TextBox _memFilterBox;
-        private System.Windows.Forms.GroupBox TypeGroupBox;
-        private System.Windows.Forms.ComboBox _baseComboBox;
-        private System.Windows.Forms.Button _dataPathButton;
-        private System.Windows.Forms.ComboBox _keyComboBox;
-        private System.Windows.Forms.ComboBox _typeComboBox;
-        private System.Windows.Forms.Label BaseLabel;
-        private System.Windows.Forms.Label ShowDataPathLabel;
-        private System.Windows.Forms.Label DataPathLabel;
-        private System.Windows.Forms.TextBox _displayTextBox;
-        private System.Windows.Forms.Label DisplayLabel;
-        private System.Windows.Forms.Label NamespaceDesLabel;
-        private System.Windows.Forms.Label KeyLabel;
-        private System.Windows.Forms.TextBox _typeNameTextBox;
-        private System.Windows.Forms.Label TypeNamelabel;
-        private System.Windows.Forms.TextBox _namespaceDesTextBox;
-        private System.Windows.Forms.TextBox _namespaceTextBox;
-        private System.Windows.Forms.Label NamespaceLabel;
-        private System.Windows.Forms.Label TypeLabel;
+        private System.Windows.Forms.GroupBox _typeGroupBox;
     }
 }

@@ -16,9 +16,5 @@ namespace Description.Xml
         public string Group;
         [XmlAttribute]
         public string Desc;
-
-        [XmlIgnore]
-        public string Namespace;
-        public string FullName { get { return Namespace.Replace(Util.EmptyNamespace, "") + Name; } }
     }
 }

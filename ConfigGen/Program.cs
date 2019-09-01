@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Description.Xml;
 using Description.TypeInfo;
-using Description.Config;
+using Description.Wrap;
 
 namespace Description
 {
