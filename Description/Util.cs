@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Windows.Forms;
+using Description.Properties;
+using System.Drawing;
 
 namespace Description
 {
@@ -73,7 +75,8 @@ namespace Description
             }
             set
             {
-                _lastRecord = Path.Combine(ApplicationDir, value);
+                _lastRecord = value;
+                Settings.Default.LastModule = value;
             }
         }
         /// <summary>
@@ -89,6 +92,8 @@ namespace Description
         static string _dataDir;
         #endregion
 
+        public static Color NormalField = Color.LightGray;
+        public static Color ErrorField = Color.Red;
 
 
         /// <summary>
@@ -166,10 +171,6 @@ namespace Description
                     xmlSerializer.Serialize(writer, source);
                 }
             }
-        }
-        public static void Error(string fmt, params object[] msg)
-        {
-            new Exception(string.Format(fmt, msg));
         }
         public static void MsgWarning(string title, string fmt, params object[] msg)
         {

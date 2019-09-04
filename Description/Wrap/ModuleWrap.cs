@@ -13,39 +13,54 @@ namespace Description.Wrap
 
         public static void InitDefaultModule()
         {
-            var xml = new ModuleXml() { Name = Util.DefaultModuleName };
+            ModuleXml xml = null;
             if (!File.Exists(Util.DefaultModule))
-                Util.Serialize(Util.DefaultModule, xml);
+                Util.Serialize(Util.DefaultModule, new ModuleXml() { Name = Util.DefaultModuleName });
+            else
+                xml = Util.Deserialize<ModuleXml>(Util.DefaultModule);
+            _default = new ModuleWrap(xml);
         }
         public static ModuleWrap Create(string path)
         {
             ModuleXml xml = null;
-            if (File.Exists(path))
-                xml = Util.Deserialize<ModuleXml>(path);
-            else
+            if (!File.Exists(path))
+            {
                 xml = new ModuleXml() { Name = Path.GetFileNameWithoutExtension(path) };
+                Util.Serialize(path, xml);
+            }
             ConsoleDock.Ins.LogFormat("创建模块{0}", path);
             ModuleWrap wrap = PoolManager.Ins.Pop<ModuleWrap>();
             if (wrap == null) wrap = new ModuleWrap(xml);
+            Open(path);
             return wrap;
         }
         public static ModuleWrap OpenDefault()
         {
             if (_default == null)
                 _default = Open(Util.DefaultModule);
+            else
+                _current = _default;
             return _default;
         }
         public static ModuleWrap Open(string path)
         {
+            if (_current != null && path == _current.FullName)
+                return _current;
+
+            Util.LastRecord = path;
             if (File.Exists(path))
             {
-                var xml = Util.Deserialize<ModuleXml>(path);
                 ModuleWrap wrap = PoolManager.Ins.Pop<ModuleWrap>();
-                if (wrap == null) wrap = new ModuleWrap(xml);
-                
-                _current = wrap;               
+                if (path == Util.DefaultModule && _default != null)
+                    wrap = _default;
+                else
+                {
+                    var xml = Util.Deserialize<ModuleXml>(path);
+                    if (wrap == null) wrap = new ModuleWrap(xml);
+                }
+
+                _current = wrap;
                 MainWindow.Ins.Text = Util.Format("结构描述 - {0}", wrap.FullName);
-                NamespaceWrap.UpdateImportedFlag(wrap.Imports);
                 ConsoleDock.Ins.LogFormat("打开模板{0}", path);
                 return wrap;
             }
@@ -83,6 +98,7 @@ namespace Description.Wrap
         public void Close()
         {
             Save();
+            Dispose();
             if (this != _default)
                 PoolManager.Ins.Push(this);
         }
@@ -100,5 +116,6 @@ namespace Description.Wrap
             Imports.Remove(name);
             Remove(name);
         }
+
     }
 }

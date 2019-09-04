@@ -25,7 +25,7 @@ namespace Description
             _2Label.Text = "命名空间:";
             _2ComboBox.Items.Clear();
             _2ComboBox.Items.AddRange(_namespaces);
-            _2ComboBox.Text = "";
+            _2ComboBox.Text = _namespaces.Length > 0 ? _namespaces[0] : "";
             _2ComboBox.Enabled = true;
         }
         private void SelectNamespace()
@@ -98,7 +98,10 @@ namespace Description
                         NamespaceWrap nsw = NamespaceWrap.GetNamespace(namespace0);
                         if (nsw == null)
                         {
-                            FindNamespaceDock.Ins.AddRootNode(NamespaceWrap.Create(name));
+                            NamespaceWrap wrap = NamespaceWrap.Create(name);
+                            ModuleWrap.Default.AddImport(wrap);
+                            ModuleWrap.Current.AddImport(wrap);
+                            FindNamespaceDock.Ins.AddRootNode(wrap);
                             Close();
                         }
                         else

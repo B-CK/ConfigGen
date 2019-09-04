@@ -68,6 +68,7 @@ namespace Description.Wrap
             for (int i = 0; i < _items.Count; i++)
                 _items[i].Dispose();
             _items.Clear();
+            PoolManager.Ins.Push(this);
         }
         public static implicit operator EnumXml(EnumWrap wrap)
         {

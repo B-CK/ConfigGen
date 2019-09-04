@@ -10,9 +10,11 @@ namespace Description.Wrap
     {
         public string Name { get { return _name; } set { _name = value; } }
         public virtual string FullName { get { return _name ?? "_"; } }
+        public virtual NodeState NodeState { get { return _nodestate; } set { _nodestate = value; } }
 
         protected string _name;
         private HashSet<string> _hash;
+        private NodeState _nodestate = NodeState.Include;
         protected BaseWrap(string name)
         {
             _name = name;
@@ -30,10 +32,8 @@ namespace Description.Wrap
         {
             _hash.Remove(name);
         }
-        public bool CheckName()
-        {
-            if (this is NamespaceWrap && _name == Util.EmptyNamespace)
-                return true;
+        public virtual bool CheckName()
+        {          
             if (!Util.MatchIdentifier(_name))
             {
                 Util.MsgError("验证", "名称{0}不规范,请以'_',字母和数字命名且首字母只能为'_'和字母!");
@@ -47,8 +47,7 @@ namespace Description.Wrap
         }
         public virtual void Dispose()
         {
-            _hash.Clear();
-            PoolManager.Ins.Pop<BaseWrap>();
+            _hash.Clear();           
         }
     }
 }

@@ -37,5 +37,17 @@ namespace Description.Wrap
         {
             return wrap._xml;
         }
+        public override void Dispose()
+        {
+            base.Dispose();
+            PoolManager.Ins.Push(this);
+        }
+        public override string ToString()
+        {
+            if (Value.IsEmpty())
+                return Util.Format("{0}:{1}", _name, Type);
+            else
+                return Util.Format("{0}:{1}={2}", _name, Type, Value);
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace Description
         static MainWindow _ins;
         public static MainWindow Ins { get { return _ins; } }
         public DockPanel _dock { get { return _dockPanel; } }
-        
+       
         public MainWindow()
         {
             _ins = this;
@@ -33,8 +33,10 @@ namespace Description
         }
         protected override void OnClosed(EventArgs e)
         {
+            Settings.Default.Save();
             ModuleWrap.Default.Save();
             ModuleWrap.Current.Save();
+            TypeEditorDock.Clear();
             _ins = null;
             PoolManager.Ins.Clear();
             base.OnClosed(e);
@@ -87,6 +89,7 @@ namespace Description
                 {
                     string fileName = _openFileDialog.FileName;
                     ModuleWrap.Open(fileName);
+                    FindNamespaceDock.Ins.UpdateTree();
                 }
                 catch (Exception ex)
                 {
@@ -122,6 +125,7 @@ namespace Description
         {
             ModuleWrap.Current.Close();
             ModuleWrap.OpenDefault();
+            FindNamespaceDock.Ins.UpdateTree();
         }
         #endregion
 

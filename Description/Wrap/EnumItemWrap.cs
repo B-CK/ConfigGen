@@ -30,5 +30,10 @@ namespace Description.Wrap
         {
             return wrap._xml;
         }
+        public override void Dispose()
+        {
+            base.Dispose();
+            PoolManager.Ins.Push(this);
+        }
     }
 }

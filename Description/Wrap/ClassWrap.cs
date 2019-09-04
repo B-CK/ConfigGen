@@ -10,7 +10,8 @@ namespace Description.Wrap
 {
     public class ClassWrap : BaseWrap, IDisposable
     {
-        static HashSet<string> ClassHash = new HashSet<string>();
+        public static HashSet<string> ClassHash { get { return _classHash; } }
+        static HashSet<string> _classHash = new HashSet<string>();
 
         public static ClassWrap Create(string name, NamespaceWrap ns)
         {
@@ -60,7 +61,7 @@ namespace Description.Wrap
                 var field = FieldWrap.Create(xfield, this);
                 _fields.Add(field);
             }
-            ClassHash.Add(FullName);
+            _classHash.Add(FullName);
         }
         public bool AddField(FieldWrap wrap)
         {
@@ -86,10 +87,11 @@ namespace Description.Wrap
         public override void Dispose()
         {
             base.Dispose();
-            ClassHash.Remove(_name);
+            _classHash.Remove(_name);
             for (int i = 0; i < _fields.Count; i++)
                 _fields[i].Dispose();
             _fields.Clear();
+            PoolManager.Ins.Push(this);
         }
         public override bool Valide()
         {
@@ -109,7 +111,7 @@ namespace Description.Wrap
                 builder.AppendFormat("类中不存在{0}关键字|", Index);
                 r = false;
             }
-            if (!ClassHash.Contains(Inherit))
+            if (!_classHash.Contains(Inherit) && Inherit != FullName)
             {
                 r = false;
                 builder.AppendFormat("继承类{0}不存在|", Inherit);

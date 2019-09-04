@@ -19,12 +19,18 @@ namespace Description
             if (dock == null) dock = new ClassInfoDock(wrap);
 
             dock._nameTextBox.Text = wrap.Name;
-            int index = dock._keyComboBox.FindStringExact(wrap.Index);
-            dock._keyComboBox.Select(index, 1);
-            index = dock._namespaceComboBox.FindStringExact(wrap.Namespace.Name);
-            dock._namespaceComboBox.Select(index, 1);
-            index = dock._inhertComboBox.FindStringExact(wrap.Inherit);
-            dock._inhertComboBox.Select(index, 1);
+            string[] fs = new string[wrap.Fields.Count];
+            for (int i = 0; i < wrap.Fields.Count; i++)
+                fs[i] = wrap.Fields[i].ToString();
+            dock._keyComboBox.Items.AddRange(fs);
+            dock._keyComboBox.Text = wrap.Index;
+            string[] ns = NamespaceWrap.AllNamespaces.Keys.ToArray();
+            dock._namespaceComboBox.Items.AddRange(ns);
+            dock._namespaceComboBox.Text = wrap.Namespace.FullName;
+            HashSet<string> hash = new HashSet<string>(ClassWrap.ClassHash);
+            hash.Remove(wrap.FullName);
+            dock._inhertComboBox.Items.AddRange(hash.ToArray());
+            dock._inhertComboBox.Text = wrap.Inherit;
             dock._desTextBox.Text = wrap.Desc;
             dock.DataPathLabel.Text = Util.Format("数据路径: {0}", wrap.DataPath);
             return dock;
@@ -48,6 +54,7 @@ namespace Description
         }
         public void Close()
         {
+            Save();
             _wrap.Dispose();
             PoolManager.Ins.Push(this);
         }

@@ -28,13 +28,7 @@ namespace Description.Wrap
             if (!File.Exists(epath))
                 Create(Util.EmptyNamespace);
         }
-        public static void UpdateImportedFlag(List<string> imports)
-        {
-            if (imports == null) return;
-            HashSet<string> hash = new HashSet<string>(imports);
-            foreach (var item in _allNamespaces)
-                item.Value.IsContained = !hash.Contains(item.Key);
-        }
+
         public static NamespaceWrap GetNamespace(string name)
         {
             if (_allNamespaces.ContainsKey(name))
@@ -55,10 +49,6 @@ namespace Description.Wrap
             return wrap ?? new NamespaceWrap(xml);
         }
 
-        /// <summary>
-        /// 是否包含在当前模块
-        /// </summary>
-        public bool IsContained = true;
         /// <summary>
         /// 是否有被修改
         /// </summary>
@@ -98,6 +88,12 @@ namespace Description.Wrap
 
             _allNamespaces.Add(FullName, this);
         }
+        public override bool CheckName()
+        {
+            if (_name == Util.EmptyNamespace)
+                return true;
+            return base.CheckName();
+        }
         public void AddClass(ClassWrap wrap)
         {
             _classes.Add(wrap);
@@ -112,7 +108,6 @@ namespace Description.Wrap
             _xml.Classes.Remove(wrap);
             wrap.Namespace = null;
         }
-
         public void AddEnum(EnumWrap wrap)
         {
             _enums.Add(wrap);
@@ -144,21 +139,22 @@ namespace Description.Wrap
             base.Dispose();
             try
             {
-                string path = Util.GetNamespaceAbsPath(_name);
+                string path = Util.GetNamespaceAbsPath(FullName + ".xml");
                 File.Delete(path);
             }
             catch (Exception e)
             {
                 ConsoleDock.Ins.LogErrorFormat("删除命名空间{0}失败!\n{1}\n{2}\n",
-                   _name, e.Message, e.StackTrace);
+                   FullName, e.Message, e.StackTrace);
             }
-            _allNamespaces.Remove(_name);
+            _allNamespaces.Remove(FullName);
             for (int i = 0; i < _classes.Count; i++)
                 _classes[i].Dispose();
             for (int i = 0; i < _enums.Count; i++)
                 _enums[i].Dispose();
             _classes.Clear();
             _enums.Clear();
+            PoolManager.Ins.Push(this);
         }
     }
 }
