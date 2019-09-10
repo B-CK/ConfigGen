@@ -1,6 +1,8 @@
-﻿using Description.Xml;
+﻿using Description.Editor;
+using Description.Xml;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Forms;
 
 namespace Description.Wrap
 {
@@ -59,6 +61,7 @@ namespace Description.Wrap
                     if (wrap == null) wrap = new ModuleWrap(xml);
                 }
 
+                if (_current != null) TrSave();
                 _current = wrap;
                 MainWindow.Ins.Text = Util.Format("结构描述 - {0}", wrap.FullName);
                 ConsoleDock.Ins.LogFormat("打开模板{0}", path);
@@ -70,26 +73,59 @@ namespace Description.Wrap
                 return OpenDefault();
             }
         }
-
+        public static DialogResult TrSave()
+        {
+            if (NamespaceWrap.HasModifyNamespace)
+            {
+                var result = MessageBox.Show("已修改配置未保存,是否保存?", "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                switch (result)
+                {
+                    case DialogResult.Cancel:
+                        return DialogResult.Cancel;
+                    case DialogResult.Yes:
+                        EditorDock.ClearAll();
+                        NamespaceWrap.HasModifyNamespace = false;
+                        Default.Save();
+                        Current.Save();
+                        return DialogResult.Yes;
+                    case DialogResult.No:
+                        EditorDock.CancleAll();
+                        Default.Save(false);
+                        Current.Save(false);
+                        return DialogResult.No;
+                }
+            }
+            else
+            {
+                Default.Save(false);
+                Current.Save(false);
+            }
+            return DialogResult.None;
+        }
         public override string FullName { get { return _path; } }
-        public List<string> Imports { get { return _xml.Imports; } }
+
+        public List<string> Imports { get { return _imports; } }
+
+        public override string DisplayName => FullName;
+
+        private List<string> _imports;
+
         private ModuleXml _xml;
         private string _path;
         protected ModuleWrap(ModuleXml xml) : base(xml.Name)
         {
             _xml = xml;
             _path = Util.GetModuleAbsPath(_name + ".xml");
+            _imports = new List<string>();
             if (Imports == null) return;
 
             for (int i = 0; i < Imports.Count; i++)
+            {
+                _imports.Add(Imports[i]);
                 Add(Imports[i]);
+            }
         }
 
-        public void Save()
-        {
-            Util.Serialize(_path, _xml);
-            ConsoleDock.Ins.LogFormat("保存模板{0}", _path);
-        }
         public void SaveAnother(string path)
         {
             Util.Serialize(path, _xml);
@@ -97,7 +133,6 @@ namespace Description.Wrap
         }
         public void Close()
         {
-            Save();
             Dispose();
             if (this != _default)
                 PoolManager.Ins.Push(this);
@@ -117,5 +152,34 @@ namespace Description.Wrap
             Remove(name);
         }
 
+        public void Save(bool saveNsw = true)
+        {
+            //_xml.Name = _name;
+            _xml.Imports = _imports;
+            Util.Serialize(_path, _xml);
+            ConsoleDock.Ins.LogFormat("保存模板{0}", _path);
+
+            if (!saveNsw) return;
+            EditorDock.SaveAll();
+            for (int i = 0; i < _imports.Count; i++)
+            {
+                string key = _imports[i];
+                var nsw = NamespaceWrap.AllNamespaces[key];
+                if (nsw != null && nsw.IsDirty)
+                    nsw.Save();
+            }
+        }
+        public void Cancle()
+        {
+            _name = "";
+            _imports.Clear();
+            for (int i = 0; i < _imports.Count; i++)
+            {
+                string key = _imports[i];
+                var nsw = NamespaceWrap.AllNamespaces[key];
+                if (nsw != null && nsw.IsDirty)
+                    nsw.Cancle();
+            }
+        }
     }
 }

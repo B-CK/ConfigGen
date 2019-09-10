@@ -10,8 +10,23 @@ namespace Description.Wrap
 {
     public class NamespaceWrap : BaseWrap, IDisposable
     {
+        public static bool HasModifyNamespace = false;
         public static Dictionary<string, NamespaceWrap> AllNamespaces { get { return _allNamespaces; } }
         static Dictionary<string, NamespaceWrap> _allNamespaces = new Dictionary<string, NamespaceWrap>();
+        public static NamespaceWrap[] Namespaces
+        {
+            get
+            {
+                if (_namespaces.Length != _allNamespaces.Count)
+                {
+                    var ls = new List<NamespaceWrap>(_allNamespaces.Values);
+                    ls.Sort((a, b) => Comparer<string>.Default.Compare(a.DisplayName, b.DisplayName));
+                    _namespaces = ls.ToArray();
+                }
+                return _namespaces;
+            }
+        }
+        static NamespaceWrap[] _namespaces = new NamespaceWrap[0];
         public static void Init()
         {
             string[] fs = Directory.GetFiles(Util.NamespaceDir);
@@ -40,7 +55,6 @@ namespace Description.Wrap
         {
             NamespaceXml xml = new NamespaceXml() { Name = name };
             NamespaceWrap wrap = Create(xml);
-            wrap.Serialize();
             return wrap;
         }
         public static NamespaceWrap Create(NamespaceXml xml)
@@ -53,9 +67,23 @@ namespace Description.Wrap
         /// 是否有被修改
         /// </summary>
         public bool IsDirty { get { return _isDirty; } }
+
         public List<ClassWrap> Classes { get { return _classes; } }
         public List<EnumWrap> Enums { get { return _enums; } }
-        public string Desc { get { return _xml.Desc; } }
+        public string Desc { get { return _desc; } set { _desc = value; } }
+
+        public override string DisplayName
+        {
+            get
+            {
+                if (Desc.IsEmpty())
+                    return Name;
+                else
+                    return Util.Format("{0}:{1}", Name, Desc);
+            }
+        }
+
+        private string _desc;
 
         private List<ClassWrap> _classes;
         private List<EnumWrap> _enums;
@@ -64,12 +92,14 @@ namespace Description.Wrap
         private string _path;
         protected NamespaceWrap(NamespaceXml xml) : base(xml.Name)
         {
+            _isDirty = false;
             _xml = xml;
             _classes = new List<ClassWrap>();
             _enums = new List<EnumWrap>();
             _xml.Classes = _xml.Classes ?? new List<ClassXml>();
             _xml.Enums = _xml.Enums ?? new List<EnumXml>();
             _path = Util.GetNamespaceAbsPath(_name + ".xml");
+            _desc = _xml.Desc;
 
             var xclasses = _xml.Classes;
             for (int i = 0; i < xclasses.Count; i++)
@@ -99,6 +129,7 @@ namespace Description.Wrap
             _classes.Add(wrap);
             _xml.Classes.Add(wrap);
             Add(wrap.Name);
+            SetDirty();
         }
         public void RemoveClass(ClassWrap wrap)
         {
@@ -107,12 +138,14 @@ namespace Description.Wrap
             _classes.Remove(wrap);
             _xml.Classes.Remove(wrap);
             wrap.Namespace = null;
+            SetDirty();
         }
         public void AddEnum(EnumWrap wrap)
         {
             _enums.Add(wrap);
             _xml.Enums.Add(wrap);
             Add(wrap.Name);
+            SetDirty();
         }
         public void RemoveEnum(EnumWrap wrap)
         {
@@ -121,18 +154,12 @@ namespace Description.Wrap
             _enums.Remove(wrap);
             _xml.Enums.Remove(wrap);
             wrap.Namespace = null;
+            SetDirty();
         }
-        public void Serialize()
+        public void SetDirty()
         {
-            try
-            {
-                Util.Serialize(_path, _xml);
-            }
-            catch (Exception e)
-            {
-                ConsoleDock.Ins.LogErrorFormat("创建命名空间{0}失败!\n{1}\n{2}\n",
-                   _name, e.Message, e.StackTrace);
-            }
+            HasModifyNamespace = true;
+            _isDirty = true;
         }
         public override void Dispose()
         {
@@ -155,6 +182,26 @@ namespace Description.Wrap
             _classes.Clear();
             _enums.Clear();
             PoolManager.Ins.Push(this);
+        }
+        public void Save()
+        {
+            _xml.Name = _name;
+            _xml.Desc = _desc;
+            try
+            {
+                Util.Serialize(_path, _xml);
+            }
+            catch (Exception e)
+            {
+                ConsoleDock.Ins.LogErrorFormat("序列化命名空间{0}失败!\n{1}\n{2}\n",
+                   _name, e.Message, e.StackTrace);
+            }
+        }
+        public void Cancle()
+        {
+            _name = "";
+            _desc = "";
+            _xml = null;
         }
     }
 }

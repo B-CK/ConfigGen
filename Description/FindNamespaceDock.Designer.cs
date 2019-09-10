@@ -34,10 +34,10 @@
             this._classPictureBox = new System.Windows.Forms.PictureBox();
             this._nodeMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.DeleteNodeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.提交SVNToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.提交ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._includeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._excludeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.提交SVNToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.提交ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this._classPictureBox)).BeginInit();
             this._nodeMenu.SuspendLayout();
             this.SuspendLayout();
@@ -94,7 +94,7 @@
             this.提交SVNToolStripMenuItem,
             this.提交ToolStripMenuItem});
             this._nodeMenu.Name = "_nodeMenu";
-            this._nodeMenu.Size = new System.Drawing.Size(169, 124);
+            this._nodeMenu.Size = new System.Drawing.Size(211, 152);
             // 
             // DeleteNodeMenuItem
             // 
@@ -102,20 +102,6 @@
             this.DeleteNodeMenuItem.Size = new System.Drawing.Size(210, 24);
             this.DeleteNodeMenuItem.Text = "删除节点";
             this.DeleteNodeMenuItem.Click += new System.EventHandler(this.NodeTreeView_DeleteNode);
-            // 
-            // 提交SVNToolStripMenuItem
-            // 
-            this.提交SVNToolStripMenuItem.Name = "提交SVNToolStripMenuItem";
-            this.提交SVNToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
-            this.提交SVNToolStripMenuItem.Text = "更新";
-            this.提交SVNToolStripMenuItem.Click += new System.EventHandler(this.UpdateToLib);
-            // 
-            // 提交ToolStripMenuItem
-            // 
-            this.提交ToolStripMenuItem.Name = "提交ToolStripMenuItem";
-            this.提交ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
-            this.提交ToolStripMenuItem.Text = "提交";
-            this.提交ToolStripMenuItem.Click += new System.EventHandler(this.CommitToLib);
             // 
             // _includeMenuItem
             // 
@@ -130,6 +116,20 @@
             this._excludeMenuItem.Size = new System.Drawing.Size(210, 24);
             this._excludeMenuItem.Text = "排除到模块外";
             this._excludeMenuItem.Click += new System.EventHandler(this.NodeTreeView_Exclude);
+            // 
+            // 提交SVNToolStripMenuItem
+            // 
+            this.提交SVNToolStripMenuItem.Name = "提交SVNToolStripMenuItem";
+            this.提交SVNToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.提交SVNToolStripMenuItem.Text = "更新";
+            this.提交SVNToolStripMenuItem.Click += new System.EventHandler(this.UpdateToLib);
+            // 
+            // 提交ToolStripMenuItem
+            // 
+            this.提交ToolStripMenuItem.Name = "提交ToolStripMenuItem";
+            this.提交ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.提交ToolStripMenuItem.Text = "提交";
+            this.提交ToolStripMenuItem.Click += new System.EventHandler(this.CommitToLib);
             // 
             // FindNamespaceDock
             // 

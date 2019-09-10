@@ -6,13 +6,16 @@ using System.Threading.Tasks;
 
 namespace Description.Wrap
 {
-    public class BaseWrap : IDisposable
+    public abstract class BaseWrap : IDisposable
     {
         public string Name { get { return _name; } set { _name = value; } }
+        protected string _name;
+
+
+        public abstract string DisplayName { get; }
         public virtual string FullName { get { return _name ?? "_"; } }
         public virtual NodeState NodeState { get { return _nodestate; } set { _nodestate = value; } }
 
-        protected string _name;
         private HashSet<string> _hash;
         private NodeState _nodestate = NodeState.Include;
         protected BaseWrap(string name)
@@ -48,6 +51,20 @@ namespace Description.Wrap
         public virtual void Dispose()
         {
             _hash.Clear();           
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+        public override int GetHashCode()
+        {
+            return  FullName.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return DisplayName;
         }
     }
 }

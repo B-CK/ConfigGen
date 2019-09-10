@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 using System.Drawing;
 using System.Collections.Generic;
+using Description.Editor;
 
 namespace Description
 {
@@ -121,8 +122,8 @@ namespace Description
         }
         private void Set23MenuItem(bool state)
         {
-            _includeMenuItem.Enabled = state;
-            _excludeMenuItem.Enabled = state;
+            _includeMenuItem.Visible = state;
+            _excludeMenuItem.Visible = state;
         }
         private void SetNodeColor(TreeNode node)
         {
@@ -161,9 +162,9 @@ namespace Description
             if (data is NamespaceWrap) return;
 
             if (data is ClassWrap)
-                TypeEditorDock.Create(data as ClassWrap);
+                ClassEditorDock.Create(data as ClassWrap);
             else if (data is EnumWrap)
-                TypeEditorDock.Create(data as EnumWrap);
+                EnumEditorDock.Create(data as EnumWrap);
         }
         private void NodeTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {

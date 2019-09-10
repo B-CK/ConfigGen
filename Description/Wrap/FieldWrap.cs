@@ -16,15 +16,25 @@ namespace Description.Wrap
         }
 
         public string Type { get { return _xml.Type; } set { _xml.Type = value; } }
-        public bool IsPublic { get { return _xml.IsPublic; } set { _xml.IsPublic = value; } }
-        public bool IsStatic { get { return _xml.IsStatic; } set { _xml.IsStatic = value; } }
-        public bool IsReadonly { get { return _xml.IsReadonly; } set { _xml.IsReadonly = value; } }
+        public bool IsConst { get { return _xml.IsConst; } set { _xml.IsConst = value; } }
         /// <summary>
         /// 只有常量才有值
         /// </summary>
         public string Value { get { return _xml.Value; } set { _xml.Value = value; } }
+        public string Group { get { return _xml.Group; } set { _xml.Group = value; } }
+        public string Desc { get { return _xml.Desc; } set { _xml.Desc = value; } }
         public string Checker { get { return _xml.Checker; } set { _xml.Checker = value; } }
 
+        public override string DisplayName
+        {
+            get
+            {
+                if (Value.IsEmpty())
+                    return Util.Format("{0}:{1}", _name, Type);
+                else
+                    return Util.Format("{0}:{1}={2}", _name, Type, Value);
+            }
+        }
 
         private ClassWrap _cls;
         private FieldXml _xml;
@@ -33,6 +43,7 @@ namespace Description.Wrap
             _xml = xml;
             _cls = cls;
         }
+
         public static implicit operator FieldXml(FieldWrap wrap)
         {
             return wrap._xml;
@@ -41,13 +52,6 @@ namespace Description.Wrap
         {
             base.Dispose();
             PoolManager.Ins.Push(this);
-        }
-        public override string ToString()
-        {
-            if (Value.IsEmpty())
-                return Util.Format("{0}:{1}", _name, Type);
-            else
-                return Util.Format("{0}:{1}={2}", _name, Type, Value);
         }
     }
 }

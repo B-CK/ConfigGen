@@ -10,8 +10,23 @@ namespace Description.Wrap
 {
     public class ClassWrap : BaseWrap, IDisposable
     {
-        public static HashSet<string> ClassHash { get { return _classHash; } }
-        static HashSet<string> _classHash = new HashSet<string>();
+        public static Dictionary<string, ClassWrap> ClassDict { get { return _classDict; } }
+        static Dictionary<string, ClassWrap> _classDict = new Dictionary<string, ClassWrap>();
+        public static ClassWrap[] Classes
+        {
+            get
+            {
+                if (_classes.Length != _classDict.Count)
+                {
+                    var ls = new List<ClassWrap>(_classDict.Values);
+                    ls.Sort((a, b) => Comparer<string>.Default.Compare(a.DisplayName, b.DisplayName));
+                    _classes = ls.ToArray();
+                }
+                return _classes;
+            }
+        }
+        static ClassWrap[] _classes = new ClassWrap[0];
+
 
         public static ClassWrap Create(string name, NamespaceWrap ns)
         {
@@ -26,24 +41,43 @@ namespace Description.Wrap
 
         public override string FullName { get { return Util.Format("{0}.{1}", _namespace.Name, Name); } }
         public NamespaceWrap Namespace { get { return _namespace; } set { _namespace = value; } }
+
         public string Index { get { return _xml.Index; } set { _xml.Index = value; } }
         /// <summary>
         /// 全名称
         /// </summary>
         public string Inherit { get { return _xml.Inherit; } set { _xml.Inherit = value; } }
-        public string DataPath
-        {
-            get { return _xml.DataPath; }
-            set
-            {
-                string dataDir = Path.GetFullPath(Util.DataDir);
-                string relPath = value.Replace(dataDir, ".\\");
-                _xml.DataPath = Util.Format("{0}\\{1}", dataDir, relPath);
-            }
-        }
+        public string DataPath { get { return _xml.DataPath; } set { _xml.DataPath = value; } }
         public string Desc { get { return _xml.Desc; } set { _xml.Desc = value; } }
         public string Group { get { return _xml.Group; } set { _xml.Group = value; } }
         public List<FieldWrap> Fields { get { return _fields; } }
+
+        public string[] Indexes
+        {
+            get
+            {
+                if (_indexes.Length != Fields.Count)
+                {
+                    _indexes = new string[_fields.Count];
+                    for (int i = 0; i < _fields.Count; i++)
+                        _indexes[i] = _fields[i].DisplayName;
+                }
+                return _indexes;
+            }
+        }
+
+        public override string DisplayName
+        {
+            get
+            {
+                if (Desc.IsEmpty())
+                    return Name;
+                else
+                    return Util.Format("{0}:{1}", Name, Desc);
+            }
+        }
+
+        string[] _indexes = new string[0];
 
         private ClassXml _xml;
         private NamespaceWrap _namespace;
@@ -52,6 +86,7 @@ namespace Description.Wrap
         {
             _xml = xml;
             _namespace = ns;
+
             _fields = new List<FieldWrap>();
             _xml.Fields = _xml.Fields ?? new List<FieldXml>();
             var xfields = _xml.Fields;
@@ -61,7 +96,7 @@ namespace Description.Wrap
                 var field = FieldWrap.Create(xfield, this);
                 _fields.Add(field);
             }
-            _classHash.Add(FullName);
+            _classDict.Add(FullName, this);
         }
         public bool AddField(FieldWrap wrap)
         {
@@ -87,7 +122,7 @@ namespace Description.Wrap
         public override void Dispose()
         {
             base.Dispose();
-            _classHash.Remove(_name);
+            _classDict.Remove(_name);
             for (int i = 0; i < _fields.Count; i++)
                 _fields[i].Dispose();
             _fields.Clear();
@@ -111,7 +146,7 @@ namespace Description.Wrap
                 builder.AppendFormat("类中不存在{0}关键字|", Index);
                 r = false;
             }
-            if (!_classHash.Contains(Inherit) && Inherit != FullName)
+            if (!_classDict.ContainsKey(Inherit) && Inherit != FullName)
             {
                 r = false;
                 builder.AppendFormat("继承类{0}不存在|", Inherit);
@@ -125,7 +160,6 @@ namespace Description.Wrap
                 ConsoleDock.Ins.LogError(builder.ToString());
             return r;
         }
-
         public static implicit operator ClassXml(ClassWrap wrap)
         {
             return wrap._xml;

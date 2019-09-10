@@ -1,4 +1,5 @@
 ﻿using Description;
+using Description.Editor;
 using Description.Properties;
 using Description.Wrap;
 using Description.Xml;
@@ -17,7 +18,7 @@ namespace Description
         static MainWindow _ins;
         public static MainWindow Ins { get { return _ins; } }
         public DockPanel _dock { get { return _dockPanel; } }
-       
+
         public MainWindow()
         {
             _ins = this;
@@ -33,13 +34,11 @@ namespace Description
         }
         protected override void OnClosed(EventArgs e)
         {
-            Settings.Default.Save();
-            ModuleWrap.Default.Save();
-            ModuleWrap.Current.Save();
-            TypeEditorDock.Clear();
-            _ins = null;
+            ModuleWrap.TrSave();
+            Settings.Default.Save();            
             PoolManager.Ins.Clear();
             base.OnClosed(e);
+            _ins = null;
         }
         private void InitSettings()
         {

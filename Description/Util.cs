@@ -8,6 +8,7 @@ using System.Xml;
 using System.Windows.Forms;
 using Description.Properties;
 using System.Drawing;
+using Description.Wrap;
 
 namespace Description
 {
@@ -82,13 +83,16 @@ namespace Description
         /// <summary>
         /// Excel数据目录
         /// </summary>
-        public static string DataDir { get { return Format("{0}.{1}", ApplicationDir, _dataDir); } }
+        public static string DataDir { get { return Format("{0}/{1}/{2}", ApplicationDir, _dataDir); } set { _dataDir = value; } }
         public static string LogErrorFile { get { return Path.Combine(ApplicationDir, "error.log"); } }
 
         static string _defaultModule;
         static string _moduleDir;
         static string _namespaceDir;
         static string _lastRecord;
+        /// <summary>
+        /// 定义相对于编辑器的数据目录路径
+        /// </summary>
         static string _dataDir;
         #endregion
 
@@ -109,6 +113,33 @@ namespace Description
         public const string LIST = "list";
         public const string DICT = "dict";
 
+        public static string[] BaseTypes = new string[] { BOOL, INT, LONG, FLOAT, STRING, LIST, DICT };
+
+        private static string[] KeyTypes = new string[] { INT, LONG, STRING };
+        public static object[] GetKeyTypes()
+        {
+            List<object> all = new List<object>(KeyTypes);
+            all.AddRange(EnumWrap.Enums);
+            return all.ToArray();
+        }
+        public static object[] GetAllTypes()
+        {
+            List<object> all = new List<object>(BaseTypes);
+            all.AddRange(ClassWrap.Classes);
+            all.AddRange(EnumWrap.Enums);
+
+            return all.ToArray();
+        }
+
+        //public const string BYTE = "byte";
+        //public const string UBYTE = "ubyte";
+        //public const string SHORT = "short";
+        //public const string USHORT = "ushort";
+        //public const string UINT = "uint";
+        //public const string ULONG = "ulong";
+
+        //public static string[] EnumInherts = new string[] { BYTE, UBYTE, SHORT, USHORT, UINT, INT, ULONG, LONG };
+
         public static readonly HashSet<string> RawTypes = new HashSet<string>() { BOOL, INT, FLOAT, LONG, STRING };
         public static readonly HashSet<string> ContainerTypes = new HashSet<string>() { LIST, DICT };
         /// <summary>
@@ -120,7 +151,7 @@ namespace Description
         /// </summary>
         public static readonly char[] DotSplit = new char[] { '.' };
 
-        private static readonly char[] PathSplit = new char[] { '\\' };
+        private static readonly char[] PathSplit = new char[] { '/' };
         private static readonly StringBuilder Builder = new StringBuilder();
         public static string Format(string fmt, params object[] args)
         {
@@ -200,6 +231,15 @@ namespace Description
         {
             return Path.Combine(NamespaceDir, relPath);
         }
+        public static string GetDataDirAbsPath(string path)
+        {
+            return Format("{0}/{1}/{2}", ApplicationDir, _dataDir, path);
+        }
+        public static string GetDataDirRelPath(string path)
+        {
+            string dir = Format("{0}/{1}/{2}", ApplicationDir, _dataDir);
+            return path.Replace(dir, "");
+        }
         public static void TryDeleteDirectory(string path)
         {
             if (!Directory.Exists(path)) return;
@@ -212,6 +252,29 @@ namespace Description
                 TryDeleteDirectory(ds[i]);
 
             Directory.Delete(path, true);
+        }
+
+
+        static OpenFileDialog OpenFileDialog = new OpenFileDialog();
+        public static DialogResult Open(string dir, string title, Action<string> action, string error = "?")
+        {
+            OpenFileDialog.InitialDirectory = dir;
+            OpenFileDialog.Title = title;
+            DialogResult result = OpenFileDialog.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                try
+                {
+                    if (action != null)
+                        action(OpenFileDialog.FileName);
+
+                }
+                catch (Exception ex)
+                {
+                    ConsoleDock.Ins.LogErrorFormat("{0}\n{1}\n{2}", error, ex.Message, ex.StackTrace);
+                }
+            }
+            return result;
         }
 
         #region 扩展及操作

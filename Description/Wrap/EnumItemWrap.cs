@@ -18,6 +18,8 @@ namespace Description.Wrap
         public int Value { get { return _xml.Value; } set { _xml.Value = value; } }
         public string Alias { get { return _xml.Alias; } set { _xml.Alias = value; } }
 
+        public override string DisplayName => Util.Format("{0}({1}) = {2}", Name, Alias, Value);
+
         private EnumWrap _enum;
         private EnumItemXml _xml;
         protected EnumItemWrap(EnumItemXml xml, EnumWrap enum0) : base(xml.Name)

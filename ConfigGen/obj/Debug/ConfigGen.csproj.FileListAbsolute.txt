@@ -32,4 +32,3 @@ E:\__Github\ConfigGen\Example\ConfigGen.exe
 E:\__Github\ConfigGen\Example\ConfigGen.pdb
 E:\__Github\ConfigGen\Example\Example\ConfigGen.exe
 E:\__Github\ConfigGen\Example\Example\ConfigGen.pdb
-E:\__Github\ConfigGen\ConfigGen\obj\Debug\ConfigGen.csprojAssemblyReference.cache

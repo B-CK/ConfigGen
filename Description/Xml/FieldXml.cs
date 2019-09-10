@@ -19,11 +19,7 @@ namespace Description.Xml
         [XmlAttribute]
         public string Type;
         [XmlAttribute]
-        public bool IsPublic;
-        [XmlAttribute]
-        public bool IsStatic;
-        [XmlAttribute]
-        public bool IsReadonly;
+        public bool IsConst;
         [XmlAttribute]
         public string Value;
         [XmlAttribute]
