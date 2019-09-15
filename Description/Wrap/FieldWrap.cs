@@ -12,7 +12,11 @@ namespace Description.Wrap
         public static FieldWrap Create(FieldXml xml, ClassWrap cls)
         {
             var wrap = PoolManager.Ins.Pop<FieldWrap>();
-            return wrap ?? new FieldWrap(xml, cls);
+            if (wrap == null)
+                wrap = new FieldWrap(xml, cls);
+            else
+                wrap.Init(xml, cls);
+            return wrap;
         }
 
         public string Type { get { return _xml.Type; } set { _xml.Type = value; } }
@@ -39,6 +43,10 @@ namespace Description.Wrap
         private ClassWrap _cls;
         private FieldXml _xml;
         protected FieldWrap(FieldXml xml, ClassWrap cls) : base(xml.Name)
+        {
+            Init(xml, cls);
+        }
+        private void Init(FieldXml xml, ClassWrap cls)
         {
             _xml = xml;
             _cls = cls;

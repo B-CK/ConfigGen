@@ -17,10 +17,10 @@ namespace Description.Editor
             return dock;
         }
 
-        private EnumEditorDock()
+        private EnumEditorDock() 
         {
             InitializeComponent();
-            Show(MainWindow.Ins._dock, DockState.Document);
+            Show(MainWindow.Ins._dockPanel, DockState.Document);
         }
 
         protected override void Init(BaseWrap arg)
@@ -43,11 +43,12 @@ namespace Description.Editor
             wrap.Namespace.Name = _namespaceComboBox.Text;
             wrap.Desc = _descTextBox.Text;
 
+            //修改命名空间
             var nsw = NamespaceWrap.GetNamespace(_namespaceComboBox.Text);
             if (nsw.FullName != wrap.Namespace.FullName)
             {
-                nsw.AddEnum(wrap);
-                wrap.Namespace.RemoveEnum(wrap);
+                nsw.AddEnumWrap(wrap);
+                wrap.Namespace.RemoveEnumWrap(wrap);
                 wrap.Namespace = nsw;
             }
             nsw.SetDirty();

@@ -1,4 +1,5 @@
-﻿using Description.Xml;
+﻿using System;
+using Description.Xml;
 
 namespace Description.Wrap
 {
@@ -12,8 +13,14 @@ namespace Description.Wrap
         public static EnumItemWrap Create(EnumItemXml xml, EnumWrap enum0)
         {
             var wrap = PoolManager.Ins.Pop<EnumItemWrap>();
-            return wrap ?? new EnumItemWrap(xml, enum0);
+            if (wrap == null)
+                wrap = new EnumItemWrap(xml, enum0);
+            else
+                wrap.Init(xml, enum0);
+            return wrap;
         }
+
+
 
         public int Value { get { return _xml.Value; } set { _xml.Value = value; } }
         public string Alias { get { return _xml.Alias; } set { _xml.Alias = value; } }
@@ -23,6 +30,10 @@ namespace Description.Wrap
         private EnumWrap _enum;
         private EnumItemXml _xml;
         protected EnumItemWrap(EnumItemXml xml, EnumWrap enum0) : base(xml.Name)
+        {
+            Init(xml, enum0);
+        }
+        private void Init(EnumItemXml xml, EnumWrap enum0)
         {
             _xml = xml;
             _enum = enum0;

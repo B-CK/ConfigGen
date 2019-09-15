@@ -6,22 +6,43 @@ using System.Windows.Forms;
 
 namespace Description.Wrap
 {
-    public class ModuleWrap : BaseWrap
+    internal class ModuleWrap : BaseWrap
     {
         public static ModuleWrap Default { get { return _default; } }
         public static ModuleWrap Current { get { return _current; } }
         static ModuleWrap _default;
         static ModuleWrap _current;
 
-        public static void InitDefaultModule()
+        public static void InitModule()
         {
             ModuleXml xml = null;
             if (!File.Exists(Util.DefaultModule))
-                Util.Serialize(Util.DefaultModule, new ModuleXml() { Name = Util.DefaultModuleName });
+            {
+                var module = new ModuleXml() { Name = Util.DefaultModuleName };
+                Util.Serialize(Util.DefaultModule, module);
+            }
             else
                 xml = Util.Deserialize<ModuleXml>(Util.DefaultModule);
             _default = new ModuleWrap(xml);
+
+            ModuleWrap wrap = null;
+            if (File.Exists(Util.LastRecord))
+                wrap = Open(Util.LastRecord);
+            else
+                wrap = OpenDefault();
+
+            var allNsw = NamespaceWrap.AllNamespaces;
+            foreach (var item in allNsw)
+                _default.AddImport(item.Value);
+            var imps = _current.Imports;
+            for (int i = 0; i < imps.Count; i++)
+            {
+                string ns = imps[i];
+                if (allNsw.ContainsKey(ns))
+                    allNsw[ns].IsVisible = true;
+            }
         }
+    
         public static ModuleWrap Create(string path)
         {
             ModuleXml xml = null;
@@ -77,16 +98,18 @@ namespace Description.Wrap
         {
             if (NamespaceWrap.HasModifyNamespace)
             {
-                var result = MessageBox.Show("已修改配置未保存,是否保存?", "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                var result = MessageBox.Show("还有配置未保存,是否保存?", "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 switch (result)
                 {
                     case DialogResult.Cancel:
+                        EditorDock.CancleAll();
                         return DialogResult.Cancel;
-                    case DialogResult.Yes:
-                        EditorDock.ClearAll();
+                    case DialogResult.Yes:                      
                         NamespaceWrap.HasModifyNamespace = false;
+                        EditorDock.SaveAll();
                         Default.Save();
                         Current.Save();
+                        EditorDock.ClearAll();
                         return DialogResult.Yes;
                     case DialogResult.No:
                         EditorDock.CancleAll();
@@ -101,6 +124,13 @@ namespace Description.Wrap
                 Current.Save(false);
             }
             return DialogResult.None;
+        }
+        /// <summary>
+        /// 清理无效命名空间
+        /// </summary>
+        public static void ClearDump()
+        {
+
         }
         public override string FullName { get { return _path; } }
 
@@ -137,6 +167,7 @@ namespace Description.Wrap
             if (this != _default)
                 PoolManager.Ins.Push(this);
         }
+        
         public void AddImport(NamespaceWrap wrap)
         {
             string name = wrap.FullName;
@@ -159,8 +190,7 @@ namespace Description.Wrap
             Util.Serialize(_path, _xml);
             ConsoleDock.Ins.LogFormat("保存模板{0}", _path);
 
-            if (!saveNsw) return;
-            EditorDock.SaveAll();
+            if (!saveNsw) return;            
             for (int i = 0; i < _imports.Count; i++)
             {
                 string key = _imports[i];

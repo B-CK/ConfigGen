@@ -12,6 +12,7 @@ namespace Description
 {
     public partial class ConsoleDock : DockContent
     {
+        const string logFile = "error.log";
         public static ConsoleDock Ins { get { return _ins; } }
         static ConsoleDock _ins;
         public static void Inspect()
@@ -19,7 +20,7 @@ namespace Description
             if (_ins == null)
             {
                 _ins = new ConsoleDock();
-                _ins.Show(MainWindow.Ins._dock, DockState.DockBottomAutoHide);
+                _ins.Show(MainWindow.Ins._dockPanel, DockState.DockBottomAutoHide);
             }
             else
             {
@@ -44,12 +45,17 @@ namespace Description
             ResetLogCount();
             _logListView.ListViewItemSorter = new ListViewItemComparer();
 
-            string[] lines = File.ReadAllLines(Util.LogErrorFile);
-            if (lines.Length >= 1000)
+            if (!File.Exists(logFile))
+                File.Create(logFile);
+            else
             {
-                string[] cut = new string[500];
-                Array.Copy(lines, 500, cut, 0, 500);
-                File.WriteAllLines(Util.LogErrorFile, cut);
+                string[] lines = File.ReadAllLines(logFile);
+                if (lines.Length >= 1000)
+                {
+                    string[] cut = new string[500];
+                    Array.Copy(lines, 500, cut, 0, 500);
+                    File.WriteAllLines(Util.LogErrorFile, cut);
+                }
             }
             stream = File.Open(Util.LogErrorFile, FileMode.Append, FileAccess.Write);
             writer = new StreamWriter(stream);

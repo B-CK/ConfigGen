@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Description.Wrap
 {
-    public class ClassWrap : BaseWrap, IDisposable
+    public class ClassWrap : TypeWrap, IDisposable
     {
         public static Dictionary<string, ClassWrap> ClassDict { get { return _classDict; } }
         static Dictionary<string, ClassWrap> _classDict = new Dictionary<string, ClassWrap>();
@@ -36,11 +36,15 @@ namespace Description.Wrap
         public static ClassWrap Create(ClassXml xml, NamespaceWrap ns)
         {
             var wrap = PoolManager.Ins.Pop<ClassWrap>();
-            return wrap ?? new ClassWrap(xml, ns);
+            if (wrap == null)
+                wrap = new ClassWrap(xml, ns);
+            else
+                wrap.Init(xml, ns);
+            return wrap;
         }
 
-        public override string FullName { get { return Util.Format("{0}.{1}", _namespace.Name, Name); } }
-        public NamespaceWrap Namespace { get { return _namespace; } set { _namespace = value; } }
+        //public override string FullName { get { return Util.Format("{0}.{1}", _namespace.Name, Name); } }
+        //public NamespaceWrap Namespace { get { return _namespace; } set { _namespace = value; } }
 
         public string Index { get { return _xml.Index; } set { _xml.Index = value; } }
         /// <summary>
@@ -80,10 +84,15 @@ namespace Description.Wrap
         string[] _indexes = new string[0];
 
         private ClassXml _xml;
-        private NamespaceWrap _namespace;
+        //private NamespaceWrap _namespace;
         private List<FieldWrap> _fields;
-        protected ClassWrap(ClassXml xml, NamespaceWrap ns) : base(xml.Name)
+        protected ClassWrap(ClassXml xml, NamespaceWrap ns) : base(xml, ns)
         {
+            Init(xml, ns);
+        }
+        protected void Init(ClassXml xml, NamespaceWrap ns)
+        {
+            base.Init(xml, ns);
             _xml = xml;
             _namespace = ns;
 
@@ -94,6 +103,7 @@ namespace Description.Wrap
             {
                 var xfield = xfields[i];
                 var field = FieldWrap.Create(xfield, this);
+                Add(field.Name);
                 _fields.Add(field);
             }
             _classDict.Add(FullName, this);
@@ -102,7 +112,7 @@ namespace Description.Wrap
         {
             if (Contains(wrap.Name))
             {
-                Util.MsgError("错误", "该空间中已经存在Class{0}.", wrap.Name);
+                Util.MsgWarning("该空间中已经存在Class{0}.", wrap.Name);
                 return false;
             }
 
@@ -111,7 +121,7 @@ namespace Description.Wrap
             _xml.Fields.Add(wrap);
             return true;
         }
-        public void RemoveFoield(FieldWrap wrap)
+        public void RemoveField(FieldWrap wrap)
         {
             if (!Contains(wrap.Name)) return;
 
@@ -122,7 +132,7 @@ namespace Description.Wrap
         public override void Dispose()
         {
             base.Dispose();
-            _classDict.Remove(_name);
+            _classDict.Remove(FullName);
             for (int i = 0; i < _fields.Count; i++)
                 _fields[i].Dispose();
             _fields.Clear();

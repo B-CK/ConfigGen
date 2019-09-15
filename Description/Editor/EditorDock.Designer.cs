@@ -37,6 +37,7 @@
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             this.ClientSize = new System.Drawing.Size(822, 594);
             this.DockAreas = ((WeifenLuo.WinFormsUI.Docking.DockAreas)((WeifenLuo.WinFormsUI.Docking.DockAreas.Float | WeifenLuo.WinFormsUI.Docking.DockAreas.Document)));
+            this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -45,6 +46,8 @@
             this.Name = "EditorDock";
             this.ShowIcon = false;
             this.Text = "EditorDock";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditorDock_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.EditorDock_FormClosed);
             this.ResumeLayout(false);
 
         }

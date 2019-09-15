@@ -140,6 +140,7 @@
             this.Controls.Add(this.NameLabel);
             this.Controls.Add(this._okButton);
             this.Controls.Add(this._2Label);
+            this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("宋体", 10F);
             this.ForeColor = System.Drawing.Color.LightGray;
             this.MaximizeBox = false;

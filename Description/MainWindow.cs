@@ -17,25 +17,29 @@ namespace Description
     {
         static MainWindow _ins;
         public static MainWindow Ins { get { return _ins; } }
-        public DockPanel _dock { get { return _dockPanel; } }
 
         public MainWindow()
         {
             _ins = this;
             InitializeComponent();
+            ConsoleDock.Inspect();
 
             InitSettings();
-            ModuleWrap.InitDefaultModule();
-            NamespaceWrap.Init();
-            ConsoleDock.Inspect();
+            NamespaceWrap.InitNamespaces();
+            ModuleWrap.InitModule();
             FindNamespaceDock.Inspect();
 
             ConsoleDock.Ins.Log("初始化成功~");
         }
+        private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            var result = ModuleWrap.TrSave();
+            if (result == DialogResult.Cancel)
+                e.Cancel = true;
+        }
         protected override void OnClosed(EventArgs e)
         {
-            ModuleWrap.TrSave();
-            Settings.Default.Save();            
+            Settings.Default.Save();
             PoolManager.Ins.Clear();
             base.OnClosed(e);
             _ins = null;
@@ -96,6 +100,12 @@ namespace Description
                 }
             }
         }
+        private void SaveTypeMenuItem_Click(object sender, EventArgs e)
+        {
+            var dock = _dockPanel.ActiveDocument as EditorDock;
+            if (dock == null) return;
+            EditorDock.SaveDock(dock);
+        }
 
         private void SaveModuleItem_Click(object sender, EventArgs e)
         {
@@ -151,8 +161,9 @@ namespace Description
         {
 
         }
+
         #endregion
 
-
+     
     }
 }

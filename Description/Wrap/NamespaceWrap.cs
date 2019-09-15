@@ -27,7 +27,7 @@ namespace Description.Wrap
             }
         }
         static NamespaceWrap[] _namespaces = new NamespaceWrap[0];
-        public static void Init()
+        public static void InitNamespaces()
         {
             string[] fs = Directory.GetFiles(Util.NamespaceDir);
             for (int i = 0; i < fs.Length; i++)
@@ -41,7 +41,12 @@ namespace Description.Wrap
             //生成@命名空间(全局命名空间)
             string epath = Util.Format("{0}\\{1}.xml", Util.NamespaceDir, Util.EmptyNamespace);
             if (!File.Exists(epath))
-                Create(Util.EmptyNamespace);
+            {
+                HasModifyNamespace = true;
+                var a = Create(Util.EmptyNamespace);
+                a.SetDirty();
+                a.SetNodeState(NodeState.Modify);
+            }
         }
 
         public static NamespaceWrap GetNamespace(string name)
@@ -60,17 +65,26 @@ namespace Description.Wrap
         public static NamespaceWrap Create(NamespaceXml xml)
         {
             var wrap = PoolManager.Ins.Pop<NamespaceWrap>();
-            return wrap ?? new NamespaceWrap(xml);
+            if (wrap == null)
+                wrap = new NamespaceWrap(xml);
+            else
+                wrap.Init(xml);
+            return wrap;
         }
+
+
 
         /// <summary>
         /// 是否有被修改
         /// </summary>
         public bool IsDirty { get { return _isDirty; } }
+        private bool _isDirty = false;
+        public bool IsVisible { get { return _isVisible; } set { _isVisible = value; } }
+        private bool _isVisible = false;
 
         public List<ClassWrap> Classes { get { return _classes; } }
         public List<EnumWrap> Enums { get { return _enums; } }
-        public string Desc { get { return _desc; } set { _desc = value; } }
+        public string Desc { get { return _xml.Desc; } set { _xml.Desc = value; } }
 
         public override string DisplayName
         {
@@ -83,14 +97,16 @@ namespace Description.Wrap
             }
         }
 
-        private string _desc;
-
         private List<ClassWrap> _classes;
         private List<EnumWrap> _enums;
         private NamespaceXml _xml;
-        private bool _isDirty = false;
+
         private string _path;
         protected NamespaceWrap(NamespaceXml xml) : base(xml.Name)
+        {
+            Init(xml);
+        }
+        private void Init(NamespaceXml xml)
         {
             _isDirty = false;
             _xml = xml;
@@ -99,63 +115,85 @@ namespace Description.Wrap
             _xml.Classes = _xml.Classes ?? new List<ClassXml>();
             _xml.Enums = _xml.Enums ?? new List<EnumXml>();
             _path = Util.GetNamespaceAbsPath(_name + ".xml");
-            _desc = _xml.Desc;
 
             var xclasses = _xml.Classes;
             for (int i = 0; i < xclasses.Count; i++)
             {
                 var xclass = xclasses[i];
-                var item = ClassWrap.Create(xclass, this);
-                _classes.Add(item);
+                var wrap = ClassWrap.Create(xclass, this);
+                AddClassWrap(wrap, false);
             }
             var xenums = _xml.Enums;
             for (int i = 0; i < xenums.Count; i++)
             {
                 var xenum = xenums[i];
-                var item = EnumWrap.Create(xenum, this);
-                _enums.Add(item);
+                var wrap = EnumWrap.Create(xenum, this);
+                AddEnumWrap(wrap, false);
             }
 
             _allNamespaces.Add(FullName, this);
         }
-        public override bool CheckName()
+
+        #region 各类型添加/移除操作[添加新类型时,Add/Remove("TypeName")]
+        public void AddClassWrap(ClassWrap wrap, bool isDirty = true)
         {
-            if (_name == Util.EmptyNamespace)
-                return true;
-            return base.CheckName();
-        }
-        public void AddClass(ClassWrap wrap)
-        {
+            if (isDirty)
+            {
+                wrap.SetNodeState(NodeState.Modify);
+                SetNodeState(NodeState.Modify);
+                _xml.Classes.Add(wrap);
+                SetDirty();
+            }
+
             _classes.Add(wrap);
-            _xml.Classes.Add(wrap);
             Add(wrap.Name);
-            SetDirty();
         }
-        public void RemoveClass(ClassWrap wrap)
+        public void RemoveClassWrap(ClassWrap wrap, bool isDirty = true)
         {
             if (!Contains(wrap.Name)) return;
+
+            if (isDirty)
+            {
+                SetNodeState(NodeState.Modify);
+                _xml.Classes.Remove(wrap);
+                SetDirty();
+            }
+
             Remove(wrap.Name);
             _classes.Remove(wrap);
-            _xml.Classes.Remove(wrap);
+
             wrap.Namespace = null;
-            SetDirty();
         }
-        public void AddEnum(EnumWrap wrap)
+        public void AddEnumWrap(EnumWrap wrap, bool isDirty = true)
         {
+            if (isDirty)
+            {
+                wrap.SetNodeState(NodeState.Modify);
+                SetNodeState(NodeState.Modify);
+                _xml.Enums.Add(wrap);
+                SetDirty();
+            }
+
             _enums.Add(wrap);
-            _xml.Enums.Add(wrap);
             Add(wrap.Name);
-            SetDirty();
         }
-        public void RemoveEnum(EnumWrap wrap)
+        public void RemoveEnumWrap(EnumWrap wrap, bool isDirty = true)
         {
             if (!Contains(wrap.Name)) return;
+
+            if (isDirty)
+            {
+                SetNodeState(NodeState.Modify);
+                _xml.Enums.Remove(wrap);
+                SetDirty();
+            }
+
             Remove(wrap.Name);
             _enums.Remove(wrap);
-            _xml.Enums.Remove(wrap);
             wrap.Namespace = null;
-            SetDirty();
         }
+        #endregion
+
         public void SetDirty()
         {
             HasModifyNamespace = true;
@@ -186,7 +224,6 @@ namespace Description.Wrap
         public void Save()
         {
             _xml.Name = _name;
-            _xml.Desc = _desc;
             try
             {
                 Util.Serialize(_path, _xml);
@@ -200,7 +237,6 @@ namespace Description.Wrap
         public void Cancle()
         {
             _name = "";
-            _desc = "";
             _xml = null;
         }
     }

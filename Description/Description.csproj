@@ -65,6 +65,7 @@
     <Compile Include="Editor\EnumEditorDock.Designer.cs">
       <DependentUpon>EnumEditorDock.cs</DependentUpon>
     </Compile>
+    <Compile Include="HotKey.cs" />
     <Compile Include="PoolManager.cs" />
     <Compile Include="TypeBox.cs">
       <SubType>UserControl</SubType>
@@ -106,6 +107,7 @@
     <Compile Include="Editor\ClassEditorDock.Designer.cs">
       <DependentUpon>ClassEditorDock.cs</DependentUpon>
     </Compile>
+    <Compile Include="Wrap\TypeWrap.cs" />
     <Compile Include="Xml\ClassXml.cs" />
     <Compile Include="Xml\EnumXml.cs" />
     <Compile Include="Xml\FieldXml.cs" />

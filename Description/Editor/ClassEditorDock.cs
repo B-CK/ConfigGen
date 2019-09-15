@@ -5,7 +5,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace Description.Editor
 {
-    public partial class ClassEditorDock : Description.Editor.EditorDock
+    public partial class ClassEditorDock : EditorDock
     {
         public static ClassEditorDock Create(ClassWrap wrap)
         {
@@ -17,12 +17,10 @@ namespace Description.Editor
             return dock;
         }
 
- 
-
         private ClassEditorDock()
         {
             InitializeComponent();
-            Show(MainWindow.Ins._dock, DockState.Document);
+            Show(MainWindow.Ins._dockPanel, DockState.Document);
         }
         protected override void Init(BaseWrap arg)
         {
@@ -49,6 +47,8 @@ namespace Description.Editor
             _inhertComboBox.Text = wrap.Inherit.IsEmpty() ? ClassWrap.Classes[0].FullName : wrap.Inherit;
             _descTextBox.Text = wrap.Desc;
             _dataPathTextBox.Text = wrap.DataPath;
+
+            _isInit = true;
         }
         protected override void Save()
         {
@@ -61,14 +61,7 @@ namespace Description.Editor
             wrap.Desc = _descTextBox.Text;
             wrap.DataPath = _dataPathTextBox.Text;
 
-            var nsw = NamespaceWrap.GetNamespace(_namespaceComboBox.Text);
-            if (nsw.FullName != wrap.Namespace.FullName)
-            {
-                nsw.AddClass(wrap);
-                wrap.Namespace.RemoveClass(wrap);
-                wrap.Namespace = nsw;
-            }
-            nsw.SetDirty();
+            SetNamespace<ClassWrap>(_namespaceComboBox.Text);
         }
         protected override void Clear()
         {
@@ -91,30 +84,55 @@ namespace Description.Editor
             var fields = wrap.Fields;
             for (int i = 0; i < fields.Count; i++)
                 AddMember(fields[i]);
-            _memValueTextBox.OnCheckChange = () => _isDirty = true;
+            _memValueTextBox.OnCheckChange = OnValueChange;
+            SetPropsPanelVisible(false);
         }
         protected override void ShowMember(BaseWrap member)
         {
             base.ShowMember(member);
-            if (member == null)
-            {
-                _memNameTextBox.Text = "";
-                _memTypeComboBox.Text = "";
-                _memValueTextBox.Text = "";
-                _memGroupTextBox.Text = "";
-                _memDescTextBox.Text = "";
-                _checkerComboBox.Text = "";
-            }
+
+            SetPropsPanelVisible(true);
+            FieldWrap field = member as FieldWrap;
+            _memNameTextBox.Text = field.Name;
+            _memTypeComboBox.Text = field.Type;
+            _memValueTextBox.Text = field.Value;
+            _memGroupTextBox.Text = field.Group;
+            _memDescTextBox.Text = field.Desc;
+            _checkerComboBox.Text = field.Checker;
+
+            _defaultLabel.Text = "默认值:";
+            if (_memTypeComboBox.Text.IsEmpty())
+                _memValueTextBox.Visible = false;
             else
             {
-                FieldWrap field = member as FieldWrap;
-                _memNameTextBox.Text = field.Name;
-                _memTypeComboBox.Text = field.Type;
-                _memValueTextBox.Text = field.Value;
-                _memGroupTextBox.Text = field.Group;
-                _memDescTextBox.Text = field.Desc;
-                _checkerComboBox.Text = field.Checker;
+                _memValueTextBox.Visible = true;
+                if (_memTypeComboBox.Text == Util.LIST && _memTypeComboBox.Text == Util.DICT)
+                    _defaultLabel.Text = "元素类型:";
             }
+        }
+
+        protected override void HideMember(BaseWrap member)
+        {
+            base.HideMember(member);
+            SetPropsPanelVisible(false);
+        }
+
+        protected void SetPropsPanelVisible(bool enable)
+        {
+            _nameLabel.Visible = enable;
+            _typeLabel.Visible = enable;
+            _defaultLabel.Visible = enable;
+            _groupLabel.Visible = enable;
+            _descLabel.Visible = enable;
+            _checkLabel.Visible = enable;
+
+            _memNameTextBox.Visible = enable;
+            _memTypeComboBox.Visible = enable;
+            _memValueTextBox.Visible = enable;
+            _memGroupTextBox.Visible = enable;
+            _memDescTextBox.Visible = enable;
+            _checkerComboBox.Visible = enable;
+            _readOnlyCheckBox.Visible = enable;
         }
 
         private void OnValueChange(object sender, System.EventArgs e)
@@ -138,8 +156,6 @@ namespace Description.Editor
         {
             int index = _memberListBox.SelectedIndex;
             RemoveMember(index);
-            BaseWrap wrap = _memberListBox.Items[0] as BaseWrap;
-            ShowMember(wrap);
         }
         private void AddMenuItem_Click(object sender, System.EventArgs e)
         {

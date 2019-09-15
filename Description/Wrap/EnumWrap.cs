@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Description.Wrap
 {
-    public class EnumWrap : BaseWrap, IDisposable
+    public class EnumWrap : TypeWrap, IDisposable
     {
         public static EnumWrap[] Enums
         {
@@ -31,11 +31,15 @@ namespace Description.Wrap
         public static EnumWrap Create(EnumXml xml, NamespaceWrap ns)
         {
             var wrap = PoolManager.Ins.Pop<EnumWrap>();
+            if (wrap == null)
+                wrap = new EnumWrap(xml, ns);
+            else
+                wrap.Init(xml, ns);
             return wrap ?? new EnumWrap(xml, ns);
         }
 
-        public override string FullName { get { return Util.Format("{0}.{1}", _namespace.Name, Name); } }
-        public NamespaceWrap Namespace { get { return _namespace; } set { _namespace = value; } }
+        //public override string FullName { get { return Util.Format("{0}.{1}", _namespace.Name, Name); } }
+        //public NamespaceWrap Namespace { get { return _namespace; } set { _namespace = value; } }
 
         public string Inhert { get { return _xml.Inherit; } set { _xml.Inherit = value; } }
         public string Desc { get { return _xml.Desc; } set { _xml.Desc = value; } }
@@ -54,10 +58,15 @@ namespace Description.Wrap
 
 
         private EnumXml _xml;
-        private NamespaceWrap _namespace;
+        //private NamespaceWrap _namespace;
         private List<EnumItemWrap> _items;
-        protected EnumWrap(EnumXml xml, NamespaceWrap ns) : base(xml.Name)
+        protected EnumWrap(EnumXml xml, NamespaceWrap ns) : base(xml, ns)
         {
+            Init(xml, ns);
+        }
+        protected void Init(EnumXml xml, NamespaceWrap ns)
+        {
+            base.Init(xml, ns);
             _xml = xml;
             _namespace = ns;
 
@@ -69,17 +78,18 @@ namespace Description.Wrap
                 var xitem = xitems[i];
                 var item = EnumItemWrap.Create(xitem, this);
                 _items.Add(item);
+                Add(item.Name);
             }
 
-            if (_enumDict.ContainsKey(FullName))
-                _enumDict.Add(FullName, this);
+            _items.Sort((a, b) => a.Value - b.Value);
+            _enumDict.Add(FullName, this);
         }
 
         public bool AddEItem(EnumItemWrap wrap)
         {
             if (Contains(wrap.Name))
             {
-                Util.MsgError("错误", "枚举{0}已经包含{1}.", Name, wrap.Name);
+                Util.MsgWarning("枚举{0}已经包含{1}.", Name, wrap.Name);
                 return false;
             }
 

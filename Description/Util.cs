@@ -83,7 +83,7 @@ namespace Description
         /// <summary>
         /// Excel数据目录
         /// </summary>
-        public static string DataDir { get { return Format("{0}/{1}/{2}", ApplicationDir, _dataDir); } set { _dataDir = value; } }
+        public static string DataDir { get { return Format("{0}/{1}", ApplicationDir, _dataDir); } set { _dataDir = value; } }
         public static string LogErrorFile { get { return Path.Combine(ApplicationDir, "error.log"); } }
 
         static string _defaultModule;
@@ -203,17 +203,20 @@ namespace Description
                 }
             }
         }
-        public static void MsgWarning(string title, string fmt, params object[] msg)
+        //可引发后续代码错误,包含设计人员错误操作,例如命名错误
+        public static void MsgWarning(string fmt, params object[] msg)
         {
             string warning = Format(fmt, msg);
-            MessageBox.Show(warning, title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(warning, "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             ConsoleDock.Ins.LogWarning(warning);
         }
-        public static void MsgError(string title, string fmt, params object[] msg)
+        //工具本身错误,抛出异常
+        public static void MsgError(string fmt, params object[] msg)
         {
             string error = Format(fmt, msg);
-            MessageBox.Show(error, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(error, "工具异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
             ConsoleDock.Ins.LogError(error);
+            throw new Exception(error);
         }
         public static string GetModuleRelPath(string path)
         {
@@ -281,9 +284,14 @@ namespace Description
         /// <summary>
         /// 匹配标识符命名规则
         /// </summary>
-        public static bool MatchIdentifier(string name)
+        public static bool CheckIdentifier(string name)
         {
-            return Regex.IsMatch(name, @"^[a-zA-Z_]\w*$");
+            if (!Regex.IsMatch(name, @"^[a-zA-Z_]\w*$"))
+            {
+                MsgWarning("名称[{0}]不规范,请以'_',字母和数字命名且首字母只能为'_'和字母!", name);
+                return false;
+            }
+            return true;
         }
         /// <summary>
         /// 各种空
