@@ -25,23 +25,23 @@ namespace Description
             Dict,
         }
 
-        ProertyType _proertyType = ProertyType.None;
+        ProertyType _propertyType = ProertyType.None;
         public Action OnCheckChange;
 
         public void InitBool(bool value = false)
         {
-            _proertyType = ProertyType.Bool;
+            _propertyType = ProertyType.Bool;
             _boolBox.Checked = value;
-            EnableBox(_proertyType);
+            EnableBox(_propertyType);
         }
         public void InitInt(int value = 0, int size = 32)
         {
-            _proertyType = ProertyType.Int;
+            _propertyType = ProertyType.Int;
             _numericUpDown.Increment = 1;
             _numericUpDown.Maximum = int.MaxValue;
             _numericUpDown.Minimum = int.MinValue;
             _numericUpDown.Value = value;
-            EnableBox(_proertyType);
+            EnableBox(_propertyType);
             switch (size)
             {
                 case 16:
@@ -60,30 +60,30 @@ namespace Description
         }
         public void InitFloat(float value = 0)
         {
-            _proertyType = ProertyType.Float;
+            _propertyType = ProertyType.Float;
             _numericUpDown.Increment = (decimal)0.1f;
             _numericUpDown.Value = (decimal)value;
             _numericUpDown.Maximum = decimal.MaxValue;
             _numericUpDown.Minimum = decimal.MinValue;
-            EnableBox(_proertyType);
+            EnableBox(_propertyType);
         }
         public void InitEnum(string value, EnumItemWrap[] items)
         {
-            _proertyType = ProertyType.Enum;
-            EnableBox(_proertyType);
+            _propertyType = ProertyType.Enum;
+            EnableBox(_propertyType);
             _comboBox.Text = value;
             _comboBox.Items.AddRange(items);
         }
         public void InitString(string value = "")
         {
-            _proertyType = ProertyType.String;
-            EnableBox(_proertyType);
+            _propertyType = ProertyType.String;
+            EnableBox(_propertyType);
             _stringBox.Text = value;
         }
         public void InitList(object[] items)
         {
-            _proertyType = ProertyType.List;
-            EnableBox(_proertyType);
+            _propertyType = ProertyType.List;
+            EnableBox(_propertyType);
             _comboBox.Items.AddRange(items);
         }
         /// <summary>
@@ -93,35 +93,27 @@ namespace Description
         /// <param name="values"></param>
         public void InitDict(object[] keys, object[] values)
         {
-            _proertyType = ProertyType.Dict;
-            EnableBox(_proertyType);
+            _propertyType = ProertyType.Dict;
+            EnableBox(_propertyType);
             _keyComboBox.Items.AddRange(keys);
             _valueComboBox.Items.AddRange(values);
         }
 
-        public void GetDictType(out string key, out string value)
+        public string GetSetType()
         {
-            if (_proertyType == ProertyType.Dict)
-            {
-                key = _keyComboBox.Text;
-                value = _valueComboBox.Text;
-            }
-            else
-            {
-                key = "";
-                value = "";
-            }
-        }
-        public string GetListType()
-        {
-            if (_proertyType == ProertyType.List)
+            if (_propertyType == ProertyType.List)
                 return _comboBox.Text;
+            else if (_propertyType == ProertyType.Dict)
+                return Util.Format("{0}{1}{2}", _keyComboBox.Text, Util.ArgsSplitFlag[0], _valueComboBox.Text);
             else
-                return "";
+            {
+                Util.MsgError("字段类型({0})不匹配,错误调用泛型类型", _propertyType);
+                return "?";
+            }
         }
         public string GetValue()
         {
-            switch (_proertyType)
+            switch (_propertyType)
             {
                 case ProertyType.Bool:
                     return _boolBox.Checked.ToString();

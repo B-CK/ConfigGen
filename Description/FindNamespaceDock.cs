@@ -133,6 +133,15 @@ namespace Description
             TreeNode rootNode = _nodeTreeView.Nodes[nWrap.FullName];
             SetNodeColor(rootNode);
         }
+        public void SwapNamespace(TypeWrap wrap, string src, string dst)
+        {
+            TreeNode srcNode = _nodeTreeView.Nodes[src];
+            TreeNode dstNode = _nodeTreeView.Nodes[dst];
+            TreeNode node = srcNode.Nodes[wrap.FullName];
+            srcNode.Nodes.Remove(node);
+            dstNode.Nodes.Add(node);
+            node.Name = node.FullPath;
+        }
 
         private void AddSubNode(ClassWrap cWrap, NamespaceWrap nWrap)
         {
@@ -283,6 +292,7 @@ namespace Description
                 var root = _nodeTreeView.Nodes[cls.Namespace.FullName];
                 root.Nodes.RemoveByKey(cls.FullName);
                 cls.Namespace.RemoveClassWrap(cls);
+                cls.Dispose();
                 PoolManager.Ins.Push(cls);
             }
             else if (wrap is EnumWrap)
@@ -292,6 +302,7 @@ namespace Description
                 var root = _nodeTreeView.Nodes[enm.Namespace.FullName];
                 root.Nodes.RemoveByKey(enm.FullName);
                 enm.Namespace.RemoveEnumWrap(enm);
+                enm.Dispose();
                 PoolManager.Ins.Push(enm);
             }
             PoolManager.Ins.Push(node);

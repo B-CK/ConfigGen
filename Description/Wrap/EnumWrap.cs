@@ -23,19 +23,20 @@ namespace Description.Wrap
         static Dictionary<string, EnumWrap> _enumDict = new Dictionary<string, EnumWrap>();
         static EnumWrap[] _enums = new EnumWrap[] { };
 
-        public static EnumWrap Create(string name, NamespaceWrap ns)
+        public static EnumWrap Create(string name, NamespaceWrap nsw)
         {
             EnumXml xml = new EnumXml() { Name = name };
-            return Create(xml, ns);
+            return Create(xml, nsw);
         }
-        public static EnumWrap Create(EnumXml xml, NamespaceWrap ns)
+        public static EnumWrap Create(EnumXml xml, NamespaceWrap nsw)
         {
             var wrap = PoolManager.Ins.Pop<EnumWrap>();
             if (wrap == null)
-                wrap = new EnumWrap(xml, ns);
+                wrap = new EnumWrap(xml, nsw);
             else
-                wrap.Init(xml, ns);
-            return wrap ?? new EnumWrap(xml, ns);
+                wrap.Init(xml, nsw);
+            nsw.AddEnumWrap(wrap, false);
+            return wrap;
         }
 
         //public override string FullName { get { return Util.Format("{0}.{1}", _namespace.Name, Name); } }

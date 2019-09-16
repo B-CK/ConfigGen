@@ -28,23 +28,21 @@ namespace Description.Wrap
         static ClassWrap[] _classes = new ClassWrap[0];
 
 
-        public static ClassWrap Create(string name, NamespaceWrap ns)
+        public static ClassWrap Create(string name, NamespaceWrap nsw)
         {
             ClassXml xml = new ClassXml() { Name = name };
-            return Create(xml, ns);
+            return Create(xml, nsw);
         }
-        public static ClassWrap Create(ClassXml xml, NamespaceWrap ns)
+        public static ClassWrap Create(ClassXml xml, NamespaceWrap nsw)
         {
             var wrap = PoolManager.Ins.Pop<ClassWrap>();
             if (wrap == null)
-                wrap = new ClassWrap(xml, ns);
+                wrap = new ClassWrap(xml, nsw);
             else
-                wrap.Init(xml, ns);
+                wrap.Init(xml, nsw);
+            nsw.AddClassWrap(wrap, false);
             return wrap;
         }
-
-        //public override string FullName { get { return Util.Format("{0}.{1}", _namespace.Name, Name); } }
-        //public NamespaceWrap Namespace { get { return _namespace; } set { _namespace = value; } }
 
         public string Index { get { return _xml.Index; } set { _xml.Index = value; } }
         /// <summary>
@@ -84,7 +82,6 @@ namespace Description.Wrap
         string[] _indexes = new string[0];
 
         private ClassXml _xml;
-        //private NamespaceWrap _namespace;
         private List<FieldWrap> _fields;
         protected ClassWrap(ClassXml xml, NamespaceWrap ns) : base(xml, ns)
         {

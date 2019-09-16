@@ -8,8 +8,6 @@ namespace Description.Editor
 {
     public partial class EditorDock : DockContent
     {
-        public static EditorDock LastDock { get { return _lastDock; } set { _lastDock = value; } }
-        protected static EditorDock _lastDock;//Ctrl+S保存类型数据
         static Dictionary<string, EditorDock> _open = new Dictionary<string, EditorDock>();
         /// <summary>
         /// 关闭界面且按需保存
@@ -125,7 +123,20 @@ namespace Description.Editor
         protected virtual void InitMember() { }
         protected virtual void ShowMember(BaseWrap member)
         {
+            if (_currentMember != null)
+            {
+                if (_memberHash.Count != _memberList.Count)
+                {
+                    Util.MsgWarning("字段{0}命名重复!", _currentMember.Name);
+                    return;
+                }
+                SaveMember(_currentMember);
+            }
             _currentMember = member;
+        }
+        protected virtual void SaveMember(BaseWrap member)
+        {
+
         }
         protected virtual void HideMember(BaseWrap member) { }
         protected virtual void AddMember(BaseWrap member)
@@ -133,7 +144,7 @@ namespace Description.Editor
             _memberHash.Add(member);
             _memberList.Add(member);
             ShowMember(member);
-            Util.MsgWarning("成员命名{0}重复!", member.FullName);
+            OnValueChange();
         }
         protected virtual void RemoveMember(BaseWrap member)
         {
@@ -141,6 +152,7 @@ namespace Description.Editor
             {
                 _memberHash.Remove(member);
                 _memberList.Remove(member);
+                OnValueChange();
             }
             HideMember(member);
         }
@@ -156,24 +168,26 @@ namespace Description.Editor
         /// 必须在NamespaceWrap重写制定类型Add/Remove("TypeName")函数
         /// </summary>
         /// <typeparam name="T">TypeWrap子类型</typeparam>
-        protected virtual void SetNamespace<T>(string namespace0)
+        protected virtual void SetNamespace<T>(string src, string dst) where T : TypeWrap
         {
-            TypeWrap wrap = _wrap as TypeWrap;
-            var nsw = NamespaceWrap.GetNamespace(namespace0);
-            if (nsw.FullName != wrap.Namespace.FullName)
+            T wrap = _wrap as T;
+            if (src != dst)
             {
+                FindNamespaceDock.Ins.SwapNamespace(wrap, src, dst);
+                var dstNsw = NamespaceWrap.GetNamespace(dst);
+                if (OnWrapPropertiesModified != null)
+                {
+                    OnWrapPropertiesModified(wrap.Namespace);
+                    OnWrapPropertiesModified(dstNsw);
+                }
+
                 string method = typeof(T).Name;
                 Type type = typeof(NamespaceWrap);
                 var add = type.GetMethod(Util.Format("Add{0}", method));
                 var remove = type.GetMethod(Util.Format("Remove{0}", method));
-                add.Invoke(nsw, new object[] { wrap });
-                remove.Invoke(wrap.Namespace, new object[] { wrap });
-                wrap.Namespace = nsw;
-                if (OnWrapPropertiesModified != null)
-                {
-                    OnWrapPropertiesModified(wrap.Namespace);
-                    OnWrapPropertiesModified(nsw);
-                }
+                add.Invoke(dstNsw, new object[] { wrap, true });
+                remove.Invoke(wrap.Namespace, new object[] { wrap, true });
+                wrap.Namespace = dstNsw;
             }
             else
             {
@@ -183,6 +197,7 @@ namespace Description.Editor
             }
         }
         protected virtual void FindMember(string name) { }
+        protected bool CheckMemeberIndex(int index) { return index < 0 || index >= _memberList.Count; }
         protected EditorDock()
         {
             InitializeComponent();
@@ -204,7 +219,6 @@ namespace Description.Editor
         {
             RemoveOpen(this);
             Clear();
-            _wrap.Dispose();
             PoolManager.Ins.Push(this);
         }
         private void EditorDock_FormClosing(object sender, FormClosingEventArgs e)

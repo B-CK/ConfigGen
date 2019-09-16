@@ -27,9 +27,12 @@ namespace Description.Editor
             base.Init(arg);
 
             var wrap = GetWrap<ClassWrap>();
+            _indexComboBox.Items.AddRange(wrap.Fields.ToArray());
             _namespaceComboBox.Items.AddRange(NamespaceWrap.Namespaces);
+            _inhertComboBox.Items.Add("");
             _inhertComboBox.Items.AddRange(ClassWrap.Classes);
-            _inhertComboBox.Items.Remove(wrap.DisplayName);
+            _inhertComboBox.Items.Remove(wrap);
+
 
             _nameTextBox.Text = wrap.Name;
             if (wrap.Index.IsEmpty())
@@ -43,8 +46,8 @@ namespace Description.Editor
             {
                 _indexComboBox.Text = wrap.Index;
             }
-            _namespaceComboBox.Text = wrap.Namespace.FullName.IsEmpty() ? NamespaceWrap.Namespaces[0].FullName : wrap.Namespace.FullName;
-            _inhertComboBox.Text = wrap.Inherit.IsEmpty() ? ClassWrap.Classes[0].FullName : wrap.Inherit;
+            _namespaceComboBox.Text = wrap.Namespace.FullName.IsEmpty() ? "@" : wrap.Namespace.FullName;
+            _inhertComboBox.Text = wrap.Inherit.IsEmpty() ? "" : wrap.Inherit;
             _descTextBox.Text = wrap.Desc;
             _dataPathTextBox.Text = wrap.DataPath;
 
@@ -56,12 +59,11 @@ namespace Description.Editor
             var wrap = GetWrap<ClassWrap>();
             wrap.Name = _nameTextBox.Text;
             wrap.Index = _indexComboBox.Text;
-            wrap.Namespace.Name = _namespaceComboBox.Text;
             wrap.Inherit = _inhertComboBox.Text;
             wrap.Desc = _descTextBox.Text;
             wrap.DataPath = _dataPathTextBox.Text;
 
-            SetNamespace<ClassWrap>(_namespaceComboBox.Text);
+            SetNamespace<ClassWrap>(wrap.Namespace.Name, _namespaceComboBox.Text);
         }
         protected override void Clear()
         {
@@ -83,7 +85,10 @@ namespace Description.Editor
             var wrap = GetWrap<ClassWrap>();
             var fields = wrap.Fields;
             for (int i = 0; i < fields.Count; i++)
+            {
                 AddMember(fields[i]);
+                _memberListBox.Items.Add(fields[i]);
+            }
             _memValueTextBox.OnCheckChange = OnValueChange;
             SetPropsPanelVisible(false);
         }
@@ -110,13 +115,24 @@ namespace Description.Editor
                     _defaultLabel.Text = "元素类型:";
             }
         }
-
+        protected override void SaveMember(BaseWrap member)
+        {
+            FieldWrap field = member as FieldWrap;
+            field.Name = _memNameTextBox.Text;
+            field.Type = _memTypeComboBox.Text;
+            if (_memTypeComboBox.Text == Util.LIST && _memTypeComboBox.Text == Util.DICT)
+                field.Type += Util.ArgsSplitFlag[0] + _memValueTextBox.GetSetType();
+            else
+                field.Value = _memValueTextBox.GetValue();
+            field.Group = _memGroupTextBox.Text;
+            field.Desc = _memDescTextBox.Text;
+            field.Checker = _checkerComboBox.Text;
+        }
         protected override void HideMember(BaseWrap member)
         {
             base.HideMember(member);
             SetPropsPanelVisible(false);
         }
-
         protected void SetPropsPanelVisible(bool enable)
         {
             _nameLabel.Visible = enable;
@@ -133,6 +149,14 @@ namespace Description.Editor
             _memDescTextBox.Visible = enable;
             _checkerComboBox.Visible = enable;
             _readOnlyCheckBox.Visible = enable;
+        }
+
+        private void UpdateIndexes()
+        {
+            _indexComboBox.Items.Clear();
+            var items = _memberListBox.Items;
+            for (int i = 0; i < items.Count; i++)
+                _indexComboBox.Items.Add(items[i]);
         }
 
         private void OnValueChange(object sender, System.EventArgs e)
@@ -155,12 +179,25 @@ namespace Description.Editor
         private void RemoveMenuItem_Click(object sender, System.EventArgs e)
         {
             int index = _memberListBox.SelectedIndex;
+            if (CheckMemeberIndex(index)) return;
+
+            var member = _memberListBox.Items[index];
+            ClassWrap wrap = GetWrap<ClassWrap>();
+            wrap.RemoveField(member as FieldWrap);
+
             RemoveMember(index);
+            _memberListBox.Items.RemoveAt(index);
+            UpdateIndexes();
         }
         private void AddMenuItem_Click(object sender, System.EventArgs e)
         {
             var member = FieldWrap.Create(UnqueName, GetWrap<ClassWrap>());
+            ClassWrap wrap = GetWrap<ClassWrap>();
+            wrap.AddField(member as FieldWrap);
+
             AddMember(member);
+            _memberListBox.Items.Add(member);           
+            UpdateIndexes();
         }
 
         private void MemTypeComboBox_TextChanged(object sender, System.EventArgs e)

@@ -118,18 +118,10 @@ namespace Description.Wrap
 
             var xclasses = _xml.Classes;
             for (int i = 0; i < xclasses.Count; i++)
-            {
-                var xclass = xclasses[i];
-                var wrap = ClassWrap.Create(xclass, this);
-                AddClassWrap(wrap, false);
-            }
+                ClassWrap.Create(xclasses[i], this);
             var xenums = _xml.Enums;
             for (int i = 0; i < xenums.Count; i++)
-            {
-                var xenum = xenums[i];
-                var wrap = EnumWrap.Create(xenum, this);
-                AddEnumWrap(wrap, false);
-            }
+                EnumWrap.Create(xenums[i], this);
 
             _allNamespaces.Add(FullName, this);
         }
@@ -161,7 +153,6 @@ namespace Description.Wrap
 
             Remove(wrap.Name);
             _classes.Remove(wrap);
-
             wrap.Namespace = null;
         }
         public void AddEnumWrap(EnumWrap wrap, bool isDirty = true)

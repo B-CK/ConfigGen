@@ -79,8 +79,7 @@ namespace Description
                         NamespaceWrap nsw = NamespaceWrap.GetNamespace(namespace0);
                         if (!nsw.Contains(name))
                         {
-                            var wrap = ClassWrap.Create(name, nsw);
-                            nsw.AddClassWrap(wrap);
+                            var wrap = ClassWrap.Create(name, nsw);                       
                             FindNamespaceDock.Ins.AddClass2Namespace(wrap, nsw);
                             ClassEditorDock.Create(wrap);
                             Close();
@@ -94,8 +93,7 @@ namespace Description
                         NamespaceWrap nsw = NamespaceWrap.GetNamespace(namespace0);
                         if (!nsw.Contains(name))
                         {
-                            var wrap = EnumWrap.Create(name, nsw);
-                            nsw.AddEnumWrap(wrap);
+                            var wrap = EnumWrap.Create(name, nsw);                   
                             FindNamespaceDock.Ins.AddEnum2Namespace(wrap, nsw);
                             EnumEditorDock.Create(wrap);
                             Close();

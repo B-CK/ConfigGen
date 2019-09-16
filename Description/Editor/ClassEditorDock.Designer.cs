@@ -32,6 +32,9 @@
             this.MemberGroupBox = new System.Windows.Forms.GroupBox();
             this.MemberSplitContainer = new System.Windows.Forms.SplitContainer();
             this._memberListBox = new System.Windows.Forms.ListBox();
+            this._memberMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.AddMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.RemoveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._memPictureBox = new System.Windows.Forms.PictureBox();
             this._memFilterBox = new System.Windows.Forms.TextBox();
             this._spliter = new System.Windows.Forms.PictureBox();
@@ -62,18 +65,15 @@
             this._nameTextBox = new System.Windows.Forms.TextBox();
             this.IndexLabel = new System.Windows.Forms.Label();
             this.InhertLabel = new System.Windows.Forms.Label();
-            this._memberMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.AddMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.RemoveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MemberGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MemberSplitContainer)).BeginInit();
             this.MemberSplitContainer.Panel1.SuspendLayout();
             this.MemberSplitContainer.Panel2.SuspendLayout();
             this.MemberSplitContainer.SuspendLayout();
+            this._memberMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._memPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._spliter)).BeginInit();
             this._typeGroupBox.SuspendLayout();
-            this._memberMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // MemberGroupBox
@@ -136,6 +136,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this._memberListBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
             this._memberListBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this._memberListBox.ContextMenuStrip = this._memberMenu;
             this._memberListBox.ForeColor = System.Drawing.Color.LightGray;
             this._memberListBox.FormattingEnabled = true;
             this._memberListBox.ItemHeight = 17;
@@ -145,6 +146,30 @@
             this._memberListBox.Size = new System.Drawing.Size(309, 308);
             this._memberListBox.TabIndex = 8;
             this._memberListBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MemberListBox_MouseClick);
+            // 
+            // _memberMenu
+            // 
+            this._memberMenu.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this._memberMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this._memberMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.AddMenuItem,
+            this.RemoveMenuItem});
+            this._memberMenu.Name = "_memberMenu";
+            this._memberMenu.Size = new System.Drawing.Size(135, 48);
+            // 
+            // AddMenuItem
+            // 
+            this.AddMenuItem.Name = "AddMenuItem";
+            this.AddMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.AddMenuItem.Text = "添加成员";
+            this.AddMenuItem.Click += new System.EventHandler(this.AddMenuItem_Click);
+            // 
+            // RemoveMenuItem
+            // 
+            this.RemoveMenuItem.Name = "RemoveMenuItem";
+            this.RemoveMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.RemoveMenuItem.Text = "移除成员";
+            this.RemoveMenuItem.Click += new System.EventHandler(this.RemoveMenuItem_Click);
             // 
             // _memPictureBox
             // 
@@ -525,30 +550,6 @@
             this.InhertLabel.TabIndex = 1;
             this.InhertLabel.Text = "父类:";
             // 
-            // _memberMenu
-            // 
-            this._memberMenu.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this._memberMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this._memberMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.AddMenuItem,
-            this.RemoveMenuItem});
-            this._memberMenu.Name = "_memberMenu";
-            this._memberMenu.Size = new System.Drawing.Size(135, 48);
-            // 
-            // AddMenuItem
-            // 
-            this.AddMenuItem.Name = "AddMenuItem";
-            this.AddMenuItem.Size = new System.Drawing.Size(134, 22);
-            this.AddMenuItem.Text = "添加成员";
-            this.AddMenuItem.Click += new System.EventHandler(this.AddMenuItem_Click);
-            // 
-            // RemoveMenuItem
-            // 
-            this.RemoveMenuItem.Name = "RemoveMenuItem";
-            this.RemoveMenuItem.Size = new System.Drawing.Size(134, 22);
-            this.RemoveMenuItem.Text = "移除成员";
-            this.RemoveMenuItem.Click += new System.EventHandler(this.RemoveMenuItem_Click);
-            // 
             // ClassEditorDock
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -566,11 +567,11 @@
             this.MemberSplitContainer.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MemberSplitContainer)).EndInit();
             this.MemberSplitContainer.ResumeLayout(false);
+            this._memberMenu.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this._memPictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._spliter)).EndInit();
             this._typeGroupBox.ResumeLayout(false);
             this._typeGroupBox.PerformLayout();
-            this._memberMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
