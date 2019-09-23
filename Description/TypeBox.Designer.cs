@@ -51,7 +51,7 @@
             this._stringBox.Name = "_stringBox";
             this._stringBox.Size = new System.Drawing.Size(351, 25);
             this._stringBox.TabIndex = 12;
-            this._stringBox.TextChanged += new System.EventHandler(this.MemTypeComboBox_TextChanged);
+            this._stringBox.TextChanged += new System.EventHandler(this.OnValueChanged);
             // 
             // _comboBox
             // 
@@ -65,8 +65,7 @@
             this._comboBox.Name = "_comboBox";
             this._comboBox.Size = new System.Drawing.Size(351, 23);
             this._comboBox.TabIndex = 13;
-            this._comboBox.SelectedIndexChanged += new System.EventHandler(this._comboBox_SelectedIndexChanged);
-            this._comboBox.TextChanged += new System.EventHandler(this.MemTypeComboBox_TextChanged);
+            this._comboBox.TextChanged += new System.EventHandler(this.OnValueChanged);
             // 
             // _boolBox
             // 
@@ -78,7 +77,7 @@
             this._boolBox.Size = new System.Drawing.Size(18, 17);
             this._boolBox.TabIndex = 14;
             this._boolBox.UseVisualStyleBackColor = true;
-            this._boolBox.CheckedChanged += new System.EventHandler(this.BoolBox_CheckedChanged);
+            this._boolBox.CheckedChanged += new System.EventHandler(this.OnValueChanged);
             // 
             // _numericUpDown
             // 
@@ -91,7 +90,7 @@
             this._numericUpDown.Name = "_numericUpDown";
             this._numericUpDown.Size = new System.Drawing.Size(351, 25);
             this._numericUpDown.TabIndex = 15;
-            this._numericUpDown.ValueChanged += new System.EventHandler(this.NumericUpDown_ValueChanged);
+            this._numericUpDown.ValueChanged += new System.EventHandler(this.OnValueChanged);
             // 
             // _keyComboBox
             // 
@@ -104,8 +103,7 @@
             this._keyComboBox.Name = "_keyComboBox";
             this._keyComboBox.Size = new System.Drawing.Size(155, 23);
             this._keyComboBox.TabIndex = 13;
-            this._keyComboBox.SelectedIndexChanged += new System.EventHandler(this._keyComboBox_SelectedIndexChanged);
-            this._keyComboBox.TextChanged += new System.EventHandler(this.MemTypeComboBox_TextChanged);
+            this._keyComboBox.TextChanged += new System.EventHandler(this.OnValueChanged);
             // 
             // _valueComboBox
             // 
@@ -119,8 +117,7 @@
             this._valueComboBox.Name = "_valueComboBox";
             this._valueComboBox.Size = new System.Drawing.Size(195, 23);
             this._valueComboBox.TabIndex = 13;
-            this._valueComboBox.SelectedIndexChanged += new System.EventHandler(this._valueComboBox_SelectedIndexChanged);
-            this._valueComboBox.TextChanged += new System.EventHandler(this.MemTypeComboBox_TextChanged);
+            this._valueComboBox.TextChanged += new System.EventHandler(this.OnValueChanged);
             // 
             // panel1
             // 

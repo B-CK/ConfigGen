@@ -19,6 +19,15 @@ namespace Description.Wrap
             return wrap;
         }
 
+        public override string Name
+        {
+            get { return base.Name; }
+            set
+            {
+                base.Name = value;
+                _xml.Name = value;
+            }
+        }
         public string Type { get { return _xml.Type; } set { _xml.Type = value; } }
         public bool IsConst { get { return _xml.IsConst; } set { _xml.IsConst = value; } }
         /// <summary>

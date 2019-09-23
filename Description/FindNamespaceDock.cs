@@ -23,10 +23,6 @@ namespace Description
         public static FindNamespaceDock Ins { get { return _ins; } }
         static FindNamespaceDock _ins;
 
-        static readonly Color Include = Color.LightGray;
-        static readonly Color Exclude = Color.Gray;
-        static readonly Color Modify = Color.DodgerBlue;
-        static readonly Color Error = Color.Red;
 
         enum ShowType
         {
@@ -133,6 +129,16 @@ namespace Description
             TreeNode rootNode = _nodeTreeView.Nodes[nWrap.FullName];
             SetNodeColor(rootNode);
         }
+        public void UpdateNode(string oldFullName, TypeWrap wrap)
+        {
+            string ns = wrap.Namespace.FullName;
+            TreeNode root = _nodeTreeView.Nodes[ns];
+            TreeNode node = root.Nodes[oldFullName];
+            node.Remove();
+            root.Nodes.Add(node);
+            node.Text = wrap.Name;
+            node.Name = wrap.FullName;
+        }
         public void SwapNamespace(TypeWrap wrap, string src, string dst)
         {
             TreeNode srcNode = _nodeTreeView.Nodes[src];
@@ -184,18 +190,33 @@ namespace Description
         private void SetNodeColor(TreeNode node)
         {
             BaseWrap wrap = node.Tag as BaseWrap;
-            if ((wrap.NodeState & NodeState.Include) != 0)
-                node.ForeColor = Include;
-            if ((wrap.NodeState & NodeState.Exclude) != 0)
-                node.ForeColor = Exclude;
-            if ((wrap.NodeState & NodeState.Modify) != 0)
-                node.ForeColor = Modify;
-            if ((wrap.NodeState & NodeState.Error) != 0)
-                node.ForeColor = Error;
+            switch (wrap.NodeState)
+            {
+                case NodeState.Modify | NodeState.Include:
+                    node.ForeColor = Color.DodgerBlue;
+                    break;
+                case NodeState.Modify | NodeState.Exclude:
+                    node.ForeColor = Color.CornflowerBlue;
+                    break;
+                case NodeState.Error | NodeState.Include:
+                    node.ForeColor = Color.Red;
+                    break;
+                case NodeState.Error | NodeState.Exclude:
+                    node.ForeColor = Color.IndianRed;
+                    break;
+                case NodeState.Include:
+                    node.ForeColor = Color.LightGray;
+                    break;
+                case NodeState.Exclude:
+                    node.ForeColor = Color.Gray;
+                    break;
+                default:
+                    break;
+            }
             //ConsoleDock.Ins.LogErrorFormat("未知节点状态类型{0}", wrap.NodeState);
         }
         /// <summary>
-        /// 类型属性修改
+        /// 在类型属性修改后,设置状态颜色
         /// </summary>
         /// <param name="wrap"></param>
         private void OnWrapPropertiesModified(BaseWrap wrap)

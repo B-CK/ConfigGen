@@ -65,6 +65,18 @@
     <Compile Include="Editor\EnumEditorDock.Designer.cs">
       <DependentUpon>EnumEditorDock.cs</DependentUpon>
     </Compile>
+    <Compile Include="Editor\FieldEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Editor\FieldEditor.Designer.cs">
+      <DependentUpon>FieldEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Editor\MemberEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Editor\MemberEditor.Designer.cs">
+      <DependentUpon>MemberEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="HotKey.cs" />
     <Compile Include="PoolManager.cs" />
     <Compile Include="TypeBox.cs">
@@ -134,6 +146,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Editor\EnumEditorDock.resx">
       <DependentUpon>EnumEditorDock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Editor\FieldEditor.resx">
+      <DependentUpon>FieldEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>

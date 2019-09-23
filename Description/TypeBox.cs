@@ -27,6 +27,7 @@ namespace Description
 
         ProertyType _propertyType = ProertyType.None;
         public Action OnCheckChange;
+        public ProertyType Type => _propertyType;
 
         public void InitBool(bool value = false)
         {
@@ -34,12 +35,13 @@ namespace Description
             _boolBox.Checked = value;
             EnableBox(_propertyType);
         }
-        public void InitInt(int value = 0, int size = 32)
+        public void InitInt(decimal value = 0, int size = 32)
         {
             _propertyType = ProertyType.Int;
-            _numericUpDown.Increment = 1;
+            _numericUpDown.DecimalPlaces = 0;
             _numericUpDown.Maximum = int.MaxValue;
             _numericUpDown.Minimum = int.MinValue;
+            _numericUpDown.Increment = 1;
             _numericUpDown.Value = value;
             EnableBox(_propertyType);
             switch (size)
@@ -58,13 +60,14 @@ namespace Description
                     break;
             }
         }
-        public void InitFloat(float value = 0)
+        public void InitFloat(decimal value = 0)
         {
             _propertyType = ProertyType.Float;
-            _numericUpDown.Increment = (decimal)0.1f;
-            _numericUpDown.Value = (decimal)value;
+            _numericUpDown.DecimalPlaces = 3;
             _numericUpDown.Maximum = decimal.MaxValue;
             _numericUpDown.Minimum = decimal.MinValue;
+            _numericUpDown.Increment = (decimal)0.01f;
+            _numericUpDown.Value = value;
             EnableBox(_propertyType);
         }
         public void InitEnum(string value, EnumItemWrap[] items)
@@ -72,6 +75,7 @@ namespace Description
             _propertyType = ProertyType.Enum;
             EnableBox(_propertyType);
             _comboBox.Text = value;
+            _comboBox.Items.Clear();
             _comboBox.Items.AddRange(items);
         }
         public void InitString(string value = "")
@@ -80,37 +84,36 @@ namespace Description
             EnableBox(_propertyType);
             _stringBox.Text = value;
         }
-        public void InitList(object[] items)
+        public void InitList(string value, object[] items)
         {
             _propertyType = ProertyType.List;
             EnableBox(_propertyType);
+            _comboBox.Text = value;
+            _comboBox.Items.Clear();
             _comboBox.Items.AddRange(items);
+            _comboBox.Items.Remove(Util.LIST);
+            _comboBox.Items.Remove(Util.DICT);
         }
         /// <summary>
         /// 键值对形式
         /// </summary>
         /// <param name="keys">仅支持少部分基础类型</param>
         /// <param name="values"></param>
-        public void InitDict(object[] keys, object[] values)
+        public void InitDict(string key, string value, object[] keys, object[] values)
         {
             _propertyType = ProertyType.Dict;
             EnableBox(_propertyType);
+            _keyComboBox.Text = key;
+            _valueComboBox.Text = value;
+            _keyComboBox.Items.Clear();
             _keyComboBox.Items.AddRange(keys);
+            _valueComboBox.Items.Clear();
             _valueComboBox.Items.AddRange(values);
+            _valueComboBox.Items.Remove(Util.LIST);
+            _valueComboBox.Items.Remove(Util.DICT);
         }
 
-        public string GetSetType()
-        {
-            if (_propertyType == ProertyType.List)
-                return _comboBox.Text;
-            else if (_propertyType == ProertyType.Dict)
-                return Util.Format("{0}{1}{2}", _keyComboBox.Text, Util.ArgsSplitFlag[0], _valueComboBox.Text);
-            else
-            {
-                Util.MsgError("字段类型({0})不匹配,错误调用泛型类型", _propertyType);
-                return "?";
-            }
-        }
+
         public string GetValue()
         {
             switch (_propertyType)
@@ -125,12 +128,72 @@ namespace Description
                     return _comboBox.Text;
                 case ProertyType.String:
                     return _stringBox.Text;
+                case ProertyType.List:
+                    return _comboBox.Text;
+                case ProertyType.Dict:
+                    return Util.Format("{0}{1}{2}", _keyComboBox.Text, Util.ArgsSplitFlag[0], _valueComboBox.Text);
                 case ProertyType.None:
                 default:
                     return "";
             }
         }
 
+
+        //public void SetBool(bool value)
+        //{
+        //    if (_propertyType == ProertyType.Bool)
+        //        _boolBox.Checked = value;
+        //    else
+        //        Util.MsgError("默认值类型不匹配,错误类型:{0}", _propertyType);
+        //}
+        //public void SetNumber(decimal value)
+        //{
+        //    if (_propertyType == ProertyType.Int)
+        //    {
+        //        _numericUpDown.DecimalPlaces = 0;
+        //        _numericUpDown.Increment = 1;
+        //        _numericUpDown.Value = value;
+        //    }
+        //    else if (_propertyType == ProertyType.Float)
+        //    {
+        //        _numericUpDown.DecimalPlaces = 3;
+        //        _numericUpDown.Increment = (decimal)0.001f;
+        //        _numericUpDown.Value = value;
+        //    }
+        //    else
+        //        Util.MsgError("默认值类型不匹配,错误类型:{0}", _propertyType);
+        //}
+        //public void SetEnum(string value)
+        //{
+        //    if (_propertyType == ProertyType.Enum)
+        //        _comboBox.Text = value;
+        //    else
+        //        Util.MsgError("默认值类型不匹配,错误类型:{0}", _propertyType);
+        //}
+        //public void SetString(string value)
+        //{
+        //    if (_propertyType == ProertyType.String)
+        //        _stringBox.Text = value;
+        //    else
+        //        Util.MsgError("默认值类型不匹配,错误类型:{0}", _propertyType);
+        //}
+        //public void SetList(string type)
+        //{
+        //    if (_propertyType == ProertyType.List)
+        //        _comboBox.Text = type;
+        //    else
+        //        Util.MsgError("默认值类型不匹配,错误类型:{0}", _propertyType);
+        //}
+        //public void SetDict(string key, string value)
+        //{
+        //    if (_propertyType == ProertyType.Dict)
+        //    {
+        //        _keyComboBox.Text = key;
+        //        _valueComboBox.Text = value;
+        //    }
+        //    else
+        //        Util.MsgError("默认值类型不匹配,错误类型:{0}", _propertyType);
+        //}
         public void EnableBox(ProertyType type)
         {
             _boolBox.Visible = false;
@@ -168,81 +231,30 @@ namespace Description
             }
         }
 
+        public void Clear(bool clearEvt = true)
+        {
+            if (clearEvt)
+                OnCheckChange = null;
+
+            _propertyType = ProertyType.None;
+            _boolBox.Checked = false;
+            _stringBox.Text = "";
+            _numericUpDown.Value = 0;
+            _comboBox.Text = "";
+            _keyComboBox.Text = "";
+            _valueComboBox.Text = "";
+        }
+
         public TypeBox()
         {
             InitializeComponent();
         }
 
-        private void MemTypeComboBox_TextChanged(object sender, EventArgs e)
+
+        private void OnValueChanged(object sender, EventArgs e)
         {
             if (OnCheckChange != null)
                 OnCheckChange();
-        }
-
-        private void BoolBox_CheckedChanged(object sender, EventArgs e)
-        {
-            if (OnCheckChange != null)
-                OnCheckChange();
-        }
-
-        private void NumericUpDown_ValueChanged(object sender, EventArgs e)
-        {
-            if (OnCheckChange != null)
-                OnCheckChange();
-        }
-
-        private void _keyComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void _valueComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void _comboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }
-
-//public void SetBool(bool value)
-//{
-//    if (_proertyType == ProertyType.Bool)
-//        _boolBox.Checked = value;
-//}
-//public void SetInt(int value)
-//{
-//    if (_proertyType == ProertyType.Int)
-//        _numericUpDown.Value = value;
-//}
-//public void SetFloat(float value)
-//{
-//    if (_proertyType == ProertyType.Float)
-//        _numericUpDown.Value = (decimal)value;
-//}
-//public void SetEnum(string value)
-//{
-//    if (_proertyType == ProertyType.Enum)
-//        _comboBox.Text = value;
-//}
-//public void SetString(string value)
-//{
-//    if (_proertyType == ProertyType.String)
-//        _comboBox.Text = value;
-//}
-//public void SetList(string item)
-//{
-//    if (_proertyType == ProertyType.List)
-//        _comboBox.Text = item;
-//}
-//public void SetDict(string key, string value)
-//{
-//    if (_proertyType == ProertyType.Dict)
-//    {
-//        _keyComboBox.Text = key;
-//        _valueComboBox.Text = value;
-//    }
-//}

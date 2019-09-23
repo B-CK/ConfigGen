@@ -151,6 +151,7 @@
             // _showAllBox
             // 
             this._showAllBox.Appearance = System.Windows.Forms.Appearance.Button;
+            this._showAllBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             this._showAllBox.CheckAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this._showAllBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this._showAllBox.Location = new System.Drawing.Point(3, 0);
@@ -160,7 +161,7 @@
             this._showAllBox.TabIndex = 0;
             this._showAllBox.Text = "A";
             this._showAllBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this._showAllBox.UseVisualStyleBackColor = true;
+            this._showAllBox.UseVisualStyleBackColor = false;
             this._showAllBox.CheckedChanged += new System.EventHandler(this.ShowAllBox_CheckedChanged);
             // 
             // _errorBox

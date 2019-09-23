@@ -21,7 +21,15 @@ namespace Description.Wrap
         }
 
 
-
+        public override string Name
+        {
+            get { return base.Name; }
+            set
+            {
+                base.Name = value;
+                _xml.Name = value;
+            }
+        }
         public int Value { get { return _xml.Value; } set { _xml.Value = value; } }
         public string Alias { get { return _xml.Alias; } set { _xml.Alias = value; } }
 

@@ -8,7 +8,7 @@ namespace Description.Wrap
 {
     public abstract class BaseWrap : IDisposable
     {
-        public string Name { get { return _name; } set { _name = value; } }
+        public virtual string Name { get { return _name; } set { _name = value; } }
         protected string _name;
 
         public abstract string DisplayName { get; }

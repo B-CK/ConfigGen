@@ -6,6 +6,26 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace Description.Editor
 {
+    //public interface MemberEditor
+    //{
+    //    /// <summary>
+    //    /// 数据唯一名称
+    //    /// </summary>
+    //    string ID { get; }
+    //    /// <summary>
+    //    /// 用于ListBox显示名称
+    //    /// </summary>
+    //    string DisplayName { get; }
+    //    /// <summary>
+    //    /// true:新建;false:移除
+    //    /// </summary>
+    //    bool IsNew { get; set; }
+    //    void Show();
+    //    void Hide();
+    //    void Save();
+    //    void Clear();
+    //}
+
     public partial class EditorDock : DockContent
     {
         static Dictionary<string, EditorDock> _open = new Dictionary<string, EditorDock>();
@@ -14,8 +34,9 @@ namespace Description.Editor
         /// </summary>
         public static void ClearAll()
         {
-            foreach (var dock in _open)
-                dock.Value.ScriptDoClose();
+            var values = new List<EditorDock>(_open.Values);
+            for (int i = 0; i < values.Count; i++)
+                values[i].ScriptDoClose();
             _open.Clear();
         }
         /// <summary>
@@ -40,21 +61,22 @@ namespace Description.Editor
         /// </summary>
         public static void CancleAll()
         {
-            foreach (var dock in _open)
+            var values = new List<EditorDock>(_open.Values);
+            for (int i = 0; i < values.Count; i++)
             {
-                dock.Value._isDirty = false;
-                dock.Value.ScriptDoClose();
+                values[i]._isDirty = false;
+                values[i].ScriptDoClose();
             }
             _open.Clear();
         }
-        private static void AddOpen(EditorDock dock)
+        private static void AddOpen(string name, EditorDock dock)
         {
-            if (!_open.ContainsKey(dock._wrap.FullName))
-                _open.Add(dock._wrap.FullName, dock);
+            if (!_open.ContainsKey(name))
+                _open.Add(name, dock);
         }
-        private static void RemoveOpen(EditorDock dock)
+        private static void RemoveOpen(string name)
         {
-            _open.Remove(dock._wrap.FullName);
+            _open.Remove(name);
         }
         public static bool IsContain(string fullName)
         {
@@ -77,92 +99,74 @@ namespace Description.Editor
         /// <summary>
         /// Dock 唯一ID
         /// </summary>
-        public string ID { get { return _wrap != null ? _wrap.FullName : "*"; } }
+        public string ID { get { return _wrap != null ? _wrap.FullName : "?"; } }
         public Action<BaseWrap> OnWrapPropertiesModified;
 
+        public bool IsInit { get { return _isInit; } }
 
         protected bool _isInit = false;
         protected bool _isDirty = false;
         protected bool _isSilent = false;
-        protected BaseWrap _currentMember;
 
         protected BaseWrap _wrap;
-        private HashSet<BaseWrap> _memberHash = new HashSet<BaseWrap>();
-        private List<BaseWrap> _memberList = new List<BaseWrap>();
+        protected Dictionary<string, MemberEditor> _memberDict = new Dictionary<string, MemberEditor>();
         private int _nameId = 0;
 
         public T GetWrap<T>() where T : BaseWrap { return _wrap as T; }
-        public string UnqueName { get { return Util.Format("_{0}", _nameId++); } }
+        public string UnqueName
+        {
+            get
+            {
+                string name = Util.Format("_{0}", _nameId++);
+                while (_memberDict.ContainsKey(name))
+                    name = Util.Format("_{0}", _nameId++);
+                return name;
+            }
+        }
+        public bool ContainMember(string name)
+        {
+            return _memberDict.ContainsKey(name);
+        }
+        public void OnValueChange()
+        {
+            if (!_isInit) return;
+            Text = "*" + _wrap.Name;
+            _isDirty = true;
+            NamespaceWrap.HasModifyNamespace = true;
+        }
+
         /// <summary>
         /// 初始化完毕,必须设置
         /// </summary>
-        protected virtual void Init(BaseWrap wrap)
+        protected virtual void OnInit(BaseWrap wrap)
         {
-            _isInit = false;
+            _nameId = 0;
             _isDirty = false;
             _isSilent = false;
             _wrap = wrap;
+            _memberDict.Clear();
             if (!IsContain(ID))
-                AddOpen(this);
-
-            InitMember();
+                AddOpen(ID, this);
         }
-        protected virtual void Save()
+        protected virtual void OnSave() { }
+        protected virtual void ValidateData() { }
+        protected virtual void Clear()
         {
-            Text = _wrap.Name;
-            _isDirty = false;
-            if (OnWrapPropertiesModified != null)
-                OnWrapPropertiesModified(_wrap);
+            foreach (var item in _memberDict)
+                item.Value.Clear();
         }
-        protected virtual void Clear() { }
         protected virtual void ScriptDoClose()
         {
             _isSilent = true;
             Close();
         }
-        protected virtual void InitMember() { }
-        protected virtual void ShowMember(BaseWrap member)
+        protected virtual void UpdateTreeNode(string oldName)
         {
-            if (_currentMember != null)
-            {
-                if (_memberHash.Count != _memberList.Count)
-                {
-                    Util.MsgWarning("字段{0}命名重复!", _currentMember.Name);
-                    return;
-                }
-                SaveMember(_currentMember);
-            }
-            _currentMember = member;
-        }
-        protected virtual void SaveMember(BaseWrap member)
-        {
-
-        }
-        protected virtual void HideMember(BaseWrap member) { }
-        protected virtual void AddMember(BaseWrap member)
-        {
-            _memberHash.Add(member);
-            _memberList.Add(member);
-            ShowMember(member);
-            OnValueChange();
-        }
-        protected virtual void RemoveMember(BaseWrap member)
-        {
-            if (_memberHash.Contains(member))
-            {
-                _memberHash.Remove(member);
-                _memberList.Remove(member);
-                OnValueChange();
-            }
-            HideMember(member);
-        }
-        protected virtual void RemoveMember(int index)
-        {
-            BaseWrap member = _memberList[index];
-            if (member != null)
-                RemoveMember(member);
-            else
-                Util.MsgError("成员列表数据混乱,无法索引!", member.FullName);
+            var typeWrap = _wrap as TypeWrap;
+            string oldFullName = Util.Format("{0}.{1}", typeWrap.Namespace.FullName, oldName);
+            FindNamespaceDock.Ins.UpdateNode(oldFullName, typeWrap);
+            RemoveOpen(oldFullName);
+            AddOpen(typeWrap.FullName, this);
         }
         /// <summary>
         /// 必须在NamespaceWrap重写制定类型Add/Remove("TypeName")函数
@@ -173,7 +177,11 @@ namespace Description.Editor
             T wrap = _wrap as T;
             if (src != dst)
             {
+                //界面层,修改显示状态
                 FindNamespaceDock.Ins.SwapNamespace(wrap, src, dst);
+                string dstName = wrap.FullName.Replace(src, dst);
+                RemoveOpen(wrap.FullName);
+                AddOpen(dstName, this);
                 var dstNsw = NamespaceWrap.GetNamespace(dst);
                 if (OnWrapPropertiesModified != null)
                 {
@@ -181,6 +189,7 @@ namespace Description.Editor
                     OnWrapPropertiesModified(dstNsw);
                 }
 
+                //数据层,命名空间数据更新
                 string method = typeof(T).Name;
                 Type type = typeof(NamespaceWrap);
                 var add = type.GetMethod(Util.Format("Add{0}", method));
@@ -189,24 +198,18 @@ namespace Description.Editor
                 remove.Invoke(wrap.Namespace, new object[] { wrap, true });
                 wrap.Namespace = dstNsw;
             }
+        }
+        protected virtual void AddMember(MemberEditor mem)
+        {
+            if (_memberDict.ContainsKey(mem.ID))
+                Util.MsgWarning("重复定义字段{0}", mem.ID);
             else
-            {
-                if (OnWrapPropertiesModified != null)
-                    OnWrapPropertiesModified(wrap.Namespace);
-                wrap.Namespace.SetDirty();
-            }
+                _memberDict.Add(mem.ID, mem);
         }
-        protected virtual void FindMember(string name) { }
-        protected bool CheckMemeberIndex(int index) { return index < 0 || index >= _memberList.Count; }
-        protected EditorDock()
+        protected virtual void RemoveMember(string name)
         {
-            InitializeComponent();
-        }
-        protected void OnValueChange()
-        {
-            if (!_isInit) return;
-            Text = "*" + _wrap.Name;
-            _isDirty = true;
+            if (_memberDict.ContainsKey(name))
+                _memberDict.Remove(name);
         }
         protected override void WndProc(ref Message m)
         {
@@ -215,9 +218,29 @@ namespace Description.Editor
             base.WndProc(ref m);
         }
 
+
+        protected EditorDock()
+        {
+            InitializeComponent();
+        }
+        protected void Init(BaseWrap wrap)
+        {
+            _isInit = false;
+            OnInit(wrap);
+            _isInit = true;
+        }
+        private void Save()
+        {
+            OnSave();
+            Text = _wrap.Name;
+            ValidateData();
+            if (OnWrapPropertiesModified != null)
+                OnWrapPropertiesModified(_wrap);
+            _isDirty = false;
+        }
         private void EditorDock_FormClosed(object sender, FormClosedEventArgs e)
         {
-            RemoveOpen(this);
+            RemoveOpen(ID);
             Clear();
             PoolManager.Ins.Push(this);
         }

@@ -38,10 +38,16 @@ namespace Description.Wrap
             nsw.AddEnumWrap(wrap, false);
             return wrap;
         }
-
-        //public override string FullName { get { return Util.Format("{0}.{1}", _namespace.Name, Name); } }
-        //public NamespaceWrap Namespace { get { return _namespace; } set { _namespace = value; } }
-
+ 
+        public override string Name
+        {
+            get { return base.Name; }
+            set
+            {
+                base.Name = value;
+                _xml.Name = value;
+            }
+        }
         public string Inhert { get { return _xml.Inherit; } set { _xml.Inherit = value; } }
         public string Desc { get { return _xml.Desc; } set { _xml.Desc = value; } }
         public List<EnumItemWrap> Items { get { return _items; } }

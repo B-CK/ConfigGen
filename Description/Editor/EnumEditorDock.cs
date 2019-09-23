@@ -23,9 +23,9 @@ namespace Description.Editor
             Show(MainWindow.Ins._dockPanel, DockState.Document);
         }
 
-        protected override void Init(BaseWrap arg)
+        protected override void OnInit(BaseWrap arg)
         {
-            base.Init(arg);
+            base.OnInit(arg);
 
             var wrap = GetWrap<EnumWrap>();
 
@@ -34,9 +34,9 @@ namespace Description.Editor
             _inhertComboBox.Text = wrap.Inhert;
             _descTextBox.Text = wrap.Desc;
         }
-        protected override void Save()
+        protected override void OnSave()
         {
-            base.Save();
+            base.OnSave();
             var wrap = GetWrap<EnumWrap>();
             wrap.Name = _nameTextBox.Text;
             wrap.Inhert = _inhertComboBox.Text;
@@ -61,14 +61,14 @@ namespace Description.Editor
             _inhertComboBox.Text = "";
             _descTextBox.Text = "";
         }
-        protected override void InitMember()
-        {
-            base.InitMember();
+        //protected override void InitMember()
+        //{
+        //    base.InitMember();
 
-            var wrap = GetWrap<EnumWrap>();
-            var items = wrap.Items;
-            for (int i = 0; i < items.Count; i++)
-                AddMember(items[i]);
-        }
+        //    var wrap = GetWrap<EnumWrap>();
+        //    var items = wrap.Items;
+        //    for (int i = 0; i < items.Count; i++)
+        //        AddMember(items[i]);
+        //}
     }
 }

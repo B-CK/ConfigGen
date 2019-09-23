@@ -96,8 +96,6 @@ namespace Description
         static string _dataDir;
         #endregion
 
-        public static Color NormalField = Color.LightGray;
-        public static Color ErrorField = Color.Red;
 
 
         /// <summary>
@@ -186,8 +184,17 @@ namespace Description
                 Type type = source.GetType();
                 using (StreamWriter streamWriter = new StreamWriter(filePath))
                 {
+                    XmlWriterSettings xws = new XmlWriterSettings()
+                    {
+                        Indent = true,
+                        OmitXmlDeclaration = true,
+                        Encoding = Encoding.UTF8
+                    };
+                    XmlWriter xtw = XmlTextWriter.Create(streamWriter, xws);
+                    XmlSerializerNamespaces namespaces = new XmlSerializerNamespaces();
                     XmlSerializer xmlSerializer = new XmlSerializer(type);
-                    xmlSerializer.Serialize(streamWriter, source);
+                    namespaces.Add(string.Empty, string.Empty);
+                    xmlSerializer.Serialize(xtw, source, namespaces);
                 }
             }
         }
@@ -236,11 +243,11 @@ namespace Description
         }
         public static string GetDataDirAbsPath(string path)
         {
-            return Format("{0}/{1}/{2}", ApplicationDir, _dataDir, path);
+            return Format(@"{0}\{1}\{2}", ApplicationDir, _dataDir, path);
         }
         public static string GetDataDirRelPath(string path)
         {
-            string dir = Format("{0}/{1}/{2}", ApplicationDir, _dataDir);
+            string dir = Format(@"{0}\{1}", ApplicationDir, _dataDir);
             return path.Replace(dir, "");
         }
         public static void TryDeleteDirectory(string path)
@@ -259,10 +266,11 @@ namespace Description
 
 
         static OpenFileDialog OpenFileDialog = new OpenFileDialog();
-        public static DialogResult Open(string dir, string title, Action<string> action, string error = "?")
+        public static DialogResult Open(string dir, string title, string filter, Action<string> action, string error = "?")
         {
             OpenFileDialog.InitialDirectory = dir;
             OpenFileDialog.Title = title;
+            OpenFileDialog.Filter = filter;
             DialogResult result = OpenFileDialog.ShowDialog();
             if (result == DialogResult.OK)
             {

@@ -44,6 +44,15 @@ namespace Description.Wrap
             return wrap;
         }
 
+        public override string Name
+        {
+            get { return base.Name; }
+            set
+            {
+                base.Name = value;
+                _xml.Name = value;
+            }
+        }
         public string Index { get { return _xml.Index; } set { _xml.Index = value; } }
         /// <summary>
         /// 全名称
@@ -54,6 +63,9 @@ namespace Description.Wrap
         public string Group { get { return _xml.Group; } set { _xml.Group = value; } }
         public List<FieldWrap> Fields { get { return _fields; } }
 
+        /// <summary>
+        /// 字段名称数据
+        /// </summary>
         public string[] Indexes
         {
             get
@@ -62,7 +74,7 @@ namespace Description.Wrap
                 {
                     _indexes = new string[_fields.Count];
                     for (int i = 0; i < _fields.Count; i++)
-                        _indexes[i] = _fields[i].DisplayName;
+                        _indexes[i] = _fields[i].Name;
                 }
                 return _indexes;
             }
@@ -125,6 +137,21 @@ namespace Description.Wrap
             Remove(wrap.Name);
             _fields.Remove(wrap);
             _xml.Fields.Remove(wrap);
+        }
+        public void OverrideField(FieldWrap wrap)
+        {
+            FieldWrap old = null;
+            for (int i = 0; i < _fields.Count; i++)
+            {
+                if (_fields[i].Name == wrap.Name)
+                {
+                    old = wrap;
+                    break;
+                }
+            }
+            if (old != null)
+                RemoveField(old);
+            AddField(wrap);
         }
         public override void Dispose()
         {

@@ -82,7 +82,7 @@ namespace Description.Wrap
                     if (wrap == null) wrap = new ModuleWrap(xml);
                 }
 
-                if (_current != null) TrSave();
+                if (_current != null)  { TrSave();  }
                 _current = wrap;
                 MainWindow.Ins.Text = Util.Format("结构描述 - {0}", wrap.FullName);
                 ConsoleDock.Ins.LogFormat("打开模板{0}", path);
@@ -98,14 +98,14 @@ namespace Description.Wrap
         {
             if (NamespaceWrap.HasModifyNamespace)
             {
+                NamespaceWrap.HasModifyNamespace = false;
                 var result = MessageBox.Show("还有配置未保存,是否保存?", "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 switch (result)
                 {
                     case DialogResult.Cancel:
                         EditorDock.CancleAll();
                         return DialogResult.Cancel;
-                    case DialogResult.Yes:                      
-                        NamespaceWrap.HasModifyNamespace = false;
+                    case DialogResult.Yes:
                         EditorDock.SaveAll();
                         Default.Save();
                         Current.Save();
@@ -122,6 +122,7 @@ namespace Description.Wrap
             {
                 Default.Save(false);
                 Current.Save(false);
+                EditorDock.ClearAll();
             }
             return DialogResult.None;
         }

@@ -38,19 +38,6 @@
             this._memPictureBox = new System.Windows.Forms.PictureBox();
             this._memFilterBox = new System.Windows.Forms.TextBox();
             this._spliter = new System.Windows.Forms.PictureBox();
-            this._memValueTextBox = new Description.TypeBox();
-            this._readOnlyCheckBox = new System.Windows.Forms.CheckBox();
-            this._memTypeComboBox = new System.Windows.Forms.ComboBox();
-            this._nameLabel = new System.Windows.Forms.Label();
-            this._memNameTextBox = new System.Windows.Forms.TextBox();
-            this._typeLabel = new System.Windows.Forms.Label();
-            this._checkerComboBox = new System.Windows.Forms.ComboBox();
-            this._defaultLabel = new System.Windows.Forms.Label();
-            this._checkLabel = new System.Windows.Forms.Label();
-            this._memGroupTextBox = new System.Windows.Forms.TextBox();
-            this._descLabel = new System.Windows.Forms.Label();
-            this._groupLabel = new System.Windows.Forms.Label();
-            this._memDescTextBox = new System.Windows.Forms.TextBox();
             this._typeGroupBox = new System.Windows.Forms.GroupBox();
             this._inhertComboBox = new System.Windows.Forms.ComboBox();
             this._namespaceComboBox = new System.Windows.Forms.ComboBox();
@@ -111,19 +98,6 @@
             // MemberSplitContainer.Panel2
             // 
             this.MemberSplitContainer.Panel2.Controls.Add(this._spliter);
-            this.MemberSplitContainer.Panel2.Controls.Add(this._memValueTextBox);
-            this.MemberSplitContainer.Panel2.Controls.Add(this._readOnlyCheckBox);
-            this.MemberSplitContainer.Panel2.Controls.Add(this._memTypeComboBox);
-            this.MemberSplitContainer.Panel2.Controls.Add(this._nameLabel);
-            this.MemberSplitContainer.Panel2.Controls.Add(this._memNameTextBox);
-            this.MemberSplitContainer.Panel2.Controls.Add(this._typeLabel);
-            this.MemberSplitContainer.Panel2.Controls.Add(this._checkerComboBox);
-            this.MemberSplitContainer.Panel2.Controls.Add(this._defaultLabel);
-            this.MemberSplitContainer.Panel2.Controls.Add(this._checkLabel);
-            this.MemberSplitContainer.Panel2.Controls.Add(this._memGroupTextBox);
-            this.MemberSplitContainer.Panel2.Controls.Add(this._descLabel);
-            this.MemberSplitContainer.Panel2.Controls.Add(this._groupLabel);
-            this.MemberSplitContainer.Panel2.Controls.Add(this._memDescTextBox);
             this.MemberSplitContainer.Size = new System.Drawing.Size(822, 357);
             this.MemberSplitContainer.SplitterDistance = 327;
             this.MemberSplitContainer.TabIndex = 0;
@@ -137,6 +111,7 @@
             this._memberListBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
             this._memberListBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this._memberListBox.ContextMenuStrip = this._memberMenu;
+            this._memberListBox.DisplayMember = "DisplayName";
             this._memberListBox.ForeColor = System.Drawing.Color.LightGray;
             this._memberListBox.FormattingEnabled = true;
             this._memberListBox.ItemHeight = 17;
@@ -204,161 +179,6 @@
             this._spliter.TabIndex = 9;
             this._spliter.TabStop = false;
             // 
-            // _memValueTextBox
-            // 
-            this._memValueTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._memValueTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._memValueTextBox.ForeColor = System.Drawing.Color.LightGray;
-            this._memValueTextBox.Location = new System.Drawing.Point(88, 75);
-            this._memValueTextBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this._memValueTextBox.Name = "_memValueTextBox";
-            this._memValueTextBox.Size = new System.Drawing.Size(382, 32);
-            this._memValueTextBox.TabIndex = 16;
-            // 
-            // _readOnlyCheckBox
-            // 
-            this._readOnlyCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._readOnlyCheckBox.AutoSize = true;
-            this._readOnlyCheckBox.Location = new System.Drawing.Point(395, 47);
-            this._readOnlyCheckBox.Name = "_readOnlyCheckBox";
-            this._readOnlyCheckBox.Size = new System.Drawing.Size(76, 21);
-            this._readOnlyCheckBox.TabIndex = 15;
-            this._readOnlyCheckBox.Text = "只读?";
-            this._readOnlyCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // _memTypeComboBox
-            // 
-            this._memTypeComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._memTypeComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._memTypeComboBox.ForeColor = System.Drawing.Color.LightGray;
-            this._memTypeComboBox.FormattingEnabled = true;
-            this._memTypeComboBox.Location = new System.Drawing.Point(87, 43);
-            this._memTypeComboBox.Name = "_memTypeComboBox";
-            this._memTypeComboBox.Size = new System.Drawing.Size(299, 25);
-            this._memTypeComboBox.TabIndex = 13;
-            this._memTypeComboBox.TextChanged += new System.EventHandler(this.MemTypeComboBox_TextChanged);
-            // 
-            // _nameLabel
-            // 
-            this._nameLabel.AutoSize = true;
-            this._nameLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this._nameLabel.ForeColor = System.Drawing.Color.LightGray;
-            this._nameLabel.Location = new System.Drawing.Point(16, 15);
-            this._nameLabel.Name = "_nameLabel";
-            this._nameLabel.Size = new System.Drawing.Size(45, 15);
-            this._nameLabel.TabIndex = 9;
-            this._nameLabel.Text = "名称:";
-            // 
-            // _memNameTextBox
-            // 
-            this._memNameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._memNameTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._memNameTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this._memNameTextBox.ForeColor = System.Drawing.Color.LightGray;
-            this._memNameTextBox.Location = new System.Drawing.Point(87, 9);
-            this._memNameTextBox.Name = "_memNameTextBox";
-            this._memNameTextBox.Size = new System.Drawing.Size(383, 27);
-            this._memNameTextBox.TabIndex = 12;
-            // 
-            // _typeLabel
-            // 
-            this._typeLabel.AutoSize = true;
-            this._typeLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this._typeLabel.ForeColor = System.Drawing.Color.LightGray;
-            this._typeLabel.Location = new System.Drawing.Point(16, 49);
-            this._typeLabel.Name = "_typeLabel";
-            this._typeLabel.Size = new System.Drawing.Size(45, 15);
-            this._typeLabel.TabIndex = 8;
-            this._typeLabel.Text = "类型:";
-            // 
-            // _checkerComboBox
-            // 
-            this._checkerComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._checkerComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._checkerComboBox.ForeColor = System.Drawing.Color.LightGray;
-            this._checkerComboBox.FormattingEnabled = true;
-            this._checkerComboBox.Location = new System.Drawing.Point(87, 180);
-            this._checkerComboBox.Name = "_checkerComboBox";
-            this._checkerComboBox.Size = new System.Drawing.Size(383, 25);
-            this._checkerComboBox.TabIndex = 14;
-            // 
-            // _defaultLabel
-            // 
-            this._defaultLabel.AutoSize = true;
-            this._defaultLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this._defaultLabel.ForeColor = System.Drawing.Color.LightGray;
-            this._defaultLabel.Location = new System.Drawing.Point(16, 84);
-            this._defaultLabel.Name = "_defaultLabel";
-            this._defaultLabel.Size = new System.Drawing.Size(60, 15);
-            this._defaultLabel.TabIndex = 7;
-            this._defaultLabel.Text = "默认值:";
-            // 
-            // _checkLabel
-            // 
-            this._checkLabel.AutoSize = true;
-            this._checkLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this._checkLabel.ForeColor = System.Drawing.Color.LightGray;
-            this._checkLabel.Location = new System.Drawing.Point(16, 188);
-            this._checkLabel.Name = "_checkLabel";
-            this._checkLabel.Size = new System.Drawing.Size(45, 15);
-            this._checkLabel.TabIndex = 5;
-            this._checkLabel.Text = "检查:";
-            // 
-            // _memGroupTextBox
-            // 
-            this._memGroupTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._memGroupTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._memGroupTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this._memGroupTextBox.ForeColor = System.Drawing.Color.LightGray;
-            this._memGroupTextBox.Location = new System.Drawing.Point(87, 112);
-            this._memGroupTextBox.Name = "_memGroupTextBox";
-            this._memGroupTextBox.Size = new System.Drawing.Size(383, 27);
-            this._memGroupTextBox.TabIndex = 10;
-            // 
-            // _descLabel
-            // 
-            this._descLabel.AutoSize = true;
-            this._descLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this._descLabel.ForeColor = System.Drawing.Color.LightGray;
-            this._descLabel.Location = new System.Drawing.Point(16, 154);
-            this._descLabel.Name = "_descLabel";
-            this._descLabel.Size = new System.Drawing.Size(45, 15);
-            this._descLabel.TabIndex = 6;
-            this._descLabel.Text = "描述:";
-            // 
-            // _groupLabel
-            // 
-            this._groupLabel.AutoSize = true;
-            this._groupLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this._groupLabel.ForeColor = System.Drawing.Color.LightGray;
-            this._groupLabel.Location = new System.Drawing.Point(16, 119);
-            this._groupLabel.Name = "_groupLabel";
-            this._groupLabel.Size = new System.Drawing.Size(45, 15);
-            this._groupLabel.TabIndex = 6;
-            this._groupLabel.Text = "分组:";
-            // 
-            // _memDescTextBox
-            // 
-            this._memDescTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._memDescTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._memDescTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this._memDescTextBox.ForeColor = System.Drawing.Color.LightGray;
-            this._memDescTextBox.Location = new System.Drawing.Point(87, 146);
-            this._memDescTextBox.Name = "_memDescTextBox";
-            this._memDescTextBox.Size = new System.Drawing.Size(383, 27);
-            this._memDescTextBox.TabIndex = 10;
-            // 
             // _typeGroupBox
             // 
             this._typeGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -392,6 +212,7 @@
             this._inhertComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._inhertComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._inhertComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._inhertComboBox.ForeColor = System.Drawing.Color.LightGray;
             this._inhertComboBox.FormattingEnabled = true;
             this._inhertComboBox.Location = new System.Drawing.Point(99, 106);
@@ -399,6 +220,7 @@
             this._inhertComboBox.Size = new System.Drawing.Size(713, 25);
             this._inhertComboBox.Sorted = true;
             this._inhertComboBox.TabIndex = 3;
+            this._inhertComboBox.SelectedIndexChanged += new System.EventHandler(this.OnValueChange);
             this._inhertComboBox.TextChanged += new System.EventHandler(this.OnValueChange);
             // 
             // _namespaceComboBox
@@ -406,6 +228,7 @@
             this._namespaceComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._namespaceComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._namespaceComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._namespaceComboBox.ForeColor = System.Drawing.Color.LightGray;
             this._namespaceComboBox.FormattingEnabled = true;
             this._namespaceComboBox.Location = new System.Drawing.Point(99, 77);
@@ -413,6 +236,7 @@
             this._namespaceComboBox.Size = new System.Drawing.Size(713, 25);
             this._namespaceComboBox.Sorted = true;
             this._namespaceComboBox.TabIndex = 3;
+            this._namespaceComboBox.SelectedIndexChanged += new System.EventHandler(this.OnValueChange);
             this._namespaceComboBox.TextChanged += new System.EventHandler(this.OnValueChange);
             // 
             // NameLabel
@@ -460,13 +284,13 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this._dataPathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
             this._dataPathTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this._dataPathTextBox.Enabled = false;
             this._dataPathTextBox.ForeColor = System.Drawing.Color.LightGray;
             this._dataPathTextBox.Location = new System.Drawing.Point(99, 170);
             this._dataPathTextBox.Name = "_dataPathTextBox";
+            this._dataPathTextBox.ReadOnly = true;
             this._dataPathTextBox.Size = new System.Drawing.Size(644, 20);
             this._dataPathTextBox.TabIndex = 2;
-            this._dataPathTextBox.TextChanged += new System.EventHandler(this.OnValueChange);
+            this._dataPathTextBox.TextChanged += new System.EventHandler(this.OnDataPathChange);
             // 
             // NamespaceLabel
             // 
@@ -495,6 +319,8 @@
             this._indexComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._indexComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._indexComboBox.DisplayMember = "DisplayName";
+            this._indexComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._indexComboBox.ForeColor = System.Drawing.Color.LightGray;
             this._indexComboBox.FormattingEnabled = true;
             this._indexComboBox.Location = new System.Drawing.Point(99, 48);
@@ -502,6 +328,7 @@
             this._indexComboBox.Size = new System.Drawing.Size(713, 25);
             this._indexComboBox.Sorted = true;
             this._indexComboBox.TabIndex = 3;
+            this._indexComboBox.SelectedIndexChanged += new System.EventHandler(this.OnValueChange);
             this._indexComboBox.TextChanged += new System.EventHandler(this.OnValueChange);
             // 
             // DataPathLabel
@@ -526,7 +353,7 @@
             this._nameTextBox.Name = "_nameTextBox";
             this._nameTextBox.Size = new System.Drawing.Size(713, 27);
             this._nameTextBox.TabIndex = 2;
-            this._nameTextBox.TextChanged += new System.EventHandler(this.OnValueChange);
+            this._nameTextBox.TextChanged += new System.EventHandler(this.OnNameValueChange);
             // 
             // IndexLabel
             // 
@@ -564,7 +391,6 @@
             this.MemberSplitContainer.Panel1.ResumeLayout(false);
             this.MemberSplitContainer.Panel1.PerformLayout();
             this.MemberSplitContainer.Panel2.ResumeLayout(false);
-            this.MemberSplitContainer.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MemberSplitContainer)).EndInit();
             this.MemberSplitContainer.ResumeLayout(false);
             this._memberMenu.ResumeLayout(false);
@@ -577,8 +403,6 @@
         }
 
         #endregion
-        private System.Windows.Forms.GroupBox MemberGroupBox;
-        private System.Windows.Forms.SplitContainer MemberSplitContainer;
         private System.Windows.Forms.ListBox _memberListBox;
         private System.Windows.Forms.PictureBox _memPictureBox;
         private System.Windows.Forms.TextBox _memFilterBox;
@@ -596,22 +420,11 @@
         private System.Windows.Forms.TextBox _nameTextBox;
         private System.Windows.Forms.Label IndexLabel;
         private System.Windows.Forms.Label InhertLabel;
-        private System.Windows.Forms.ComboBox _memTypeComboBox;
-        private System.Windows.Forms.Label _nameLabel;
-        private System.Windows.Forms.TextBox _memNameTextBox;
-        private System.Windows.Forms.Label _typeLabel;
-        private System.Windows.Forms.ComboBox _checkerComboBox;
-        private System.Windows.Forms.Label _defaultLabel;
-        private System.Windows.Forms.Label _checkLabel;
-        private System.Windows.Forms.TextBox _memGroupTextBox;
-        private System.Windows.Forms.Label _descLabel;
-        private System.Windows.Forms.Label _groupLabel;
-        private System.Windows.Forms.TextBox _memDescTextBox;
-        private System.Windows.Forms.CheckBox _readOnlyCheckBox;
         private System.Windows.Forms.ContextMenuStrip _memberMenu;
         private System.Windows.Forms.ToolStripMenuItem AddMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RemoveMenuItem;
-        private TypeBox _memValueTextBox;
         private System.Windows.Forms.PictureBox _spliter;
+        public System.Windows.Forms.SplitContainer MemberSplitContainer;
+        private System.Windows.Forms.GroupBox MemberGroupBox;
     }
 }
