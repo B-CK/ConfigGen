@@ -7,15 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Description.Wrap;
 
 namespace Description.Editor
 {
     public partial class MemberEditor : UserControl
     {
         /// <summary>
-        /// 数据唯一名称
+        /// 数据下标索引
         /// </summary>
-        public virtual string ID => Name;
+        public virtual int Index { get; set; }
         /// <summary>
         /// 用于ListBox显示名称
         /// </summary>
@@ -31,13 +32,16 @@ namespace Description.Editor
 
         protected bool _isNew;
         protected bool _isInit;
-        public MemberEditor()
+        protected BaseWrap _wrap;
+        protected MemberEditor()
         {
             InitializeComponent();
         }
-        public void Init()
+        public void Init(BaseWrap wrap)
         {
             _isInit = false;
+            _wrap = wrap;
+            Name = wrap.Name;
             OnInit();
             _isInit = true;
         }

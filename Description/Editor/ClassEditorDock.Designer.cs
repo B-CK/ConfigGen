@@ -36,7 +36,7 @@
             this.AddMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RemoveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._memPictureBox = new System.Windows.Forms.PictureBox();
-            this._memFilterBox = new System.Windows.Forms.TextBox();
+            this._memFindBox = new System.Windows.Forms.TextBox();
             this._spliter = new System.Windows.Forms.PictureBox();
             this._typeGroupBox = new System.Windows.Forms.GroupBox();
             this._inhertComboBox = new System.Windows.Forms.ComboBox();
@@ -92,7 +92,7 @@
             // 
             this.MemberSplitContainer.Panel1.Controls.Add(this._memberListBox);
             this.MemberSplitContainer.Panel1.Controls.Add(this._memPictureBox);
-            this.MemberSplitContainer.Panel1.Controls.Add(this._memFilterBox);
+            this.MemberSplitContainer.Panel1.Controls.Add(this._memFindBox);
             this.MemberSplitContainer.Panel1MinSize = 322;
             // 
             // MemberSplitContainer.Panel2
@@ -119,6 +119,7 @@
             this._memberListBox.Name = "_memberListBox";
             this._memberListBox.ScrollAlwaysVisible = true;
             this._memberListBox.Size = new System.Drawing.Size(309, 308);
+            this._memberListBox.Sorted = true;
             this._memberListBox.TabIndex = 8;
             this._memberListBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MemberListBox_MouseClick);
             // 
@@ -158,15 +159,16 @@
             this._memPictureBox.TabIndex = 6;
             this._memPictureBox.TabStop = false;
             // 
-            // _memFilterBox
+            // _memFindBox
             // 
-            this._memFilterBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._memFilterBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this._memFilterBox.ForeColor = System.Drawing.Color.LightGray;
-            this._memFilterBox.Location = new System.Drawing.Point(38, 10);
-            this._memFilterBox.Name = "_memFilterBox";
-            this._memFilterBox.Size = new System.Drawing.Size(271, 27);
-            this._memFilterBox.TabIndex = 2;
+            this._memFindBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._memFindBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this._memFindBox.ForeColor = System.Drawing.Color.LightGray;
+            this._memFindBox.Location = new System.Drawing.Point(38, 10);
+            this._memFindBox.Name = "_memFindBox";
+            this._memFindBox.Size = new System.Drawing.Size(271, 27);
+            this._memFindBox.TabIndex = 2;
+            this._memFindBox.TextChanged += new System.EventHandler(this.MemFilterBox_TextChanged);
             // 
             // _spliter
             // 
@@ -212,6 +214,7 @@
             this._inhertComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._inhertComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._inhertComboBox.DisplayMember = "FullName";
             this._inhertComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._inhertComboBox.ForeColor = System.Drawing.Color.LightGray;
             this._inhertComboBox.FormattingEnabled = true;
@@ -405,7 +408,7 @@
         #endregion
         private System.Windows.Forms.ListBox _memberListBox;
         private System.Windows.Forms.PictureBox _memPictureBox;
-        private System.Windows.Forms.TextBox _memFilterBox;
+        private System.Windows.Forms.TextBox _memFindBox;
         private System.Windows.Forms.GroupBox _typeGroupBox;
         private System.Windows.Forms.ComboBox _inhertComboBox;
         private System.Windows.Forms.ComboBox _namespaceComboBox;

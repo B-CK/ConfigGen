@@ -248,7 +248,7 @@ namespace Description
         public static string GetDataDirRelPath(string path)
         {
             string dir = Format(@"{0}\{1}", ApplicationDir, _dataDir);
-            return path.Replace(dir, "");
+            return path.Replace(dir, @".\");
         }
         public static void TryDeleteDirectory(string path)
         {
@@ -272,18 +272,17 @@ namespace Description
             OpenFileDialog.Title = title;
             OpenFileDialog.Filter = filter;
             DialogResult result = OpenFileDialog.ShowDialog();
-            if (result == DialogResult.OK)
+            try
             {
-                try
+                if (result == DialogResult.OK)
                 {
                     if (action != null)
                         action(OpenFileDialog.FileName);
-
                 }
-                catch (Exception ex)
-                {
-                    ConsoleDock.Ins.LogErrorFormat("{0}\n{1}\n{2}", error, ex.Message, ex.StackTrace);
-                }
+            }
+            catch (Exception ex)
+            {
+                ConsoleDock.Ins.LogErrorFormat("{0}\n{1}\n{2}", error, ex.Message, ex.StackTrace);
             }
             return result;
         }

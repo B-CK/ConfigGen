@@ -94,6 +94,7 @@ namespace Description
         }
         public void LogError(string msg)
         {
+            Show();
             SendMessage(LogType.Error, msg);
         }
         public void LogFormat(string format, params object[] logString)

@@ -138,7 +138,7 @@
             this._checkerComboBox.Name = "_checkerComboBox";
             this._checkerComboBox.Size = new System.Drawing.Size(400, 23);
             this._checkerComboBox.TabIndex = 14;
-            this._checkerComboBox.TextChanged += new System.EventHandler(this.OnFieldTextChanged);
+            this._checkerComboBox.SelectedIndexChanged += new System.EventHandler(this.OnFieldTextChanged);
             // 
             // label5
             // 
@@ -167,6 +167,7 @@
             this._typeComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._typeComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._typeComboBox.DisplayMember = "FullName";
             this._typeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._typeComboBox.ForeColor = System.Drawing.Color.LightGray;
             this._typeComboBox.FormattingEnabled = true;
@@ -175,7 +176,6 @@
             this._typeComboBox.Size = new System.Drawing.Size(327, 23);
             this._typeComboBox.TabIndex = 13;
             this._typeComboBox.SelectedIndexChanged += new System.EventHandler(this.TypeComboBox_SelectedIndexChanged);
-            this._typeComboBox.TextChanged += new System.EventHandler(this.OnFieldTextChanged);
             // 
             // _isConstCheckBox
             // 

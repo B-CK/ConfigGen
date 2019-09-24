@@ -132,7 +132,6 @@ namespace Description.Editor
             if (!_isInit) return;
             Text = "*" + _wrap.Name;
             _isDirty = true;
-            NamespaceWrap.HasModifyNamespace = true;
         }
 
         /// <summary>
@@ -201,10 +200,10 @@ namespace Description.Editor
         }
         protected virtual void AddMember(MemberEditor mem)
         {
-            if (_memberDict.ContainsKey(mem.ID))
-                Util.MsgWarning("重复定义字段{0}", mem.ID);
+            if (_memberDict.ContainsKey(mem.Name))
+                Util.MsgWarning("重复定义字段{0}", mem.Name);
             else
-                _memberDict.Add(mem.ID, mem);
+                _memberDict.Add(mem.Name, mem);
         }
         protected virtual void RemoveMember(string name)
         {

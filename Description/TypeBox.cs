@@ -25,9 +25,9 @@ namespace Description
             Dict,
         }
 
-        ProertyType _propertyType = ProertyType.None;
         public Action OnCheckChange;
         public ProertyType Type => _propertyType;
+        ProertyType _propertyType = ProertyType.None;
 
         public void InitBool(bool value = false)
         {
@@ -88,11 +88,11 @@ namespace Description
         {
             _propertyType = ProertyType.List;
             EnableBox(_propertyType);
-            _comboBox.Text = value;
             _comboBox.Items.Clear();
             _comboBox.Items.AddRange(items);
             _comboBox.Items.Remove(Util.LIST);
             _comboBox.Items.Remove(Util.DICT);
+            _comboBox.Text = value;
         }
         /// <summary>
         /// 键值对形式
@@ -103,17 +103,17 @@ namespace Description
         {
             _propertyType = ProertyType.Dict;
             EnableBox(_propertyType);
-            _keyComboBox.Text = key;
-            _valueComboBox.Text = value;
+
             _keyComboBox.Items.Clear();
             _keyComboBox.Items.AddRange(keys);
+            _keyComboBox.Text = key;
+
             _valueComboBox.Items.Clear();
             _valueComboBox.Items.AddRange(values);
             _valueComboBox.Items.Remove(Util.LIST);
             _valueComboBox.Items.Remove(Util.DICT);
+            _valueComboBox.Text = value;
         }
-
-
         public string GetValue()
         {
             switch (_propertyType)
@@ -137,63 +137,6 @@ namespace Description
                     return "";
             }
         }
-
-
-        //public void SetBool(bool value)
-        //{
-        //    if (_propertyType == ProertyType.Bool)
-        //        _boolBox.Checked = value;
-        //    else
-        //        Util.MsgError("默认值类型不匹配,错误类型:{0}", _propertyType);
-        //}
-        //public void SetNumber(decimal value)
-        //{
-        //    if (_propertyType == ProertyType.Int)
-        //    {
-        //        _numericUpDown.DecimalPlaces = 0;
-        //        _numericUpDown.Increment = 1;
-        //        _numericUpDown.Value = value;
-        //    }
-        //    else if (_propertyType == ProertyType.Float)
-        //    {
-        //        _numericUpDown.DecimalPlaces = 3;
-        //        _numericUpDown.Increment = (decimal)0.001f;
-        //        _numericUpDown.Value = value;
-        //    }
-        //    else
-        //        Util.MsgError("默认值类型不匹配,错误类型:{0}", _propertyType);
-        //}
-        //public void SetEnum(string value)
-        //{
-        //    if (_propertyType == ProertyType.Enum)
-        //        _comboBox.Text = value;
-        //    else
-        //        Util.MsgError("默认值类型不匹配,错误类型:{0}", _propertyType);
-        //}
-        //public void SetString(string value)
-        //{
-        //    if (_propertyType == ProertyType.String)
-        //        _stringBox.Text = value;
-        //    else
-        //        Util.MsgError("默认值类型不匹配,错误类型:{0}", _propertyType);
-        //}
-        //public void SetList(string type)
-        //{
-        //    if (_propertyType == ProertyType.List)
-        //        _comboBox.Text = type;
-        //    else
-        //        Util.MsgError("默认值类型不匹配,错误类型:{0}", _propertyType);
-        //}
-        //public void SetDict(string key, string value)
-        //{
-        //    if (_propertyType == ProertyType.Dict)
-        //    {
-        //        _keyComboBox.Text = key;
-        //        _valueComboBox.Text = value;
-        //    }
-        //    else
-        //        Util.MsgError("默认值类型不匹配,错误类型:{0}", _propertyType);
-        //}
         public void EnableBox(ProertyType type)
         {
             _boolBox.Visible = false;
@@ -230,7 +173,6 @@ namespace Description
                     break;
             }
         }
-
         public void Clear(bool clearEvt = true)
         {
             if (clearEvt)
@@ -244,12 +186,10 @@ namespace Description
             _keyComboBox.Text = "";
             _valueComboBox.Text = "";
         }
-
         public TypeBox()
         {
             InitializeComponent();
         }
-
 
         private void OnValueChanged(object sender, EventArgs e)
         {

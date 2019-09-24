@@ -18,8 +18,7 @@ namespace Description.Editor
             FieldEditor field = PoolManager.Ins.Pop<FieldEditor>();
             if (field == null) field = new FieldEditor();
             field._dock = dock;
-            field._wrap = wrap;
-            field.Init();
+            field.Init(wrap);
             return field;
         }
         public static FieldEditor Create(ClassEditorDock dock, string name)
@@ -29,13 +28,12 @@ namespace Description.Editor
             FieldWrap wrap = PoolManager.Ins.Pop<FieldWrap>();
             if (wrap == null) wrap = FieldWrap.Create(name, dock.GetWrap<ClassWrap>());
             field._dock = dock;
-            field._wrap = wrap;
-            field.Init();
+            field.Init(wrap);
             return field;
         }
         public static implicit operator FieldWrap(FieldEditor editor)
         {
-            return editor._wrap;
+            return editor._wrap as FieldWrap;
         }
 
         public override string DisplayName
@@ -53,43 +51,40 @@ namespace Description.Editor
         }
 
         ClassEditorDock _dock;
-        FieldWrap _wrap;
-
         private FieldEditor()
         {
             InitializeComponent();
         }
         protected override void OnInit()
         {
-            Name = _wrap.Name;
+            var field = _wrap as FieldWrap;
             Location = Point.Empty;
             var panel = _dock.MemberSplitContainer.Panel2;
             Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Top;
             Size = new Size(panel.Width - 95, panel.Height);
             _isNew = true;
 
-            _nameTextBox.Text = _wrap.Name;
-            _typeComboBox.Items.AddRange(ClassWrap.Classes);
-            _typeComboBox.Items.AddRange(Util.BaseTypes);
+            _nameTextBox.Text = field.Name;
+            _typeComboBox.Items.AddRange(Util.GetAllTypes());
             _valueTypeBox.Clear();
             _defaultLabel.Text = "默认值:";
-            if (_wrap.Type.IsEmpty())
+            if (field.Type.IsEmpty())
             {
                 _typeComboBox.Text = "";
                 _valueTypeBox.Visible = false;
             }
             else
             {
-                SetMemberValue(_wrap);
+                SetMemberValue(field);
                 _valueTypeBox.Visible = true;
                 if (_typeComboBox.Text == Util.LIST || _typeComboBox.Text == Util.DICT)
                     _defaultLabel.Text = "元素类型:";
             }
-            _isConstCheckBox.Checked = _wrap.IsConst;
+            _isConstCheckBox.Checked = field.IsConst;
             _valueTypeBox.OnCheckChange = OnFieldValueChanged;
-            _groupTextBox.Text = _wrap.Group;
-            _desTextBox.Text = _wrap.Desc;
-            _checkerComboBox.Text = _wrap.Checker;
+            _groupTextBox.Text = field.Group;
+            _desTextBox.Text = field.Desc;
+            _checkerComboBox.Text = field.Checker;
         }
         /// <summary>
         /// 不包含枚举与类类型
@@ -161,21 +156,22 @@ namespace Description.Editor
         public override void Save()
         {
             base.Save();
-            if (_wrap.Name != _nameTextBox.Text)
-                _dock.GetWrap<ClassWrap>().RemoveField(_wrap);
-            _wrap.Name = _nameTextBox.Text;
-            _wrap.Type = _typeComboBox.Text;
+            var field = _wrap as FieldWrap;
+            if (field.Name != _nameTextBox.Text)
+                _dock.GetWrap<ClassWrap>().RemoveField(field);
+            field.Name = _nameTextBox.Text;
+            field.Type = _typeComboBox.Text;
             if (_typeComboBox.Text == Util.LIST || _typeComboBox.Text == Util.DICT)
             {
-                _wrap.Type += Util.ArgsSplitFlag[0] + _valueTypeBox.GetValue();
-                _wrap.Value = "";
+                field.Type += Util.ArgsSplitFlag[0] + _valueTypeBox.GetValue();
+                field.Value = "";
             }
             else
-                _wrap.Value = _valueTypeBox.GetValue();
-            _wrap.IsConst = _isConstCheckBox.Checked;
-            _wrap.Group = _groupTextBox.Text;
-            _wrap.Desc = _desTextBox.Text;
-            _wrap.Checker = _checkerComboBox.Text;
+                field.Value = _valueTypeBox.GetValue();
+            field.IsConst = _isConstCheckBox.Checked;
+            field.Group = _groupTextBox.Text;
+            field.Desc = _desTextBox.Text;
+            field.Checker = _checkerComboBox.Text;
         }
         public override void Hide()
         {
@@ -191,8 +187,7 @@ namespace Description.Editor
         private void OnFieldTextChanged(object sender, EventArgs e)
         {
             if (!_isInit) return;
-            if (_dock != null)
-                _dock.OnValueChange();
+            _dock.OnValueChange();
         }
         private void OnFieldValueChanged()
         {
@@ -223,6 +218,7 @@ namespace Description.Editor
             ComboBox combo = sender as ComboBox;
             _defaultLabel.Text = "默认值:";
             _valueTypeBox.Clear(false);
+            _dock.OnValueChange();
             if (combo.Text.IsEmpty() || EnumWrap.EnumDict.ContainsKey(combo.Text)
                             || ClassWrap.ClassDict.ContainsKey(combo.Text))
                 _valueTypeBox.Visible = false;

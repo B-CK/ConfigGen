@@ -22,6 +22,9 @@ namespace Description.Editor
             return dock;
         }
 
+        static OpenFileDialog OpenFileDialog = new OpenFileDialog();
+
+        List<MemberEditor> _listBox = new List<MemberEditor>();
         MemberEditor _currentMember;
         private ClassEditorDock()
         {
@@ -132,6 +135,9 @@ namespace Description.Editor
             int index = mItems.IndexOf(member);
             mItems.Remove(member);
             mItems.Insert(index, member);
+            //筛选出后,再修改名称时,是否过滤掉?
+            //if (!_memFindBox.Text.IsEmpty())
+            //    FindMember(_memFindBox.Text);
 
             //修改关键字CombBox界面
             var iItems = _indexComboBox.Items;
@@ -141,6 +147,21 @@ namespace Description.Editor
             iItems.Insert(index, member);
             _indexComboBox.SelectedIndex = selectedIndex;
         }
+        private void FindMember(string name)
+        {
+            if (name.IsEmpty()) return;
+            _memberListBox.Items.AddRange(_listBox.ToArray());
+            _listBox.Clear();
+            foreach (var item in _memberDict)
+            {
+                var mem = item.Value as MemberEditor;
+                if (mem.Name.IndexOf(name) == -1)
+                    _listBox.Add(mem);
+            }
+            var items = _memberListBox.Items;
+            for (int i = 0; i < _listBox.Count; i++)
+                items.Remove(_listBox[i]);
+        }
 
         private void OnValueChange(object sender, System.EventArgs e)
         {
@@ -148,10 +169,19 @@ namespace Description.Editor
         }
         private void DataPathButton_Click(object sender, System.EventArgs e)
         {
-            Util.Open(Util.DataDir, "引用数据文件", "数据文件|*.xml", (string file) =>
+            try
             {
-                _dataPathTextBox.Text = Util.GetDataDirRelPath(file);
-            }, "获取数据文件路径失败!");
+                OpenFileDialog.InitialDirectory = Util.DataDir;
+                OpenFileDialog.Title = "引用数据文件";
+                OpenFileDialog.Filter = "表|*.xls|表|*.xlsx";
+                DialogResult result = OpenFileDialog.ShowDialog();
+                OpenFileDialog = null;
+                _dataPathTextBox.Text = Util.GetDataDirRelPath(OpenFileDialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                ConsoleDock.Ins.LogErrorFormat("获取数据文件路径失败!{0}\n{1}", ex.Message, ex.StackTrace);
+            }
         }
         private void MemberListBox_MouseClick(object sender, MouseEventArgs e)
         {
@@ -214,6 +244,12 @@ namespace Description.Editor
             _indexComboBox.Enabled = !textBox.Text.IsEmpty();
             if (!_indexComboBox.Enabled)
                 _indexComboBox.Text = "";
+        }
+        private void MemFilterBox_TextChanged(object sender, EventArgs e)
+        {
+            if (!_isInit) return;
+            var find = sender as TextBox;
+            FindMember(find.Text);
         }
     }
 }
