@@ -18,10 +18,10 @@ namespace Description
         Error = 8,//添加错误图标
     }
 
-    public partial class FindNamespaceDock : DockContent
+    public partial class NamespaceDock : DockContent
     {
-        public static FindNamespaceDock Ins { get { return _ins; } }
-        static FindNamespaceDock _ins;
+        public static NamespaceDock Ins { get { return _ins; } }
+        static NamespaceDock _ins;
 
 
         enum ShowType
@@ -37,7 +37,7 @@ namespace Description
         {
             if (_ins == null)
             {
-                _ins = new FindNamespaceDock();
+                _ins = new NamespaceDock();
                 _ins.Show(MainWindow.Ins._dockPanel, DockState.DockLeft);
             }
             else
@@ -52,7 +52,7 @@ namespace Description
             _ins = null;
             base.OnClosed(e);
         }
-        public FindNamespaceDock()
+        public NamespaceDock()
         {
             InitializeComponent();
             UpdateTree();

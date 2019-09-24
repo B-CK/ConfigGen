@@ -50,6 +50,7 @@
             this._createModuleItem = new System.Windows.Forms.ToolStripMenuItem();
             this._openModuleItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.SaveTypeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._saveModuleItem = new System.Windows.Forms.ToolStripMenuItem();
             this._saveAnotherModuleItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
@@ -71,7 +72,6 @@
             this._dockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             this._openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this._saveFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.SaveTypeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MainMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -140,6 +140,14 @@
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
             this.toolStripSeparator5.Size = new System.Drawing.Size(228, 6);
+            // 
+            // SaveTypeMenuItem
+            // 
+            this.SaveTypeMenuItem.Name = "SaveTypeMenuItem";
+            this.SaveTypeMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+            this.SaveTypeMenuItem.Size = new System.Drawing.Size(231, 26);
+            this.SaveTypeMenuItem.Text = "保存类型";
+            this.SaveTypeMenuItem.Click += new System.EventHandler(this.SaveTypeMenuItem_Click);
             // 
             // _saveModuleItem
             // 
@@ -347,14 +355,6 @@
             this._saveFileDialog.Filter = "保存模块|*.xml";
             this._saveFileDialog.FilterIndex = 0;
             // 
-            // SaveTypeMenuItem
-            // 
-            this.SaveTypeMenuItem.Name = "SaveTypeMenuItem";
-            this.SaveTypeMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.SaveTypeMenuItem.Size = new System.Drawing.Size(231, 26);
-            this.SaveTypeMenuItem.Text = "保存类型";
-            this.SaveTypeMenuItem.Click += new System.EventHandler(this.SaveTypeMenuItem_Click);
-            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -366,6 +366,7 @@
             this.DoubleBuffered = true;
             this.IsMdiContainer = true;
             this.MainMenuStrip = this.MainMenu;
+            this.MinimumSize = new System.Drawing.Size(1126, 670);
             this.Name = "MainWindow";
             this.Text = "结构描述";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);

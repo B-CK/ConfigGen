@@ -80,7 +80,7 @@ namespace Description
                         if (!nsw.Contains(name))
                         {
                             var wrap = ClassWrap.Create(name, nsw);                       
-                            FindNamespaceDock.Ins.AddClass2Namespace(wrap, nsw);
+                            NamespaceDock.Ins.AddClass2Namespace(wrap, nsw);
                             ClassEditorDock.Create(wrap);
                             Close();
                         }
@@ -94,7 +94,7 @@ namespace Description
                         if (!nsw.Contains(name))
                         {
                             var wrap = EnumWrap.Create(name, nsw);                   
-                            FindNamespaceDock.Ins.AddEnum2Namespace(wrap, nsw);
+                            NamespaceDock.Ins.AddEnum2Namespace(wrap, nsw);
                             EnumEditorDock.Create(wrap);
                             Close();
                         }
@@ -112,7 +112,7 @@ namespace Description
                             wrap.SetNodeState(NodeState.Modify);
                             ModuleWrap.Default.AddImport(wrap);
                             ModuleWrap.Current.AddImport(wrap);
-                            FindNamespaceDock.Ins.AddRootNode(wrap);
+                            NamespaceDock.Ins.AddRootNode(wrap);
                             Close();
                         }
                         else

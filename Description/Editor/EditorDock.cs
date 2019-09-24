@@ -163,7 +163,7 @@ namespace Description.Editor
         {
             var typeWrap = _wrap as TypeWrap;
             string oldFullName = Util.Format("{0}.{1}", typeWrap.Namespace.FullName, oldName);
-            FindNamespaceDock.Ins.UpdateNode(oldFullName, typeWrap);
+            NamespaceDock.Ins.UpdateNode(oldFullName, typeWrap);
             RemoveOpen(oldFullName);
             AddOpen(typeWrap.FullName, this);
         }
@@ -177,7 +177,7 @@ namespace Description.Editor
             if (src != dst)
             {
                 //界面层,修改显示状态
-                FindNamespaceDock.Ins.SwapNamespace(wrap, src, dst);
+                NamespaceDock.Ins.SwapNamespace(wrap, src, dst);
                 string dstName = wrap.FullName.Replace(src, dst);
                 RemoveOpen(wrap.FullName);
                 AddOpen(dstName, this);

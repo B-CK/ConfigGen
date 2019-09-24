@@ -27,7 +27,7 @@ namespace Description
             InitSettings();
             NamespaceWrap.InitNamespaces();
             ModuleWrap.InitModule();
-            FindNamespaceDock.Inspect();
+            NamespaceDock.Inspect();
 
             ConsoleDock.Ins.Log("初始化成功~");
         }
@@ -92,7 +92,7 @@ namespace Description
                 {
                     string fileName = _openFileDialog.FileName;
                     ModuleWrap.Open(fileName);
-                    FindNamespaceDock.Ins.UpdateTree();
+                    NamespaceDock.Ins.UpdateTree();
                 }
                 catch (Exception ex)
                 {
@@ -134,7 +134,7 @@ namespace Description
         {
             ModuleWrap.Current.Close();
             ModuleWrap.OpenDefault();
-            FindNamespaceDock.Ins.UpdateTree();
+            NamespaceDock.Ins.UpdateTree();
         }
         #endregion
 
@@ -149,7 +149,7 @@ namespace Description
         }
         private void OpenFindNamespaceItem_Click(object sender, EventArgs e)
         {
-            FindNamespaceDock.Inspect();
+            NamespaceDock.Inspect();
         }
 
         private void OpenConsoleItem_Click(object sender, EventArgs e)

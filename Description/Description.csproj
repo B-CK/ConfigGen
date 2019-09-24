@@ -107,11 +107,11 @@
       <DependentUpon>CreatorDock.cs</DependentUpon>
     </Compile>
     <Compile Include="Console\Log.cs" />
-    <Compile Include="FindNamespaceDock.cs">
+    <Compile Include="NamespaceDock.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FindNamespaceDock.Designer.cs">
-      <DependentUpon>FindNamespaceDock.cs</DependentUpon>
+    <Compile Include="NamespaceDock.Designer.cs">
+      <DependentUpon>NamespaceDock.cs</DependentUpon>
     </Compile>
     <Compile Include="Editor\ClassEditorDock.cs">
       <SubType>Form</SubType>
@@ -154,8 +154,8 @@
       <DependentUpon>MainWindow.cs</DependentUpon>
       <LastGenOutput>DescriptorWindow1.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="FindNamespaceDock.resx">
-      <DependentUpon>FindNamespaceDock.cs</DependentUpon>
+    <EmbeddedResource Include="NamespaceDock.resx">
+      <DependentUpon>NamespaceDock.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

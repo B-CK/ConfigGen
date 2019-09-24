@@ -1,6 +1,6 @@
 ﻿namespace Description
 {
-    partial class FindNamespaceDock
+    partial class NamespaceDock
     {
         /// <summary>
         /// Required designer variable.
