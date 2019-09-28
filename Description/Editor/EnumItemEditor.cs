@@ -111,7 +111,9 @@ namespace Description.Editor
             var dock = GetDock<EnumEditorDock>();
             dock.OnValueChange();
             var nameBox = sender as TextBox;
-            if (dock.ContainMember(nameBox.Text))
+            if (!Util.CheckName(_wrap.Name))
+                nameBox.Text = _wrap.Name;
+            else if (dock.ContainMember(nameBox.Text))
             {
                 Util.MsgWarning("枚举{0}中重复定义字段{1}!", dock.GetWrap<EnumWrap>().Name, nameBox.Text);
                 nameBox.Text = _wrap.Name;

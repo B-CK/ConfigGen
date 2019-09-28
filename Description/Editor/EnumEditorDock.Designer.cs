@@ -252,7 +252,7 @@
             this._memberListBox.ScrollAlwaysVisible = true;
             this._memberListBox.Size = new System.Drawing.Size(314, 342);
             this._memberListBox.TabIndex = 8;
-            this._memberListBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MemberListBox_MouseClick);
+            this._memberListBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.MemberListBox_MouseDown);
             // 
             // _memberMenu
             // 

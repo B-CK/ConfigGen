@@ -23,21 +23,6 @@ namespace Description
         public static NamespaceDock Ins { get { return _ins; } }
         static NamespaceDock _ins;
 
-        public string SelectNamespace
-        {
-            get
-            {
-                if (_selectedNode != null)
-                {
-                    var data = _selectedNode.Tag;
-                    if (data is NamespaceWrap)
-                        return (data as NamespaceWrap).DisplayName;
-                }
-                return null;
-            }
-        }
-
-        TreeNode _selectedNode;
         List<TreeNode> _removes = new List<TreeNode>();
         public static void Inspect()
         {
@@ -63,15 +48,17 @@ namespace Description
             _ins = null;
             base.OnClosed(e);
         }
-        public NamespaceDock()
+        private NamespaceDock()
         {
             InitializeComponent();
             InitTree();
             _nodeTreeView.Sort();
         }
+
         //开启模块的时候调用
         public void InitTree()
         {
+            ModuleWrap.Current.Check();
             _nodeFilterBox.Text = "";
             _nodeTreeView.BeginUpdate();
             var all = NamespaceWrap.AllNamespaces;
@@ -109,7 +96,7 @@ namespace Description
         {
             TreeNode root = _nodeTreeView.Nodes[srcFullName];
             root.Text = wrap.DisplayName;
-            root.Name = wrap.FullName;            
+            root.Name = wrap.FullName;
         }
         /// <summary>
         /// 更新TypeWrap类型节点
@@ -122,10 +109,10 @@ namespace Description
             node.Text = wrap.DisplayName;
             node.Name = wrap.FullName;
         }
-        public void SwapNamespace(string srcFullName, TypeWrap wrap,  string src, string dst)
+        public void SwapNamespace(string srcFullName, TypeWrap wrap, string src, string dst)
         {
             TreeNode srcNode = _nodeTreeView.Nodes[src];
-            TreeNode dstNode = _nodeTreeView.Nodes[dst];        
+            TreeNode dstNode = _nodeTreeView.Nodes[dst];
             TreeNode node = srcNode.Nodes[srcFullName];
             srcNode.Nodes.Remove(node);
             node.Text = wrap.DisplayName;
@@ -163,6 +150,16 @@ namespace Description
             }
             SetNodeColor(node);
             return node;
+        }
+        public void UpdateNamespaceNode(NamespaceWrap wrap)
+        {
+            UpdateNodeColorState(wrap);
+            var classes = wrap.Classes;
+            for (int k = 0; k < classes.Count; k++)
+                UpdateNodeColorState(classes[k]);
+            var enums = wrap.Enums;
+            for (int k = 0; k < enums.Count; k++)
+                UpdateNodeColorState(enums[k]);
         }
 
 
@@ -203,9 +200,11 @@ namespace Description
                 case NodeState.Modify | NodeState.Exclude:
                     node.ForeColor = Color.CornflowerBlue;
                     break;
+                case NodeState.Error | NodeState.Modify | NodeState.Include:
                 case NodeState.Error | NodeState.Include:
                     node.ForeColor = Color.Red;
                     break;
+                case NodeState.Error | NodeState.Modify | NodeState.Exclude:
                 case NodeState.Error | NodeState.Exclude:
                     node.ForeColor = Color.IndianRed;
                     break;
@@ -222,10 +221,6 @@ namespace Description
         }
 
 
-        private void NodeTreeView_NodeMouseHover(object sender, TreeNodeMouseHoverEventArgs e)
-        {
-            _selectedNode = e.Node;
-        }
         /// <summary>
         /// 打开类型信息界面
         /// </summary>
@@ -250,17 +245,19 @@ namespace Description
         private void NodeTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
-            var point = _nodeTreeView.PointToScreen(e.Location);
-            _nodeTreeView.SelectedNode = _selectedNode;
-            bool isNsw = _nodeTreeView.SelectedNode != null
-                && _selectedNode.Tag is NamespaceWrap;
+            TreeNode node = _nodeTreeView.GetNodeAt(e.X, e.Y);
+            if (node != null)
+                _nodeTreeView.SelectedNode = node;
+            var selected = _nodeTreeView.SelectedNode;
+            bool isNsw = selected != null && selected.Tag is NamespaceWrap;
             bool isDefault = ModuleWrap.Default == ModuleWrap.Current;
-            _modifyRootMenuItem.Visible = isNsw;
+            _modifyRootMenuItem.Visible = isNsw && !selected.Name.Equals(Util.EmptyNamespace);
             _saveRootMenuItem.Visible = isNsw;
             _includeMenuItem.Visible = isNsw && !isDefault;
             _excludeMenuItem.Visible = isNsw && !isDefault;
             _rootSeparator.Visible = isNsw;
 
+            var point = _nodeTreeView.PointToScreen(e.Location);
             _nodeMenu.Show(point);
         }
         private void NodeTreeView_DeleteNode(object sender, EventArgs e)
@@ -278,35 +275,21 @@ namespace Description
                 PoolManager.Ins.Push(nsw);
                 _nodeTreeView.Nodes.Remove(node);
             }
-            else if (wrap is ClassWrap)
+            else if (wrap is TypeWrap)
             {
-                var cls = wrap as ClassWrap;
-                EditorDock.CloseDock(cls.FullName);
-                var root = _nodeTreeView.Nodes[cls.Namespace.FullName];
-                root.Nodes.RemoveByKey(cls.FullName);
-                cls.Namespace.RemoveTypeWrap(cls);
-                cls.Dispose();
-                PoolManager.Ins.Push(cls);
-            }
-            else if (wrap is EnumWrap)
-            {
-                var enm = wrap as EnumWrap;
-                EditorDock.CloseDock(enm.FullName);
-                var root = _nodeTreeView.Nodes[enm.Namespace.FullName];
-                root.Nodes.RemoveByKey(enm.FullName);
-                enm.Namespace.RemoveTypeWrap(enm);
-                enm.Dispose();
-                PoolManager.Ins.Push(enm);
+                var tw = wrap as TypeWrap;
+                EditorDock.CloseDock(tw.FullName);
+                var root = _nodeTreeView.Nodes[tw.Namespace.FullName];
+                root.Nodes.RemoveByKey(tw.FullName);
+                tw.BreakParent();
+                tw.Dispose();
+                PoolManager.Ins.Push(tw);
+                UpdateNodeColorState(root.Tag as BaseWrap);
             }
             PoolManager.Ins.Push(node);
         }
         private void NodeTreeView_Modify(object sender, EventArgs e)
         {
-            if (_nodeTreeView.SelectedNode == null)
-            {
-                Util.MsgError("选择的节点为空!怀疑节点:{0}", _selectedNode == null ? "空!" : _selectedNode.Name);
-                return;
-            }
             var nsw = (_nodeTreeView.SelectedNode.Tag as NamespaceWrap);
             if (nsw == null)
                 Util.MsgError("选择的节点不是根节点!", _nodeTreeView.SelectedNode.Name);
@@ -315,11 +298,6 @@ namespace Description
         }
         private void NodeTreeView_Save(object sender, EventArgs e)
         {
-            if (_nodeTreeView.SelectedNode == null)
-            {
-                Util.MsgError("选择的节点为空!怀疑节点:{0}", _selectedNode == null ? "空!" : _selectedNode.Name);
-                return;
-            }
             var nsw = (_nodeTreeView.SelectedNode.Tag as NamespaceWrap);
             if (nsw == null)
                 Util.MsgError("选择的节点不是根节点!", _nodeTreeView.SelectedNode.Name);

@@ -163,7 +163,6 @@
             this._typeComboBox.Size = new System.Drawing.Size(327, 23);
             this._typeComboBox.Sorted = true;
             this._typeComboBox.TabIndex = 13;
-            this._typeComboBox.ValueMember = "FullName";
             this._typeComboBox.SelectedIndexChanged += new System.EventHandler(this.TypeComboBox_SelectedIndexChanged);
             // 
             // _isConstCheckBox

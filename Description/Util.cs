@@ -114,7 +114,7 @@ namespace Description
         public const string STRING = "string";
         public const string LIST = "list";
         public const string DICT = "dict";
-
+        //枚举可继承类型(暂时无用)
         public static readonly Dictionary<string, string> EnumInhert = new Dictionary<string, string>()
         {
             { "ubyte", "ubyte[0, 255]" },
@@ -126,6 +126,7 @@ namespace Description
         };
 
         public static readonly string[] BaseTypes = new string[] { BOOL, INT, LONG, FLOAT, STRING, LIST, DICT };
+        public static readonly HashSet<string> BaseHash = new HashSet<string>(BaseTypes);
 
         private static readonly string[] KeyTypes = new string[] { INT, LONG, STRING };
         public static object[] GetKeyTypes()
@@ -148,37 +149,34 @@ namespace Description
         /// <returns></returns>
         public static object[] GetCombTypes()
         {
-            List<object> all = new List<object>()  { BOOL, INT, LONG, FLOAT, STRING };
+            List<object> all = new List<object>() { BOOL, INT, LONG, FLOAT, STRING };
             all.AddRange(ClassWrap.Array);
             all.AddRange(EnumWrap.Array);
 
             return all.ToArray();
         }
-        public static string FindFullType(string fullName, object[] types)
+        public static bool HasType(string fullName)
         {
-            string result = string.Empty;
+            return BaseHash.Contains(fullName) || ClassWrap.Dict.ContainsKey(fullName) || EnumWrap.Dict.ContainsKey(fullName);
+        }
+        public static object FindTypeItem(string fullName, object[] types)
+        {
             for (int i = 0; i < types.Length; i++)
             {
                 var type = types[i];
                 if (type is string)
                 {
                     if (fullName == (type as string))
-                    {
-                        result = type as string;
-                        break;
-                    }
+                        return type;
                 }
-                else
+                else  
                 {
-                    var wrap = type as TypeWrap;
+                    var wrap = type as BaseWrap;
                     if (wrap.FullName == fullName)
-                    {
-                        result = wrap.FullName;
-                        break;
-                    }
+                        return type;
                 }
             }
-            return result;
+            return BOOL;
         }
 
         //public const string BYTE = "byte";
@@ -345,7 +343,16 @@ namespace Description
         /// </summary>
         public static bool CheckIdentifier(string name)
         {
-            if (!Regex.IsMatch(name, @"^[a-zA-Z_]\w*$"))
+            return Regex.IsMatch(name, @"^[a-zA-Z_]\w*$");
+        }
+        public static bool CheckName(string name)
+        {
+            if (name.IsEmpty())
+            {
+                MsgWarning("名称不能为空!");
+                return false;
+            }
+            else if (!CheckIdentifier(name))
             {
                 MsgWarning("名称[{0}]不规范,请以'_',字母和数字命名且首字母只能为'_'和字母!", name);
                 return false;

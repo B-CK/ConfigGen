@@ -6,26 +6,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace Description.Editor
 {
-    //public interface MemberEditor
-    //{
-    //    /// <summary>
-    //    /// 数据唯一名称
-    //    /// </summary>
-    //    string ID { get; }
-    //    /// <summary>
-    //    /// 用于ListBox显示名称
-    //    /// </summary>
-    //    string DisplayName { get; }
-    //    /// <summary>
-    //    /// true:新建;false:移除
-    //    /// </summary>
-    //    bool IsNew { get; set; }
-    //    void Show();
-    //    void Hide();
-    //    void Save();
-    //    void Clear();
-    //}
-
+    // ---- 可优化命名空间错误颜色更新逻辑
     public partial class EditorDock : DockContent
     {
         static Dictionary<string, EditorDock> _open = new Dictionary<string, EditorDock>();
@@ -150,7 +131,6 @@ namespace Description.Editor
                 AddOpen(ID, this);
         }
         protected virtual void OnSave() { }
-        protected virtual void ValidateData() { }
         protected virtual void Clear()
         {
             foreach (var item in _memberDict)
@@ -178,7 +158,7 @@ namespace Description.Editor
                 string srcFullName = wrap.FullName;
                 //数据层,命名空间数据更新
                 dst.AddTypeWrap(wrap);
-                wrap.RemoveSelf();
+                wrap.BreakParent();
                 wrap.Namespace = dst;
 
                 //界面层,修改显示状态
@@ -225,12 +205,11 @@ namespace Description.Editor
             if (_isDirty)
             {
                 _wrap.AddNodeState(NodeState.Modify);
-                NamespaceDock.Ins.UpdateNodeColorState(_wrap);
                 _wrap.Namespace.SetDirty();
-                NamespaceDock.Ins.UpdateNodeColorState(_wrap.Namespace);
             }
+            _wrap.Namespace.Check();
+            NamespaceDock.Ins.UpdateNamespaceNode(_wrap.Namespace);
             Text = _wrap.Name;
-            ValidateData();
             _isDirty = false;
         }
         private void EditorDock_FormClosed(object sender, FormClosedEventArgs e)

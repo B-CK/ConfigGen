@@ -76,7 +76,7 @@ namespace Description
             EnableBox(_propertyType);
             _comboBox.Items.Clear();
             _comboBox.Items.AddRange(items);
-            _comboBox.Text = Util.FindFullType(value, items);
+            _comboBox.SelectedItem = Util.FindTypeItem(value, items);
         }
         public void InitString(string value = "")
         {
@@ -90,7 +90,7 @@ namespace Description
             EnableBox(_propertyType);
             _comboBox.Items.Clear();
             _comboBox.Items.AddRange(items);
-            _comboBox.Text = Util.FindFullType(value, items);
+            _comboBox.SelectedItem = Util.FindTypeItem(value, items);
         }
         /// <summary>
         /// 键值对形式
@@ -104,11 +104,11 @@ namespace Description
 
             _keyComboBox.Items.Clear();
             _keyComboBox.Items.AddRange(keys);
-            _keyComboBox.Text = Util.FindFullType(key, values);
+            _keyComboBox.SelectedItem = Util.FindTypeItem(key, values);
 
             _valueComboBox.Items.Clear();
             _valueComboBox.Items.AddRange(values);
-            _valueComboBox.Text = Util.FindFullType(value, values);
+            _valueComboBox.SelectedItem = Util.FindTypeItem(value, values);
         }
         public string GetValue()
         {
@@ -120,14 +120,14 @@ namespace Description
                     return _numericUpDown.Value.ToString();
                 case ProertyType.Float:
                     return _numericUpDown.Value.ToString();
-                case ProertyType.Enum:
-                    return _comboBox.Text;
                 case ProertyType.String:
                     return _stringBox.Text;
+                case ProertyType.Enum:
+                    return _comboBox.SelectedItem.ToString();
                 case ProertyType.List:
-                    return _comboBox.Text;
+                    return _comboBox.SelectedItem.ToString();
                 case ProertyType.Dict:
-                    return Util.Format("{0}{1}{2}", _keyComboBox.Text, Util.ArgsSplitFlag[0], _valueComboBox.Text);
+                    return Util.Format("{0}{1}{2}", _keyComboBox.Text, Util.ArgsSplitFlag[0], _valueComboBox.SelectedItem);
                 case ProertyType.None:
                 default:
                     return "";

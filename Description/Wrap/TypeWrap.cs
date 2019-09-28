@@ -14,7 +14,8 @@ namespace Description.Wrap
     {
         public virtual string DisplayFullName
         {
-            get {
+            get
+            {
                 if (_xml.Desc.IsEmpty())
                     return FullName;
                 else
@@ -44,7 +45,7 @@ namespace Description.Wrap
             _xml = xml;
             _namespace = ns;
         }
-        public void RemoveSelf()
+        public void BreakParent()
         {
             Namespace.RemoveTypeWrap(this);
         }

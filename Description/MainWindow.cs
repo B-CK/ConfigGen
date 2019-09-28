@@ -132,7 +132,17 @@ namespace Description
         #endregion
 
         #region 编辑
-
+        private void CheckError_Click(object sender, EventArgs e)
+        {
+            ModuleWrap.Default.Check();
+            var imps = ModuleWrap.Default.Imports;
+            for (int i = 0; i < imps.Count; i++)
+            {
+                string key = imps[i];
+                var nsw = NamespaceWrap.AllNamespaces[key];
+                NamespaceDock.Ins.UpdateNamespaceNode(nsw);
+            }
+        }
         #endregion
 
         #region 视图
@@ -144,19 +154,14 @@ namespace Description
         {
             NamespaceDock.Inspect();
         }
-
         private void OpenConsoleItem_Click(object sender, EventArgs e)
         {
             ConsoleDock.Inspect();
         }
-
         private void OpenTypeEditorItem_Click(object sender, EventArgs e)
         {
 
         }
-
         #endregion
-
-
     }
 }

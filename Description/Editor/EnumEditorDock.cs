@@ -53,14 +53,14 @@ namespace Description.Editor
         {
             base.OnSave();
             var enm = GetWrap<EnumWrap>();
-            if (enm.Name != _nameTextBox.Text)
+            enm.Group = _groupComboBox.Text;
+            if (enm.Name != _nameTextBox.Text || enm.Desc != _descTextBox.Text)
             {
                 string fullName = enm.FullName;
                 enm.Name = _nameTextBox.Text;
+                enm.Desc = _descTextBox.Text;
                 UpdateTreeNode(fullName);
             }
-            enm.Group = _groupComboBox.Text;
-            enm.Desc = _descTextBox.Text;
 
             SetNamespace<EnumWrap>(enm.Namespace, _namespaceComboBox.SelectedItem as NamespaceWrap);
 
@@ -117,14 +117,15 @@ namespace Description.Editor
                 items.Remove(_listBox[i]);
         }
 
-
-        private void MemberListBox_MouseClick(object sender, MouseEventArgs e)
+        private void MemberListBox_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
                 var point = _memberListBox.PointToScreen(e.Location);
+                _memberListBox.SelectedIndex = _memberListBox.IndexFromPoint(e.Location);
                 _memberMenu.Show(point);
             }
+
             var list = sender as ListBox;
             var member = list.SelectedItem as MemberEditor;
             if (member == null || _currentMember == member) return;
@@ -135,6 +136,7 @@ namespace Description.Editor
         }
         private void RemoveMenuItem_Click(object sender, System.EventArgs e)
         {
+            if (_memberListBox.SelectedItem == null) return;
             var member = _memberListBox.SelectedItem as MemberEditor;
             _memberListBox.Items.Remove(member);
             if (_currentMember == member)
@@ -167,7 +169,9 @@ namespace Description.Editor
             var nameBox = sender as TextBox;
             var enm = GetWrap<EnumWrap>();
             var nsw = enm.Namespace;
-            if (nameBox.Text != enm.Name && nsw.Contains(nameBox.Text))
+            if (!Util.CheckName(enm.Name))
+                nameBox.Text = enm.Name;
+            else if (nameBox.Text != enm.Name && nsw.Contains(nameBox.Text))
             {
                 Util.MsgWarning("命名空间{0}中重复定义类型{1}!", nsw.FullName, nameBox.Text);
                 nameBox.Text = enm.Name;
@@ -179,5 +183,6 @@ namespace Description.Editor
             var find = sender as TextBox;
             FindMember(find.Text);
         }
+        
     }
 }

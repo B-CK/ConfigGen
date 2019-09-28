@@ -126,7 +126,6 @@ namespace Description.Wrap
             if (isDirty)
             {
                 wrap.AddNodeState(NodeState.Modify);
-                AddNodeState(NodeState.Modify);
                 SetDirty();
             }
 
@@ -140,10 +139,8 @@ namespace Description.Wrap
         {
             if (!Contains(wrap.Name)) return;
 
-            AddNodeState(NodeState.Modify);
             SetDirty();
-            Remove(wrap.Name);
-            wrap.Namespace = null;
+            Remove(wrap.Name);         
 
             if (wrap is ClassWrap)
                 _classes.Remove(wrap as ClassWrap);
@@ -155,28 +152,6 @@ namespace Description.Wrap
             _isDirty = true;
             AddNodeState(NodeState.Modify);
             ModuleWrap.AddDirty();
-        }
-        public override void Dispose()
-        {
-            base.Dispose();
-            try
-            {
-                string path = Util.GetNamespaceAbsPath(FullName + ".xml");
-                File.Delete(path);
-            }
-            catch (Exception e)
-            {
-                ConsoleDock.Ins.LogErrorFormat("删除命名空间{0}失败!\n{1}\n{2}\n",
-                   FullName, e.Message, e.StackTrace);
-            }
-            _allNamespaces.Remove(FullName);
-            for (int i = 0; i < _classes.Count; i++)
-                _classes[i].Dispose();
-            for (int i = 0; i < _enums.Count; i++)
-                _enums[i].Dispose();
-            _classes.Clear();
-            _enums.Clear();
-            PoolManager.Ins.Push(this);
         }
         public void Save()
         {
@@ -228,6 +203,56 @@ namespace Description.Wrap
         {
             _name = "";
             _xml = null;
+        }
+        public override bool Check()
+        {
+            bool isOk = base.Check();
+            for (int i = 0; i < _classes.Count; i++)
+            {
+                bool c = _classes[i].Check();
+                if (c == false)
+                    _classes[i].AddNodeState(NodeState.Error);
+                else
+                    _classes[i].RemoveNodeState(NodeState.Error);
+                isOk &= c;
+            }
+            var xenums = _xml.Enums;
+            for (int i = 0; i < _enums.Count; i++)
+            {
+                bool c = _enums[i].Check();
+                if (c == false)
+                    _enums[i].AddNodeState(NodeState.Error);
+                else
+                    _enums[i].RemoveNodeState(NodeState.Error);
+                isOk &= c;
+            }
+            if (isOk == false)
+                AddNodeState(NodeState.Error);
+            else
+                RemoveNodeState(NodeState.Error);
+            return isOk;
+        }
+        public override void Dispose()
+        {
+            base.Dispose();
+            try
+            {
+                string path = Util.GetNamespaceAbsPath(FullName + ".xml");
+                File.Delete(path);
+            }
+            catch (Exception e)
+            {
+                ConsoleDock.Ins.LogErrorFormat("删除命名空间{0}失败!\n{1}\n{2}\n",
+                   FullName, e.Message, e.StackTrace);
+            }
+            _allNamespaces.Remove(FullName);
+            for (int i = 0; i < _classes.Count; i++)
+                _classes[i].Dispose();
+            for (int i = 0; i < _enums.Count; i++)
+                _enums[i].Dispose();
+            _classes.Clear();
+            _enums.Clear();
+            PoolManager.Ins.Push(this);
         }
     }
 }

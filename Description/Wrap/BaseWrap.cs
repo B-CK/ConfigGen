@@ -18,7 +18,7 @@ namespace Description.Wrap
         /// 子对象名称集合,用于保证子对象不重名
         /// </summary>
         private HashSet<string> _hash;
-        private NodeState _nodestate = NodeState.Exclude;  
+        private NodeState _nodestate = NodeState.Exclude;
         protected BaseWrap(string name)
         {
             _name = name;
@@ -30,7 +30,7 @@ namespace Description.Wrap
         }
         protected virtual void Add(string name)
         {
-            _hash.Add(name);          
+            _hash.Add(name);
         }
         protected virtual void Remove(string name)
         {
@@ -41,6 +41,19 @@ namespace Description.Wrap
             _nodestate = NodeState.Include;
             _hash.Clear();
         }
+        /// <summary>
+        /// 检查数据正确性
+        /// </summary>
+        /// <returns>true:数据正常;false:数据异常</returns>
+        public virtual bool Check()
+        {
+            //bool r = Util.CheckIdentifier(_name);
+            //if (r == false)
+            //    ConsoleDock.Ins.LogErrorFormat("名称[{0}]不规范,请以'_',字母和数字命名且首字母只能为'_'和字母!", _name);
+            //return r;
+            return true;
+        }
+
         /// <summary>
         /// 添加状态
         /// </summary>
@@ -66,11 +79,12 @@ namespace Description.Wrap
         }
         public override int GetHashCode()
         {
+            if (FullName == null) return 0;
             return FullName.GetHashCode();
         }
         public override string ToString()
         {
-            return DisplayName;
+            return FullName;
         }
     }
 }

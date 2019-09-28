@@ -33,18 +33,18 @@
             this._nodeFilterBox = new System.Windows.Forms.TextBox();
             this._classPictureBox = new System.Windows.Forms.PictureBox();
             this._nodeMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.DeleteNodeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._modifyRootMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._saveRootMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this._includeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._excludeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._includeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._rootSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.DeleteNodeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._nodeSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.提交SVNToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.提交ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.flowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this._showAllBox = new System.Windows.Forms.CheckBox();
             this._errorBox = new System.Windows.Forms.CheckBox();
-            this._modifyRootMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this._rootSeparator = new System.Windows.Forms.ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)(this._classPictureBox)).BeginInit();
             this._nodeMenu.SuspendLayout();
             this.flowLayoutPanel.SuspendLayout();
@@ -63,7 +63,6 @@
             this._nodeTreeView.PathSeparator = ".";
             this._nodeTreeView.Size = new System.Drawing.Size(232, 554);
             this._nodeTreeView.TabIndex = 2;
-            this._nodeTreeView.NodeMouseHover += new System.Windows.Forms.TreeNodeMouseHoverEventHandler(this.NodeTreeView_NodeMouseHover);
             this._nodeTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.NodeTreeView_NodeMouseClick);
             this._nodeTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.NodeTreeView_NodeMouseDoubleClick);
             // 
@@ -107,52 +106,64 @@
             this.提交SVNToolStripMenuItem,
             this.提交ToolStripMenuItem});
             this._nodeMenu.Name = "_nodeMenu";
-            this._nodeMenu.Size = new System.Drawing.Size(211, 212);
+            this._nodeMenu.Size = new System.Drawing.Size(169, 184);
             // 
-            // DeleteNodeMenuItem
+            // _modifyRootMenuItem
             // 
-            this.DeleteNodeMenuItem.Name = "DeleteNodeMenuItem";
-            this.DeleteNodeMenuItem.Size = new System.Drawing.Size(210, 24);
-            this.DeleteNodeMenuItem.Text = "删除节点";
-            this.DeleteNodeMenuItem.Click += new System.EventHandler(this.NodeTreeView_DeleteNode);
+            this._modifyRootMenuItem.Name = "_modifyRootMenuItem";
+            this._modifyRootMenuItem.Size = new System.Drawing.Size(168, 24);
+            this._modifyRootMenuItem.Text = "修改根属性";
+            this._modifyRootMenuItem.Click += new System.EventHandler(this.NodeTreeView_Modify);
             // 
             // _saveRootMenuItem
             // 
             this._saveRootMenuItem.Name = "_saveRootMenuItem";
-            this._saveRootMenuItem.Size = new System.Drawing.Size(210, 24);
+            this._saveRootMenuItem.Size = new System.Drawing.Size(168, 24);
             this._saveRootMenuItem.Text = "保存根节点";
             this._saveRootMenuItem.Click += new System.EventHandler(this.NodeTreeView_Save);
-            // 
-            // _includeMenuItem
-            // 
-            this._includeMenuItem.Name = "_includeMenuItem";
-            this._includeMenuItem.Size = new System.Drawing.Size(210, 24);
-            this._includeMenuItem.Text = "包含到模块中";
-            this._includeMenuItem.Click += new System.EventHandler(this.NodeTreeView_Include);
             // 
             // _excludeMenuItem
             // 
             this._excludeMenuItem.Name = "_excludeMenuItem";
-            this._excludeMenuItem.Size = new System.Drawing.Size(210, 24);
+            this._excludeMenuItem.Size = new System.Drawing.Size(168, 24);
             this._excludeMenuItem.Text = "排除到模块外";
             this._excludeMenuItem.Click += new System.EventHandler(this.NodeTreeView_Exclude);
+            // 
+            // _includeMenuItem
+            // 
+            this._includeMenuItem.Name = "_includeMenuItem";
+            this._includeMenuItem.Size = new System.Drawing.Size(168, 24);
+            this._includeMenuItem.Text = "包含到模块中";
+            this._includeMenuItem.Click += new System.EventHandler(this.NodeTreeView_Include);
+            // 
+            // _rootSeparator
+            // 
+            this._rootSeparator.Name = "_rootSeparator";
+            this._rootSeparator.Size = new System.Drawing.Size(165, 6);
+            // 
+            // DeleteNodeMenuItem
+            // 
+            this.DeleteNodeMenuItem.Name = "DeleteNodeMenuItem";
+            this.DeleteNodeMenuItem.Size = new System.Drawing.Size(168, 24);
+            this.DeleteNodeMenuItem.Text = "删除节点";
+            this.DeleteNodeMenuItem.Click += new System.EventHandler(this.NodeTreeView_DeleteNode);
             // 
             // _nodeSeparator
             // 
             this._nodeSeparator.Name = "_nodeSeparator";
-            this._nodeSeparator.Size = new System.Drawing.Size(207, 6);
+            this._nodeSeparator.Size = new System.Drawing.Size(165, 6);
             // 
             // 提交SVNToolStripMenuItem
             // 
             this.提交SVNToolStripMenuItem.Name = "提交SVNToolStripMenuItem";
-            this.提交SVNToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.提交SVNToolStripMenuItem.Size = new System.Drawing.Size(168, 24);
             this.提交SVNToolStripMenuItem.Text = "更新";
             this.提交SVNToolStripMenuItem.Click += new System.EventHandler(this.UpdateToLib);
             // 
             // 提交ToolStripMenuItem
             // 
             this.提交ToolStripMenuItem.Name = "提交ToolStripMenuItem";
-            this.提交ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.提交ToolStripMenuItem.Size = new System.Drawing.Size(168, 24);
             this.提交ToolStripMenuItem.Text = "提交";
             this.提交ToolStripMenuItem.Click += new System.EventHandler(this.CommitToLib);
             // 
@@ -199,18 +210,6 @@
             this._errorBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this._errorBox.UseVisualStyleBackColor = true;
             this._errorBox.CheckedChanged += new System.EventHandler(this.ErrorBox_CheckedChanged);
-            // 
-            // _modifyRootMenuItem
-            // 
-            this._modifyRootMenuItem.Name = "_modifyRootMenuItem";
-            this._modifyRootMenuItem.Size = new System.Drawing.Size(210, 24);
-            this._modifyRootMenuItem.Text = "修改根属性";
-            this._modifyRootMenuItem.Click += new System.EventHandler(this.NodeTreeView_Modify);
-            // 
-            // _rootSeparator
-            // 
-            this._rootSeparator.Name = "_rootSeparator";
-            this._rootSeparator.Size = new System.Drawing.Size(207, 6);
             // 
             // NamespaceDock
             // 

@@ -80,19 +80,20 @@ namespace Description.Editor
         {
             base.OnSave();
             var cls = GetWrap<ClassWrap>();
-            if (cls.Name != _nameTextBox.Text)
-            {
-                string fullName = cls.FullName;
-                cls.Name = _nameTextBox.Text;
-                UpdateTreeNode(fullName);
-            }
             var index = _indexComboBox.SelectedItem as FieldEditor;
             cls.Index = index == null ? "" : index.Name;
             var inherit = _inhertComboBox.SelectedItem as ClassWrap;
             cls.Inherit = inherit == null ? "" : inherit.FullName;
             cls.Group = _groupComboBox.Text;
-            cls.Desc = _descTextBox.Text;
             cls.DataPath = _dataPathTextBox.Text;
+            if (cls.Name != _nameTextBox.Text || cls.Desc != _descTextBox.Text)
+            {
+                string fullName = cls.FullName;
+                cls.Name = _nameTextBox.Text;
+                cls.Desc = _descTextBox.Text;
+                UpdateTreeNode(fullName);
+            }
+
 
             SetNamespace<ClassWrap>(cls.Namespace, _namespaceComboBox.SelectedItem as NamespaceWrap);
 
@@ -111,25 +112,6 @@ namespace Description.Editor
                         cls.RemoveField(editor as FieldEditor);
                 }
             }
-        }
-        protected override void ValidateData()
-        {
-            base.ValidateData();
-            string dataPath = Util.GetDataDirAbsPath(_dataPathTextBox.Text);
-            bool hasDataPath = File.Exists(dataPath);
-            StringBuilder builder = new StringBuilder();
-            if (hasDataPath && _indexComboBox.Text.IsEmpty())
-                builder.AppendFormat("数据表{0}未指定关键字!\n", ID);
-            if (!_dataPathTextBox.Text.IsEmpty() && !hasDataPath)
-                builder.AppendFormat("数据路径{0}不存在!\n", dataPath);
-            if (!_inhertComboBox.Text.IsEmpty())
-            {
-                var inherit = _inhertComboBox.SelectedItem as ClassWrap;
-                if (inherit != null && !ClassWrap.Dict.ContainsKey(inherit.FullName))
-                    builder.AppendFormat("类型{0}的父类{1}不存在!\n", ID, inherit.FullName);
-            }
-            if (builder.Length > 0)
-                Util.MsgWarning(builder.ToString());
         }
         protected override void Clear()
         {
@@ -197,13 +179,15 @@ namespace Description.Editor
                 ConsoleDock.Ins.LogErrorFormat("获取数据文件路径失败!{0}\n{1}", ex.Message, ex.StackTrace);
             }
         }
-        private void MemberListBox_MouseClick(object sender, MouseEventArgs e)
+        private void MemberListBox_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
                 var point = _memberListBox.PointToScreen(e.Location);
+                _memberListBox.SelectedIndex = _memberListBox.IndexFromPoint(e.Location);
                 _memberMenu.Show(point);
             }
+
             var list = sender as ListBox;
             var member = list.SelectedItem as MemberEditor;
             if (member == null || _currentMember == member) return;
@@ -236,7 +220,6 @@ namespace Description.Editor
             member.Show();
             OnValueChange();
         }
-
         private void OnNameValueChange(object sender, EventArgs e)
         {
             OnValueChange();
@@ -245,7 +228,9 @@ namespace Description.Editor
             var nameBox = sender as TextBox;
             var cls = GetWrap<ClassWrap>();
             var nsw = cls.Namespace;
-            if (nameBox.Text != cls.Name && nsw.Contains(nameBox.Text))
+            if (!Util.CheckName(cls.Name))
+                nameBox.Text = cls.Name;
+            else if (nameBox.Text != cls.Name && nsw.Contains(nameBox.Text))
             {
                 Util.MsgWarning("命名空间{0}中重复定义类型{1}!", nsw.FullName, nameBox.Text);
                 nameBox.Text = cls.Name;

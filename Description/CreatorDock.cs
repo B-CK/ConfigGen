@@ -24,10 +24,7 @@ namespace Description
             _2Label.Text = "命名空间:";
             _2ComboBox.Items.Clear();
             _2ComboBox.Items.AddRange(NamespaceWrap.Namespaces);
-            if (NamespaceDock.Ins.SelectNamespace.IsEmpty())
-                _2ComboBox.SelectedText = Util.EmptyNamespace;
-            else
-                _2ComboBox.SelectedText = NamespaceDock.Ins.SelectNamespace;
+            _2ComboBox.Text = Util.EmptyNamespace;
             _2ComboBox.Enabled = true;
         }
         /// <summary>
@@ -41,20 +38,7 @@ namespace Description
             _2ComboBox.Text = _modules[0];
             _2ComboBox.Enabled = false;
         }
-        private bool CheckName(string name)
-        {
-            if (name.IsEmpty())
-            {
-                Util.MsgWarning("名称不能为空!");
-                return false;
-            }
-            else if (!Util.CheckIdentifier(name))
-            {
-                return false;
-            }
-            return true;
-        }
-
+    
         private void CreateListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             switch (_createListBox.SelectedIndex)
@@ -71,7 +55,7 @@ namespace Description
         private void OkButton_Click(object sender, EventArgs e)
         {
             string name = _nameTextBox.Text;
-            if (!CheckName(name)) return;
+            if (!Util.CheckName(name)) return;
 
             switch (_createListBox.SelectedIndex)
             {

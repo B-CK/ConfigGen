@@ -41,6 +41,7 @@ namespace Description
 
         private void OkButton_Click(object sender, EventArgs e)
         {
+            if (!Util.CheckName(_nameTextBox.Text)) return;
             if (NamespaceWrap.AllNamespaces.ContainsKey(_nameTextBox.Text))
             {
                 Util.MsgWarning("在当前模块/默认模块中已经存在{0}根节点!", _nameTextBox.Text);
@@ -51,7 +52,7 @@ namespace Description
             if (ModuleWrap.Default != ModuleWrap.Current)
                 ModuleWrap.Current.RemoveImport(_wrap);
             NamespaceWrap.AllNamespaces.Remove(_wrap.FullName);
-        
+
             _wrap.Name = _nameTextBox.Text;
             _wrap.Desc = _descTextBox.Text;
             _wrap.SetDirty();

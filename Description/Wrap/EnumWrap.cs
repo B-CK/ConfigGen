@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Description.Wrap
 {
-    public class EnumWrap : TypeWrap, IDisposable
+    public class EnumWrap : TypeWrap
     {
         public static EnumWrap[] Array
         {
@@ -38,24 +38,28 @@ namespace Description.Wrap
             nsw.AddTypeWrap(wrap, false);
             return wrap;
         }
- 
+        public static implicit operator EnumXml(EnumWrap wrap)
+        {
+            return wrap.Xml;
+        }
+
+
         public override string Name
         {
             get { return base.Name; }
             set
             {
                 base.Name = value;
-                _xml.Name = value;
+                Xml.Name = value;
             }
         }
         //public string Inherit { get { return _xml.Inherit; } set { _xml.Inherit = value; } }
-        public string Group { get { return _xml.Group; } set { _xml.Group = value; } }
-        public string Desc { get { return _xml.Desc; } set { _xml.Desc = value; } }
+        public string Group { get { return Xml.Group; } set { Xml.Group = value; } }
+        public string Desc { get { return Xml.Desc; } set { Xml.Desc = value; } }
         public List<EnumItemWrap> Items { get { return _items; } }
 
 
-        private EnumXml _xml;
-        //private NamespaceWrap _namespace;
+        private EnumXml Xml => base._xml as EnumXml;
         private List<EnumItemWrap> _items;
         protected EnumWrap(EnumXml xml, NamespaceWrap ns) : base(xml, ns)
         {
@@ -64,12 +68,10 @@ namespace Description.Wrap
         protected void Init(EnumXml xml, NamespaceWrap ns)
         {
             base.Init(xml, ns);
-            _xml = xml;
-            _namespace = ns;
 
             _items = new List<EnumItemWrap>();
-            _xml.Items = _xml.Items ?? new List<EnumItemXml>();
-            var xitems = _xml.Items;
+            Xml.Items = Xml.Items ?? new List<EnumItemXml>();
+            var xitems = Xml.Items;
             for (int i = 0; i < xitems.Count; i++)
             {
                 var xitem = xitems[i];
@@ -86,14 +88,14 @@ namespace Description.Wrap
         {
             if (Contains(wrap.Name))
             {
-                Util.MsgWarning("枚举{0}已经包含{1}.", Name, wrap.Name);
+                Util.MsgWarning("[Enum]类型{0}中已经包含{1}({2}).", Name, wrap.Name, wrap.Alias);
                 return false;
             }
 
             Add(wrap.Name);
             _items.Add(wrap);
             _items.Sort((a, b) => a.Value - b.Value);
-            _xml.Items.Add(wrap);
+            Xml.Items.Add(wrap);
             return true;
         }
         public void RemoveItem(EnumItemWrap wrap)
@@ -102,7 +104,7 @@ namespace Description.Wrap
 
             Remove(wrap.Name);
             _items.Remove(wrap);
-            _xml.Items.Remove(wrap);
+            Xml.Items.Remove(wrap);
         }
         public void OverrideField(EnumItemWrap wrap)
         {
@@ -119,6 +121,24 @@ namespace Description.Wrap
                 RemoveItem(old);
             AddItem(wrap);
         }
+        public override bool Check()
+        {
+            bool isOk = base.Check();
+            HashSet<string> hash = new HashSet<string>();
+            for (int i = 0; i < _items.Count; i++)
+            {
+                if (_items[i].Alias.IsEmpty()) continue;
+                bool a = hash.Contains(_items[i].Alias);
+                if (a)
+                {
+                    isOk = false;
+                    ConsoleDock.Ins.LogErrorFormat("[Enum]类型{0}中重复定义枚举别名{1}({2}).", _name, _items[i].Name, _items[i].Alias);
+                }
+                else
+                    hash.Add(_items[i].Alias);
+            }
+            return isOk;
+        }
         public override void Dispose()
         {
             base.Dispose();
@@ -127,11 +147,6 @@ namespace Description.Wrap
             _items.Clear();
             _dict.Remove(FullName);
             PoolManager.Ins.Push(this);
-        }
-
-        public static implicit operator EnumXml(EnumWrap wrap)
-        {
-            return wrap._xml;
         }
     }
 }

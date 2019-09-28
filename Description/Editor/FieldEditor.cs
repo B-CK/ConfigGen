@@ -92,7 +92,7 @@ namespace Description.Editor
             string[] nodes = field.Type.Split(Util.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
             var types = new object[_typeComboBox.Items.Count];
             _typeComboBox.Items.CopyTo(types, 0);
-            _typeComboBox.Text = Util.FindFullType(nodes[0], types);
+            _typeComboBox.SelectedItem = Util.FindTypeItem(nodes[0], types);
 
             switch (nodes.Length)
             {
@@ -128,12 +128,13 @@ namespace Description.Editor
                             }
                             else if (ClassWrap.Dict.ContainsKey(field.Type))
                             {
+                                ClassWrap wrap = ClassWrap.Dict[field.Type];
                                 _valueTypeBox.Visible = false;
                             }
                             else
                             {
                                 _valueTypeBox.EnableBox(TypeBox.ProertyType.None);
-                                Util.MsgError("未知字段类型{0}", field.Type);
+                                ConsoleDock.Ins.LogErrorFormat("字段{0}的类型{1}无法解析", _wrap.Name, field.Type);
                             }
                             break;
                     }
@@ -157,7 +158,7 @@ namespace Description.Editor
             if (field.Name != _nameTextBox.Text)
                 GetDock<ClassEditorDock>().GetWrap<ClassWrap>().RemoveField(field);
             field.Name = _nameTextBox.Text;
-            field.Type = _typeComboBox.Text;
+            field.Type = _typeComboBox.SelectedItem.ToString();
             if (_typeComboBox.Text == Util.LIST || _typeComboBox.Text == Util.DICT)
             {
                 field.Type += Util.ArgsSplitFlag[0] + _valueTypeBox.GetValue();
@@ -198,7 +199,9 @@ namespace Description.Editor
             var dock = GetDock<ClassEditorDock>();
             dock.OnValueChange();
             var nameBox = sender as TextBox;
-            if (dock.ContainMember(nameBox.Text))
+            if (!Util.CheckName(_wrap.Name))
+                nameBox.Text = _wrap.Name;
+            else if (dock.ContainMember(nameBox.Text))
             {
                 Util.MsgWarning("类型{0}中重复定义字段{1}!", dock.GetWrap<ClassWrap>().Name, nameBox.Text);
                 nameBox.Text = _wrap.Name;
@@ -218,10 +221,8 @@ namespace Description.Editor
             _valueTypeBox.Clear(false);
             var dock = GetDock<ClassEditorDock>();
             dock.OnValueChange();
-            var wrap = combo.SelectedItem as TypeWrap;
-            string selectedType = wrap == null ? "" : wrap.FullName;
-            if (combo.Text.IsEmpty() || EnumWrap.Dict.ContainsKey(selectedType)
-                            || ClassWrap.Dict.ContainsKey(selectedType))
+            string selectedType = combo.SelectedItem.ToString();
+            if (combo.Text.IsEmpty() || ClassWrap.Dict.ContainsKey(selectedType))
                 _valueTypeBox.Visible = false;
             else
             {
@@ -252,8 +253,14 @@ namespace Description.Editor
                         _valueTypeBox.InitDict("", "", Util.GetKeyTypes(), Util.GetCombTypes());
                         break;
                     default:
-                        _valueTypeBox.EnableBox(TypeBox.ProertyType.None);
-                        ConsoleDock.Ins.LogErrorFormat("未知字段类型{0}", combo.Text);
+                        if (EnumWrap.Dict.ContainsKey(selectedType))
+                        {
+                            EnumWrap wrap = EnumWrap.Dict[selectedType];
+                            _valueTypeBox.InitEnum("", wrap.Items.ToArray());
+                        }
+                        else
+                            _valueTypeBox.EnableBox(TypeBox.ProertyType.None);
+                        ConsoleDock.Ins.LogErrorFormat("字段{0}选择的类型{1}无法解析", _wrap.Name, combo.Text);
                         break;
                 }
             }

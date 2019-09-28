@@ -226,5 +226,21 @@ namespace Description.Wrap
                     nsw.Cancle();
             }
         }
+
+        public override bool Check()
+        {
+            ConsoleDock.Ins.LogFormat("开始检查{0}模块!", _name);
+            bool isOk = Util.CheckIdentifier(_name);
+            if (isOk == false)
+                ConsoleDock.Ins.LogErrorFormat("名称[{0}]不规范,请以'_',字母和数字命名且首字母只能为'_'和字母!", _name);
+            for (int i = 0; i < _imports.Count; i++)
+            {
+                string key = _imports[i];
+                var nsw = NamespaceWrap.AllNamespaces[key];
+                nsw.Check();                
+            }
+            ConsoleDock.Ins.LogFormat("{0}模块检查完毕~", _name);
+            return isOk;
+        }
     }
 }

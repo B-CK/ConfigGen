@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Description.Wrap
 {
-    public class ClassWrap : TypeWrap, IDisposable
+    public class ClassWrap : TypeWrap
     {
         public static Dictionary<string, ClassWrap> Dict { get { return _dict; } }
         static Dictionary<string, ClassWrap> _dict = new Dictionary<string, ClassWrap>();
@@ -51,17 +51,17 @@ namespace Description.Wrap
             set
             {
                 base.Name = value;
-                _xml.Name = value;
+                Xml.Name = value;
             }
         }
-        public string Index { get { return _xml.Index; } set { _xml.Index = value; } }
+        public string Index { get { return Xml.Index; } set { Xml.Index = value; } }
         /// <summary>
         /// 全名称
         /// </summary>
-        public string Inherit { get { return _xml.Inherit; } set { _xml.Inherit = value; } }
-        public string DataPath { get { return _xml.DataPath; } set { _xml.DataPath = value; } }
-        public string Desc { get { return _xml.Desc; } set { _xml.Desc = value; } }
-        public string Group { get { return _xml.Group; } set { _xml.Group = value; } }
+        public string Inherit { get { return Xml.Inherit; } set { Xml.Inherit = value; } }
+        public string DataPath { get { return Xml.DataPath; } set { Xml.DataPath = value; } }
+        public string Desc { get { return Xml.Desc; } set { Xml.Desc = value; } }
+        public string Group { get { return Xml.Group; } set { Xml.Group = value; } }
         public List<FieldWrap> Fields { get { return _fields; } }
 
         /// <summary>
@@ -79,11 +79,11 @@ namespace Description.Wrap
                 }
                 return _indexes;
             }
-        }     
+        }
 
         string[] _indexes = new string[0];
 
-        private ClassXml _xml;
+        private ClassXml Xml => base._xml as ClassXml;
         private List<FieldWrap> _fields;
         protected ClassWrap(ClassXml xml, NamespaceWrap ns) : base(xml, ns)
         {
@@ -92,12 +92,10 @@ namespace Description.Wrap
         protected void Init(ClassXml xml, NamespaceWrap ns)
         {
             base.Init(xml, ns);
-            _xml = xml;
-            _namespace = ns;
 
             _fields = new List<FieldWrap>();
-            _xml.Fields = _xml.Fields ?? new List<FieldXml>();
-            var xfields = _xml.Fields;
+            Xml.Fields = Xml.Fields ?? new List<FieldXml>();
+            var xfields = Xml.Fields;
             for (int i = 0; i < xfields.Count; i++)
             {
                 var xfield = xfields[i];
@@ -111,13 +109,13 @@ namespace Description.Wrap
         {
             if (Contains(wrap.Name))
             {
-                Util.MsgWarning("该空间中已经存在Class{0}.", wrap.Name);
+                Util.MsgWarning("[Class]类型{0}中已经存在字段{0}.", wrap.Name);
                 return false;
             }
 
             Add(wrap.Name);
             _fields.Add(wrap);
-            _xml.Fields.Add(wrap);
+            Xml.Fields.Add(wrap);
             return true;
         }
         public void RemoveField(FieldWrap wrap)
@@ -126,7 +124,7 @@ namespace Description.Wrap
 
             Remove(wrap.Name);
             _fields.Remove(wrap);
-            _xml.Fields.Remove(wrap);
+            Xml.Fields.Remove(wrap);
         }
         public void OverrideField(FieldWrap wrap)
         {
@@ -143,6 +141,33 @@ namespace Description.Wrap
                 RemoveField(old);
             AddField(wrap);
         }
+        public override bool Check()
+        {
+            bool isOk = base.Check();
+            for (int i = 0; i < _fields.Count; i++)
+                isOk &= _fields[i].Check();
+            if (!DataPath.IsEmpty())
+            {
+                string path = Util.GetDataDirAbsPath(DataPath);
+                bool a = File.Exists(path);
+                if (a== false)
+                    ConsoleDock.Ins.LogErrorFormat("[Class]类型{0}的数据文件[{1}]不存在!", path);
+                bool b = _fields.Exists(f => f.FullName == Index);
+                if (b == false)
+                    ConsoleDock.Ins.LogErrorFormat("[Class]类型{0}的关键字[{1}]未定义!", Index);
+                isOk &= a;
+                isOk &= b;
+            }
+            if (!Inherit.IsEmpty())
+            {
+                bool c = Dict.ContainsKey(Inherit);
+                isOk &= c;
+                if (c == false)
+                    ConsoleDock.Ins.LogErrorFormat("[Class]类型{0}的父类[{1}]不存在!", Inherit);
+            }
+            return isOk;
+        }
+
         public override void Dispose()
         {
             base.Dispose();
@@ -150,11 +175,12 @@ namespace Description.Wrap
             for (int i = 0; i < _fields.Count; i++)
                 _fields[i].Dispose();
             _fields.Clear();
+            Namespace = null;
             PoolManager.Ins.Push(this);
         }
         public static implicit operator ClassXml(ClassWrap wrap)
         {
-            return wrap._xml;
+            return wrap.Xml;
         }
     }
 }

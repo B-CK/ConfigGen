@@ -20,7 +20,8 @@ namespace Description.Wrap
             return wrap;
         }
 
-
+        public virtual string DisplayFullName => DisplayName;
+        public override string DisplayName => Util.Format("{0}({1}) = {2}", Name, Alias, Value);
         public override string Name
         {
             get { return base.Name; }
@@ -35,7 +36,6 @@ namespace Description.Wrap
         public string Group { get { return _xml.Group; } set { _xml.Group = value; } }
         public string Desc { get { return _xml.Desc; } set { _xml.Desc = value; } }
 
-        public override string DisplayName => Util.Format("{0}({1}) = {2}", Name, Alias, Value);
 
         private EnumWrap _enum;
         private EnumItemXml _xml;
