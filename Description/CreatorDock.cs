@@ -16,14 +16,23 @@ namespace Description
             _modules = new string[1] { ModuleWrap.Current.Name };
             _createListBox.SelectedIndex = 0;
         }
+        /// <summary>
+        /// 创建类型
+        /// </summary>
         private void SelectType()
         {
             _2Label.Text = "命名空间:";
             _2ComboBox.Items.Clear();
             _2ComboBox.Items.AddRange(NamespaceWrap.Namespaces);
-            _2ComboBox.Text = NamespaceWrap.Namespaces.Length > 0 ? NamespaceWrap.Namespaces[0].FullName : "";
+            if (NamespaceDock.Ins.SelectNamespace.IsEmpty())
+                _2ComboBox.SelectedText = Util.EmptyNamespace;
+            else
+                _2ComboBox.SelectedText = NamespaceDock.Ins.SelectNamespace;
             _2ComboBox.Enabled = true;
         }
+        /// <summary>
+        /// 创建命名空间
+        /// </summary>
         private void SelectNamespace()
         {
             _2Label.Text = "模块名称:";
@@ -32,9 +41,8 @@ namespace Description
             _2ComboBox.Text = _modules[0];
             _2ComboBox.Enabled = false;
         }
-        private bool CheckName(string name, string ns)
+        private bool CheckName(string name)
         {
-            string fullName = Util.Format("{0}.{1}", name, ns);
             if (name.IsEmpty())
             {
                 Util.MsgWarning("名称不能为空!");
@@ -44,14 +52,8 @@ namespace Description
             {
                 return false;
             }
-            else if (ClassWrap.ClassDict.ContainsKey(fullName))
-            {
-                Util.MsgWarning("类型{0}已经存在!", fullName);
-                return false;
-            }
             return true;
         }
-
 
         private void CreateListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -69,47 +71,57 @@ namespace Description
         private void OkButton_Click(object sender, EventArgs e)
         {
             string name = _nameTextBox.Text;
-            string namespace0 = _2ComboBox.Text.IsEmpty() ? Util.EmptyNamespace : _2ComboBox.Text;
-            if (!CheckName(name, namespace0)) return;
+            if (!CheckName(name)) return;
 
             switch (_createListBox.SelectedIndex)
             {
                 case 0:
                     {
-                        NamespaceWrap nsw = NamespaceWrap.GetNamespace(namespace0);
-                        if (!nsw.Contains(name))
+                        NamespaceWrap nsw = NamespaceWrap.GetNamespace(Util.EmptyNamespace);
+                        if (!_2ComboBox.Text.IsEmpty())
+                            nsw = _2ComboBox.SelectedItem as NamespaceWrap;
+                        string fullName = Util.Format("{0}.{1}", nsw.FullName, name);
+                        if (ClassWrap.Dict.ContainsKey(fullName))
                         {
-                            var wrap = ClassWrap.Create(name, nsw);                       
-                            NamespaceDock.Ins.AddClass2Namespace(wrap, nsw);
-                            ClassEditorDock.Create(wrap);
-                            Close();
+                            Util.MsgWarning("[Class]类型{0}已经存在!", fullName);
+                            return;
                         }
-                        else
-                            Util.MsgWarning("[Class]{0}已经存在!", name);
+
+                        var wrap = ClassWrap.Create(name, nsw);
+                        wrap.AddNodeState(NodeState.Modify | NodeState.Include);
+                        nsw.SetDirty();
+                        NamespaceDock.Ins.AddType2Namespace(wrap, nsw);
+                        ClassEditorDock.Create(wrap);
+                        Close();
                         break;
                     }
                 case 1:
                     {
-                        NamespaceWrap nsw = NamespaceWrap.GetNamespace(namespace0);
-                        if (!nsw.Contains(name))
+                        NamespaceWrap nsw = NamespaceWrap.GetNamespace(Util.EmptyNamespace);
+                        if (!_2ComboBox.Text.IsEmpty())
+                            nsw = _2ComboBox.SelectedItem as NamespaceWrap;
+                        string fullName = Util.Format("{0}.{1}", nsw.FullName, name);
+                        if (EnumWrap.Dict.ContainsKey(fullName))
                         {
-                            var wrap = EnumWrap.Create(name, nsw);                   
-                            NamespaceDock.Ins.AddEnum2Namespace(wrap, nsw);
-                            EnumEditorDock.Create(wrap);
-                            Close();
+                            Util.MsgWarning("[Enum]枚举{0}已经存在!", fullName);
+                            return;
                         }
-                        else
-                            Util.MsgWarning("[Class]{0}已经存在!", name);
+
+                        var wrap = EnumWrap.Create(name, nsw);
+                        wrap.AddNodeState(NodeState.Modify | NodeState.Include);
+                        nsw.SetDirty();
+                        NamespaceDock.Ins.AddType2Namespace(wrap, nsw);
+                        EnumEditorDock.Create(wrap);
+                        Close();
                         break;
                     }
                 case 2:
                     {
-                        NamespaceWrap nsw = NamespaceWrap.GetNamespace(namespace0);
+                        NamespaceWrap nsw = NamespaceWrap.GetNamespace(name);
                         if (nsw == null)
-                        {                            
+                        {
                             NamespaceWrap wrap = NamespaceWrap.Create(name);
                             wrap.SetDirty();
-                            wrap.SetNodeState(NodeState.Modify);
                             ModuleWrap.Default.AddImport(wrap);
                             ModuleWrap.Current.AddImport(wrap);
                             NamespaceDock.Ins.AddRootNode(wrap);

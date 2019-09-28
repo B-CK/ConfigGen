@@ -23,16 +23,22 @@ namespace Description
         public static NamespaceDock Ins { get { return _ins; } }
         static NamespaceDock _ins;
 
-
-        enum ShowType
+        public string SelectNamespace
         {
-            Include,//仅显示包含部分
-            All,//包含部分亮灰色,其他暗灰色
-            Error,//仅显示错误条目
+            get
+            {
+                if (_selectedNode != null)
+                {
+                    var data = _selectedNode.Tag;
+                    if (data is NamespaceWrap)
+                        return (data as NamespaceWrap).DisplayName;
+                }
+                return null;
+            }
         }
 
-        ShowType _showType = ShowType.Include;
-        TreeNode _node;
+        TreeNode _selectedNode;
+        List<TreeNode> _removes = new List<TreeNode>();
         public static void Inspect()
         {
             if (_ins == null)
@@ -46,7 +52,12 @@ namespace Description
             }
         }
 
-
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == 0x0014) // 禁掉清除背景消息
+                return;
+            base.WndProc(ref m);
+        }
         protected override void OnClosed(EventArgs e)
         {
             _ins = null;
@@ -55,59 +66,27 @@ namespace Description
         public NamespaceDock()
         {
             InitializeComponent();
-            UpdateTree();
+            InitTree();
             _nodeTreeView.Sort();
         }
-        public void UpdateTree()
+        //开启模块的时候调用
+        public void InitTree()
         {
+            _nodeFilterBox.Text = "";
             _nodeTreeView.BeginUpdate();
-            ClearNodes(_nodeTreeView.Nodes);
-            HashSet<string> hash = new HashSet<string>(ModuleWrap.Current.Imports);
             var all = NamespaceWrap.AllNamespaces;
-            foreach (var item in all)
+            var current = ModuleWrap.Current.Imports;
+            for (int k = 0; k < current.Count; k++)
             {
-                NamespaceWrap root = item.Value;
-                if (ModuleWrap.Default == ModuleWrap.Current)
-                    root.SetNodeState(NodeState.Include);
-                else
-                    root.SetNodeState(hash.Contains(item.Key) ? NodeState.Include : NodeState.Exclude);
-                switch (_showType)
+                var root = NamespaceWrap.AllNamespaces[current[k]];
+                if ((root.NodeState & NodeState.Include) != 0)
                 {
-                    case ShowType.Include:
-                        if ((int)(root.NodeState & NodeState.Include) == 1)
-                        {
-                            AddRootNode(root);
-                            for (int i = 0; i < root.Classes.Count; i++)
-                            {
-                                root.Classes[i].SetNodeState(root.NodeState);
-                                AddSubNode(root.Classes[i], item.Value);
-                            }
-                            for (int i = 0; i < root.Enums.Count; i++)
-                            {
-                                root.Enums[i].SetNodeState(root.NodeState);
-                                AddSubNode(root.Enums[i], item.Value);
-                            }
-                        }
-                        break;
-                    case ShowType.All:
-                        AddRootNode(root);
-                        for (int i = 0; i < root.Classes.Count; i++)
-                        {
-                            root.Classes[i].SetNodeState(root.NodeState);
-                            AddSubNode(root.Classes[i], item.Value);
-                        }
-                        for (int i = 0; i < root.Enums.Count; i++)
-                        {
-                            root.Enums[i].SetNodeState(root.NodeState);
-                            AddSubNode(root.Enums[i], item.Value);
-                        }
-                        break;
-                    case ShowType.Error:
-                        break;
-                    default:
-                        break;
+                    AddRootNode(root);
+                    for (int i = 0; i < root.Classes.Count; i++)
+                        AddSubNode(root.Classes[i], root);
+                    for (int i = 0; i < root.Enums.Count; i++)
+                        AddSubNode(root.Enums[i], root);
                 }
-
             }
             _nodeTreeView.EndUpdate();
         }
@@ -117,49 +96,80 @@ namespace Description
             _nodeTreeView.Nodes.Add(root);
             SetNodeColor(root);
         }
-        public void AddClass2Namespace(ClassWrap cWrap, NamespaceWrap nWrap)
+        public void AddType2Namespace(TypeWrap wrap, NamespaceWrap nWrap)
         {
-            AddSubNode(cWrap, nWrap);
-            TreeNode rootNode = _nodeTreeView.Nodes[nWrap.FullName];
-            SetNodeColor(rootNode);
+            AddSubNode(wrap, nWrap);
+            TreeNode root = _nodeTreeView.Nodes[nWrap.FullName];
+            SetNodeColor(root);
         }
-        public void AddEnum2Namespace(EnumWrap eWrap, NamespaceWrap nWrap)
+        /// <summary>
+        /// 更新NamespaceWrap类型节点
+        /// </summary>
+        public void UpdateNodeName(string srcFullName, NamespaceWrap wrap)
         {
-            AddSubNode(eWrap, nWrap);
-            TreeNode rootNode = _nodeTreeView.Nodes[nWrap.FullName];
-            SetNodeColor(rootNode);
+            TreeNode root = _nodeTreeView.Nodes[srcFullName];
+            root.Text = wrap.DisplayName;
+            root.Name = wrap.FullName;            
         }
-        public void UpdateNode(string oldFullName, TypeWrap wrap)
+        /// <summary>
+        /// 更新TypeWrap类型节点
+        /// </summary>
+        public void UpdateNodeName(string srcFullName, TypeWrap wrap)
         {
             string ns = wrap.Namespace.FullName;
             TreeNode root = _nodeTreeView.Nodes[ns];
-            TreeNode node = root.Nodes[oldFullName];
-            node.Remove();
-            root.Nodes.Add(node);
-            node.Text = wrap.Name;
+            TreeNode node = root.Nodes[srcFullName];
+            node.Text = wrap.DisplayName;
             node.Name = wrap.FullName;
         }
-        public void SwapNamespace(TypeWrap wrap, string src, string dst)
+        public void SwapNamespace(string srcFullName, TypeWrap wrap,  string src, string dst)
         {
             TreeNode srcNode = _nodeTreeView.Nodes[src];
-            TreeNode dstNode = _nodeTreeView.Nodes[dst];
-            TreeNode node = srcNode.Nodes[wrap.FullName];
+            TreeNode dstNode = _nodeTreeView.Nodes[dst];        
+            TreeNode node = srcNode.Nodes[srcFullName];
             srcNode.Nodes.Remove(node);
+            node.Text = wrap.DisplayName;
+            node.Name = wrap.FullName;
             dstNode.Nodes.Add(node);
-            node.Name = node.FullPath;
+        }
+        /// <summary>
+        /// 仅更新当前节点,不包含子节点
+        /// </summary>
+        public TreeNode UpdateNodeColorState(BaseWrap wrap)
+        {
+            TreeNode node = null;
+            string key = wrap.FullName;
+            var nodes = _nodeTreeView.Nodes;
+            if (wrap is NamespaceWrap)
+            {
+                if (!nodes.ContainsKey(key))
+                    Util.MsgError("TreeView中无法通过Key:{0}找到Namespace节点!", key);
+                node = nodes[key];
+            }
+            else
+            {
+                TypeWrap tw = wrap as TypeWrap;
+                key = tw.Namespace.FullName;
+                if (!nodes.ContainsKey(key))
+                    Util.MsgError("TreeView中无法通过Key:{0}找到Namespace节点!", key);
+                else
+                {
+                    var root = _nodeTreeView.Nodes[key];
+                    key = wrap.FullName;
+                    if (!root.Nodes.ContainsKey(key))
+                        Util.MsgError("TreeView中无法通过Key:{0}找到Class,Enum节点!", key);
+                    node = root.Nodes[key];
+                }
+            }
+            SetNodeColor(node);
+            return node;
         }
 
-        private void AddSubNode(ClassWrap cWrap, NamespaceWrap nWrap)
+
+        private void AddSubNode(TypeWrap cWrap, NamespaceWrap nWrap)
         {
             TreeNode rootNode = _nodeTreeView.Nodes[nWrap.FullName];
             TreeNode sub = CreateNode(cWrap);
-            rootNode.Nodes.Add(sub);
-            SetNodeColor(sub);
-        }
-        private void AddSubNode(EnumWrap eWrap, NamespaceWrap nWrap)
-        {
-            TreeNode rootNode = _nodeTreeView.Nodes[nWrap.FullName];
-            TreeNode sub = CreateNode(eWrap);
             rootNode.Nodes.Add(sub);
             SetNodeColor(sub);
         }
@@ -169,24 +179,19 @@ namespace Description
             if (node == null)
                 node = new TreeNode();
             node.Tag = wrap;
+            node.Text = wrap.DisplayName;
             node.Name = wrap.FullName;
-            node.Text = wrap.Name;
             return node;
         }
-        private void ClearNodes(TreeNodeCollection root)
-        {
-            for (int i = 0; i < root.Count; i++)
-            {
-                ClearNodes(root[i].Nodes);
-                PoolManager.Ins.Push(root[i]);
-            }
-            root.Clear();
-        }
-        private void Set23MenuItem(bool state)
-        {
-            _includeMenuItem.Visible = state;
-            _excludeMenuItem.Visible = state;
-        }
+        //private void ClearNodes(TreeNodeCollection root)
+        //{
+        //    for (int i = 0; i < root.Count; i++)
+        //    {
+        //        ClearNodes(root[i].Nodes);
+        //        PoolManager.Ins.Push(root[i]);
+        //    }
+        //    root.Clear();
+        //}
         private void SetNodeColor(TreeNode node)
         {
             BaseWrap wrap = node.Tag as BaseWrap;
@@ -215,50 +220,11 @@ namespace Description
             }
             //ConsoleDock.Ins.LogErrorFormat("未知节点状态类型{0}", wrap.NodeState);
         }
-        /// <summary>
-        /// 在类型属性修改后,设置状态颜色
-        /// </summary>
-        /// <param name="wrap"></param>
-        private void OnWrapPropertiesModified(BaseWrap wrap)
-        {
-            TreeNode node = null;
-            string key = wrap.FullName;
-            var nodes = _nodeTreeView.Nodes;
-            if (wrap is NamespaceWrap)
-            {
-                if (!nodes.ContainsKey(key))
-                    Util.MsgError("TreeView中无法通过Key:{0}找到Namespace节点!", key);
-                node = nodes[key];
-            }
-            else
-            {
-                TypeWrap tw = wrap as TypeWrap;
-                key = tw.Namespace.FullName;
-                if (!nodes.ContainsKey(key))
-                    Util.MsgError("TreeView中无法通过Key:{0}找到Namespace节点!", key);
-                else
-                {
-                    var root = _nodeTreeView.Nodes[key];
-                    key = wrap.FullName;
-                    if (!root.Nodes.ContainsKey(key))
-                        Util.MsgError("TreeView中无法通过Key:{0}找到Class,Enum节点!", key);
-                    node = root.Nodes[key];
-                }
-            }
 
-            wrap.SetNodeState(NodeState.Modify);
-            SetNodeColor(node);
-        }
-        protected override void WndProc(ref Message m)
-        {
-            if (m.Msg == 0x0014) // 禁掉清除背景消息
-                return;
-            base.WndProc(ref m);
-        }
 
         private void NodeTreeView_NodeMouseHover(object sender, TreeNodeMouseHoverEventArgs e)
         {
-            _node = e.Node;
+            _selectedNode = e.Node;
         }
         /// <summary>
         /// 打开类型信息界面
@@ -280,15 +246,21 @@ namespace Description
                 dock = ClassEditorDock.Create(data as ClassWrap);
             else if (data is EnumWrap)
                 dock = EnumEditorDock.Create(data as EnumWrap);
-            dock.OnWrapPropertiesModified = OnWrapPropertiesModified;
         }
         private void NodeTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
             var point = _nodeTreeView.PointToScreen(e.Location);
-            _nodeTreeView.SelectedNode = _node;
-            Set23MenuItem(ModuleWrap.Default != ModuleWrap.Current
-                && _node.Tag is NamespaceWrap);
+            _nodeTreeView.SelectedNode = _selectedNode;
+            bool isNsw = _nodeTreeView.SelectedNode != null
+                && _selectedNode.Tag is NamespaceWrap;
+            bool isDefault = ModuleWrap.Default == ModuleWrap.Current;
+            _modifyRootMenuItem.Visible = isNsw;
+            _saveRootMenuItem.Visible = isNsw;
+            _includeMenuItem.Visible = isNsw && !isDefault;
+            _excludeMenuItem.Visible = isNsw && !isDefault;
+            _rootSeparator.Visible = isNsw;
+
             _nodeMenu.Show(point);
         }
         private void NodeTreeView_DeleteNode(object sender, EventArgs e)
@@ -312,7 +284,7 @@ namespace Description
                 EditorDock.CloseDock(cls.FullName);
                 var root = _nodeTreeView.Nodes[cls.Namespace.FullName];
                 root.Nodes.RemoveByKey(cls.FullName);
-                cls.Namespace.RemoveClassWrap(cls);
+                cls.Namespace.RemoveTypeWrap(cls);
                 cls.Dispose();
                 PoolManager.Ins.Push(cls);
             }
@@ -322,11 +294,47 @@ namespace Description
                 EditorDock.CloseDock(enm.FullName);
                 var root = _nodeTreeView.Nodes[enm.Namespace.FullName];
                 root.Nodes.RemoveByKey(enm.FullName);
-                enm.Namespace.RemoveEnumWrap(enm);
+                enm.Namespace.RemoveTypeWrap(enm);
                 enm.Dispose();
                 PoolManager.Ins.Push(enm);
             }
             PoolManager.Ins.Push(node);
+        }
+        private void NodeTreeView_Modify(object sender, EventArgs e)
+        {
+            if (_nodeTreeView.SelectedNode == null)
+            {
+                Util.MsgError("选择的节点为空!怀疑节点:{0}", _selectedNode == null ? "空!" : _selectedNode.Name);
+                return;
+            }
+            var nsw = (_nodeTreeView.SelectedNode.Tag as NamespaceWrap);
+            if (nsw == null)
+                Util.MsgError("选择的节点不是根节点!", _nodeTreeView.SelectedNode.Name);
+            else
+                NamespaceInfoDock.Ins.Show(nsw);
+        }
+        private void NodeTreeView_Save(object sender, EventArgs e)
+        {
+            if (_nodeTreeView.SelectedNode == null)
+            {
+                Util.MsgError("选择的节点为空!怀疑节点:{0}", _selectedNode == null ? "空!" : _selectedNode.Name);
+                return;
+            }
+            var nsw = (_nodeTreeView.SelectedNode.Tag as NamespaceWrap);
+            if (nsw == null)
+                Util.MsgError("选择的节点不是根节点!", _nodeTreeView.SelectedNode.Name);
+            else
+            {
+                nsw.Save();
+                UpdateNodeColorState(nsw);
+                var classes = nsw.Classes;
+                var enums = nsw.Enums;
+                for (int i = 0; i < classes.Count; i++)
+                    UpdateNodeColorState(classes[i]);
+                for (int i = 0; i < enums.Count; i++)
+                    UpdateNodeColorState(enums[i]);
+                ConsoleDock.Ins.LogFormat("成功手动保存命名空间{0}!", nsw.FullName);
+            }
         }
         private void NodeTreeView_Include(object sender, EventArgs e)
         {
@@ -336,7 +344,6 @@ namespace Description
             {
                 var nsw = wrap as NamespaceWrap;
                 ModuleWrap.Current.AddImport(nsw);
-                nsw.SetNodeState(NodeState.Include);
                 SetNodeColor(node);
             }
         }
@@ -348,7 +355,6 @@ namespace Description
             {
                 var nsw = wrap as NamespaceWrap;
                 ModuleWrap.Current.RemoveImport(nsw);
-                nsw.SetNodeState(NodeState.Exclude);
                 SetNodeColor(node);
             }
         }
@@ -363,13 +369,53 @@ namespace Description
 
         private void ShowAllBox_CheckedChanged(object sender, EventArgs e)
         {
+            if (ModuleWrap.Default == ModuleWrap.Current) return;
+
             var state = sender as CheckBox;
-            _showType = state.Checked ? ShowType.All : ShowType.Include;
-            UpdateTree();
+            var nodes = _nodeTreeView.Nodes;
+            var module = state.Checked ? ModuleWrap.Default : ModuleWrap.Current;
+            var imps = module.Imports;
+            for (int i = 0; i < imps.Count; i++)
+            {
+                string key = imps[i];
+                if (NamespaceWrap.AllNamespaces.ContainsKey(key))
+                {
+                    if (nodes.ContainsKey(key)) continue;
+
+                    var item = NamespaceWrap.AllNamespaces[key];
+                    if (item.FullName.IndexOf(_nodeFilterBox.Text, StringComparison.OrdinalIgnoreCase) != -1)
+                        AddRootNode(item);
+                }
+                else
+                {
+                    Util.MsgError("{0}模块中的命名空间{1}居然会不在字典中!?\n改了命名空间库,却没修改模块?", module.Name, key);
+                }
+            }
         }
         private void ErrorBox_CheckedChanged(object sender, EventArgs e)
         {
 
+        }
+        private void NodeFilterBox_TextChanged(object sender, EventArgs e)
+        {
+            TextBox find = sender as TextBox;
+            _nodeTreeView.BeginUpdate();
+            _nodeTreeView.Nodes.AddRange(_removes.ToArray());
+            _removes.Clear();
+            _nodeTreeView.EndUpdate();
+            _nodeTreeView.Sort();
+
+            if (find.Text.IsEmpty()) return;
+            var nodes = _nodeTreeView.Nodes;
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                if (nodes[i].Name.IndexOf(find.Text, StringComparison.OrdinalIgnoreCase) == -1)
+                    _removes.Add(nodes[i]);
+            }
+            _nodeTreeView.BeginUpdate();
+            for (int i = 0; i < _removes.Count; i++)
+                nodes.Remove(_removes[i]);
+            _nodeTreeView.EndUpdate();
         }
     }
 }

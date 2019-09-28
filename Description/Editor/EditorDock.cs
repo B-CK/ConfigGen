@@ -30,13 +30,29 @@ namespace Description.Editor
     {
         static Dictionary<string, EditorDock> _open = new Dictionary<string, EditorDock>();
         /// <summary>
-        /// 关闭界面且按需保存
+        /// 检查是否存在已修改而未保存数据
         /// </summary>
-        public static void ClearAll()
+        public static bool CheckOpenDock()
+        {
+            foreach (var item in _open)
+            {
+                if (item.Value._isDirty)
+                    return true;
+            }
+            return false;
+        }
+        /// <summary>
+        /// 关闭界面且不保存
+        /// </summary>
+        public static void CloseAll()
         {
             var values = new List<EditorDock>(_open.Values);
             for (int i = 0; i < values.Count; i++)
-                values[i].ScriptDoClose();
+            {
+                values[i]._isDirty = false;
+                values[i]._isSilent = true;
+                values[i].Close();
+            }
             _open.Clear();
         }
         /// <summary>
@@ -55,19 +71,6 @@ namespace Description.Editor
                 }
             }
             return result;
-        }
-        /// <summary>
-        /// 取消且关闭
-        /// </summary>
-        public static void CancleAll()
-        {
-            var values = new List<EditorDock>(_open.Values);
-            for (int i = 0; i < values.Count; i++)
-            {
-                values[i]._isDirty = false;
-                values[i].ScriptDoClose();
-            }
-            _open.Clear();
         }
         private static void AddOpen(string name, EditorDock dock)
         {
@@ -100,15 +103,15 @@ namespace Description.Editor
         /// Dock 唯一ID
         /// </summary>
         public string ID { get { return _wrap != null ? _wrap.FullName : "?"; } }
-        public Action<BaseWrap> OnWrapPropertiesModified;
+        //public Action<BaseWrap> OnWrapPropertiesModified;
 
         public bool IsInit { get { return _isInit; } }
 
-        protected bool _isInit = false;
-        protected bool _isDirty = false;
-        protected bool _isSilent = false;
+        protected bool _isInit;
+        protected bool _isDirty;
+        protected bool _isSilent;
 
-        protected BaseWrap _wrap;
+        protected TypeWrap _wrap;
         protected Dictionary<string, MemberEditor> _memberDict = new Dictionary<string, MemberEditor>();
         private int _nameId = 0;
 
@@ -137,10 +140,9 @@ namespace Description.Editor
         /// <summary>
         /// 初始化完毕,必须设置
         /// </summary>
-        protected virtual void OnInit(BaseWrap wrap)
+        protected virtual void OnInit(TypeWrap wrap)
         {
             _nameId = 0;
-            _isDirty = false;
             _isSilent = false;
             _wrap = wrap;
             _memberDict.Clear();
@@ -154,48 +156,37 @@ namespace Description.Editor
             foreach (var item in _memberDict)
                 item.Value.Clear();
         }
-        protected virtual void ScriptDoClose()
-        {
-            _isSilent = true;
-            Close();
-        }
-        protected virtual void UpdateTreeNode(string oldName)
+        /// <summary>
+        /// 更新节点名称
+        /// </summary>
+        protected virtual void UpdateTreeNode(string srcFullName)
         {
             var typeWrap = _wrap as TypeWrap;
-            string oldFullName = Util.Format("{0}.{1}", typeWrap.Namespace.FullName, oldName);
-            NamespaceDock.Ins.UpdateNode(oldFullName, typeWrap);
-            RemoveOpen(oldFullName);
-            AddOpen(typeWrap.FullName, this);
+            NamespaceDock.Ins.UpdateNodeName(srcFullName, typeWrap);
+            RemoveOpen(srcFullName);
+            AddOpen(typeWrap.DisplayName, this);
         }
         /// <summary>
         /// 必须在NamespaceWrap重写制定类型Add/Remove("TypeName")函数
         /// </summary>
         /// <typeparam name="T">TypeWrap子类型</typeparam>
-        protected virtual void SetNamespace<T>(string src, string dst) where T : TypeWrap
+        protected virtual void SetNamespace<T>(NamespaceWrap src, NamespaceWrap dst) where T : TypeWrap
         {
             T wrap = _wrap as T;
             if (src != dst)
             {
-                //界面层,修改显示状态
-                NamespaceDock.Ins.SwapNamespace(wrap, src, dst);
-                string dstName = wrap.FullName.Replace(src, dst);
-                RemoveOpen(wrap.FullName);
-                AddOpen(dstName, this);
-                var dstNsw = NamespaceWrap.GetNamespace(dst);
-                if (OnWrapPropertiesModified != null)
-                {
-                    OnWrapPropertiesModified(wrap.Namespace);
-                    OnWrapPropertiesModified(dstNsw);
-                }
-
+                string srcFullName = wrap.FullName;
                 //数据层,命名空间数据更新
-                string method = typeof(T).Name;
-                Type type = typeof(NamespaceWrap);
-                var add = type.GetMethod(Util.Format("Add{0}", method));
-                var remove = type.GetMethod(Util.Format("Remove{0}", method));
-                add.Invoke(dstNsw, new object[] { wrap, true });
-                remove.Invoke(wrap.Namespace, new object[] { wrap, true });
-                wrap.Namespace = dstNsw;
+                dst.AddTypeWrap(wrap);
+                wrap.RemoveSelf();
+                wrap.Namespace = dst;
+
+                //界面层,修改显示状态
+                NamespaceDock.Ins.SwapNamespace(srcFullName, wrap, src.FullName, dst.FullName);
+                RemoveOpen(srcFullName);
+                AddOpen(wrap.FullName, this);
+                NamespaceDock.Ins.UpdateNodeColorState(wrap.Namespace);
+                NamespaceDock.Ins.UpdateNodeColorState(dst);
             }
         }
         protected virtual void AddMember(MemberEditor mem)
@@ -222,7 +213,7 @@ namespace Description.Editor
         {
             InitializeComponent();
         }
-        protected void Init(BaseWrap wrap)
+        protected void Init(TypeWrap wrap)
         {
             _isInit = false;
             OnInit(wrap);
@@ -231,10 +222,15 @@ namespace Description.Editor
         private void Save()
         {
             OnSave();
+            if (_isDirty)
+            {
+                _wrap.AddNodeState(NodeState.Modify);
+                NamespaceDock.Ins.UpdateNodeColorState(_wrap);
+                _wrap.Namespace.SetDirty();
+                NamespaceDock.Ins.UpdateNodeColorState(_wrap.Namespace);
+            }
             Text = _wrap.Name;
             ValidateData();
-            if (OnWrapPropertiesModified != null)
-                OnWrapPropertiesModified(_wrap);
             _isDirty = false;
         }
         private void EditorDock_FormClosed(object sender, FormClosedEventArgs e)
@@ -247,8 +243,6 @@ namespace Description.Editor
         {
             try
             {
-                if (_open.ContainsKey(ID))
-                    _open.Remove(ID);
                 if (!_isDirty) return;
                 if (e.CloseReason == CloseReason.UserClosing && !_isSilent)
                 {

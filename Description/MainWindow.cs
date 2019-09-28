@@ -50,12 +50,12 @@ namespace Description
                 Util.ModuleDir = Settings.Default.ModuleDir;
             if (!Settings.Default.NamespaceDir.IsEmpty())
                 Util.NamespaceDir = Settings.Default.NamespaceDir;
-            Util.LastRecord = Settings.Default.LastModule;
-
             if (!Directory.Exists(Util.ModuleDir))
                 Directory.CreateDirectory(Util.ModuleDir);
             if (!Directory.Exists(Util.NamespaceDir))
                 Directory.CreateDirectory(Util.NamespaceDir);
+            Util.Groups = new string[Settings.Default.Groups.Count];
+            Settings.Default.Groups.CopyTo(Util.Groups, 0);
         }
 
         #region 文件
@@ -92,7 +92,7 @@ namespace Description
                 {
                     string fileName = _openFileDialog.FileName;
                     ModuleWrap.Open(fileName);
-                    NamespaceDock.Ins.UpdateTree();
+                    NamespaceDock.Ins.InitTree();
                 }
                 catch (Exception ex)
                 {
@@ -129,13 +129,6 @@ namespace Description
                 }
             }
         }
-
-        private void CloseModuleItem_Click(object sender, EventArgs e)
-        {
-            ModuleWrap.Current.Close();
-            ModuleWrap.OpenDefault();
-            NamespaceDock.Ins.UpdateTree();
-        }
         #endregion
 
         #region 编辑
@@ -164,6 +157,6 @@ namespace Description
 
         #endregion
 
-     
+
     }
 }

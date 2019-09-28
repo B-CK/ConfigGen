@@ -72,7 +72,7 @@ namespace Description
         {
             get
             {
-                return _lastRecord;
+                return Settings.Default.LastModule;
             }
             set
             {
@@ -80,6 +80,10 @@ namespace Description
                 Settings.Default.LastModule = value;
             }
         }
+        /// <summary>
+        /// 分组种类
+        /// </summary>
+        public static string[] Groups { get; set; }
         /// <summary>
         /// Excel数据目录
         /// </summary>
@@ -111,22 +115,70 @@ namespace Description
         public const string LIST = "list";
         public const string DICT = "dict";
 
-        public static string[] BaseTypes = new string[] { BOOL, INT, LONG, FLOAT, STRING, LIST, DICT };
+        public static readonly Dictionary<string, string> EnumInhert = new Dictionary<string, string>()
+        {
+            { "ubyte", "ubyte[0, 255]" },
+            { "byte", "byte[-128, 127]" },
+            { "ushort", "ushort[0, 65535]" },
+            { "short", "short[-32768, 32767]" },
+            { "uint", "uint[0, 4294967295]" },
+            { "int", "int[-2147483648, 2147483647]" },
+        };
 
-        private static string[] KeyTypes = new string[] { INT, LONG, STRING };
+        public static readonly string[] BaseTypes = new string[] { BOOL, INT, LONG, FLOAT, STRING, LIST, DICT };
+
+        private static readonly string[] KeyTypes = new string[] { INT, LONG, STRING };
         public static object[] GetKeyTypes()
         {
             List<object> all = new List<object>(KeyTypes);
-            all.AddRange(EnumWrap.Enums);
+            all.AddRange(EnumWrap.Array);
             return all.ToArray();
         }
         public static object[] GetAllTypes()
         {
             List<object> all = new List<object>(BaseTypes);
-            all.AddRange(ClassWrap.Classes);
-            all.AddRange(EnumWrap.Enums);
+            all.AddRange(ClassWrap.Array);
+            all.AddRange(EnumWrap.Array);
 
             return all.ToArray();
+        }
+        /// <summary>
+        /// 用于集合中的类型
+        /// </summary>
+        /// <returns></returns>
+        public static object[] GetCombTypes()
+        {
+            List<object> all = new List<object>()  { BOOL, INT, LONG, FLOAT, STRING };
+            all.AddRange(ClassWrap.Array);
+            all.AddRange(EnumWrap.Array);
+
+            return all.ToArray();
+        }
+        public static string FindFullType(string fullName, object[] types)
+        {
+            string result = string.Empty;
+            for (int i = 0; i < types.Length; i++)
+            {
+                var type = types[i];
+                if (type is string)
+                {
+                    if (fullName == (type as string))
+                    {
+                        result = type as string;
+                        break;
+                    }
+                }
+                else
+                {
+                    var wrap = type as TypeWrap;
+                    if (wrap.FullName == fullName)
+                    {
+                        result = wrap.FullName;
+                        break;
+                    }
+                }
+            }
+            return result;
         }
 
         //public const string BYTE = "byte";

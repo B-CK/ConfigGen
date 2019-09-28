@@ -18,7 +18,7 @@ namespace Description.Wrap
         /// 子对象名称集合,用于保证子对象不重名
         /// </summary>
         private HashSet<string> _hash;
-        private NodeState _nodestate = NodeState.Include;
+        private NodeState _nodestate = NodeState.Exclude;  
         protected BaseWrap(string name)
         {
             _name = name;
@@ -30,28 +30,34 @@ namespace Description.Wrap
         }
         protected virtual void Add(string name)
         {
-            _hash.Add(name);
+            _hash.Add(name);          
         }
         protected virtual void Remove(string name)
         {
             _hash.Remove(name);
-        }
-        public virtual bool Valide()
-        {
-            return true;
         }
         public virtual void Dispose()
         {
             _nodestate = NodeState.Include;
             _hash.Clear();
         }
-        public void SetNodeState(NodeState state)
+        /// <summary>
+        /// 添加状态
+        /// </summary>
+        public void AddNodeState(NodeState state)
         {
-            if (state == NodeState.Include)
+            if ((state & NodeState.Include) != 0)
                 _nodestate &= ~NodeState.Exclude;
-            else if (state == NodeState.Exclude)
+            else if ((state & NodeState.Exclude) != 0)
                 _nodestate &= ~NodeState.Include;
             _nodestate |= state;
+        }
+        /// <summary>
+        /// 清除状态
+        /// </summary>
+        public void RemoveNodeState(NodeState state)
+        {
+            _nodestate &= ~state;
         }
 
         public override bool Equals(object obj)

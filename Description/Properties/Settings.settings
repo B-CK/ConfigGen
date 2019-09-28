@@ -11,8 +11,14 @@
     <Setting Name="LastModule" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="Groups" Type="System.String" Scope="User">
-      <Value Profile="(Default)">All:Client:Server:Editor</Value>
+    <Setting Name="Groups" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;All&lt;/string&gt;
+  &lt;string&gt;Client&lt;/string&gt;
+  &lt;string&gt;Editor&lt;/string&gt;
+  &lt;string&gt;Server&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="DataDir" Type="System.String" Scope="User">
       <Value Profile="(Default)">.</Value>

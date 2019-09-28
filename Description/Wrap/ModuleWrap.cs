@@ -12,7 +12,7 @@ namespace Description.Wrap
         public static ModuleWrap Current { get { return _current; } }
         static ModuleWrap _default;
         static ModuleWrap _current;
-
+        static int _noSaveNum = 0;
         public static void InitModule()
         {
             ModuleXml xml = null;
@@ -33,16 +33,25 @@ namespace Description.Wrap
 
             var allNsw = NamespaceWrap.AllNamespaces;
             foreach (var item in allNsw)
-                _default.AddImport(item.Value);
+                _default.AddImport(item.Value, true);
             var imps = _current.Imports;
-            for (int i = 0; i < imps.Count; i++)
+            for (int k = 0; k < imps.Count; k++)
             {
-                string ns = imps[i];
+                string ns = imps[k];
                 if (allNsw.ContainsKey(ns))
-                    allNsw[ns].IsVisible = true;
+                {
+                    var nsw = allNsw[ns];
+                    nsw.AddNodeState(NodeState.Include);
+                    var classes = nsw.Classes;
+                    for (int i = 0; i < classes.Count; i++)
+                        classes[i].AddNodeState(NodeState.Include);
+                    var enums = nsw.Enums;
+                    for (int i = 0; i < enums.Count; i++)
+                        enums[i].AddNodeState(NodeState.Include);
+                }
             }
         }
-    
+
         public static ModuleWrap Create(string path)
         {
             ModuleXml xml = null;
@@ -82,7 +91,8 @@ namespace Description.Wrap
                     if (wrap == null) wrap = new ModuleWrap(xml);
                 }
 
-                if (_current != null)  { TrSave();  }
+                if (_current != null) { TrSave(); }
+                _noSaveNum = 0;
                 _current = wrap;
                 MainWindow.Ins.Text = Util.Format("结构描述 - {0}", wrap.FullName);
                 ConsoleDock.Ins.LogFormat("打开模板{0}", path);
@@ -94,27 +104,27 @@ namespace Description.Wrap
                 return OpenDefault();
             }
         }
+        public static void AddDirty() { ++_noSaveNum; }
+        public static void RemoveDirty() { --_noSaveNum; }
         public static DialogResult TrSave()
         {
-            if (NamespaceWrap.HasModifyNamespace)
+            if (EditorDock.CheckOpenDock() || _noSaveNum != 0)
             {
-                NamespaceWrap.HasModifyNamespace = false;
-                var result = MessageBox.Show("还有配置未保存,是否保存?", "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                var result = MessageBox.Show("当前模块未保存,是否保存?", "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 switch (result)
                 {
                     case DialogResult.Cancel:
-                        EditorDock.CancleAll();
                         return DialogResult.Cancel;
                     case DialogResult.Yes:
                         EditorDock.SaveAll();
                         Default.Save();
                         Current.Save();
-                        EditorDock.ClearAll();
+                        EditorDock.CloseAll();
                         return DialogResult.Yes;
                     case DialogResult.No:
-                        EditorDock.CancleAll();
                         Default.Save(false);
                         Current.Save(false);
+                        EditorDock.CloseAll();
                         return DialogResult.No;
                 }
             }
@@ -122,7 +132,7 @@ namespace Description.Wrap
             {
                 Default.Save(false);
                 Current.Save(false);
-                EditorDock.ClearAll();
+                EditorDock.CloseAll();
             }
             return DialogResult.None;
         }
@@ -139,8 +149,8 @@ namespace Description.Wrap
 
         public override string DisplayName => FullName;
 
-        private List<string> _imports;
 
+        private List<string> _imports;
         private ModuleXml _xml;
         private string _path;
         protected ModuleWrap(ModuleXml xml) : base(xml.Name)
@@ -148,12 +158,13 @@ namespace Description.Wrap
             _xml = xml;
             _path = Util.GetModuleAbsPath(_name + ".xml");
             _imports = new List<string>();
-            if (Imports == null) return;
+            if (_xml.Imports == null) return;
 
-            for (int i = 0; i < Imports.Count; i++)
+            var imps = _xml.Imports;
+            for (int i = 0; i < imps.Count; i++)
             {
-                _imports.Add(Imports[i]);
-                Add(Imports[i]);
+                _imports.Add(imps[i]);
+                Add(imps[i]);
             }
         }
 
@@ -168,22 +179,25 @@ namespace Description.Wrap
             if (this != _default)
                 PoolManager.Ins.Push(this);
         }
-        
-        public void AddImport(NamespaceWrap wrap)
+        public void AddImport(NamespaceWrap wrap, bool isInit = false)
         {
             string name = wrap.FullName;
             if (Contains(name)) return;
-            Imports.Add(name);
             Add(name);
+            _imports.Add(name);
+            wrap.AddNodeState(NodeState.Include);
+            if (!isInit)
+                AddDirty();
         }
         public void RemoveImport(NamespaceWrap wrap)
         {
             string name = wrap.FullName;
             if (!Contains(name)) return;
-            Imports.Remove(name);
             Remove(name);
+            Imports.Remove(name);
+            wrap.AddNodeState(NodeState.Exclude);
+            AddDirty();
         }
-
         public void Save(bool saveNsw = true)
         {
             //_xml.Name = _name;
@@ -191,7 +205,7 @@ namespace Description.Wrap
             Util.Serialize(_path, _xml);
             ConsoleDock.Ins.LogFormat("保存模板{0}", _path);
 
-            if (!saveNsw) return;            
+            if (!saveNsw) return;
             for (int i = 0; i < _imports.Count; i++)
             {
                 string key = _imports[i];

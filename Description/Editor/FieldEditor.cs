@@ -15,21 +15,19 @@ namespace Description.Editor
     {
         public static FieldEditor Create(ClassEditorDock dock, FieldWrap wrap)
         {
-            FieldEditor field = PoolManager.Ins.Pop<FieldEditor>();
-            if (field == null) field = new FieldEditor();
-            field._dock = dock;
-            field.Init(wrap);
-            return field;
+            FieldEditor editor = PoolManager.Ins.Pop<FieldEditor>();
+            if (editor == null) editor = new FieldEditor();
+            editor.Init(dock, wrap);
+            return editor;
         }
         public static FieldEditor Create(ClassEditorDock dock, string name)
         {
-            FieldEditor field = PoolManager.Ins.Pop<FieldEditor>();
-            if (field == null) field = new FieldEditor();
+            FieldEditor editor = PoolManager.Ins.Pop<FieldEditor>();
+            if (editor == null) editor = new FieldEditor();
             FieldWrap wrap = PoolManager.Ins.Pop<FieldWrap>();
             if (wrap == null) wrap = FieldWrap.Create(name, dock.GetWrap<ClassWrap>());
-            field._dock = dock;
-            field.Init(wrap);
-            return field;
+            editor.Init(dock, wrap);
+            return editor;
         }
         public static implicit operator FieldWrap(FieldEditor editor)
         {
@@ -50,16 +48,16 @@ namespace Description.Editor
             }
         }
 
-        ClassEditorDock _dock;
         private FieldEditor()
         {
             InitializeComponent();
         }
         protected override void OnInit()
         {
+            base.OnInit();
             var field = _wrap as FieldWrap;
             Location = Point.Empty;
-            var panel = _dock.MemberSplitContainer.Panel2;
+            var panel = GetDock<ClassEditorDock>().MemberSplitContainer.Panel2;
             Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Top;
             Size = new Size(panel.Width - 95, panel.Height);
             _isNew = true;
@@ -70,19 +68,19 @@ namespace Description.Editor
             _defaultLabel.Text = "默认值:";
             if (field.Type.IsEmpty())
             {
-                _typeComboBox.Text = "";
-                _valueTypeBox.Visible = false;
+                _typeComboBox.Text = Util.BOOL;
+                _valueTypeBox.InitBool();
             }
             else
             {
                 SetMemberValue(field);
-                _valueTypeBox.Visible = true;
                 if (_typeComboBox.Text == Util.LIST || _typeComboBox.Text == Util.DICT)
                     _defaultLabel.Text = "元素类型:";
             }
             _isConstCheckBox.Checked = field.IsConst;
             _valueTypeBox.OnCheckChange = OnFieldValueChanged;
-            _groupTextBox.Text = field.Group;
+            _groupComboBox.Items.AddRange(Util.Groups);
+            _groupComboBox.Text = field.Group.IsEmpty() ? Util.Groups[0] : field.Group;
             _desTextBox.Text = field.Desc;
             _checkerComboBox.Text = field.Checker;
         }
@@ -92,13 +90,13 @@ namespace Description.Editor
         private void SetMemberValue(FieldWrap field)
         {
             string[] nodes = field.Type.Split(Util.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
+            var types = new object[_typeComboBox.Items.Count];
+            _typeComboBox.Items.CopyTo(types, 0);
+            _typeComboBox.Text = Util.FindFullType(nodes[0], types);
+
             switch (nodes.Length)
             {
-                case 0:
-                    _typeComboBox.Text = "";
-                    break;
                 case 1://基础类型
-                    _typeComboBox.Text = nodes[0];
                     switch (nodes[0])
                     {
                         case Util.BOOL:
@@ -123,32 +121,31 @@ namespace Description.Editor
                             _valueTypeBox.InitString(field.Value);
                             break;
                         default:
-                            if (EnumWrap.EnumDict.ContainsKey(field.Type))
+                            if (EnumWrap.Dict.ContainsKey(field.Type))
                             {
-                                EnumWrap wrap = EnumWrap.EnumDict[field.Type];
+                                EnumWrap wrap = EnumWrap.Dict[field.Type];
                                 _valueTypeBox.InitEnum(field.Value, wrap.Items.ToArray());
                             }
-                            else if (ClassWrap.ClassDict.ContainsKey(field.Type))
+                            else if (ClassWrap.Dict.ContainsKey(field.Type))
                             {
                                 _valueTypeBox.Visible = false;
                             }
                             else
                             {
                                 _valueTypeBox.EnableBox(TypeBox.ProertyType.None);
-                                ConsoleDock.Ins.LogErrorFormat("未知字段类型{0}", field.Type);
+                                Util.MsgError("未知字段类型{0}", field.Type);
                             }
                             break;
                     }
                     break;
                 case 2://List
-                    _typeComboBox.Text = nodes[0];
-                    _valueTypeBox.InitList(nodes[1], Util.GetAllTypes());
+                    _valueTypeBox.InitList(nodes[1], Util.GetCombTypes());
                     break;
                 case 3://Dict
-                    _typeComboBox.Text = nodes[0];
-                    _valueTypeBox.InitDict(nodes[1], nodes[2], Util.GetKeyTypes(), Util.GetAllTypes());
+                    _valueTypeBox.InitDict(nodes[1], nodes[2], Util.GetKeyTypes(), Util.GetCombTypes());
                     break;
                 default:
+                    Util.MsgError("{0}类型的{1}字段类型/值设置异常", ParentName, field.Name);
                     break;
             }
 
@@ -158,7 +155,7 @@ namespace Description.Editor
             base.Save();
             var field = _wrap as FieldWrap;
             if (field.Name != _nameTextBox.Text)
-                _dock.GetWrap<ClassWrap>().RemoveField(field);
+                GetDock<ClassEditorDock>().GetWrap<ClassWrap>().RemoveField(field);
             field.Name = _nameTextBox.Text;
             field.Type = _typeComboBox.Text;
             if (_typeComboBox.Text == Util.LIST || _typeComboBox.Text == Util.DICT)
@@ -169,47 +166,48 @@ namespace Description.Editor
             else
                 field.Value = _valueTypeBox.GetValue();
             field.IsConst = _isConstCheckBox.Checked;
-            field.Group = _groupTextBox.Text;
+            field.Group = _groupComboBox.Text;
             field.Desc = _desTextBox.Text;
             field.Checker = _checkerComboBox.Text;
         }
         public override void Hide()
         {
             base.Hide();
-            _dock.MemberSplitContainer.Panel2.Controls.Remove(this);
+            GetDock<ClassEditorDock>().MemberSplitContainer.Panel2.Controls.Remove(this);
         }
         public override void Show()
         {
             base.Show();
-            _dock.MemberSplitContainer.Panel2.Controls.Add(this);
+            GetDock<ClassEditorDock>().MemberSplitContainer.Panel2.Controls.Add(this);
         }
 
         private void OnFieldTextChanged(object sender, EventArgs e)
         {
             if (!_isInit) return;
-            _dock.OnValueChange();
+            GetDock<ClassEditorDock>().OnValueChange();
         }
         private void OnFieldValueChanged()
         {
             if (!_isInit) return;
-            _dock.OnValueChange();
-            _dock.RefreshMember(this);
+            GetDock<ClassEditorDock>().OnValueChange();
+            GetDock<ClassEditorDock>().RefreshMember(this);
         }
         private void OnFieldNameChanged(object sender, EventArgs e)
         {
             if (!_isInit) return;
-            _dock.OnValueChange();
+            var dock = GetDock<ClassEditorDock>();
+            dock.OnValueChange();
             var nameBox = sender as TextBox;
-            if (_dock.ContainMember(nameBox.Text))
+            if (dock.ContainMember(nameBox.Text))
             {
-                Util.MsgWarning("类型{0}中重复定义字段{1}!", _dock.GetWrap<ClassWrap>().Name, nameBox.Text);
+                Util.MsgWarning("类型{0}中重复定义字段{1}!", dock.GetWrap<ClassWrap>().Name, nameBox.Text);
                 nameBox.Text = _wrap.Name;
             }
             else
             {
                 string oldName = Name;
                 Name = nameBox.Text;
-                _dock.RefreshMember(this, oldName);
+                dock.RefreshMember(this, oldName);
             }
         }
         private void TypeComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -218,9 +216,12 @@ namespace Description.Editor
             ComboBox combo = sender as ComboBox;
             _defaultLabel.Text = "默认值:";
             _valueTypeBox.Clear(false);
-            _dock.OnValueChange();
-            if (combo.Text.IsEmpty() || EnumWrap.EnumDict.ContainsKey(combo.Text)
-                            || ClassWrap.ClassDict.ContainsKey(combo.Text))
+            var dock = GetDock<ClassEditorDock>();
+            dock.OnValueChange();
+            var wrap = combo.SelectedItem as TypeWrap;
+            string selectedType = wrap == null ? "" : wrap.FullName;
+            if (combo.Text.IsEmpty() || EnumWrap.Dict.ContainsKey(selectedType)
+                            || ClassWrap.Dict.ContainsKey(selectedType))
                 _valueTypeBox.Visible = false;
             else
             {
@@ -245,10 +246,10 @@ namespace Description.Editor
                         _valueTypeBox.InitString("");
                         break;
                     case Util.LIST:
-                        _valueTypeBox.InitList("", Util.GetAllTypes());
+                        _valueTypeBox.InitList("", Util.GetCombTypes());
                         break;
                     case Util.DICT:
-                        _valueTypeBox.InitDict("", "", Util.GetKeyTypes(), Util.GetAllTypes());
+                        _valueTypeBox.InitDict("", "", Util.GetKeyTypes(), Util.GetCombTypes());
                         break;
                     default:
                         _valueTypeBox.EnableBox(TypeBox.ProertyType.None);
@@ -256,7 +257,7 @@ namespace Description.Editor
                         break;
                 }
             }
-            _dock.RefreshMember(this);
+            dock.RefreshMember(this);
         }
     }
 }

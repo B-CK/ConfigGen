@@ -10,22 +10,22 @@ namespace Description.Wrap
 {
     public class ClassWrap : TypeWrap, IDisposable
     {
-        public static Dictionary<string, ClassWrap> ClassDict { get { return _classDict; } }
-        static Dictionary<string, ClassWrap> _classDict = new Dictionary<string, ClassWrap>();
-        public static ClassWrap[] Classes
+        public static Dictionary<string, ClassWrap> Dict { get { return _dict; } }
+        static Dictionary<string, ClassWrap> _dict = new Dictionary<string, ClassWrap>();
+        public static ClassWrap[] Array
         {
             get
             {
-                if (_classes.Length != _classDict.Count)
+                if (_array.Length != _dict.Count)
                 {
-                    var ls = new List<ClassWrap>(_classDict.Values);
+                    var ls = new List<ClassWrap>(_dict.Values);
                     ls.Sort((a, b) => Comparer<string>.Default.Compare(a.DisplayName, b.DisplayName));
-                    _classes = ls.ToArray();
+                    _array = ls.ToArray();
                 }
-                return _classes;
+                return _array;
             }
         }
-        static ClassWrap[] _classes = new ClassWrap[0];
+        static ClassWrap[] _array = new ClassWrap[0];
 
 
         public static ClassWrap Create(string name, NamespaceWrap nsw)
@@ -40,10 +40,11 @@ namespace Description.Wrap
                 wrap = new ClassWrap(xml, nsw);
             else
                 wrap.Init(xml, nsw);
-            nsw.AddClassWrap(wrap, false);
+            nsw.AddTypeWrap(wrap, false);
             return wrap;
         }
 
+        public override string FullName => base.FullName;
         public override string Name
         {
             get { return base.Name; }
@@ -78,18 +79,7 @@ namespace Description.Wrap
                 }
                 return _indexes;
             }
-        }
-
-        public override string DisplayName
-        {
-            get
-            {
-                if (Desc.IsEmpty())
-                    return Name;
-                else
-                    return Util.Format("{0}:{1}", Name, Desc);
-            }
-        }
+        }     
 
         string[] _indexes = new string[0];
 
@@ -115,7 +105,7 @@ namespace Description.Wrap
                 Add(field.Name);
                 _fields.Add(field);
             }
-            _classDict.Add(FullName, this);
+            _dict.Add(FullName, this);
         }
         public bool AddField(FieldWrap wrap)
         {
@@ -156,43 +146,11 @@ namespace Description.Wrap
         public override void Dispose()
         {
             base.Dispose();
-            _classDict.Remove(FullName);
+            _dict.Remove(FullName);
             for (int i = 0; i < _fields.Count; i++)
                 _fields[i].Dispose();
             _fields.Clear();
             PoolManager.Ins.Push(this);
-        }
-        public override bool Valide()
-        {
-            bool r = base.Valide();
-            StringBuilder builder = new StringBuilder();
-            bool exist = false;
-            for (int i = 0; i < _fields.Count; i++)
-            {
-                if (_fields[i].Name == Index)
-                {
-                    exist = true;
-                    break;
-                }
-            }
-            if (exist == false)
-            {
-                builder.AppendFormat("类中不存在{0}关键字|", Index);
-                r = false;
-            }
-            if (!_classDict.ContainsKey(Inherit) && Inherit != FullName)
-            {
-                r = false;
-                builder.AppendFormat("继承类{0}不存在|", Inherit);
-            }
-            if (!File.Exists(DataPath))
-            {
-                r = false;
-                builder.AppendFormat("数据表{0}不存在|", DataPath);
-            }
-            if (r == false)
-                ConsoleDock.Ins.LogError(builder.ToString());
-            return r;
         }
         public static implicit operator ClassXml(ClassWrap wrap)
         {

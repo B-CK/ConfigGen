@@ -32,6 +32,8 @@ namespace Description.Wrap
         }
         public int Value { get { return _xml.Value; } set { _xml.Value = value; } }
         public string Alias { get { return _xml.Alias; } set { _xml.Alias = value; } }
+        public string Group { get { return _xml.Group; } set { _xml.Group = value; } }
+        public string Desc { get { return _xml.Desc; } set { _xml.Desc = value; } }
 
         public override string DisplayName => Util.Format("{0}({1}) = {2}", Name, Alias, Value);
 

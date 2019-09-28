@@ -14,10 +14,6 @@ namespace Description.Editor
     public partial class MemberEditor : UserControl
     {
         /// <summary>
-        /// 数据下标索引
-        /// </summary>
-        public virtual int Index { get; set; }
-        /// <summary>
         /// 用于ListBox显示名称
         /// </summary>
         public virtual string DisplayName => Name;
@@ -29,23 +25,26 @@ namespace Description.Editor
             get => _isNew;
             set => _isNew = value;
         }
+        protected string ParentName { get { return _dock.ID; } }
 
         protected bool _isNew;
         protected bool _isInit;
         protected BaseWrap _wrap;
+        private EditorDock _dock;
         protected MemberEditor()
         {
             InitializeComponent();
         }
-        public void Init(BaseWrap wrap)
+        public void Init(EditorDock dock, BaseWrap wrap)
         {
             _isInit = false;
             _wrap = wrap;
+            _dock = dock;
             Name = wrap.Name;
             OnInit();
             _isInit = true;
         }
-
+        public T GetDock<T>() where T : EditorDock { return _dock as T; }
         protected virtual void OnInit() { }
         public new virtual void Show() { }
         public new virtual void Hide() { }

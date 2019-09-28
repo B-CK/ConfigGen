@@ -61,10 +61,16 @@ namespace Description.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("All:Client:Server:Editor")]
-        public string Groups {
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>All</string>
+  <string>Client</string>
+  <string>Editor</string>
+  <string>Server</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection Groups {
             get {
-                return ((string)(this["Groups"]));
+                return ((global::System.Collections.Specialized.StringCollection)(this["Groups"]));
             }
             set {
                 this["Groups"] = value;

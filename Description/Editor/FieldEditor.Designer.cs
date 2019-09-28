@@ -32,7 +32,6 @@
             this._desTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this._groupTextBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this._defaultLabel = new System.Windows.Forms.Label();
             this._checkerComboBox = new System.Windows.Forms.ComboBox();
@@ -41,6 +40,7 @@
             this._typeComboBox = new System.Windows.Forms.ComboBox();
             this._isConstCheckBox = new System.Windows.Forms.CheckBox();
             this._valueTypeBox = new Description.TypeBox();
+            this._groupComboBox = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // _nameTextBox
@@ -90,19 +90,6 @@
             this.label2.Size = new System.Drawing.Size(45, 15);
             this.label2.TabIndex = 6;
             this.label2.Text = "描述:";
-            // 
-            // _groupTextBox
-            // 
-            this._groupTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._groupTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._groupTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this._groupTextBox.ForeColor = System.Drawing.Color.LightGray;
-            this._groupTextBox.Location = new System.Drawing.Point(79, 108);
-            this._groupTextBox.Name = "_groupTextBox";
-            this._groupTextBox.Size = new System.Drawing.Size(400, 25);
-            this._groupTextBox.TabIndex = 10;
-            this._groupTextBox.TextChanged += new System.EventHandler(this.OnFieldTextChanged);
             // 
             // label3
             // 
@@ -167,14 +154,16 @@
             this._typeComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._typeComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._typeComboBox.DisplayMember = "FullName";
+            this._typeComboBox.DisplayMember = "DisplayFullName";
             this._typeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._typeComboBox.ForeColor = System.Drawing.Color.LightGray;
             this._typeComboBox.FormattingEnabled = true;
             this._typeComboBox.Location = new System.Drawing.Point(79, 39);
             this._typeComboBox.Name = "_typeComboBox";
             this._typeComboBox.Size = new System.Drawing.Size(327, 23);
+            this._typeComboBox.Sorted = true;
             this._typeComboBox.TabIndex = 13;
+            this._typeComboBox.ValueMember = "FullName";
             this._typeComboBox.SelectedIndexChanged += new System.EventHandler(this.TypeComboBox_SelectedIndexChanged);
             // 
             // _isConstCheckBox
@@ -202,11 +191,28 @@
             this._valueTypeBox.Size = new System.Drawing.Size(401, 32);
             this._valueTypeBox.TabIndex = 16;
             // 
+            // _groupComboBox
+            // 
+            this._groupComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._groupComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._groupComboBox.DisplayMember = "FullName";
+            this._groupComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this._groupComboBox.ForeColor = System.Drawing.Color.LightGray;
+            this._groupComboBox.FormattingEnabled = true;
+            this._groupComboBox.Location = new System.Drawing.Point(79, 111);
+            this._groupComboBox.Name = "_groupComboBox";
+            this._groupComboBox.Size = new System.Drawing.Size(396, 23);
+            this._groupComboBox.Sorted = true;
+            this._groupComboBox.TabIndex = 30;
+            this._groupComboBox.SelectedIndexChanged += new System.EventHandler(this.OnFieldTextChanged);
+            // 
             // FieldEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
+            this.Controls.Add(this._groupComboBox);
             this.Controls.Add(this._nameTextBox);
             this.Controls.Add(this._valueTypeBox);
             this.Controls.Add(this._desTextBox);
@@ -215,7 +221,6 @@
             this.Controls.Add(this._typeComboBox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label6);
-            this.Controls.Add(this._groupTextBox);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label5);
             this.Controls.Add(this._defaultLabel);
@@ -234,7 +239,6 @@
         private System.Windows.Forms.TextBox _desTextBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox _groupTextBox;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label _defaultLabel;
         private System.Windows.Forms.ComboBox _checkerComboBox;
@@ -243,5 +247,6 @@
         private System.Windows.Forms.ComboBox _typeComboBox;
         private System.Windows.Forms.CheckBox _isConstCheckBox;
         private TypeBox _valueTypeBox;
+        private System.Windows.Forms.ComboBox _groupComboBox;
     }
 }

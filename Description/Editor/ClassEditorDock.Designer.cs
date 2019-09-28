@@ -39,12 +39,14 @@
             this._memFindBox = new System.Windows.Forms.TextBox();
             this._spliter = new System.Windows.Forms.PictureBox();
             this._typeGroupBox = new System.Windows.Forms.GroupBox();
+            this._groupComboBox = new System.Windows.Forms.ComboBox();
             this._inhertComboBox = new System.Windows.Forms.ComboBox();
             this._namespaceComboBox = new System.Windows.Forms.ComboBox();
             this.NameLabel = new System.Windows.Forms.Label();
             this._descTextBox = new System.Windows.Forms.TextBox();
             this.DataPathButton = new System.Windows.Forms.Button();
             this._dataPathTextBox = new System.Windows.Forms.TextBox();
+            this.GroupLabel = new System.Windows.Forms.Label();
             this.NamespaceLabel = new System.Windows.Forms.Label();
             this.DescLabel = new System.Windows.Forms.Label();
             this._indexComboBox = new System.Windows.Forms.ComboBox();
@@ -71,11 +73,11 @@
             this.MemberGroupBox.Controls.Add(this.MemberSplitContainer);
             this.MemberGroupBox.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.MemberGroupBox.ForeColor = System.Drawing.Color.LightGray;
-            this.MemberGroupBox.Location = new System.Drawing.Point(3, 215);
+            this.MemberGroupBox.Location = new System.Drawing.Point(3, 263);
             this.MemberGroupBox.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.MemberGroupBox.Name = "MemberGroupBox";
             this.MemberGroupBox.Padding = new System.Windows.Forms.Padding(3, 3, 3, 0);
-            this.MemberGroupBox.Size = new System.Drawing.Size(828, 378);
+            this.MemberGroupBox.Size = new System.Drawing.Size(828, 330);
             this.MemberGroupBox.TabIndex = 6;
             this.MemberGroupBox.TabStop = false;
             this.MemberGroupBox.Text = "成员列表";
@@ -98,7 +100,7 @@
             // MemberSplitContainer.Panel2
             // 
             this.MemberSplitContainer.Panel2.Controls.Add(this._spliter);
-            this.MemberSplitContainer.Size = new System.Drawing.Size(822, 357);
+            this.MemberSplitContainer.Size = new System.Drawing.Size(822, 309);
             this.MemberSplitContainer.SplitterDistance = 327;
             this.MemberSplitContainer.TabIndex = 0;
             // 
@@ -118,7 +120,7 @@
             this._memberListBox.Location = new System.Drawing.Point(5, 46);
             this._memberListBox.Name = "_memberListBox";
             this._memberListBox.ScrollAlwaysVisible = true;
-            this._memberListBox.Size = new System.Drawing.Size(309, 308);
+            this._memberListBox.Size = new System.Drawing.Size(309, 257);
             this._memberListBox.Sorted = true;
             this._memberListBox.TabIndex = 8;
             this._memberListBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MemberListBox_MouseClick);
@@ -177,7 +179,7 @@
             this._spliter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this._spliter.Location = new System.Drawing.Point(0, 0);
             this._spliter.Name = "_spliter";
-            this._spliter.Size = new System.Drawing.Size(1, 370);
+            this._spliter.Size = new System.Drawing.Size(1, 322);
             this._spliter.TabIndex = 9;
             this._spliter.TabStop = false;
             // 
@@ -185,12 +187,14 @@
             // 
             this._typeGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this._typeGroupBox.Controls.Add(this._groupComboBox);
             this._typeGroupBox.Controls.Add(this._inhertComboBox);
             this._typeGroupBox.Controls.Add(this._namespaceComboBox);
             this._typeGroupBox.Controls.Add(this.NameLabel);
             this._typeGroupBox.Controls.Add(this._descTextBox);
             this._typeGroupBox.Controls.Add(this.DataPathButton);
             this._typeGroupBox.Controls.Add(this._dataPathTextBox);
+            this._typeGroupBox.Controls.Add(this.GroupLabel);
             this._typeGroupBox.Controls.Add(this.NamespaceLabel);
             this._typeGroupBox.Controls.Add(this.DescLabel);
             this._typeGroupBox.Controls.Add(this._indexComboBox);
@@ -204,21 +208,37 @@
             this._typeGroupBox.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this._typeGroupBox.Name = "_typeGroupBox";
             this._typeGroupBox.Padding = new System.Windows.Forms.Padding(3, 3, 3, 0);
-            this._typeGroupBox.Size = new System.Drawing.Size(828, 202);
+            this._typeGroupBox.Size = new System.Drawing.Size(828, 250);
             this._typeGroupBox.TabIndex = 7;
             this._typeGroupBox.TabStop = false;
             this._typeGroupBox.Text = "类型";
+            // 
+            // _groupComboBox
+            // 
+            this._groupComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._groupComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._groupComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this._groupComboBox.ForeColor = System.Drawing.Color.LightGray;
+            this._groupComboBox.FormattingEnabled = true;
+            this._groupComboBox.Location = new System.Drawing.Point(99, 151);
+            this._groupComboBox.Name = "_groupComboBox";
+            this._groupComboBox.Size = new System.Drawing.Size(713, 25);
+            this._groupComboBox.Sorted = true;
+            this._groupComboBox.TabIndex = 3;
+            this._groupComboBox.SelectedIndexChanged += new System.EventHandler(this.OnValueChange);
+            this._groupComboBox.TextChanged += new System.EventHandler(this.OnValueChange);
             // 
             // _inhertComboBox
             // 
             this._inhertComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._inhertComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._inhertComboBox.DisplayMember = "FullName";
+            this._inhertComboBox.DisplayMember = "DisplayFullName";
             this._inhertComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._inhertComboBox.ForeColor = System.Drawing.Color.LightGray;
             this._inhertComboBox.FormattingEnabled = true;
-            this._inhertComboBox.Location = new System.Drawing.Point(99, 106);
+            this._inhertComboBox.Location = new System.Drawing.Point(99, 118);
             this._inhertComboBox.Name = "_inhertComboBox";
             this._inhertComboBox.Size = new System.Drawing.Size(713, 25);
             this._inhertComboBox.Sorted = true;
@@ -231,10 +251,11 @@
             this._namespaceComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._namespaceComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._namespaceComboBox.DisplayMember = "DisplayName";
             this._namespaceComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._namespaceComboBox.ForeColor = System.Drawing.Color.LightGray;
             this._namespaceComboBox.FormattingEnabled = true;
-            this._namespaceComboBox.Location = new System.Drawing.Point(99, 77);
+            this._namespaceComboBox.Location = new System.Drawing.Point(99, 85);
             this._namespaceComboBox.Name = "_namespaceComboBox";
             this._namespaceComboBox.Size = new System.Drawing.Size(713, 25);
             this._namespaceComboBox.Sorted = true;
@@ -247,7 +268,7 @@
             this.NameLabel.AutoSize = true;
             this.NameLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.NameLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.NameLabel.Location = new System.Drawing.Point(10, 23);
+            this.NameLabel.Location = new System.Drawing.Point(14, 23);
             this.NameLabel.Name = "NameLabel";
             this.NameLabel.Size = new System.Drawing.Size(45, 15);
             this.NameLabel.TabIndex = 1;
@@ -260,7 +281,7 @@
             this._descTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
             this._descTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this._descTextBox.ForeColor = System.Drawing.Color.LightGray;
-            this._descTextBox.Location = new System.Drawing.Point(99, 135);
+            this._descTextBox.Location = new System.Drawing.Point(99, 184);
             this._descTextBox.Name = "_descTextBox";
             this._descTextBox.Size = new System.Drawing.Size(713, 27);
             this._descTextBox.TabIndex = 2;
@@ -273,7 +294,7 @@
             this.DataPathButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.DataPathButton.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.DataPathButton.ForeColor = System.Drawing.Color.LightGray;
-            this.DataPathButton.Location = new System.Drawing.Point(749, 166);
+            this.DataPathButton.Location = new System.Drawing.Point(749, 217);
             this.DataPathButton.Name = "DataPathButton";
             this.DataPathButton.Size = new System.Drawing.Size(63, 27);
             this.DataPathButton.TabIndex = 5;
@@ -288,19 +309,30 @@
             this._dataPathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
             this._dataPathTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this._dataPathTextBox.ForeColor = System.Drawing.Color.LightGray;
-            this._dataPathTextBox.Location = new System.Drawing.Point(99, 170);
+            this._dataPathTextBox.Location = new System.Drawing.Point(99, 219);
             this._dataPathTextBox.Name = "_dataPathTextBox";
             this._dataPathTextBox.ReadOnly = true;
             this._dataPathTextBox.Size = new System.Drawing.Size(644, 20);
             this._dataPathTextBox.TabIndex = 2;
             this._dataPathTextBox.TextChanged += new System.EventHandler(this.OnDataPathChange);
             // 
+            // GroupLabel
+            // 
+            this.GroupLabel.AutoSize = true;
+            this.GroupLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.GroupLabel.ForeColor = System.Drawing.Color.LightGray;
+            this.GroupLabel.Location = new System.Drawing.Point(14, 156);
+            this.GroupLabel.Name = "GroupLabel";
+            this.GroupLabel.Size = new System.Drawing.Size(45, 15);
+            this.GroupLabel.TabIndex = 1;
+            this.GroupLabel.Text = "分组:";
+            // 
             // NamespaceLabel
             // 
             this.NamespaceLabel.AutoSize = true;
             this.NamespaceLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.NamespaceLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.NamespaceLabel.Location = new System.Drawing.Point(10, 82);
+            this.NamespaceLabel.Location = new System.Drawing.Point(14, 90);
             this.NamespaceLabel.Name = "NamespaceLabel";
             this.NamespaceLabel.Size = new System.Drawing.Size(75, 15);
             this.NamespaceLabel.TabIndex = 1;
@@ -311,7 +343,7 @@
             this.DescLabel.AutoSize = true;
             this.DescLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.DescLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.DescLabel.Location = new System.Drawing.Point(12, 141);
+            this.DescLabel.Location = new System.Drawing.Point(14, 190);
             this.DescLabel.Name = "DescLabel";
             this.DescLabel.Size = new System.Drawing.Size(45, 15);
             this.DescLabel.TabIndex = 1;
@@ -326,7 +358,7 @@
             this._indexComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._indexComboBox.ForeColor = System.Drawing.Color.LightGray;
             this._indexComboBox.FormattingEnabled = true;
-            this._indexComboBox.Location = new System.Drawing.Point(99, 48);
+            this._indexComboBox.Location = new System.Drawing.Point(99, 52);
             this._indexComboBox.Name = "_indexComboBox";
             this._indexComboBox.Size = new System.Drawing.Size(713, 25);
             this._indexComboBox.Sorted = true;
@@ -339,7 +371,7 @@
             this.DataPathLabel.AutoSize = true;
             this.DataPathLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.DataPathLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.DataPathLabel.Location = new System.Drawing.Point(12, 174);
+            this.DataPathLabel.Location = new System.Drawing.Point(14, 222);
             this.DataPathLabel.Name = "DataPathLabel";
             this.DataPathLabel.Size = new System.Drawing.Size(75, 15);
             this.DataPathLabel.TabIndex = 1;
@@ -363,7 +395,7 @@
             this.IndexLabel.AutoSize = true;
             this.IndexLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.IndexLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.IndexLabel.Location = new System.Drawing.Point(10, 53);
+            this.IndexLabel.Location = new System.Drawing.Point(14, 57);
             this.IndexLabel.Name = "IndexLabel";
             this.IndexLabel.Size = new System.Drawing.Size(60, 15);
             this.IndexLabel.TabIndex = 1;
@@ -374,7 +406,7 @@
             this.InhertLabel.AutoSize = true;
             this.InhertLabel.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.InhertLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.InhertLabel.Location = new System.Drawing.Point(12, 111);
+            this.InhertLabel.Location = new System.Drawing.Point(14, 123);
             this.InhertLabel.Name = "InhertLabel";
             this.InhertLabel.Size = new System.Drawing.Size(45, 15);
             this.InhertLabel.TabIndex = 1;
@@ -427,7 +459,9 @@
         private System.Windows.Forms.ToolStripMenuItem AddMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RemoveMenuItem;
         private System.Windows.Forms.PictureBox _spliter;
-        public System.Windows.Forms.SplitContainer MemberSplitContainer;
         private System.Windows.Forms.GroupBox MemberGroupBox;
+        internal System.Windows.Forms.SplitContainer MemberSplitContainer;
+        private System.Windows.Forms.Label GroupLabel;
+        private System.Windows.Forms.ComboBox _groupComboBox;
     }
 }

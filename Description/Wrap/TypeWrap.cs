@@ -12,15 +12,41 @@ namespace Description.Wrap
     /// </summary>
     public abstract class TypeWrap : BaseWrap
     {
+        public virtual string DisplayFullName
+        {
+            get {
+                if (_xml.Desc.IsEmpty())
+                    return FullName;
+                else
+                    return Util.Format("{0}:{1}", FullName, _xml.Desc);
+            }
+        }
+        public override string DisplayName
+        {
+            get
+            {
+                if (_xml.Desc.IsEmpty())
+                    return Name;
+                else
+                    return Util.Format("{0}:{1}", Name, _xml.Desc);
+            }
+        }
         public override string FullName { get { return Util.Format("{0}.{1}", _namespace.Name, Name); } }
         public NamespaceWrap Namespace { get { return _namespace; } set { _namespace = value; } }
         protected NamespaceWrap _namespace;
-        protected TypeWrap(TypeXml xml, NamespaceWrap ns) : base(xml.Name) {
+        protected TypeXml _xml;
+        protected TypeWrap(TypeXml xml, NamespaceWrap ns) : base(xml.Name)
+        {
             Init(xml, ns);
         }
         protected virtual void Init(TypeXml xml, NamespaceWrap ns)
         {
+            _xml = xml;
             _namespace = ns;
+        }
+        public void RemoveSelf()
+        {
+            Namespace.RemoveTypeWrap(this);
         }
     }
 }

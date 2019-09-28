@@ -30,17 +30,21 @@
         {
             this.components = new System.ComponentModel.Container();
             this._nodeTreeView = new System.Windows.Forms.TreeView();
-            this._classFilterBox = new System.Windows.Forms.TextBox();
+            this._nodeFilterBox = new System.Windows.Forms.TextBox();
             this._classPictureBox = new System.Windows.Forms.PictureBox();
             this._nodeMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.DeleteNodeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._saveRootMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._includeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._excludeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._nodeSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.提交SVNToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.提交ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.flowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this._showAllBox = new System.Windows.Forms.CheckBox();
             this._errorBox = new System.Windows.Forms.CheckBox();
+            this._modifyRootMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._rootSeparator = new System.Windows.Forms.ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)(this._classPictureBox)).BeginInit();
             this._nodeMenu.SuspendLayout();
             this.flowLayoutPanel.SuspendLayout();
@@ -63,18 +67,19 @@
             this._nodeTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.NodeTreeView_NodeMouseClick);
             this._nodeTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.NodeTreeView_NodeMouseDoubleClick);
             // 
-            // _classFilterBox
+            // _nodeFilterBox
             // 
-            this._classFilterBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this._nodeFilterBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this._classFilterBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._classFilterBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this._classFilterBox.ForeColor = System.Drawing.Color.LightGray;
-            this._classFilterBox.Location = new System.Drawing.Point(39, 35);
-            this._classFilterBox.Name = "_classFilterBox";
-            this._classFilterBox.Size = new System.Drawing.Size(196, 27);
-            this._classFilterBox.TabIndex = 1;
+            this._nodeFilterBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._nodeFilterBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this._nodeFilterBox.ForeColor = System.Drawing.Color.LightGray;
+            this._nodeFilterBox.Location = new System.Drawing.Point(39, 35);
+            this._nodeFilterBox.Name = "_nodeFilterBox";
+            this._nodeFilterBox.Size = new System.Drawing.Size(196, 27);
+            this._nodeFilterBox.TabIndex = 1;
+            this._nodeFilterBox.TextChanged += new System.EventHandler(this.NodeFilterBox_TextChanged);
             // 
             // _classPictureBox
             // 
@@ -92,46 +97,62 @@
             // 
             this._nodeMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
             this._nodeMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.DeleteNodeMenuItem,
-            this._includeMenuItem,
+            this._modifyRootMenuItem,
+            this._saveRootMenuItem,
             this._excludeMenuItem,
+            this._includeMenuItem,
+            this._rootSeparator,
+            this.DeleteNodeMenuItem,
+            this._nodeSeparator,
             this.提交SVNToolStripMenuItem,
             this.提交ToolStripMenuItem});
             this._nodeMenu.Name = "_nodeMenu";
-            this._nodeMenu.Size = new System.Drawing.Size(169, 124);
+            this._nodeMenu.Size = new System.Drawing.Size(211, 212);
             // 
             // DeleteNodeMenuItem
             // 
             this.DeleteNodeMenuItem.Name = "DeleteNodeMenuItem";
-            this.DeleteNodeMenuItem.Size = new System.Drawing.Size(168, 24);
+            this.DeleteNodeMenuItem.Size = new System.Drawing.Size(210, 24);
             this.DeleteNodeMenuItem.Text = "删除节点";
             this.DeleteNodeMenuItem.Click += new System.EventHandler(this.NodeTreeView_DeleteNode);
+            // 
+            // _saveRootMenuItem
+            // 
+            this._saveRootMenuItem.Name = "_saveRootMenuItem";
+            this._saveRootMenuItem.Size = new System.Drawing.Size(210, 24);
+            this._saveRootMenuItem.Text = "保存根节点";
+            this._saveRootMenuItem.Click += new System.EventHandler(this.NodeTreeView_Save);
             // 
             // _includeMenuItem
             // 
             this._includeMenuItem.Name = "_includeMenuItem";
-            this._includeMenuItem.Size = new System.Drawing.Size(168, 24);
+            this._includeMenuItem.Size = new System.Drawing.Size(210, 24);
             this._includeMenuItem.Text = "包含到模块中";
             this._includeMenuItem.Click += new System.EventHandler(this.NodeTreeView_Include);
             // 
             // _excludeMenuItem
             // 
             this._excludeMenuItem.Name = "_excludeMenuItem";
-            this._excludeMenuItem.Size = new System.Drawing.Size(168, 24);
+            this._excludeMenuItem.Size = new System.Drawing.Size(210, 24);
             this._excludeMenuItem.Text = "排除到模块外";
             this._excludeMenuItem.Click += new System.EventHandler(this.NodeTreeView_Exclude);
+            // 
+            // _nodeSeparator
+            // 
+            this._nodeSeparator.Name = "_nodeSeparator";
+            this._nodeSeparator.Size = new System.Drawing.Size(207, 6);
             // 
             // 提交SVNToolStripMenuItem
             // 
             this.提交SVNToolStripMenuItem.Name = "提交SVNToolStripMenuItem";
-            this.提交SVNToolStripMenuItem.Size = new System.Drawing.Size(168, 24);
+            this.提交SVNToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
             this.提交SVNToolStripMenuItem.Text = "更新";
             this.提交SVNToolStripMenuItem.Click += new System.EventHandler(this.UpdateToLib);
             // 
             // 提交ToolStripMenuItem
             // 
             this.提交ToolStripMenuItem.Name = "提交ToolStripMenuItem";
-            this.提交ToolStripMenuItem.Size = new System.Drawing.Size(168, 24);
+            this.提交ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
             this.提交ToolStripMenuItem.Text = "提交";
             this.提交ToolStripMenuItem.Click += new System.EventHandler(this.CommitToLib);
             // 
@@ -179,7 +200,19 @@
             this._errorBox.UseVisualStyleBackColor = true;
             this._errorBox.CheckedChanged += new System.EventHandler(this.ErrorBox_CheckedChanged);
             // 
-            // FindNamespaceDock
+            // _modifyRootMenuItem
+            // 
+            this._modifyRootMenuItem.Name = "_modifyRootMenuItem";
+            this._modifyRootMenuItem.Size = new System.Drawing.Size(210, 24);
+            this._modifyRootMenuItem.Text = "修改根属性";
+            this._modifyRootMenuItem.Click += new System.EventHandler(this.NodeTreeView_Modify);
+            // 
+            // _rootSeparator
+            // 
+            this._rootSeparator.Name = "_rootSeparator";
+            this._rootSeparator.Size = new System.Drawing.Size(207, 6);
+            // 
+            // NamespaceDock
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -188,14 +221,14 @@
             this.Controls.Add(this.flowLayoutPanel);
             this.Controls.Add(this._classPictureBox);
             this.Controls.Add(this._nodeTreeView);
-            this.Controls.Add(this._classFilterBox);
+            this.Controls.Add(this._nodeFilterBox);
             this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("宋体", 10F);
             this.ForeColor = System.Drawing.SystemColors.ControlText;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "FindNamespaceDock";
+            this.Name = "NamespaceDock";
             this.ShowIcon = false;
             this.Text = "空间查询";
             ((System.ComponentModel.ISupportInitialize)(this._classPictureBox)).EndInit();
@@ -210,7 +243,7 @@
 
         private System.Windows.Forms.PictureBox _classPictureBox;
         private System.Windows.Forms.TreeView _nodeTreeView;
-        private System.Windows.Forms.TextBox _classFilterBox;
+        private System.Windows.Forms.TextBox _nodeFilterBox;
         private System.Windows.Forms.ContextMenuStrip _nodeMenu;
         private System.Windows.Forms.ToolStripMenuItem DeleteNodeMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 提交SVNToolStripMenuItem;
@@ -220,5 +253,9 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
         private System.Windows.Forms.CheckBox _showAllBox;
         private System.Windows.Forms.CheckBox _errorBox;
+        private System.Windows.Forms.ToolStripMenuItem _saveRootMenuItem;
+        private System.Windows.Forms.ToolStripSeparator _nodeSeparator;
+        private System.Windows.Forms.ToolStripMenuItem _modifyRootMenuItem;
+        private System.Windows.Forms.ToolStripSeparator _rootSeparator;
     }
 }

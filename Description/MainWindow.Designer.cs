@@ -54,7 +54,6 @@
             this._saveModuleItem = new System.Windows.Forms.ToolStripMenuItem();
             this._saveAnotherModuleItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this._closeModuleItem = new System.Windows.Forms.ToolStripMenuItem();
             this.EditToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._undoItem = new System.Windows.Forms.ToolStripMenuItem();
             this._redoItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -102,8 +101,7 @@
             this.SaveTypeMenuItem,
             this._saveModuleItem,
             this._saveAnotherModuleItem,
-            this.toolStripSeparator3,
-            this._closeModuleItem});
+            this.toolStripSeparator3});
             this.FileToolStripMenuItem.Name = "FileToolStripMenuItem";
             this.FileToolStripMenuItem.Size = new System.Drawing.Size(51, 24);
             this.FileToolStripMenuItem.Text = "文件";
@@ -169,13 +167,6 @@
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
             this.toolStripSeparator3.Size = new System.Drawing.Size(228, 6);
-            // 
-            // _closeModuleItem
-            // 
-            this._closeModuleItem.Name = "_closeModuleItem";
-            this._closeModuleItem.Size = new System.Drawing.Size(231, 26);
-            this._closeModuleItem.Text = "关闭模块";
-            this._closeModuleItem.Click += new System.EventHandler(this.CloseModuleItem_Click);
             // 
             // EditToolStripMenuItem
             // 
@@ -389,7 +380,6 @@
         private System.Windows.Forms.ToolStripMenuItem _saveModuleItem;
         private System.Windows.Forms.ToolStripMenuItem _saveAnotherModuleItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
-        private System.Windows.Forms.ToolStripMenuItem _closeModuleItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem _openFindNamespaceItem;
         private System.Windows.Forms.ToolStripMenuItem _openConsoleItem;

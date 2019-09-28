@@ -74,9 +74,9 @@ namespace Description
         {
             _propertyType = ProertyType.Enum;
             EnableBox(_propertyType);
-            _comboBox.Text = value;
             _comboBox.Items.Clear();
             _comboBox.Items.AddRange(items);
+            _comboBox.Text = Util.FindFullType(value, items);
         }
         public void InitString(string value = "")
         {
@@ -90,9 +90,7 @@ namespace Description
             EnableBox(_propertyType);
             _comboBox.Items.Clear();
             _comboBox.Items.AddRange(items);
-            _comboBox.Items.Remove(Util.LIST);
-            _comboBox.Items.Remove(Util.DICT);
-            _comboBox.Text = value;
+            _comboBox.Text = Util.FindFullType(value, items);
         }
         /// <summary>
         /// 键值对形式
@@ -106,13 +104,11 @@ namespace Description
 
             _keyComboBox.Items.Clear();
             _keyComboBox.Items.AddRange(keys);
-            _keyComboBox.Text = key;
+            _keyComboBox.Text = Util.FindFullType(key, values);
 
             _valueComboBox.Items.Clear();
             _valueComboBox.Items.AddRange(values);
-            _valueComboBox.Items.Remove(Util.LIST);
-            _valueComboBox.Items.Remove(Util.DICT);
-            _valueComboBox.Text = value;
+            _valueComboBox.Text = Util.FindFullType(value, values);
         }
         public string GetValue()
         {

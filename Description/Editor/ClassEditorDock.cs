@@ -8,8 +8,6 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace Description.Editor
 {
-    //名称:修改后需要更新其他类父类名称
-
     public partial class ClassEditorDock : EditorDock
     {
         public static ClassEditorDock Create(ClassWrap wrap)
@@ -31,19 +29,33 @@ namespace Description.Editor
             InitializeComponent();
             Show(MainWindow.Ins._dockPanel, DockState.Document);
         }
-        protected override void OnInit(BaseWrap arg)
+        protected override void OnInit(TypeWrap arg)
         {
             base.OnInit(arg);
 
             var wrap = GetWrap<ClassWrap>();
             _namespaceComboBox.Items.AddRange(NamespaceWrap.Namespaces);
-            _inhertComboBox.Items.Add("");
-            _inhertComboBox.Items.AddRange(ClassWrap.Classes);
+            _inhertComboBox.Items.Add(string.Empty);
+            _inhertComboBox.Items.AddRange(ClassWrap.Array);
             _inhertComboBox.Items.Remove(wrap);
+            _groupComboBox.Items.AddRange(Util.Groups);
+
 
             _nameTextBox.Text = wrap.Name;
-            _namespaceComboBox.Text = wrap.Namespace.FullName.IsEmpty() ? "@" : wrap.Namespace.FullName;
-            _inhertComboBox.Text = wrap.Inherit.IsEmpty() ? "" : wrap.Inherit;
+            _namespaceComboBox.SelectedItem = wrap.Namespace;
+            if (!wrap.Inherit.IsEmpty())
+            {
+                if (!ClassWrap.Dict.ContainsKey(wrap.Inherit))
+                    Util.MsgError("本地数据错乱,无法找到{0}类型.", wrap.Inherit);
+                else
+                {
+                    var inherit = ClassWrap.Dict[wrap.Inherit];
+                    _inhertComboBox.SelectedItem = inherit;
+                }
+            }
+            else
+                _inhertComboBox.SelectedText = string.Empty;
+            _groupComboBox.Text = wrap.Group.IsEmpty() ? Util.Groups[0] : wrap.Group;
             _descTextBox.Text = wrap.Desc;
             _dataPathTextBox.Text = wrap.DataPath;
 
@@ -70,17 +82,19 @@ namespace Description.Editor
             var cls = GetWrap<ClassWrap>();
             if (cls.Name != _nameTextBox.Text)
             {
-                string name = cls.Name;
+                string fullName = cls.FullName;
                 cls.Name = _nameTextBox.Text;
-                UpdateTreeNode(name);
+                UpdateTreeNode(fullName);
             }
             var index = _indexComboBox.SelectedItem as FieldEditor;
             cls.Index = index == null ? "" : index.Name;
-            cls.Inherit = _inhertComboBox.Text;
+            var inherit = _inhertComboBox.SelectedItem as ClassWrap;
+            cls.Inherit = inherit == null ? "" : inherit.FullName;
+            cls.Group = _groupComboBox.Text;
             cls.Desc = _descTextBox.Text;
             cls.DataPath = _dataPathTextBox.Text;
 
-            SetNamespace<ClassWrap>(cls.Namespace.Name, _namespaceComboBox.Text);
+            SetNamespace<ClassWrap>(cls.Namespace, _namespaceComboBox.SelectedItem as NamespaceWrap);
 
             foreach (var item in _memberDict)
             {
@@ -97,8 +111,6 @@ namespace Description.Editor
                         cls.RemoveField(editor as FieldEditor);
                 }
             }
-            if (_isDirty)
-                cls.Namespace.SetDirty();
         }
         protected override void ValidateData()
         {
@@ -110,9 +122,12 @@ namespace Description.Editor
                 builder.AppendFormat("数据表{0}未指定关键字!\n", ID);
             if (!_dataPathTextBox.Text.IsEmpty() && !hasDataPath)
                 builder.AppendFormat("数据路径{0}不存在!\n", dataPath);
-            if (!_inhertComboBox.Text.IsEmpty() &&
-                !ClassWrap.ClassDict.ContainsKey(_inhertComboBox.Text))
-                builder.AppendFormat("类型{0}的父类{1}不存在!\n", ID, _inhertComboBox.Text);
+            if (!_inhertComboBox.Text.IsEmpty())
+            {
+                var inherit = _inhertComboBox.SelectedItem as ClassWrap;
+                if (inherit != null && !ClassWrap.Dict.ContainsKey(inherit.FullName))
+                    builder.AppendFormat("类型{0}的父类{1}不存在!\n", ID, inherit.FullName);
+            }
             if (builder.Length > 0)
                 Util.MsgWarning(builder.ToString());
         }
@@ -175,7 +190,6 @@ namespace Description.Editor
                 OpenFileDialog.Title = "引用数据文件";
                 OpenFileDialog.Filter = "表|*.xls|表|*.xlsx";
                 DialogResult result = OpenFileDialog.ShowDialog();
-                OpenFileDialog = null;
                 _dataPathTextBox.Text = Util.GetDataDirRelPath(OpenFileDialog.FileName);
             }
             catch (Exception ex)

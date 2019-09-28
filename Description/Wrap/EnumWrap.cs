@@ -6,22 +6,22 @@ namespace Description.Wrap
 {
     public class EnumWrap : TypeWrap, IDisposable
     {
-        public static EnumWrap[] Enums
+        public static EnumWrap[] Array
         {
             get
             {
-                if (_enums.Length != _enumDict.Count)
+                if (_array.Length != _dict.Count)
                 {
-                    var ls = new List<EnumWrap>(_enumDict.Values);
+                    var ls = new List<EnumWrap>(_dict.Values);
                     ls.Sort((a, b) => Comparer<string>.Default.Compare(a.DisplayName, b.DisplayName));
-                    _enums = ls.ToArray();
+                    _array = ls.ToArray();
                 }
-                return _enums;
+                return _array;
             }
         }
-        public static Dictionary<string, EnumWrap> EnumDict { get { return _enumDict; } }
-        static Dictionary<string, EnumWrap> _enumDict = new Dictionary<string, EnumWrap>();
-        static EnumWrap[] _enums = new EnumWrap[] { };
+        public static Dictionary<string, EnumWrap> Dict { get { return _dict; } }
+        static Dictionary<string, EnumWrap> _dict = new Dictionary<string, EnumWrap>();
+        static EnumWrap[] _array = new EnumWrap[] { };
 
         public static EnumWrap Create(string name, NamespaceWrap nsw)
         {
@@ -35,7 +35,7 @@ namespace Description.Wrap
                 wrap = new EnumWrap(xml, nsw);
             else
                 wrap.Init(xml, nsw);
-            nsw.AddEnumWrap(wrap, false);
+            nsw.AddTypeWrap(wrap, false);
             return wrap;
         }
  
@@ -48,20 +48,10 @@ namespace Description.Wrap
                 _xml.Name = value;
             }
         }
-        public string Inhert { get { return _xml.Inherit; } set { _xml.Inherit = value; } }
+        //public string Inherit { get { return _xml.Inherit; } set { _xml.Inherit = value; } }
+        public string Group { get { return _xml.Group; } set { _xml.Group = value; } }
         public string Desc { get { return _xml.Desc; } set { _xml.Desc = value; } }
         public List<EnumItemWrap> Items { get { return _items; } }
-
-        public override string DisplayName
-        {
-            get
-            {
-                if (Desc.IsEmpty())
-                    return Name;
-                else
-                    return Util.Format("{0}:{1}", Name, Desc);
-            }
-        }
 
 
         private EnumXml _xml;
@@ -89,10 +79,10 @@ namespace Description.Wrap
             }
 
             _items.Sort((a, b) => a.Value - b.Value);
-            _enumDict.Add(FullName, this);
+            _dict.Add(FullName, this);
         }
 
-        public bool AddEItem(EnumItemWrap wrap)
+        public bool AddItem(EnumItemWrap wrap)
         {
             if (Contains(wrap.Name))
             {
@@ -114,13 +104,28 @@ namespace Description.Wrap
             _items.Remove(wrap);
             _xml.Items.Remove(wrap);
         }
+        public void OverrideField(EnumItemWrap wrap)
+        {
+            EnumItemWrap old = null;
+            for (int i = 0; i < Items.Count; i++)
+            {
+                if (Items[i].Name == wrap.Name)
+                {
+                    old = wrap;
+                    break;
+                }
+            }
+            if (old != null)
+                RemoveItem(old);
+            AddItem(wrap);
+        }
         public override void Dispose()
         {
             base.Dispose();
             for (int i = 0; i < _items.Count; i++)
                 _items[i].Dispose();
             _items.Clear();
-            _enumDict.Remove(FullName);
+            _dict.Remove(FullName);
             PoolManager.Ins.Push(this);
         }
 

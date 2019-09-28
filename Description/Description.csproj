@@ -65,6 +65,12 @@
     <Compile Include="Editor\EnumEditorDock.Designer.cs">
       <DependentUpon>EnumEditorDock.cs</DependentUpon>
     </Compile>
+    <Compile Include="Editor\EnumItemEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Editor\EnumItemEditor.Designer.cs">
+      <DependentUpon>EnumItemEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Editor\FieldEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -78,6 +84,12 @@
       <DependentUpon>MemberEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="HotKey.cs" />
+    <Compile Include="NamespaceInfoDock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NamespaceInfoDock.Designer.cs">
+      <DependentUpon>NamespaceInfoDock.cs</DependentUpon>
+    </Compile>
     <Compile Include="PoolManager.cs" />
     <Compile Include="TypeBox.cs">
       <SubType>UserControl</SubType>
@@ -147,6 +159,9 @@
     <EmbeddedResource Include="Editor\EnumEditorDock.resx">
       <DependentUpon>EnumEditorDock.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Editor\EnumItemEditor.resx">
+      <DependentUpon>EnumItemEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Editor\FieldEditor.resx">
       <DependentUpon>FieldEditor.cs</DependentUpon>
     </EmbeddedResource>
@@ -156,6 +171,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="NamespaceDock.resx">
       <DependentUpon>NamespaceDock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NamespaceInfoDock.resx">
+      <DependentUpon>NamespaceInfoDock.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -119,6 +119,8 @@
             // _2ComboBox
             // 
             this._2ComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
+            this._2ComboBox.DisplayMember = "DisplayName";
+            this._2ComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._2ComboBox.ForeColor = System.Drawing.Color.LightGray;
             this._2ComboBox.FormattingEnabled = true;
             this._2ComboBox.ImeMode = System.Windows.Forms.ImeMode.NoControl;

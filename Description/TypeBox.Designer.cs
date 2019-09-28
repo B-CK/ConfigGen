@@ -59,13 +59,14 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._comboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._comboBox.DisplayMember = "FullName";
+            this._comboBox.DisplayMember = "DisplayFullName";
             this._comboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._comboBox.ForeColor = System.Drawing.Color.LightGray;
             this._comboBox.FormattingEnabled = true;
             this._comboBox.Location = new System.Drawing.Point(2, 3);
             this._comboBox.Name = "_comboBox";
             this._comboBox.Size = new System.Drawing.Size(351, 23);
+            this._comboBox.Sorted = true;
             this._comboBox.TabIndex = 13;
             this._comboBox.SelectedIndexChanged += new System.EventHandler(this.OnValueChanged);
             // 
@@ -99,13 +100,14 @@
             this._keyComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this._keyComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._keyComboBox.DisplayMember = "FullName";
+            this._keyComboBox.DisplayMember = "DisplayFullName";
             this._keyComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._keyComboBox.ForeColor = System.Drawing.Color.LightGray;
             this._keyComboBox.FormattingEnabled = true;
             this._keyComboBox.Location = new System.Drawing.Point(2, 3);
             this._keyComboBox.Name = "_keyComboBox";
             this._keyComboBox.Size = new System.Drawing.Size(155, 23);
+            this._keyComboBox.Sorted = true;
             this._keyComboBox.TabIndex = 13;
             this._keyComboBox.SelectedIndexChanged += new System.EventHandler(this.OnValueChanged);
             // 
@@ -115,13 +117,14 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._valueComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._valueComboBox.DisplayMember = "FullName";
+            this._valueComboBox.DisplayMember = "DisplayFullName";
             this._valueComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._valueComboBox.ForeColor = System.Drawing.Color.LightGray;
             this._valueComboBox.FormattingEnabled = true;
             this._valueComboBox.Location = new System.Drawing.Point(157, 3);
             this._valueComboBox.Name = "_valueComboBox";
             this._valueComboBox.Size = new System.Drawing.Size(195, 23);
+            this._valueComboBox.Sorted = true;
             this._valueComboBox.TabIndex = 13;
             this._valueComboBox.SelectedIndexChanged += new System.EventHandler(this.OnValueChanged);
             // 

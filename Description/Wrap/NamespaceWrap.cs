@@ -10,7 +10,6 @@ namespace Description.Wrap
 {
     public class NamespaceWrap : BaseWrap, IDisposable
     {
-        public static bool HasModifyNamespace = false;
         public static Dictionary<string, NamespaceWrap> AllNamespaces { get { return _allNamespaces; } }
         static Dictionary<string, NamespaceWrap> _allNamespaces = new Dictionary<string, NamespaceWrap>();
         public static NamespaceWrap[] Namespaces
@@ -42,10 +41,8 @@ namespace Description.Wrap
             string epath = Util.Format("{0}\\{1}.xml", Util.NamespaceDir, Util.EmptyNamespace);
             if (!File.Exists(epath))
             {
-                HasModifyNamespace = true;
                 var a = Create(Util.EmptyNamespace);
                 a.SetDirty();
-                a.SetNodeState(NodeState.Modify);
             }
         }
 
@@ -79,8 +76,6 @@ namespace Description.Wrap
         /// </summary>
         public bool IsDirty { get { return _isDirty; } }
         private bool _isDirty = false;
-        public bool IsVisible { get { return _isVisible; } set { _isVisible = value; } }
-        private bool _isVisible = false;
 
         public List<ClassWrap> Classes { get { return _classes; } }
         public List<EnumWrap> Enums { get { return _enums; } }
@@ -91,9 +86,9 @@ namespace Description.Wrap
             get
             {
                 if (Desc.IsEmpty())
-                    return Name;
+                    return FullName;
                 else
-                    return Util.Format("{0}:{1}", Name, Desc);
+                    return Util.Format("{0}:{1}", FullName, Desc);
             }
         }
 
@@ -108,7 +103,6 @@ namespace Description.Wrap
         }
         private void Init(NamespaceXml xml)
         {
-            _isDirty = false;
             _xml = xml;
             _classes = new List<ClassWrap>();
             _enums = new List<EnumWrap>();
@@ -124,71 +118,43 @@ namespace Description.Wrap
                 EnumWrap.Create(xenums[i], this);
 
             _allNamespaces.Add(FullName, this);
+            _isDirty = false;
         }
 
-        #region 各类型添加/移除操作[添加新类型时,Add/Remove("TypeName")]
-        public void AddClassWrap(ClassWrap wrap, bool isDirty = true)
+        public void AddTypeWrap(TypeWrap wrap, bool isDirty = true)
         {
             if (isDirty)
             {
-                wrap.SetNodeState(NodeState.Modify);
-                SetNodeState(NodeState.Modify);
-                _xml.Classes.Add(wrap);
+                wrap.AddNodeState(NodeState.Modify);
+                AddNodeState(NodeState.Modify);
                 SetDirty();
             }
 
-            _classes.Add(wrap);
+            if (wrap is ClassWrap)
+                _classes.Add(wrap as ClassWrap);
+            else if (wrap is EnumWrap)
+                _enums.Add(wrap as EnumWrap);
             Add(wrap.Name);
         }
-        public void RemoveClassWrap(ClassWrap wrap, bool isDirty = true)
+        public void RemoveTypeWrap(TypeWrap wrap)
         {
             if (!Contains(wrap.Name)) return;
 
-            if (isDirty)
-            {
-                SetNodeState(NodeState.Modify);
-                _xml.Classes.Remove(wrap);
-                SetDirty();
-            }
-
+            AddNodeState(NodeState.Modify);
+            SetDirty();
             Remove(wrap.Name);
-            _classes.Remove(wrap);
             wrap.Namespace = null;
+
+            if (wrap is ClassWrap)
+                _classes.Remove(wrap as ClassWrap);
+            else if (wrap is EnumWrap)
+                _enums.Remove(wrap as EnumWrap);
         }
-        public void AddEnumWrap(EnumWrap wrap, bool isDirty = true)
-        {
-            if (isDirty)
-            {
-                wrap.SetNodeState(NodeState.Modify);
-                SetNodeState(NodeState.Modify);
-                _xml.Enums.Add(wrap);
-                SetDirty();
-            }
-
-            _enums.Add(wrap);
-            Add(wrap.Name);
-        }
-        public void RemoveEnumWrap(EnumWrap wrap, bool isDirty = true)
-        {
-            if (!Contains(wrap.Name)) return;
-
-            if (isDirty)
-            {
-                SetNodeState(NodeState.Modify);
-                _xml.Enums.Remove(wrap);
-                SetDirty();
-            }
-
-            Remove(wrap.Name);
-            _enums.Remove(wrap);
-            wrap.Namespace = null;
-        }
-        #endregion
-
         public void SetDirty()
         {
-            HasModifyNamespace = true;
             _isDirty = true;
+            AddNodeState(NodeState.Modify);
+            ModuleWrap.AddDirty();
         }
         public override void Dispose()
         {
@@ -217,7 +183,40 @@ namespace Description.Wrap
             _xml.Name = _name;
             try
             {
+                ModuleWrap.RemoveDirty();
+                _xml.Classes.Clear();
+                _xml.Enums.Clear();
+                for (int i = 0; i < _classes.Count; i++)
+                    _xml.Classes.Add(_classes[i]);
+                for (int i = 0; i < _enums.Count; i++)
+                    _xml.Enums.Add(_enums[i]);
+                string path = Util.GetNamespaceAbsPath(_name + ".xml");
+                if (path != _path)
+                {
+                    File.Delete(_path);
+                    _path = path;
+                }
                 Util.Serialize(_path, _xml);
+
+                _isDirty = false;
+                if ((NodeState & NodeState.Error) == 0)
+                    RemoveNodeState(~NodeState.Include);
+                else
+                    RemoveNodeState(~(NodeState.Include | NodeState.Error));
+                for (int i = 0; i < _classes.Count; i++)
+                {
+                    if ((_classes[i].NodeState & NodeState.Error) == 0)
+                        _classes[i].RemoveNodeState(~NodeState.Include);
+                    else
+                        _classes[i].RemoveNodeState(~(NodeState.Include | NodeState.Error));
+                }
+                for (int i = 0; i < _enums.Count; i++)
+                {
+                    if ((_enums[i].NodeState & NodeState.Error) == 0)
+                        _enums[i].RemoveNodeState(~NodeState.Include);
+                    else
+                        _enums[i].RemoveNodeState(~(NodeState.Include | NodeState.Error));
+                }
             }
             catch (Exception e)
             {
