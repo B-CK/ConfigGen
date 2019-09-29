@@ -146,10 +146,6 @@ namespace Description.Editor
             RemoveOpen(srcFullName);
             AddOpen(typeWrap.DisplayName, this);
         }
-        /// <summary>
-        /// 必须在NamespaceWrap重写制定类型Add/Remove("TypeName")函数
-        /// </summary>
-        /// <typeparam name="T">TypeWrap子类型</typeparam>
         protected virtual void SetNamespace<T>(NamespaceWrap src, NamespaceWrap dst) where T : TypeWrap
         {
             T wrap = _wrap as T;
@@ -207,8 +203,7 @@ namespace Description.Editor
                 _wrap.AddNodeState(NodeState.Modify);
                 _wrap.Namespace.SetDirty();
             }
-            _wrap.Namespace.Check();
-            NamespaceDock.Ins.UpdateNamespaceNode(_wrap.Namespace);
+            MainWindow.Ins.CheckError();
             Text = _wrap.Name;
             _isDirty = false;
         }

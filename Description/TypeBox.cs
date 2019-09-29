@@ -123,9 +123,9 @@ namespace Description
                 case ProertyType.String:
                     return _stringBox.Text;
                 case ProertyType.Enum:
-                    return _comboBox.SelectedItem.ToString();
+                    return _comboBox.SelectedItem == null ? "" : _comboBox.SelectedItem.ToString();
                 case ProertyType.List:
-                    return _comboBox.SelectedItem.ToString();
+                    return _comboBox.SelectedItem == null ? "" : _comboBox.SelectedItem.ToString();
                 case ProertyType.Dict:
                     return Util.Format("{0}{1}{2}", _keyComboBox.Text, Util.ArgsSplitFlag[0], _valueComboBox.SelectedItem);
                 case ProertyType.None:

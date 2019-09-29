@@ -165,6 +165,10 @@ namespace Description.Wrap
                 if (c == false)
                     ConsoleDock.Ins.LogErrorFormat("[Class]类型{0}的父类[{1}]不存在!", Inherit);
             }
+            if (isOk == false)
+                AddNodeState(NodeState.Error);
+            else
+                RemoveNodeState(NodeState.Error);
             return isOk;
         }
 

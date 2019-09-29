@@ -209,21 +209,13 @@ namespace Description.Wrap
             bool isOk = base.Check();
             for (int i = 0; i < _classes.Count; i++)
             {
-                bool c = _classes[i].Check();
-                if (c == false)
-                    _classes[i].AddNodeState(NodeState.Error);
-                else
-                    _classes[i].RemoveNodeState(NodeState.Error);
+                bool c = _classes[i].Check();                
                 isOk &= c;
             }
             var xenums = _xml.Enums;
             for (int i = 0; i < _enums.Count; i++)
             {
-                bool c = _enums[i].Check();
-                if (c == false)
-                    _enums[i].AddNodeState(NodeState.Error);
-                else
-                    _enums[i].RemoveNodeState(NodeState.Error);
+                bool c = _enums[i].Check();            
                 isOk &= c;
             }
             if (isOk == false)

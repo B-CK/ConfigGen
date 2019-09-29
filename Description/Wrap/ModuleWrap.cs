@@ -24,32 +24,13 @@ namespace Description.Wrap
             else
                 xml = Util.Deserialize<ModuleXml>(Util.DefaultModule);
             _default = new ModuleWrap(xml);
-
-            ModuleWrap wrap = null;
-            if (File.Exists(Util.LastRecord))
-                wrap = Open(Util.LastRecord);
-            else
-                wrap = OpenDefault();
-
             var allNsw = NamespaceWrap.AllNamespaces;
             foreach (var item in allNsw)
                 _default.AddImport(item.Value, true);
-            var imps = _current.Imports;
-            for (int k = 0; k < imps.Count; k++)
-            {
-                string ns = imps[k];
-                if (allNsw.ContainsKey(ns))
-                {
-                    var nsw = allNsw[ns];
-                    nsw.AddNodeState(NodeState.Include);
-                    var classes = nsw.Classes;
-                    for (int i = 0; i < classes.Count; i++)
-                        classes[i].AddNodeState(NodeState.Include);
-                    var enums = nsw.Enums;
-                    for (int i = 0; i < enums.Count; i++)
-                        enums[i].AddNodeState(NodeState.Include);
-                }
-            }
+            _default.Save(false);
+
+            //打开模块,即当前模块
+            Open(Util.LastRecord);
         }
 
         public static ModuleWrap Create(string path)
@@ -60,19 +41,12 @@ namespace Description.Wrap
                 xml = new ModuleXml() { Name = Path.GetFileNameWithoutExtension(path) };
                 Util.Serialize(path, xml);
             }
+            else
+                xml = Util.Deserialize<ModuleXml>(path);
             ConsoleDock.Ins.LogFormat("创建模块{0}", path);
             ModuleWrap wrap = PoolManager.Ins.Pop<ModuleWrap>();
             if (wrap == null) wrap = new ModuleWrap(xml);
-            Open(path);
             return wrap;
-        }
-        public static ModuleWrap OpenDefault()
-        {
-            if (_default == null)
-                _default = Open(Util.DefaultModule);
-            else
-                _current = _default;
-            return _default;
         }
         public static ModuleWrap Open(string path)
         {
@@ -91,21 +65,34 @@ namespace Description.Wrap
                     if (wrap == null) wrap = new ModuleWrap(xml);
                 }
 
-                if (_current != null) { TrSave(); }
-                _noSaveNum = 0;
+                if (_current != null)
+                {
+                    TrSave();
+                    if (_default != _current)
+                        _current.Close();
+                }
                 _current = wrap;
-                MainWindow.Ins.Text = Util.Format("结构描述 - {0}", wrap.FullName);
-                ConsoleDock.Ins.LogFormat("打开模板{0}", path);
-                return wrap;
             }
             else
             {
                 ConsoleDock.Ins.LogWarningFormat("模块{0}不存在,开启默认模块.", path);
-                return OpenDefault();
+                _current = _default;
             }
+
+            _noSaveNum = 0;
+            _current.InitState();
+            MainWindow.Ins.Text = Util.Format("结构描述 - {0}", _current.FullName);
+            ConsoleDock.Ins.LogFormat("打开模板{0}", path);
+            return _current;
         }
         public static void AddDirty() { ++_noSaveNum; }
         public static void RemoveDirty() { --_noSaveNum; }
+        public static void SilientSave(bool saveNamespace = false)
+        {
+            Default.Save(saveNamespace);
+            Current.Save(saveNamespace);
+            EditorDock.CloseAll();
+        }
         public static DialogResult TrSave()
         {
             if (EditorDock.CheckOpenDock() || _noSaveNum != 0)
@@ -130,9 +117,7 @@ namespace Description.Wrap
             }
             else
             {
-                Default.Save(false);
-                Current.Save(false);
-                EditorDock.CloseAll();
+                SilientSave();
             }
             return DialogResult.None;
         }
@@ -167,10 +152,32 @@ namespace Description.Wrap
                 Add(imps[i]);
             }
         }
-
+        protected void InitState()
+        {
+            var allNsw = NamespaceWrap.AllNamespaces;
+            var imps = Imports;
+            for (int k = 0; k < imps.Count; k++)
+            {
+                string ns = imps[k];
+                if (allNsw.ContainsKey(ns))
+                {
+                    var nsw = allNsw[ns];
+                    nsw.AddNodeState(NodeState.Include);
+                    var classes = nsw.Classes;
+                    for (int i = 0; i < classes.Count; i++)
+                        classes[i].AddNodeState(NodeState.Include);
+                    var enums = nsw.Enums;
+                    for (int i = 0; i < enums.Count; i++)
+                        enums[i].AddNodeState(NodeState.Include);
+                }
+            }
+        }
         public void SaveAnother(string path)
         {
-            Util.Serialize(path, _xml);
+            var another = new ModuleXml();
+            another.Name = Path.GetFileNameWithoutExtension(path);
+            another.Imports = _xml.Imports;
+            Util.Serialize(path, another);
             ConsoleDock.Ins.LogFormat("另存模板{0}", path);
         }
         public void Close()
@@ -237,7 +244,7 @@ namespace Description.Wrap
             {
                 string key = _imports[i];
                 var nsw = NamespaceWrap.AllNamespaces[key];
-                nsw.Check();                
+                nsw.Check();
             }
             ConsoleDock.Ins.LogFormat("{0}模块检查完毕~", _name);
             return isOk;

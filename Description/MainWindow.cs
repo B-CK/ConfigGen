@@ -24,12 +24,7 @@ namespace Description
             InitializeComponent();
             ConsoleDock.Inspect();
 
-            InitSettings();
-            NamespaceWrap.InitNamespaces();
-            ModuleWrap.InitModule();
-            NamespaceDock.Inspect();
-
-            ConsoleDock.Ins.Log("初始化成功~");
+            MainSetup();
         }
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -44,7 +39,7 @@ namespace Description
             base.OnClosed(e);
             _ins = null;
         }
-        private void InitSettings()
+        private void MainSetup()
         {
             if (!Settings.Default.ModuleDir.IsEmpty())
                 Util.ModuleDir = Settings.Default.ModuleDir;
@@ -56,14 +51,53 @@ namespace Description
                 Directory.CreateDirectory(Util.NamespaceDir);
             Util.Groups = new string[Settings.Default.Groups.Count];
             Settings.Default.Groups.CopyTo(Util.Groups, 0);
+
+            NamespaceWrap.InitNamespaces();
+            ModuleWrap.InitModule();
+            NamespaceDock.Inspect();
+
+            ConsoleDock.Ins.Log("初始化成功~");
         }
 
+        /// <summary>
+        /// 检查所有节点
+        /// </summary>
+        public void CheckError()
+        {
+            ModuleWrap.Default.Check();
+            var imps = ModuleWrap.Current.Imports;
+            for (int i = 0; i < imps.Count; i++)
+            {
+                string key = imps[i];
+                var wrap = NamespaceWrap.AllNamespaces[key];
+                if ((wrap.NodeState & NodeState.Modify & NodeState.Modify) != 0)
+                    NamespaceDock.Ins.UpdateNamespaceNode(wrap);
+            }
+        }
+
+
         #region 文件
+        /// <summary>
+        /// 新建
+        /// </summary>
         private void CreateItem_Click(object sender, EventArgs e)
         {
             var creator = new CreatorDock();
             creator.ShowDialog();
         }
+        /// <summary>
+        /// 保存类型
+        /// </summary>
+        private void SaveTypeMenuItem_Click(object sender, EventArgs e)
+        {
+            var dock = _dockPanel.ActiveDocument as EditorDock;
+            if (dock == null) return;
+            EditorDock.SaveDock(dock);
+        }
+
+        /// <summary>
+        /// 新建模块
+        /// </summary>
         private void CreateModuleItem_Click(object sender, EventArgs e)
         {
             _saveFileDialog.InitialDirectory = Util.ModuleDir;
@@ -74,6 +108,8 @@ namespace Description
                 {
                     string fileName = _saveFileDialog.FileName;
                     ModuleWrap.Create(fileName);
+                    ModuleWrap.Open(fileName);
+                    NamespaceDock.Ins.InitTree();
                 }
                 catch (Exception ex)
                 {
@@ -81,7 +117,9 @@ namespace Description
                 }
             }
         }
-
+        /// <summary>
+        /// 打开模块
+        /// </summary>
         private void OpenModuleItem_Click(object sender, EventArgs e)
         {
             _openFileDialog.InitialDirectory = Util.ModuleDir;
@@ -100,18 +138,20 @@ namespace Description
                 }
             }
         }
-        private void SaveTypeMenuItem_Click(object sender, EventArgs e)
-        {
-            var dock = _dockPanel.ActiveDocument as EditorDock;
-            if (dock == null) return;
-            EditorDock.SaveDock(dock);
-        }
-
+        /// <summary>
+        /// 保存模块
+        /// </summary>
         private void SaveModuleItem_Click(object sender, EventArgs e)
         {
-            ModuleWrap.Current.Save();
+            ModuleWrap.SilientSave();
+            var imps = ModuleWrap.Current.Imports;
+            for (int i = 0; i < imps.Count; i++)
+            {
+                var wrap = NamespaceWrap.AllNamespaces[imps[i]];
+                if ((wrap.NodeState & NodeState.Modify & NodeState.Modify) != 0)
+                    NamespaceDock.Ins.SaveNamespaceWrap(wrap);
+            }
         }
-
         private void SaveAnotherModuleItem_Click(object sender, EventArgs e)
         {
             _saveFileDialog.InitialDirectory = Util.ModuleDir;
@@ -132,24 +172,26 @@ namespace Description
         #endregion
 
         #region 编辑
+        private void RefreshItem_Click(object sender, EventArgs e)
+        {
+            var result = ModuleWrap.TrSave();
+            if (result != DialogResult.Cancel)
+            {
+                NamespaceWrap.AllNamespaces.Clear();
+                ClassWrap.Dict.Clear();
+                EnumWrap.Dict.Clear();
+                EditorDock.CloseAll();
+                MainSetup();
+                NamespaceDock.Ins.InitTree();
+            }
+        }
         private void CheckError_Click(object sender, EventArgs e)
         {
-            ModuleWrap.Default.Check();
-            var imps = ModuleWrap.Default.Imports;
-            for (int i = 0; i < imps.Count; i++)
-            {
-                string key = imps[i];
-                var nsw = NamespaceWrap.AllNamespaces[key];
-                NamespaceDock.Ins.UpdateNamespaceNode(nsw);
-            }
+            CheckError();
         }
         #endregion
 
         #region 视图
-        private void RefreshItem_Click(object sender, EventArgs e)
-        {
-
-        }
         private void OpenFindNamespaceItem_Click(object sender, EventArgs e)
         {
             NamespaceDock.Inspect();

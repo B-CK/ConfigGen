@@ -38,7 +38,7 @@ namespace Description.Wrap
         }
         public virtual void Dispose()
         {
-            _nodestate = NodeState.Include;
+            _nodestate = NodeState.Exclude;
             _hash.Clear();
         }
         /// <summary>

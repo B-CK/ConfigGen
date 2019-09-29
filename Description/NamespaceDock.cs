@@ -61,6 +61,7 @@ namespace Description
             ModuleWrap.Current.Check();
             _nodeFilterBox.Text = "";
             _nodeTreeView.BeginUpdate();
+            ClearNodes(_nodeTreeView.Nodes);
             var all = NamespaceWrap.AllNamespaces;
             var current = ModuleWrap.Current.Imports;
             for (int k = 0; k < current.Count; k++)
@@ -161,7 +162,18 @@ namespace Description
             for (int k = 0; k < enums.Count; k++)
                 UpdateNodeColorState(enums[k]);
         }
-
+        //仅保存单个命名空间且更新显示状态
+        public void SaveNamespaceWrap(NamespaceWrap wrap)
+        {
+            wrap.Save();
+            UpdateNodeColorState(wrap);
+            var classes = wrap.Classes;
+            var enums = wrap.Enums;
+            for (int i = 0; i < classes.Count; i++)
+                UpdateNodeColorState(classes[i]);
+            for (int i = 0; i < enums.Count; i++)
+                UpdateNodeColorState(enums[i]);
+        }
 
         private void AddSubNode(TypeWrap cWrap, NamespaceWrap nWrap)
         {
@@ -180,15 +192,15 @@ namespace Description
             node.Name = wrap.FullName;
             return node;
         }
-        //private void ClearNodes(TreeNodeCollection root)
-        //{
-        //    for (int i = 0; i < root.Count; i++)
-        //    {
-        //        ClearNodes(root[i].Nodes);
-        //        PoolManager.Ins.Push(root[i]);
-        //    }
-        //    root.Clear();
-        //}
+        private void ClearNodes(TreeNodeCollection root)
+        {
+            for (int i = 0; i < root.Count; i++)
+            {
+                ClearNodes(root[i].Nodes);
+                PoolManager.Ins.Push(root[i]);
+            }
+            root.Clear();
+        }
         private void SetNodeColor(TreeNode node)
         {
             BaseWrap wrap = node.Tag as BaseWrap;
@@ -270,8 +282,6 @@ namespace Description
             {
                 var nsw = wrap as NamespaceWrap;
                 ModuleWrap.Current.RemoveImport(nsw);
-                if (nsw.FullName != Util.EmptyNamespace)
-                    ModuleWrap.Default.RemoveImport(nsw);
                 PoolManager.Ins.Push(nsw);
                 _nodeTreeView.Nodes.Remove(node);
             }
@@ -287,6 +297,7 @@ namespace Description
                 UpdateNodeColorState(root.Tag as BaseWrap);
             }
             PoolManager.Ins.Push(node);
+            MainWindow.Ins.CheckError();
         }
         private void NodeTreeView_Modify(object sender, EventArgs e)
         {
@@ -298,20 +309,13 @@ namespace Description
         }
         private void NodeTreeView_Save(object sender, EventArgs e)
         {
-            var nsw = (_nodeTreeView.SelectedNode.Tag as NamespaceWrap);
-            if (nsw == null)
+            var wrap = (_nodeTreeView.SelectedNode.Tag as NamespaceWrap);
+            if (wrap == null)
                 Util.MsgError("选择的节点不是根节点!", _nodeTreeView.SelectedNode.Name);
             else
             {
-                nsw.Save();
-                UpdateNodeColorState(nsw);
-                var classes = nsw.Classes;
-                var enums = nsw.Enums;
-                for (int i = 0; i < classes.Count; i++)
-                    UpdateNodeColorState(classes[i]);
-                for (int i = 0; i < enums.Count; i++)
-                    UpdateNodeColorState(enums[i]);
-                ConsoleDock.Ins.LogFormat("成功手动保存命名空间{0}!", nsw.FullName);
+                SaveNamespaceWrap(wrap);
+                ConsoleDock.Ins.LogFormat("成功手动保存命名空间{0}!", wrap.FullName);
             }
         }
         private void NodeTreeView_Include(object sender, EventArgs e)

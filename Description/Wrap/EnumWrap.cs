@@ -137,6 +137,10 @@ namespace Description.Wrap
                 else
                     hash.Add(_items[i].Alias);
             }
+            if (isOk == false)
+                AddNodeState(NodeState.Error);
+            else
+                RemoveNodeState(NodeState.Error);
             return isOk;
         }
         public override void Dispose()
