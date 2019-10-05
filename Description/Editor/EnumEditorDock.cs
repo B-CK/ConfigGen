@@ -33,11 +33,10 @@ namespace Description.Editor
 
             var wrap = GetWrap<EnumWrap>();
             _namespaceComboBox.Items.AddRange(NamespaceWrap.Namespaces);
-            _groupComboBox.Items.AddRange(Util.Groups);
 
             _nameTextBox.Text = wrap.Name;
             _namespaceComboBox.SelectedItem = wrap.Namespace;
-            _groupComboBox.Text = wrap.Group.IsEmpty() ? Util.Groups[0] : wrap.Group;
+            _groupTextBox.Text = wrap.Group.IsEmpty() ? Util.Groups[0] : wrap.Group;
             _descTextBox.Text = wrap.Desc;
 
             var enums = wrap.Items;
@@ -53,7 +52,7 @@ namespace Description.Editor
         {
             base.OnSave();
             var enm = GetWrap<EnumWrap>();
-            enm.Group = _groupComboBox.Text;
+            enm.Group = _groupTextBox.Text;
             if (enm.Name != _nameTextBox.Text || enm.Desc != _descTextBox.Text)
             {
                 string fullName = enm.FullName;
@@ -183,6 +182,9 @@ namespace Description.Editor
             var find = sender as TextBox;
             FindMember(find.Text);
         }
-        
+        private void GroupButton_Click(object sender, EventArgs e)
+        {
+            GroupDock.Ins.ShowGroups(_groupTextBox);
+        }
     }
 }

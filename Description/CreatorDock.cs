@@ -48,7 +48,7 @@ namespace Description
                     SelectType(); break;
                 case 2: SelectNamespace(); break;
                 default:
-                    ConsoleDock.Ins.LogErrorFormat("创建内容选项中不存在项{0}", _createListBox.SelectedIndex);
+                    Debug.LogErrorFormat("创建内容选项中不存在项{0}", _createListBox.SelectedIndex);
                     break;
             }
         }
@@ -116,7 +116,7 @@ namespace Description
                         break;
                     }
                 default:
-                    ConsoleDock.Ins.LogErrorFormat("创建内容选项中不存在项{0}", _createListBox.SelectedIndex);
+                    Debug.LogErrorFormat("创建内容选项中不存在项{0}", _createListBox.SelectedIndex);
                     break;
             }
         }

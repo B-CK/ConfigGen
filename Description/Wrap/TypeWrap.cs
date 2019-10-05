@@ -32,16 +32,17 @@ namespace Description.Wrap
                     return Util.Format("{0}:{1}", Name, _xml.Desc);
             }
         }
-        public override string FullName { get { return Util.Format("{0}.{1}", _namespace.Name, Name); } }
+        public override string FullName { get { return _namespace == null ? null : Util.Format("{0}.{1}", _namespace.Name, Name); } }
         public NamespaceWrap Namespace { get { return _namespace; } set { _namespace = value; } }
         protected NamespaceWrap _namespace;
         protected TypeXml _xml;
-        protected TypeWrap(TypeXml xml, NamespaceWrap ns) : base(xml.Name)
+        protected TypeWrap(TypeXml xml, NamespaceWrap ns)
         {
             Init(xml, ns);
         }
         protected virtual void Init(TypeXml xml, NamespaceWrap ns)
         {
+            base.Init(xml.Name);
             _xml = xml;
             _namespace = ns;
         }

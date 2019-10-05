@@ -115,6 +115,7 @@
             // _logListView
             // 
             resources.ApplyResources(this._logListView, "_logListView");
+            this._logListView.AutoArrange = false;
             this._logListView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             this._logListView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this._logListView.ContextMenuStrip = this.contextMenuStrip;

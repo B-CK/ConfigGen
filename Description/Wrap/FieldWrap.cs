@@ -67,12 +67,14 @@ namespace Description.Wrap
 
         private ClassWrap _cls;
         private FieldXml _xml;
-        protected FieldWrap(FieldXml xml, ClassWrap cls) : base(xml.Name)
+        protected FieldWrap(FieldXml xml, ClassWrap cls)
         {
             Init(xml, cls);
         }
         private void Init(FieldXml xml, ClassWrap cls)
         {
+            base.Init(xml.Name);
+
             _xml = xml;
             _cls = cls;
         }
@@ -97,7 +99,7 @@ namespace Description.Wrap
                 case 0:
                 default:
                     r = false;
-                    ConsoleDock.Ins.LogErrorFormat("[Class]类型{0}中字段{1}的类型异常[{2}]", _cls.FullName, _name, Type);
+                    Debug.LogErrorFormat("[Class]类型{0}中字段{1}的类型异常[{2}]", _cls.FullName, _name, Type);
                     break;
             }
             return r;
@@ -106,13 +108,13 @@ namespace Description.Wrap
         {
             bool isOK = Util.HasType(type);
             if (isOK == false)
-                ConsoleDock.Ins.LogErrorFormat("[Class]类型{0}中字段{1}的类型异常[{2}]!{3}类型不存在.", _cls.FullName, _name, Type, type);
+                Debug.LogErrorFormat("[Class]类型{0}中字段{1}的类型异常[{2}]!{3}类型不存在.", _cls.FullName, _name, Type, type);
             if (EnumWrap.Dict.ContainsKey(type))
             {
                 var enm = EnumWrap.Dict[type];
                 var c = enm.Contains(Value);
                 if (c == false)
-                    ConsoleDock.Ins.LogErrorFormat("[Class]类型{0}中字段{1}的枚举值{2}.{3}不存在!.", _cls.FullName, _name, Type, Value);
+                    Debug.LogErrorFormat("[Class]类型{0}中字段{1}的枚举值{2}.{3}不存在!.", _cls.FullName, _name, Type, Value);
                 isOK &= c;
             }
             return isOK;

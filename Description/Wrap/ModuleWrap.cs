@@ -15,15 +15,8 @@ namespace Description.Wrap
         static int _noSaveNum = 0;
         public static void InitModule()
         {
-            ModuleXml xml = null;
-            if (!File.Exists(Util.DefaultModule))
-            {
-                var module = new ModuleXml() { Name = Util.DefaultModuleName };
-                Util.Serialize(Util.DefaultModule, module);
-            }
-            else
-                xml = Util.Deserialize<ModuleXml>(Util.DefaultModule);
-            _default = new ModuleWrap(xml);
+            ModuleXml xml = new ModuleXml() { Name = Util.DefaultModuleName };
+            _default = new ModuleWrap(xml) { _path = Util.DefaultModule };
             var allNsw = NamespaceWrap.AllNamespaces;
             foreach (var item in allNsw)
                 _default.AddImport(item.Value, true);
@@ -33,6 +26,10 @@ namespace Description.Wrap
             Open(Util.LastRecord);
         }
 
+        public static void CloseCurrent()
+        {
+            _current = null;
+        }
         public static ModuleWrap Create(string path)
         {
             ModuleXml xml = null;
@@ -43,7 +40,7 @@ namespace Description.Wrap
             }
             else
                 xml = Util.Deserialize<ModuleXml>(path);
-            ConsoleDock.Ins.LogFormat("创建模块{0}", path);
+            Debug.LogFormat("创建模块{0}", path);
             ModuleWrap wrap = PoolManager.Ins.Pop<ModuleWrap>();
             if (wrap == null) wrap = new ModuleWrap(xml);
             return wrap;
@@ -68,21 +65,20 @@ namespace Description.Wrap
                 if (_current != null)
                 {
                     TrSave();
-                    if (_default != _current)
-                        _current.Close();
+                    _current.Close();
                 }
                 _current = wrap;
             }
             else
             {
-                ConsoleDock.Ins.LogWarningFormat("模块{0}不存在,开启默认模块.", path);
+                Debug.LogWarningFormat("模块{0}不存在,开启默认模块.", path);
                 _current = _default;
             }
 
             _noSaveNum = 0;
             _current.InitState();
             MainWindow.Ins.Text = Util.Format("结构描述 - {0}", _current.FullName);
-            ConsoleDock.Ins.LogFormat("打开模板{0}", path);
+            Debug.LogFormat("打开模板{0}", path);
             return _current;
         }
         public static void AddDirty() { ++_noSaveNum; }
@@ -100,17 +96,15 @@ namespace Description.Wrap
                 var result = MessageBox.Show("当前模块未保存,是否保存?", "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 switch (result)
                 {
-                    case DialogResult.Cancel:
+                    case DialogResult.Cancel://取消操作,对数据不做任何处理
                         return DialogResult.Cancel;
-                    case DialogResult.Yes:
+                    case DialogResult.Yes://保存所有修改,且关闭模块
                         EditorDock.SaveAll();
                         Default.Save();
                         Current.Save();
                         EditorDock.CloseAll();
                         return DialogResult.Yes;
-                    case DialogResult.No:
-                        Default.Save(false);
-                        Current.Save(false);
+                    case DialogResult.No://放弃所有修改,且关闭模块
                         EditorDock.CloseAll();
                         return DialogResult.No;
                 }
@@ -138,8 +132,10 @@ namespace Description.Wrap
         private List<string> _imports;
         private ModuleXml _xml;
         private string _path;
-        protected ModuleWrap(ModuleXml xml) : base(xml.Name)
+        protected ModuleWrap(ModuleXml xml)
         {
+            base.Init(xml.Name);
+
             _xml = xml;
             _path = Util.GetModuleAbsPath(_name + ".xml");
             _imports = new List<string>();
@@ -178,9 +174,9 @@ namespace Description.Wrap
             another.Name = Path.GetFileNameWithoutExtension(path);
             another.Imports = _xml.Imports;
             Util.Serialize(path, another);
-            ConsoleDock.Ins.LogFormat("另存模板{0}", path);
+            Debug.LogFormat("另存模板{0}", path);
         }
-        public void Close()
+        private void Close()
         {
             Dispose();
             if (this != _default)
@@ -210,7 +206,7 @@ namespace Description.Wrap
             //_xml.Name = _name;
             _xml.Imports = _imports;
             Util.Serialize(_path, _xml);
-            ConsoleDock.Ins.LogFormat("保存模板{0}", _path);
+            Debug.LogFormat("保存模板{0}", _path);
 
             if (!saveNsw) return;
             for (int i = 0; i < _imports.Count; i++)
@@ -236,17 +232,17 @@ namespace Description.Wrap
 
         public override bool Check()
         {
-            ConsoleDock.Ins.LogFormat("开始检查{0}模块!", _name);
+            Debug.LogFormat("开始检查{0}模块!", _name);
             bool isOk = Util.CheckIdentifier(_name);
             if (isOk == false)
-                ConsoleDock.Ins.LogErrorFormat("名称[{0}]不规范,请以'_',字母和数字命名且首字母只能为'_'和字母!", _name);
+                Debug.LogErrorFormat("名称[{0}]不规范,请以'_',字母和数字命名且首字母只能为'_'和字母!", _name);
             for (int i = 0; i < _imports.Count; i++)
             {
                 string key = _imports[i];
                 var nsw = NamespaceWrap.AllNamespaces[key];
                 nsw.Check();
             }
-            ConsoleDock.Ins.LogFormat("{0}模块检查完毕~", _name);
+            Debug.LogFormat("{0}模块检查完毕~", _name);
             return isOk;
         }
     }

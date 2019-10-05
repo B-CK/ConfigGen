@@ -56,7 +56,7 @@ namespace Description
                     _numericUpDown.Maximum = long.MaxValue;
                     break;
                 default:
-                    ConsoleDock.Ins.LogErrorFormat("不存在Int{0}大小!", size);
+                    Debug.LogErrorFormat("不存在Int{0}大小!", size);
                     break;
             }
         }

@@ -21,7 +21,13 @@ namespace Description.Wrap
         }
         public static Dictionary<string, EnumWrap> Dict { get { return _dict; } }
         static Dictionary<string, EnumWrap> _dict = new Dictionary<string, EnumWrap>();
-        static EnumWrap[] _array = new EnumWrap[] { };
+        static EnumWrap[] _array = new EnumWrap[0];
+
+        public static void ClearAll()
+        {
+            _array = new EnumWrap[0];
+            _dict.Clear();
+        }
 
         public static EnumWrap Create(string name, NamespaceWrap nsw)
         {
@@ -132,7 +138,7 @@ namespace Description.Wrap
                 if (a)
                 {
                     isOk = false;
-                    ConsoleDock.Ins.LogErrorFormat("[Enum]类型{0}中重复定义枚举别名{1}({2}).", _name, _items[i].Name, _items[i].Alias);
+                    Debug.LogErrorFormat("[Enum]类型{0}中重复定义枚举别名{1}({2}).", FullName, _items[i].Name, _items[i].Alias);
                 }
                 else
                     hash.Add(_items[i].Alias);

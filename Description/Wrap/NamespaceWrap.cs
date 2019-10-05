@@ -45,7 +45,14 @@ namespace Description.Wrap
                 a.SetDirty();
             }
         }
-
+        public static void ClearAll()
+        {
+            foreach (var item in _allNamespaces)
+                item.Value.Dispose();
+            _allNamespaces.Clear();
+            ClassWrap.ClearAll();
+            EnumWrap.ClearAll();
+        }
         public static NamespaceWrap GetNamespace(string name)
         {
             if (_allNamespaces.ContainsKey(name))
@@ -97,12 +104,14 @@ namespace Description.Wrap
         private NamespaceXml _xml;
 
         private string _path;
-        protected NamespaceWrap(NamespaceXml xml) : base(xml.Name)
+        protected NamespaceWrap(NamespaceXml xml) 
         {
             Init(xml);
         }
         private void Init(NamespaceXml xml)
         {
+            base.Init(xml.Name);
+
             _xml = xml;
             _classes = new List<ClassWrap>();
             _enums = new List<EnumWrap>();
@@ -140,7 +149,7 @@ namespace Description.Wrap
             if (!Contains(wrap.Name)) return;
 
             SetDirty();
-            Remove(wrap.Name);         
+            Remove(wrap.Name);
 
             if (wrap is ClassWrap)
                 _classes.Remove(wrap as ClassWrap);
@@ -195,7 +204,7 @@ namespace Description.Wrap
             }
             catch (Exception e)
             {
-                ConsoleDock.Ins.LogErrorFormat("序列化命名空间{0}失败!\n{1}\n{2}\n",
+                Debug.LogErrorFormat("序列化命名空间{0}失败!\n{1}\n{2}\n",
                    _name, e.Message, e.StackTrace);
             }
         }
@@ -209,13 +218,13 @@ namespace Description.Wrap
             bool isOk = base.Check();
             for (int i = 0; i < _classes.Count; i++)
             {
-                bool c = _classes[i].Check();                
+                bool c = _classes[i].Check();
                 isOk &= c;
             }
             var xenums = _xml.Enums;
             for (int i = 0; i < _enums.Count; i++)
             {
-                bool c = _enums[i].Check();            
+                bool c = _enums[i].Check();
                 isOk &= c;
             }
             if (isOk == false)
@@ -227,17 +236,20 @@ namespace Description.Wrap
         public override void Dispose()
         {
             base.Dispose();
-            try
+            if (ModuleWrap.Default == ModuleWrap.Current)
             {
-                string path = Util.GetNamespaceAbsPath(FullName + ".xml");
-                File.Delete(path);
+                try
+                {
+                    string path = Util.GetNamespaceAbsPath(FullName + ".xml");
+                    File.Delete(path);
+                    _allNamespaces.Remove(FullName);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogErrorFormat("删除命名空间{0}失败!\n{1}\n{2}\n",
+                       FullName, e.Message, e.StackTrace);
+                }
             }
-            catch (Exception e)
-            {
-                ConsoleDock.Ins.LogErrorFormat("删除命名空间{0}失败!\n{1}\n{2}\n",
-                   FullName, e.Message, e.StackTrace);
-            }
-            _allNamespaces.Remove(FullName);
             for (int i = 0; i < _classes.Count; i++)
                 _classes[i].Dispose();
             for (int i = 0; i < _enums.Count; i++)

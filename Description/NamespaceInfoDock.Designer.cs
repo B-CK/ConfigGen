@@ -85,7 +85,7 @@
             this._okButton.ForeColor = System.Drawing.Color.LightGray;
             this._okButton.Location = new System.Drawing.Point(108, 87);
             this._okButton.Name = "_okButton";
-            this._okButton.Size = new System.Drawing.Size(80, 30);
+            this._okButton.Size = new System.Drawing.Size(80, 1);
             this._okButton.TabIndex = 5;
             this._okButton.Text = "保存";
             this._okButton.UseVisualStyleBackColor = true;
@@ -98,7 +98,7 @@
             this._cancleButton.ForeColor = System.Drawing.Color.LightGray;
             this._cancleButton.Location = new System.Drawing.Point(306, 87);
             this._cancleButton.Name = "_cancleButton";
-            this._cancleButton.Size = new System.Drawing.Size(80, 30);
+            this._cancleButton.Size = new System.Drawing.Size(80, 1);
             this._cancleButton.TabIndex = 6;
             this._cancleButton.Text = "取消";
             this._cancleButton.UseVisualStyleBackColor = true;

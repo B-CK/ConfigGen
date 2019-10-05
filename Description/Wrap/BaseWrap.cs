@@ -19,7 +19,8 @@ namespace Description.Wrap
         /// </summary>
         private HashSet<string> _hash;
         private NodeState _nodestate = NodeState.Exclude;
-        protected BaseWrap(string name)
+        protected BaseWrap() { }
+        protected virtual void Init(string name)
         {
             _name = name;
             _hash = new HashSet<string>();
@@ -49,7 +50,7 @@ namespace Description.Wrap
         {
             //bool r = Util.CheckIdentifier(_name);
             //if (r == false)
-            //    ConsoleDock.Ins.LogErrorFormat("名称[{0}]不规范,请以'_',字母和数字命名且首字母只能为'_'和字母!", _name);
+            //    Debug.LogErrorFormat("名称[{0}]不规范,请以'_',字母和数字命名且首字母只能为'_'和字母!", _name);
             //return r;
             return true;
         }

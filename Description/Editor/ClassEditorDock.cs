@@ -38,15 +38,13 @@ namespace Description.Editor
             _inhertComboBox.Items.Add(string.Empty);
             _inhertComboBox.Items.AddRange(ClassWrap.Array);
             _inhertComboBox.Items.Remove(wrap);
-            _groupComboBox.Items.AddRange(Util.Groups);
-
 
             _nameTextBox.Text = wrap.Name;
             _namespaceComboBox.SelectedItem = wrap.Namespace;
             if (!wrap.Inherit.IsEmpty())
             {
                 if (!ClassWrap.Dict.ContainsKey(wrap.Inherit))
-                    Util.MsgError("本地数据错乱,无法找到{0}类型.", wrap.Inherit);
+                    Debug.LogErrorFormat("[Class]类型{0}的父类{1}类型不存在!", wrap.FullName, wrap.Inherit);
                 else
                 {
                     var inherit = ClassWrap.Dict[wrap.Inherit];
@@ -55,7 +53,7 @@ namespace Description.Editor
             }
             else
                 _inhertComboBox.SelectedText = string.Empty;
-            _groupComboBox.Text = wrap.Group.IsEmpty() ? Util.Groups[0] : wrap.Group;
+            _groupTextBox.Text = wrap.Group.IsEmpty() ? Util.Groups[0] : wrap.Group;
             _descTextBox.Text = wrap.Desc;
             _dataPathTextBox.Text = wrap.DataPath;
 
@@ -84,7 +82,7 @@ namespace Description.Editor
             cls.Index = index == null ? "" : index.Name;
             var inherit = _inhertComboBox.SelectedItem as ClassWrap;
             cls.Inherit = inherit == null ? "" : inherit.FullName;
-            cls.Group = _groupComboBox.Text;
+            cls.Group = _groupTextBox.Text;
             cls.DataPath = _dataPathTextBox.Text;
             if (cls.Name != _nameTextBox.Text || cls.Desc != _descTextBox.Text)
             {
@@ -176,7 +174,7 @@ namespace Description.Editor
             }
             catch (Exception ex)
             {
-                ConsoleDock.Ins.LogErrorFormat("获取数据文件路径失败!{0}\n{1}", ex.Message, ex.StackTrace);
+                Debug.LogErrorFormat("获取数据文件路径失败!{0}\n{1}", ex.Message, ex.StackTrace);
             }
         }
         private void MemberListBox_MouseDown(object sender, MouseEventArgs e)
@@ -249,6 +247,10 @@ namespace Description.Editor
             if (!_isInit) return;
             var find = sender as TextBox;
             FindMember(find.Text);
+        }
+        private void GroupButton_Click(object sender, EventArgs e)
+        {
+            GroupDock.Ins.ShowGroups(_groupTextBox);
         }
     }
 }

@@ -203,7 +203,7 @@ namespace Description.Editor
                 _wrap.AddNodeState(NodeState.Modify);
                 _wrap.Namespace.SetDirty();
             }
-            MainWindow.Ins.CheckError();
+            NamespaceDock.Ins.UpdateModule();
             Text = _wrap.Name;
             _isDirty = false;
         }

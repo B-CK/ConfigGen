@@ -10,9 +10,9 @@ using System.IO;
 
 namespace Description
 {
+
     public partial class ConsoleDock : DockContent
     {
-        const string logFile = "error.log";
         public static ConsoleDock Ins { get { return _ins; } }
         static ConsoleDock _ins;
         public static void Inspect()
@@ -29,12 +29,7 @@ namespace Description
         }
         protected override void OnClosed(EventArgs e)
         {
-            stream.Close();
-            stream.Dispose();
-            stream = null;
-            writer = null;
             _ins = null;
-
             base.OnClosed(e);
         }
         private ConsoleDock()
@@ -42,24 +37,25 @@ namespace Description
             InitializeComponent();
 
             _checks = new CheckBox[] { _logCheckBox, _logWarnCheckBox, _logErrorCheckBox };
-            ResetLogCount();
             _logListView.ListViewItemSorter = new ListViewItemComparer();
-
-            if (!File.Exists(logFile))
-                File.Create(logFile);
-            else
+            ResetLogCount();
+            var logs = Debug.GetLogs();
+            for (int i = 0; i < logs.Count; i++)
             {
-                string[] lines = File.ReadAllLines(logFile);
-                if (lines.Length >= 1000)
+                var log = logs[i];
+                var check = _checks[(int)log.MsgType];
+                int num = 0;
+                if (int.TryParse(check.Text, out num))
                 {
-                    string[] cut = new string[500];
-                    Array.Copy(lines, 500, cut, 0, 500);
-                    File.WriteAllLines(Util.LogErrorFile, cut);
+                    if (num >= 99)
+                        check.Text = string.Format("{0}+", num).ToString();
+                    else
+                        check.Text = string.Format("{0}", num + 1).ToString();
                 }
+                if (check.Checked)
+                    _logListView.Items.Add(log);
+                _logListView.Refresh();
             }
-            stream = File.Open(Util.LogErrorFile, FileMode.Append, FileAccess.Write);
-            writer = new StreamWriter(stream);
-            writer.AutoFlush = true;
         }
         class ListViewItemComparer : IComparer
         {
@@ -72,76 +68,26 @@ namespace Description
         }
 
 
-        Stream stream;
-        StreamWriter writer;
-
-        StringBuilder _builder = new StringBuilder();
-        Queue<Log> _cache = new Queue<Log>();
-        List<Log> _logs = new List<Log>();
         CheckBox[] _checks;
         bool _isEnter = false;
 
-        public void Log(object msg) { Log(msg.ToString()); }
-        public void LogWarning(object msg) { LogWarning(msg.ToString()); }
-        public void LogError(object msg) { LogError(msg.ToString()); }
-        public void Log(string msg)
+        public void ShowMessage(Log log)
         {
-            SendMessage(LogType.Info, msg);
-        }
-        public void LogWarning(string msg)
-        {
-            SendMessage(LogType.Warn, msg);
-        }
-        public void LogError(string msg)
-        {
-            Show();
-            SendMessage(LogType.Error, msg);
-        }
-        public void LogFormat(string format, params object[] logString)
-        {
-            Log(Util.Format(format, logString));
-        }
-        public void LogWarningFormat(string format, params object[] warningString)
-        {
-            LogWarning(Util.Format(format, warningString));
-        }
-        public void LogErrorFormat(string format, params object[] errorString)
-        {
-            LogError(Util.Format(format, errorString));
-        }
+            if (log.MsgType == LogType.Error)
+                Show();
 
-
-
-        private void SendMessage(LogType type, string msg = "")
-        {
-            int line = _logs.Count;
-            Log log = null;
-            if (_cache.Count == 0)
-            {
-                log = new Log(line, type, msg);
-            }
-            else
-            {
-                log = _cache.Dequeue();
-                log.Reset(line, type, msg);
-            }
-
-            _builder.Clear();
-            _logs.Add(log);
             CheckBox check = _checks[(int)log.MsgType];
             int num = 0;
             if (int.TryParse(check.Text, out num))
             {
                 if (num >= 99)
-                    check.Text = _builder.AppendFormat("{0}+", num).ToString();
+                    check.Text = string.Format("{0}+", num).ToString();
                 else
-                    check.Text = _builder.AppendFormat("{0}", num + 1).ToString();
+                    check.Text = string.Format("{0}", num + 1).ToString();
             }
             if (check.Checked)
                 _logListView.Items.Add(log);
             _logListView.Refresh();
-            if (writer != null)
-                writer.WriteLine(log.TimeMsg);
         }
 
         private void ResetLogCount()
@@ -154,9 +100,10 @@ namespace Description
         {
             _logListView.BeginUpdate();
             CheckBox check = sender as CheckBox;
-            for (int i = 0; i < _logs.Count; i++)
+            var logs = Debug.GetLogs();
+            for (int i = 0; i < logs.Count; i++)
             {
-                Log log = _logs[i];
+                Log log = logs[i];
                 if ((int)log.MsgType != check.TabIndex) continue;
 
                 if (check.Checked)
@@ -173,28 +120,27 @@ namespace Description
         }
         private void ClearLogs(object sender, EventArgs e)
         {
-            _logListView.Items.Clear();
-            for (int i = 0; i < _logs.Count; i++)
-                _cache.Enqueue(_logs[i]);
-            _logs.Clear();
             ResetLogCount();
+            _logListView.Items.Clear();
+            Debug.Clear();
         }
         private void CopyLogs(object sender, EventArgs e)
         {
-            _builder.Clear();
+            StringBuilder builder = new StringBuilder();
             var items = _logListView.SelectedItems;
             for (int i = 0; i < items.Count; i++)
             {
                 if (items[i].Selected)
-                    _builder.AppendLine(items[i].Text);
+                    builder.AppendLine(items[i].Text);
             }
-            string copy = _builder.ToString();
+            string copy = builder.ToString();
             if (!copy.IsEmpty())
-                Clipboard.SetText(_builder.ToString());
+                Clipboard.SetText(copy);
         }
         //-------------测试
         private void ConsoleDock_DoubleClick(object sender, EventArgs e)
         {
+            //System.Diagnostics.Process.Start
             //for (int i = 0; i < 111; i++)
             //{
             //SendMessage(LogType.Info, " -  Info|askjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdhaskjhkjdshkjsdh");
@@ -213,6 +159,9 @@ namespace Description
             _logListView.Refresh();
         }
 
+        /// <summary>
+        /// Ctrl+A:全选;Esc:取消全选
+        /// </summary>
         private void LogListView_KeyDown(object sender, KeyEventArgs e)
         {
             if (!_isEnter) return;

@@ -79,8 +79,7 @@ namespace Description.Editor
             }
             _isConstCheckBox.Checked = field.IsConst;
             _valueTypeBox.OnCheckChange = OnFieldValueChanged;
-            _groupComboBox.Items.AddRange(Util.Groups);
-            _groupComboBox.Text = field.Group.IsEmpty() ? Util.Groups[0] : field.Group;
+            _groupTextBox.Text = field.Group.IsEmpty() ? Util.Groups[0] : field.Group;
             _desTextBox.Text = field.Desc;
             _checkerComboBox.Text = field.Checker;
         }
@@ -134,7 +133,7 @@ namespace Description.Editor
                             else
                             {
                                 _valueTypeBox.EnableBox(TypeBox.ProertyType.None);
-                                ConsoleDock.Ins.LogErrorFormat("字段{0}的类型{1}无法解析", _wrap.Name, field.Type);
+                                Debug.LogErrorFormat("字段{0}的类型{1}无法解析", _wrap.Name, field.Type);
                             }
                             break;
                     }
@@ -158,7 +157,8 @@ namespace Description.Editor
             if (field.Name != _nameTextBox.Text)
                 GetDock<ClassEditorDock>().GetWrap<ClassWrap>().RemoveField(field);
             field.Name = _nameTextBox.Text;
-            field.Type = _typeComboBox.SelectedItem.ToString();
+            var typeItem = _typeComboBox.SelectedItem;
+            field.Type = typeItem == null ? "" : typeItem.ToString();
             if (_typeComboBox.Text == Util.LIST || _typeComboBox.Text == Util.DICT)
             {
                 field.Type += Util.ArgsSplitFlag[0] + _valueTypeBox.GetValue();
@@ -167,7 +167,7 @@ namespace Description.Editor
             else
                 field.Value = _valueTypeBox.GetValue();
             field.IsConst = _isConstCheckBox.Checked;
-            field.Group = _groupComboBox.Text;
+            field.Group = _groupTextBox.Text;
             field.Desc = _desTextBox.Text;
             field.Checker = _checkerComboBox.Text;
         }
@@ -260,11 +260,15 @@ namespace Description.Editor
                         }
                         else
                             _valueTypeBox.EnableBox(TypeBox.ProertyType.None);
-                        ConsoleDock.Ins.LogErrorFormat("字段{0}选择的类型{1}无法解析", _wrap.Name, combo.Text);
+                        Debug.LogErrorFormat("字段{0}选择的类型{1}无法解析", _wrap.Name, combo.Text);
                         break;
                 }
             }
             dock.RefreshMember(this);
+        }
+        private void GroupButton_Click(object sender, EventArgs e)
+        {
+            GroupDock.Ins.ShowGroups(_groupTextBox);
         }
     }
 }

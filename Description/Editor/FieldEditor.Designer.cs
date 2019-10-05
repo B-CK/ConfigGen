@@ -40,7 +40,8 @@
             this._typeComboBox = new System.Windows.Forms.ComboBox();
             this._isConstCheckBox = new System.Windows.Forms.CheckBox();
             this._valueTypeBox = new Description.TypeBox();
-            this._groupComboBox = new System.Windows.Forms.ComboBox();
+            this._groupButton = new System.Windows.Forms.Button();
+            this._groupTextBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // _nameTextBox
@@ -190,32 +191,46 @@
             this._valueTypeBox.Size = new System.Drawing.Size(401, 32);
             this._valueTypeBox.TabIndex = 16;
             // 
-            // _groupComboBox
+            // _groupButton
             // 
-            this._groupComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this._groupButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._groupButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._groupButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this._groupButton.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this._groupButton.ForeColor = System.Drawing.Color.LightGray;
+            this._groupButton.Location = new System.Drawing.Point(417, 107);
+            this._groupButton.Name = "_groupButton";
+            this._groupButton.Size = new System.Drawing.Size(63, 27);
+            this._groupButton.TabIndex = 5;
+            this._groupButton.Text = "...";
+            this._groupButton.UseVisualStyleBackColor = false;
+            this._groupButton.Click += new System.EventHandler(this.GroupButton_Click);
+            // 
+            // _groupTextBox
+            // 
+            this._groupTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this._groupComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._groupComboBox.DisplayMember = "FullName";
-            this._groupComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this._groupComboBox.ForeColor = System.Drawing.Color.LightGray;
-            this._groupComboBox.FormattingEnabled = true;
-            this._groupComboBox.Location = new System.Drawing.Point(79, 111);
-            this._groupComboBox.Name = "_groupComboBox";
-            this._groupComboBox.Size = new System.Drawing.Size(396, 23);
-            this._groupComboBox.Sorted = true;
-            this._groupComboBox.TabIndex = 30;
-            this._groupComboBox.SelectedIndexChanged += new System.EventHandler(this.OnFieldTextChanged);
+            this._groupTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._groupTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this._groupTextBox.ForeColor = System.Drawing.Color.LightGray;
+            this._groupTextBox.Location = new System.Drawing.Point(82, 111);
+            this._groupTextBox.Name = "_groupTextBox";
+            this._groupTextBox.ReadOnly = true;
+            this._groupTextBox.Size = new System.Drawing.Size(327, 18);
+            this._groupTextBox.TabIndex = 2;
+            this._groupTextBox.TextChanged += new System.EventHandler(this.OnFieldTextChanged);
             // 
             // FieldEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
-            this.Controls.Add(this._groupComboBox);
             this.Controls.Add(this._nameTextBox);
             this.Controls.Add(this._valueTypeBox);
             this.Controls.Add(this._desTextBox);
+            this.Controls.Add(this._groupTextBox);
             this.Controls.Add(this._isConstCheckBox);
+            this.Controls.Add(this._groupButton);
             this.Controls.Add(this.label1);
             this.Controls.Add(this._typeComboBox);
             this.Controls.Add(this.label2);
@@ -246,6 +261,7 @@
         private System.Windows.Forms.ComboBox _typeComboBox;
         private System.Windows.Forms.CheckBox _isConstCheckBox;
         private TypeBox _valueTypeBox;
-        private System.Windows.Forms.ComboBox _groupComboBox;
+        private System.Windows.Forms.Button _groupButton;
+        private System.Windows.Forms.TextBox _groupTextBox;
     }
 }

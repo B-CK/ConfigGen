@@ -176,7 +176,7 @@ namespace Description
                         return type;
                 }
             }
-            return BOOL;
+            return fullName;
         }
 
         //public const string BYTE = "byte";
@@ -265,14 +265,14 @@ namespace Description
         {
             string warning = Format(fmt, msg);
             MessageBox.Show(warning, "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            ConsoleDock.Ins.LogWarning(warning);
+            Debug.LogWarning(warning);
         }
         //工具本身错误,抛出异常
         public static void MsgError(string fmt, params object[] msg)
         {
             string error = Format(fmt, msg);
             MessageBox.Show(error, "工具异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            ConsoleDock.Ins.LogError(error);
+            Debug.LogError(error);
             throw new Exception(error);
         }
         public static string GetModuleRelPath(string path)
@@ -332,7 +332,7 @@ namespace Description
             }
             catch (Exception ex)
             {
-                ConsoleDock.Ins.LogErrorFormat("{0}\n{1}\n{2}", error, ex.Message, ex.StackTrace);
+                Debug.LogErrorFormat("{0}\n{1}\n{2}", error, ex.Message, ex.StackTrace);
             }
             return result;
         }

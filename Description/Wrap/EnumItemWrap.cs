@@ -39,12 +39,14 @@ namespace Description.Wrap
 
         private EnumWrap _enum;
         private EnumItemXml _xml;
-        protected EnumItemWrap(EnumItemXml xml, EnumWrap enum0) : base(xml.Name)
+        protected EnumItemWrap(EnumItemXml xml, EnumWrap enum0) 
         {
             Init(xml, enum0);
         }
         private void Init(EnumItemXml xml, EnumWrap enum0)
         {
+            base.Init(xml.Name);
+
             _xml = xml;
             _enum = enum0;
         }

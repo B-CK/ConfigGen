@@ -34,6 +34,7 @@ namespace Description
             else
             {
                 _ins.Show();
+                _ins.InitTree();
             }
         }
 
@@ -78,6 +79,23 @@ namespace Description
             }
             _nodeTreeView.EndUpdate();
         }
+
+        /// <summary>
+        /// 检查所有数据,且更新显示状态
+        /// </summary>
+        public void UpdateModule(bool needCheck = true)
+        {
+            if (needCheck)
+                ModuleWrap.Default.Check();
+            var imps = ModuleWrap.Current.Imports;
+            for (int i = 0; i < imps.Count; i++)
+            {
+                string key = imps[i];
+                var wrap = NamespaceWrap.AllNamespaces[key];
+                if ((wrap.NodeState | NodeState.Modify | NodeState.Error) != 0)
+                    UpdateNamespaceNode(wrap);
+            }
+        }
         public void AddRootNode(NamespaceWrap wrap)
         {
             TreeNode root = CreateNode(wrap);
@@ -93,20 +111,32 @@ namespace Description
         /// <summary>
         /// 更新NamespaceWrap类型节点
         /// </summary>
-        public void UpdateNodeName(string srcFullName, NamespaceWrap wrap)
+        public void UpdateNodeName(string src, NamespaceWrap wrap)
         {
-            TreeNode root = _nodeTreeView.Nodes[srcFullName];
+            TreeNode root = _nodeTreeView.Nodes[src];
             root.Text = wrap.DisplayName;
             root.Name = wrap.FullName;
+            var classes = wrap.Classes;
+            var enums = wrap.Enums;
+            for (int i = 0; i < classes.Count; i++)
+            {
+                string ssrc = classes[i].FullName.Replace(wrap.FullName, src);
+                UpdateNodeName(ssrc, classes[i]);
+            }
+            for (int i = 0; i < enums.Count; i++)
+            {
+                string ssrc = enums[i].FullName.Replace(wrap.FullName, src);
+                UpdateNodeName(ssrc, enums[i]);
+            }
         }
         /// <summary>
         /// 更新TypeWrap类型节点
         /// </summary>
-        public void UpdateNodeName(string srcFullName, TypeWrap wrap)
+        public void UpdateNodeName(string src, TypeWrap wrap)
         {
             string ns = wrap.Namespace.FullName;
             TreeNode root = _nodeTreeView.Nodes[ns];
-            TreeNode node = root.Nodes[srcFullName];
+            TreeNode node = root.Nodes[src];
             node.Text = wrap.DisplayName;
             node.Name = wrap.FullName;
         }
@@ -229,7 +259,7 @@ namespace Description
                 default:
                     break;
             }
-            //ConsoleDock.Ins.LogErrorFormat("未知节点状态类型{0}", wrap.NodeState);
+            //Debug.LogErrorFormat("未知节点状态类型{0}", wrap.NodeState);
         }
 
 
@@ -297,7 +327,7 @@ namespace Description
                 UpdateNodeColorState(root.Tag as BaseWrap);
             }
             PoolManager.Ins.Push(node);
-            MainWindow.Ins.CheckError();
+            UpdateModule();
         }
         private void NodeTreeView_Modify(object sender, EventArgs e)
         {
@@ -315,7 +345,7 @@ namespace Description
             else
             {
                 SaveNamespaceWrap(wrap);
-                ConsoleDock.Ins.LogFormat("成功手动保存命名空间{0}!", wrap.FullName);
+                Debug.LogFormat("成功手动保存命名空间{0}!", wrap.FullName);
             }
         }
         private void NodeTreeView_Include(object sender, EventArgs e)

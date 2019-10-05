@@ -21,6 +21,7 @@ namespace Description
         public MainWindow()
         {
             _ins = this;
+            Debug.Init();
             InitializeComponent();
             ConsoleDock.Inspect();
 
@@ -34,6 +35,7 @@ namespace Description
         }
         protected override void OnClosed(EventArgs e)
         {
+            Debug.Dispose();
             Settings.Default.Save();
             PoolManager.Ins.Clear();
             base.OnClosed(e);
@@ -56,23 +58,7 @@ namespace Description
             ModuleWrap.InitModule();
             NamespaceDock.Inspect();
 
-            ConsoleDock.Ins.Log("初始化成功~");
-        }
-
-        /// <summary>
-        /// 检查所有节点
-        /// </summary>
-        public void CheckError()
-        {
-            ModuleWrap.Default.Check();
-            var imps = ModuleWrap.Current.Imports;
-            for (int i = 0; i < imps.Count; i++)
-            {
-                string key = imps[i];
-                var wrap = NamespaceWrap.AllNamespaces[key];
-                if ((wrap.NodeState & NodeState.Modify & NodeState.Modify) != 0)
-                    NamespaceDock.Ins.UpdateNamespaceNode(wrap);
-            }
+            Debug.Log("初始化成功~");
         }
 
 
@@ -109,11 +95,11 @@ namespace Description
                     string fileName = _saveFileDialog.FileName;
                     ModuleWrap.Create(fileName);
                     ModuleWrap.Open(fileName);
-                    NamespaceDock.Ins.InitTree();
+                    NamespaceDock.Inspect();
                 }
                 catch (Exception ex)
                 {
-                    ConsoleDock.Ins.LogErrorFormat("创建模板失败!\n{0}\n{1}", ex.Message, ex.StackTrace);
+                    Debug.LogErrorFormat("创建模板失败!\n{0}\n{1}", ex.Message, ex.StackTrace);
                 }
             }
         }
@@ -130,11 +116,11 @@ namespace Description
                 {
                     string fileName = _openFileDialog.FileName;
                     ModuleWrap.Open(fileName);
-                    NamespaceDock.Ins.InitTree();
+                    NamespaceDock.Inspect();
                 }
                 catch (Exception ex)
                 {
-                    ConsoleDock.Ins.LogErrorFormat("打开模板失败!\n{0}\n{1}", ex.Message, ex.StackTrace);
+                    Debug.LogErrorFormat("打开模板失败!\n{0}\n{1}", ex.Message, ex.StackTrace);
                 }
             }
         }
@@ -165,7 +151,7 @@ namespace Description
                 }
                 catch (Exception ex)
                 {
-                    ConsoleDock.Ins.LogErrorFormat("无法另存模块!\n{0}\n{1}", ex.Message, ex.StackTrace);
+                    Debug.LogErrorFormat("无法另存模块!\n{0}\n{1}", ex.Message, ex.StackTrace);
                 }
             }
         }
@@ -177,17 +163,16 @@ namespace Description
             var result = ModuleWrap.TrSave();
             if (result != DialogResult.Cancel)
             {
-                NamespaceWrap.AllNamespaces.Clear();
-                ClassWrap.Dict.Clear();
-                EnumWrap.Dict.Clear();
+                ModuleWrap.CloseCurrent();
+                NamespaceWrap.ClearAll();
                 EditorDock.CloseAll();
+
                 MainSetup();
-                NamespaceDock.Ins.InitTree();
             }
         }
         private void CheckError_Click(object sender, EventArgs e)
         {
-            CheckError();
+            NamespaceDock.Ins.UpdateModule();
         }
         #endregion
 
@@ -199,10 +184,6 @@ namespace Description
         private void OpenConsoleItem_Click(object sender, EventArgs e)
         {
             ConsoleDock.Inspect();
-        }
-        private void OpenTypeEditorItem_Click(object sender, EventArgs e)
-        {
-
         }
         #endregion
     }

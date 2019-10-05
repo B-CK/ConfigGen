@@ -26,7 +26,11 @@ namespace Description.Wrap
             }
         }
         static ClassWrap[] _array = new ClassWrap[0];
-
+        public static void ClearAll()
+        {
+            _array = new ClassWrap[0];
+            _dict.Clear();
+        }
 
         public static ClassWrap Create(string name, NamespaceWrap nsw)
         {
@@ -64,24 +68,6 @@ namespace Description.Wrap
         public string Group { get { return Xml.Group; } set { Xml.Group = value; } }
         public List<FieldWrap> Fields { get { return _fields; } }
 
-        /// <summary>
-        /// 字段名称数据
-        /// </summary>
-        public string[] Indexes
-        {
-            get
-            {
-                if (_indexes.Length != Fields.Count)
-                {
-                    _indexes = new string[_fields.Count];
-                    for (int i = 0; i < _fields.Count; i++)
-                        _indexes[i] = _fields[i].Name;
-                }
-                return _indexes;
-            }
-        }
-
-        string[] _indexes = new string[0];
 
         private ClassXml Xml => base._xml as ClassXml;
         private List<FieldWrap> _fields;
@@ -150,11 +136,11 @@ namespace Description.Wrap
             {
                 string path = Util.GetDataDirAbsPath(DataPath);
                 bool a = File.Exists(path);
-                if (a== false)
-                    ConsoleDock.Ins.LogErrorFormat("[Class]类型{0}的数据文件[{1}]不存在!", path);
+                if (a == false)
+                    Debug.LogErrorFormat("[Class]类型{0}的数据文件[{1}]不存在!", FullName, path);
                 bool b = _fields.Exists(f => f.FullName == Index);
                 if (b == false)
-                    ConsoleDock.Ins.LogErrorFormat("[Class]类型{0}的关键字[{1}]未定义!", Index);
+                    Debug.LogErrorFormat("[Class]类型{0}的关键字[{1}]未定义!", FullName, Index);
                 isOk &= a;
                 isOk &= b;
             }
@@ -163,13 +149,13 @@ namespace Description.Wrap
                 bool c = Dict.ContainsKey(Inherit);
                 isOk &= c;
                 if (c == false)
-                    ConsoleDock.Ins.LogErrorFormat("[Class]类型{0}的父类[{1}]不存在!", Inherit);
+                    Debug.LogErrorFormat("[Class]类型{0}的父类[{1}]不存在!", FullName, Inherit);
             }
             if (isOk == false)
                 AddNodeState(NodeState.Error);
             else
                 RemoveNodeState(NodeState.Error);
-            return isOk;
+             return isOk;
         }
 
         public override void Dispose()
