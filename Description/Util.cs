@@ -169,7 +169,7 @@ namespace Description
                     if (fullName == (type as string))
                         return type;
                 }
-                else  
+                else
                 {
                     var wrap = type as BaseWrap;
                     if (wrap.FullName == fullName)
@@ -203,8 +203,7 @@ namespace Description
         private static readonly StringBuilder Builder = new StringBuilder();
         public static string Format(string fmt, params object[] args)
         {
-            Builder.Clear();
-            return Builder.AppendFormat(fmt, args).ToString();
+            return string.Format(fmt, args);
         }
 
 

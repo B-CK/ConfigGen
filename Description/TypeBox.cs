@@ -127,7 +127,8 @@ namespace Description
                 case ProertyType.List:
                     return _comboBox.SelectedItem == null ? "" : _comboBox.SelectedItem.ToString();
                 case ProertyType.Dict:
-                    return Util.Format("{0}{1}{2}", _keyComboBox.Text, Util.ArgsSplitFlag[0], _valueComboBox.SelectedItem);
+                    var a = Util.Format("{0}{1}{2}", _keyComboBox.Text, Util.ArgsSplitFlag[0], _valueComboBox.SelectedItem);
+                    return a;
                 case ProertyType.None:
                 default:
                     return "";

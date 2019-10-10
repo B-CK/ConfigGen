@@ -13,6 +13,9 @@ namespace Description.Editor
 {
     public partial class FieldEditor : MemberEditor
     {
+        const string TYPE = "Type?";
+        const string NAME = "Name?";
+
         public static FieldEditor Create(ClassEditorDock dock, FieldWrap wrap, bool isInherit = false)
         {
             FieldEditor editor = PoolManager.Ins.Pop<FieldEditor>();
@@ -42,23 +45,32 @@ namespace Description.Editor
                 if (_isInherit)
                 {
                     var field = _wrap as FieldWrap;
-                    string name = field.Name ?? "Name?";
-                    string type = field.Type ?? "Type?";
+                    string name = field.Name ?? NAME;
+                    string type = field.Type ?? TYPE;
                     string value = field.Value;
-                    string display = field.IsConst ?
-                        Util.Format("#{0}:{1}={2}", name, type, value) :
-                        Util.Format("#{0}:{1}", name, type);
-                    return display;
+                    if (IsConst)
+                        return Util.Format("#{0}:{1}={2}", name, type, value);
+                    else if (Util.LIST == type || Util.DICT == type)
+                        return Util.Format("#{0}:{1}:{2}", name, type, value);
+                    else
+                        return Util.Format("#{0}:{1}", name, type);
                 }
                 else
                 {
-                    string name = _nameTextBox.Text ?? "Name?";
-                    string type = _typeComboBox.Text ?? "Type?";
+                    string name = _nameTextBox.Text ?? NAME;
+                    var item = _typeComboBox.SelectedItem;
+                    string type = _typeComboBox.Text ?? TYPE;
+                    if (item is string)
+                        type = (string)item;
+                    else if (item is TypeWrap)
+                        type = (item as TypeWrap).FullName;
                     string value = _valueTypeBox.GetValue();
-                    string display = IsConst ?
-                        Util.Format("{0}:{1}={2}", name, type, value) :
-                        Util.Format("{0}:{1}", name, type);
-                    return display;
+                    if (IsConst)
+                        return Util.Format("{0}:{1}={2}", name, type, value);
+                    else if (Util.LIST == type || Util.DICT == type)
+                        return Util.Format("{0}:{1}:{2}", name, type, value);
+                    else
+                        return Util.Format("{0}:{1}", name, type);
                 }
             }
         }

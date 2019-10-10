@@ -89,12 +89,12 @@ namespace Description.Wrap
                     break;
                 case 2:
                     r &= CheckType(nodes[0]);
-                    r &= CheckType(nodes[1]);
+                    r &= CheckType(nodes[1], true);
                     break;
                 case 3:
                     r &= CheckType(nodes[0]);
-                    r &= CheckType(nodes[1]);
-                    r &= CheckType(nodes[2]);
+                    r &= CheckType(nodes[1], true);
+                    r &= CheckType(nodes[2], true);
                     break;
                 case 0:
                 default:
@@ -104,12 +104,12 @@ namespace Description.Wrap
             }
             return r;
         }
-        private bool CheckType(string type)
+        private bool CheckType(string type, bool isSet = false)
         {
             bool isOK = Util.HasType(type);
             if (isOK == false)
                 Debug.LogErrorFormat("[Class]类型{0}中字段{1}的类型异常[{2}]![{3}]类型不存在.", _cls.FullName, _name, Type, type);
-            if (EnumWrap.Dict.ContainsKey(type))
+            if (EnumWrap.Dict.ContainsKey(type) && !isSet)
             {
                 var enm = EnumWrap.Dict[type];
                 var c = enm.Contains(Value);
