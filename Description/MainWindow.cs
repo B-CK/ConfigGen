@@ -57,6 +57,7 @@ namespace Description
             NamespaceWrap.InitNamespaces();
             ModuleWrap.InitModule();
             NamespaceDock.Inspect();
+            ClassWrap.RecordChildren();
 
             Debug.Log("初始化成功~");
         }

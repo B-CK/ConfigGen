@@ -35,9 +35,9 @@ namespace Description.Editor
 
             var wrap = GetWrap<ClassWrap>();
             _namespaceComboBox.Items.AddRange(NamespaceWrap.Namespaces);
-            _inhertComboBox.Items.Add(string.Empty);
-            _inhertComboBox.Items.AddRange(ClassWrap.Array);
-            _inhertComboBox.Items.Remove(wrap);
+            _inheritComboBox.Items.Add(string.Empty);
+            _inheritComboBox.Items.AddRange(ClassWrap.Array);
+            _inheritComboBox.Items.Remove(wrap);
 
             _nameTextBox.Text = wrap.Name;
             _namespaceComboBox.SelectedItem = wrap.Namespace;
@@ -48,18 +48,29 @@ namespace Description.Editor
                 else
                 {
                     var inherit = ClassWrap.Dict[wrap.Inherit];
-                    _inhertComboBox.SelectedItem = inherit;
+                    _inheritComboBox.SelectedItem = inherit;
                 }
             }
             else
-                _inhertComboBox.SelectedText = string.Empty;
+                _inheritComboBox.SelectedText = string.Empty;
             _groupTextBox.Text = wrap.Group.IsEmpty() ? Util.Groups[0] : wrap.Group;
             _descTextBox.Text = wrap.Desc;
             _dataPathTextBox.Text = wrap.DataPath;
 
+            var items = _memberListBox.Items;
+            if (ClassWrap.Dict.ContainsKey(wrap.Inherit))
+            {
+                var parent = ClassWrap.Dict[wrap.Inherit];
+                var pFields = parent.Fields;
+                for (int i = 0; i < pFields.Count; i++)
+                {
+                    var fieldEditor = FieldEditor.Create(this, pFields[i], true);
+                    items.Add(fieldEditor);
+                    _indexComboBox.Items.Add(fieldEditor);
+                }
+            }
             string fieldName = wrap.Index ?? "";
             var fields = wrap.Fields;
-            var items = _memberListBox.Items;
             for (int i = 0; i < fields.Count; i++)
             {
                 var fieldEditor = FieldEditor.Create(this, fields[i]);
@@ -80,8 +91,10 @@ namespace Description.Editor
             var cls = GetWrap<ClassWrap>();
             var index = _indexComboBox.SelectedItem as FieldEditor;
             cls.Index = index == null ? "" : index.Name;
-            var inherit = _inhertComboBox.SelectedItem as ClassWrap;
+            var inherit = _inheritComboBox.SelectedItem as ClassWrap;
             cls.Inherit = inherit == null ? "" : inherit.FullName;
+            if (ClassWrap.Dict.ContainsKey(cls.Inherit))
+                cls.AddChildClass(ClassWrap.Dict[cls.Inherit]);
             cls.Group = _groupTextBox.Text;
             cls.DataPath = _dataPathTextBox.Text;
             if (cls.Name != _nameTextBox.Text || cls.Desc != _descTextBox.Text)
@@ -115,6 +128,29 @@ namespace Description.Editor
         {
             base.Clear();
             _memberListBox.Items.Clear();
+        }
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            if (!IsInit) return;
+            RefreshAllMember();
+        }
+        /// <summary>
+        /// 刷新成员列表,以及索引列表
+        /// </summary>
+        public void RefreshAllMember()
+        {
+            var items = _memberListBox.Items;
+            var array = new object[items.Count];
+            items.CopyTo(array, 0);
+            items.Clear();
+            items.AddRange(array);
+
+            var iItems = _indexComboBox.Items;
+            var iArray = new object[iItems.Count];
+            iItems.CopyTo(iArray, 0);
+            iItems.Clear();
+            iItems.AddRange(iArray);
         }
         public void RefreshMember(MemberEditor member, string oldFullName = null)
         {
@@ -188,10 +224,14 @@ namespace Description.Editor
 
             var list = sender as ListBox;
             var member = list.SelectedItem as MemberEditor;
-            if (member == null || _currentMember == member) return;
+            if (member == null || _currentMember == member) return;           
             if (_currentMember != null)
                 _currentMember.Hide();
             _currentMember = member;
+            var fieldEditor = member as FieldEditor;
+            if (fieldEditor != null && fieldEditor.IsInherit)
+                return;
+
             member.Show();
         }
         private void RemoveMenuItem_Click(object sender, System.EventArgs e)

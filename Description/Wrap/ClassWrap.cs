@@ -31,7 +31,20 @@ namespace Description.Wrap
             _array = new ClassWrap[0];
             _dict.Clear();
         }
-
+        /// <summary>
+        /// 记录类之间的继承
+        /// </summary>
+        public static void RecordChildren()
+        {
+            foreach (var item in Dict)
+            {
+                if (Dict.ContainsKey(item.Key))
+                {
+                    var parent = Dict[item.Key];
+                    parent.AddChildClass(item.Value);
+                }
+            }
+        }
         public static ClassWrap Create(string name, NamespaceWrap nsw)
         {
             ClassXml xml = new ClassXml() { Name = name };
@@ -66,11 +79,11 @@ namespace Description.Wrap
         public string DataPath { get { return Xml.DataPath; } set { Xml.DataPath = value; } }
         public string Desc { get { return Xml.Desc; } set { Xml.Desc = value; } }
         public string Group { get { return Xml.Group; } set { Xml.Group = value; } }
-        public List<FieldWrap> Fields { get { return _fields; } }
-
+        public List<FieldWrap> Fields { get { return _fields; } }      
 
         private ClassXml Xml => base._xml as ClassXml;
         private List<FieldWrap> _fields;
+        private List<ClassWrap> _children;
         protected ClassWrap(ClassXml xml, NamespaceWrap ns) : base(xml, ns)
         {
             Init(xml, ns);
@@ -79,6 +92,7 @@ namespace Description.Wrap
         {
             base.Init(xml, ns);
 
+            _children = new List<ClassWrap>();
             _fields = new List<FieldWrap>();
             Xml.Fields = Xml.Fields ?? new List<FieldXml>();
             var xfields = Xml.Fields;
@@ -127,6 +141,16 @@ namespace Description.Wrap
                 RemoveField(old);
             AddField(wrap);
         }
+        public void AddChildClass(ClassWrap child)
+        {
+            if (!_children.Contains(child))
+                _children.Add(child);
+        }
+        public List<ClassWrap> SortChildren()
+        {
+            _children.Sort((a, b) => string.Compare(a.FullName, b.FullName));
+            return _children;
+        }
         public override bool Check()
         {
             bool isOk = base.Check();
@@ -155,7 +179,7 @@ namespace Description.Wrap
                 AddNodeState(NodeState.Error);
             else
                 RemoveNodeState(NodeState.Error);
-             return isOk;
+            return isOk;
         }
 
         public override void Dispose()

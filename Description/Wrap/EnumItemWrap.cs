@@ -21,7 +21,15 @@ namespace Description.Wrap
         }
 
         public virtual string DisplayFullName => DisplayName;
-        public override string DisplayName => Util.Format("{0}({1}) = {2}", Name, Alias, Value);
+        public override string DisplayName
+        {
+            get
+            {
+                return Alias.IsEmpty() ?
+                    Util.Format("{0} = {1}", Name, Value) :
+                    Util.Format("{0}({1}) = {2}", Name, Alias, Value);
+            }
+        }
         public override string Name
         {
             get { return base.Name; }
@@ -39,7 +47,7 @@ namespace Description.Wrap
 
         private EnumWrap _enum;
         private EnumItemXml _xml;
-        protected EnumItemWrap(EnumItemXml xml, EnumWrap enum0) 
+        protected EnumItemWrap(EnumItemXml xml, EnumWrap enum0)
         {
             Init(xml, enum0);
         }

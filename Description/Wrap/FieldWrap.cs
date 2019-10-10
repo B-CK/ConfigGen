@@ -108,13 +108,13 @@ namespace Description.Wrap
         {
             bool isOK = Util.HasType(type);
             if (isOK == false)
-                Debug.LogErrorFormat("[Class]类型{0}中字段{1}的类型异常[{2}]!{3}类型不存在.", _cls.FullName, _name, Type, type);
+                Debug.LogErrorFormat("[Class]类型{0}中字段{1}的类型异常[{2}]![{3}]类型不存在.", _cls.FullName, _name, Type, type);
             if (EnumWrap.Dict.ContainsKey(type))
             {
                 var enm = EnumWrap.Dict[type];
                 var c = enm.Contains(Value);
                 if (c == false)
-                    Debug.LogErrorFormat("[Class]类型{0}中字段{1}的枚举值{2}.{3}不存在!.", _cls.FullName, _name, Type, Value);
+                    Debug.LogErrorFormat("[Class]类型{0}中字段{1}的枚举值{2}.[{3}]不存在!.", _cls.FullName, _name, Type, Value);
                 isOK &= c;
             }
             return isOK;

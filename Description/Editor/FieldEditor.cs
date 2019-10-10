@@ -13,11 +13,12 @@ namespace Description.Editor
 {
     public partial class FieldEditor : MemberEditor
     {
-        public static FieldEditor Create(ClassEditorDock dock, FieldWrap wrap)
+        public static FieldEditor Create(ClassEditorDock dock, FieldWrap wrap, bool isInherit = false)
         {
             FieldEditor editor = PoolManager.Ins.Pop<FieldEditor>();
             if (editor == null) editor = new FieldEditor();
             editor.Init(dock, wrap);
+            editor._isInherit = isInherit;
             return editor;
         }
         public static FieldEditor Create(ClassEditorDock dock, string name)
@@ -38,16 +39,32 @@ namespace Description.Editor
         {
             get
             {
-                string name = _nameTextBox.Text ?? "Name?";
-                string type = _typeComboBox.Text ?? "Type?";
-                string value = _valueTypeBox.GetValue();
-                string display = _valueTypeBox.Type == TypeBox.ProertyType.None ?
-                    Util.Format("{0}:{1}", name, type)
-                    : Util.Format("{0}:{1}={2}", name, type, value);
-                return display;
+                if (_isInherit)
+                {
+                    var field = _wrap as FieldWrap;
+                    string name = field.Name ?? "Name?";
+                    string type = field.Type ?? "Type?";
+                    string value = field.Value;
+                    string display = field.IsConst ?
+                        Util.Format("#{0}:{1}={2}", name, type, value) :
+                        Util.Format("#{0}:{1}", name, type);
+                    return display;
+                }
+                else
+                {
+                    string name = _nameTextBox.Text ?? "Name?";
+                    string type = _typeComboBox.Text ?? "Type?";
+                    string value = _valueTypeBox.GetValue();
+                    string display = IsConst ?
+                        Util.Format("{0}:{1}={2}", name, type, value) :
+                        Util.Format("{0}:{1}", name, type);
+                    return display;
+                }
             }
         }
 
+        public bool IsInherit => _isInherit;
+        private bool _isInherit;
         private FieldEditor()
         {
             InitializeComponent();
@@ -55,6 +72,7 @@ namespace Description.Editor
         protected override void OnInit()
         {
             base.OnInit();
+            _isInherit = false;
             var field = _wrap as FieldWrap;
             Location = Point.Empty;
             var panel = GetDock<ClassEditorDock>().MemberSplitContainer.Panel2;
@@ -92,7 +110,7 @@ namespace Description.Editor
             var types = new object[_typeComboBox.Items.Count];
             _typeComboBox.Items.CopyTo(types, 0);
             _typeComboBox.SelectedItem = Util.FindTypeItem(nodes[0], types);
-
+            _isConstCheckBox.Visible = true;
             switch (nodes.Length)
             {
                 case 1://基础类型
@@ -124,14 +142,18 @@ namespace Description.Editor
                             {
                                 EnumWrap wrap = EnumWrap.Dict[field.Type];
                                 _valueTypeBox.InitEnum(field.Value, wrap.Items.ToArray());
+                                _valueTypeBox.Visible = true;
                             }
                             else if (ClassWrap.Dict.ContainsKey(field.Type))
                             {
                                 ClassWrap wrap = ClassWrap.Dict[field.Type];
                                 _valueTypeBox.Visible = false;
+                                _isConstCheckBox.Visible = false;
                             }
                             else
                             {
+                                _valueTypeBox.Visible = false;
+                                _isConstCheckBox.Visible = false;
                                 _valueTypeBox.EnableBox(TypeBox.ProertyType.None);
                                 Debug.LogErrorFormat("字段{0}的类型{1}无法解析", _wrap.Name, field.Type);
                             }
@@ -139,12 +161,15 @@ namespace Description.Editor
                     }
                     break;
                 case 2://List
+                    _isConstCheckBox.Visible = false;
                     _valueTypeBox.InitList(nodes[1], Util.GetCombTypes());
                     break;
                 case 3://Dict
+                    _isConstCheckBox.Visible = false;
                     _valueTypeBox.InitDict(nodes[1], nodes[2], Util.GetKeyTypes(), Util.GetCombTypes());
                     break;
                 default:
+                    _isConstCheckBox.Visible = false;
                     Util.MsgError("{0}类型的{1}字段类型/值设置异常", ParentName, field.Name);
                     break;
             }
@@ -166,7 +191,7 @@ namespace Description.Editor
             }
             else
                 field.Value = _valueTypeBox.GetValue();
-            field.IsConst = _isConstCheckBox.Checked;
+            field.IsConst = IsConst;
             field.Group = _groupTextBox.Text;
             field.Desc = _desTextBox.Text;
             field.Checker = _checkerComboBox.Text;
@@ -181,7 +206,17 @@ namespace Description.Editor
             base.Show();
             GetDock<ClassEditorDock>().MemberSplitContainer.Panel2.Controls.Add(this);
         }
-
+        private bool IsConst
+        {
+            get
+            {
+                return _isConstCheckBox.Checked
+                    && (EnumWrap.Dict.ContainsKey(_typeComboBox.Text)
+                    || _typeComboBox.Text == Util.BOOL || _typeComboBox.Text == Util.INT
+                    || _typeComboBox.Text == Util.LONG || _typeComboBox.Text == Util.FLOAT
+                    || _typeComboBox.Text == Util.STRING);
+            }
+        }
         private void OnFieldTextChanged(object sender, EventArgs e)
         {
             if (!_isInit) return;
@@ -221,9 +256,13 @@ namespace Description.Editor
             _valueTypeBox.Clear(false);
             var dock = GetDock<ClassEditorDock>();
             dock.OnValueChange();
+            _isConstCheckBox.Visible = true;
             string selectedType = combo.SelectedItem.ToString();
-            if (combo.Text.IsEmpty() || ClassWrap.Dict.ContainsKey(selectedType))
+            if (combo.Text.IsEmpty())
+            {
                 _valueTypeBox.Visible = false;
+                _isConstCheckBox.Visible = false;
+            }
             else
             {
                 _valueTypeBox.Visible = true;
@@ -247,20 +286,33 @@ namespace Description.Editor
                         _valueTypeBox.InitString("");
                         break;
                     case Util.LIST:
+                        _isConstCheckBox.Visible = false;
                         _valueTypeBox.InitList("", Util.GetCombTypes());
                         break;
                     case Util.DICT:
+                        _isConstCheckBox.Visible = false;
                         _valueTypeBox.InitDict("", "", Util.GetKeyTypes(), Util.GetCombTypes());
                         break;
                     default:
                         if (EnumWrap.Dict.ContainsKey(selectedType))
                         {
                             EnumWrap wrap = EnumWrap.Dict[selectedType];
-                            _valueTypeBox.InitEnum("", wrap.Items.ToArray());
+                            var array = wrap.Items.ToArray();
+                            string initValue = "";
+                            if (array.Length > 0)
+                                initValue = array[0].FullName;
+                            _valueTypeBox.InitEnum(initValue, array);
+                        }
+                        else if (ClassWrap.Dict.ContainsKey(selectedType))
+                        {
+                            _isConstCheckBox.Visible = false;
+                            _valueTypeBox.EnableBox(TypeBox.ProertyType.None);
                         }
                         else
-                            _valueTypeBox.EnableBox(TypeBox.ProertyType.None);
-                        Debug.LogErrorFormat("字段{0}选择的类型{1}无法解析", _wrap.Name, combo.Text);
+                        {
+                            _isConstCheckBox.Visible = false;
+                            Debug.LogErrorFormat("字段{0}选择的类型{1}无法解析", _wrap.Name, combo.Text);
+                        }
                         break;
                 }
             }

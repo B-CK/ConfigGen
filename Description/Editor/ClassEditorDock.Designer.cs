@@ -39,10 +39,12 @@
             this._memFindBox = new System.Windows.Forms.TextBox();
             this._spliter = new System.Windows.Forms.PictureBox();
             this._typeGroupBox = new System.Windows.Forms.GroupBox();
-            this._inhertComboBox = new System.Windows.Forms.ComboBox();
+            this._inheritComboBox = new System.Windows.Forms.ComboBox();
             this._namespaceComboBox = new System.Windows.Forms.ComboBox();
             this.NameLabel = new System.Windows.Forms.Label();
+            this._groupTextBox = new System.Windows.Forms.TextBox();
             this._descTextBox = new System.Windows.Forms.TextBox();
+            this._groupButton = new System.Windows.Forms.Button();
             this.DataPathButton = new System.Windows.Forms.Button();
             this._dataPathTextBox = new System.Windows.Forms.TextBox();
             this.GroupLabel = new System.Windows.Forms.Label();
@@ -53,8 +55,6 @@
             this._nameTextBox = new System.Windows.Forms.TextBox();
             this.IndexLabel = new System.Windows.Forms.Label();
             this.InhertLabel = new System.Windows.Forms.Label();
-            this._groupTextBox = new System.Windows.Forms.TextBox();
-            this._groupButton = new System.Windows.Forms.Button();
             this.MemberGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MemberSplitContainer)).BeginInit();
             this.MemberSplitContainer.Panel1.SuspendLayout();
@@ -188,7 +188,7 @@
             // 
             this._typeGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this._typeGroupBox.Controls.Add(this._inhertComboBox);
+            this._typeGroupBox.Controls.Add(this._inheritComboBox);
             this._typeGroupBox.Controls.Add(this._namespaceComboBox);
             this._typeGroupBox.Controls.Add(this.NameLabel);
             this._typeGroupBox.Controls.Add(this._groupTextBox);
@@ -215,22 +215,21 @@
             this._typeGroupBox.TabStop = false;
             this._typeGroupBox.Text = "类型";
             // 
-            // _inhertComboBox
+            // _inheritComboBox
             // 
-            this._inhertComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this._inheritComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this._inhertComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._inhertComboBox.DisplayMember = "DisplayFullName";
-            this._inhertComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this._inhertComboBox.ForeColor = System.Drawing.Color.LightGray;
-            this._inhertComboBox.FormattingEnabled = true;
-            this._inhertComboBox.Location = new System.Drawing.Point(99, 118);
-            this._inhertComboBox.Name = "_inhertComboBox";
-            this._inhertComboBox.Size = new System.Drawing.Size(713, 25);
-            this._inhertComboBox.Sorted = true;
-            this._inhertComboBox.TabIndex = 3;
-            this._inhertComboBox.SelectedIndexChanged += new System.EventHandler(this.OnValueChange);
-            this._inhertComboBox.TextChanged += new System.EventHandler(this.OnValueChange);
+            this._inheritComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._inheritComboBox.DisplayMember = "DisplayFullName";
+            this._inheritComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this._inheritComboBox.ForeColor = System.Drawing.Color.LightGray;
+            this._inheritComboBox.FormattingEnabled = true;
+            this._inheritComboBox.Location = new System.Drawing.Point(99, 118);
+            this._inheritComboBox.Name = "_inheritComboBox";
+            this._inheritComboBox.Size = new System.Drawing.Size(713, 25);
+            this._inheritComboBox.Sorted = true;
+            this._inheritComboBox.TabIndex = 3;
+            this._inheritComboBox.SelectedIndexChanged += new System.EventHandler(this.OnValueChange);
             // 
             // _namespaceComboBox
             // 
@@ -260,6 +259,20 @@
             this.NameLabel.TabIndex = 1;
             this.NameLabel.Text = "名称:";
             // 
+            // _groupTextBox
+            // 
+            this._groupTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._groupTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._groupTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this._groupTextBox.ForeColor = System.Drawing.Color.LightGray;
+            this._groupTextBox.Location = new System.Drawing.Point(99, 188);
+            this._groupTextBox.Name = "_groupTextBox";
+            this._groupTextBox.ReadOnly = true;
+            this._groupTextBox.Size = new System.Drawing.Size(644, 20);
+            this._groupTextBox.TabIndex = 2;
+            this._groupTextBox.TextChanged += new System.EventHandler(this.OnValueChange);
+            // 
             // _descTextBox
             // 
             this._descTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -272,6 +285,21 @@
             this._descTextBox.Size = new System.Drawing.Size(713, 27);
             this._descTextBox.TabIndex = 2;
             this._descTextBox.TextChanged += new System.EventHandler(this.OnValueChange);
+            // 
+            // _groupButton
+            // 
+            this._groupButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._groupButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._groupButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this._groupButton.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this._groupButton.ForeColor = System.Drawing.Color.LightGray;
+            this._groupButton.Location = new System.Drawing.Point(749, 185);
+            this._groupButton.Name = "_groupButton";
+            this._groupButton.Size = new System.Drawing.Size(63, 27);
+            this._groupButton.TabIndex = 5;
+            this._groupButton.Text = "...";
+            this._groupButton.UseVisualStyleBackColor = false;
+            this._groupButton.Click += new System.EventHandler(this.GroupButton_Click);
             // 
             // DataPathButton
             // 
@@ -398,35 +426,6 @@
             this.InhertLabel.TabIndex = 1;
             this.InhertLabel.Text = "父类:";
             // 
-            // _groupTextBox
-            // 
-            this._groupTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._groupTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._groupTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this._groupTextBox.ForeColor = System.Drawing.Color.LightGray;
-            this._groupTextBox.Location = new System.Drawing.Point(99, 188);
-            this._groupTextBox.Name = "_groupTextBox";
-            this._groupTextBox.ReadOnly = true;
-            this._groupTextBox.Size = new System.Drawing.Size(644, 20);
-            this._groupTextBox.TabIndex = 2;
-            this._groupTextBox.TextChanged += new System.EventHandler(this.OnValueChange);
-            // 
-            // _groupButton
-            // 
-            this._groupButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._groupButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._groupButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this._groupButton.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this._groupButton.ForeColor = System.Drawing.Color.LightGray;
-            this._groupButton.Location = new System.Drawing.Point(749, 185);
-            this._groupButton.Name = "_groupButton";
-            this._groupButton.Size = new System.Drawing.Size(63, 27);
-            this._groupButton.TabIndex = 5;
-            this._groupButton.Text = "...";
-            this._groupButton.UseVisualStyleBackColor = false;
-            this._groupButton.Click += new System.EventHandler(this.GroupButton_Click);
-            // 
             // ClassEditorDock
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -457,7 +456,7 @@
         private System.Windows.Forms.PictureBox _memPictureBox;
         private System.Windows.Forms.TextBox _memFindBox;
         private System.Windows.Forms.GroupBox _typeGroupBox;
-        private System.Windows.Forms.ComboBox _inhertComboBox;
+        private System.Windows.Forms.ComboBox _inheritComboBox;
         private System.Windows.Forms.ComboBox _namespaceComboBox;
         private System.Windows.Forms.Label NameLabel;
         private System.Windows.Forms.TextBox _descTextBox;
