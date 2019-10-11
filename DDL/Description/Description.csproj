@@ -240,8 +240,6 @@
     <None Include="Resources\ConsoleErroricon.png" />
     <None Include="Resources\ConsoleInfoIcon.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Export\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

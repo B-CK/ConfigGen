@@ -133,12 +133,12 @@ namespace Description.Editor
         {
             base.OnActivated(e);
             if (!IsInit) return;
-            RefreshAllMember();
+            RefreshMember();
         }
         /// <summary>
         /// 刷新成员列表,以及索引列表
         /// </summary>
-        public void RefreshAllMember()
+        public void RefreshMember()
         {
             var items = _memberListBox.Items;
             var array = new object[items.Count];
