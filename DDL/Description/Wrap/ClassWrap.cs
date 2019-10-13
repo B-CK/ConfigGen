@@ -79,10 +79,10 @@ namespace Description.Wrap
         public string DataPath { get { return Xml.DataPath; } set { Xml.DataPath = value; } }
         public string Desc { get { return Xml.Desc; } set { Xml.Desc = value; } }
         public string Group { get { return Xml.Group; } set { Xml.Group = value; } }
-        public List<FieldWrap> Fields { get { return _fields; } }
+        public LinkedList<FieldWrap> Fields { get { return _fields; } }
 
         private ClassXml Xml => base._xml as ClassXml;
-        private List<FieldWrap> _fields;
+        private LinkedList<FieldWrap> _fields;
         private List<ClassWrap> _children;
         protected ClassWrap(ClassXml xml, NamespaceWrap ns) : base(xml, ns)
         {
@@ -93,7 +93,7 @@ namespace Description.Wrap
             base.Init(xml, ns);
 
             _children = new List<ClassWrap>();
-            _fields = new List<FieldWrap>();
+            _fields = new SortedList<int, FieldWrap>();
             Xml.Fields = Xml.Fields ?? new List<FieldXml>();
             var xfields = Xml.Fields;
             for (int i = 0; i < xfields.Count; i++)
@@ -101,7 +101,7 @@ namespace Description.Wrap
                 var xfield = xfields[i];
                 var field = FieldWrap.Create(xfield, this);
                 Add(field.Name);
-                _fields.Add(field);
+                _fields.Add(i, field);
             }
             _dict.Add(FullName, this);
         }
@@ -114,7 +114,7 @@ namespace Description.Wrap
             }
 
             Add(wrap.Name);
-            _fields.Add(wrap);
+            _fields.Add(wrap.Seq, wrap);
             Xml.Fields.Add(wrap);
             return true;
         }
@@ -123,9 +123,13 @@ namespace Description.Wrap
             if (!Contains(wrap.Name)) return;
 
             Remove(wrap.Name);
-            _fields.Remove(wrap);
+            _fields.Remove(wrap.Seq);
             Xml.Fields.Remove(wrap);
         }
+        /// <summary>
+        /// 旧数据直接重写,新数据直接添加
+        /// </summary>
+        /// <param name="wrap"></param>
         public void OverrideField(FieldWrap wrap)
         {
             FieldWrap old = null;
@@ -162,7 +166,15 @@ namespace Description.Wrap
                 bool a = File.Exists(path);
                 if (a == false)
                     Debug.LogErrorFormat("[Class]类型{0}的数据文件[{1}]不存在!", FullName, path);
-                bool b = _fields.Exists(f => f.FullName == Index);
+                bool b = false;
+                for (int i = 0; i < _fields.Count; i++)
+                {
+                    if (_fields[i].FullName == Index)
+                    {
+                        b = true;
+                        break;
+                    }
+                }
                 if (b == false)
                     Debug.LogErrorFormat("[Class]类型{0}的关键字[{1}]未定义!", FullName, Index);
                 isOk &= a;

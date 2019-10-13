@@ -1,25 +1,24 @@
 ﻿using Xml;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using System.Collections.Generic;
 
-namespace TypeInfo
+namespace Wrap
 {
-    public class EnumInfo
+    public class EnumWrap
     {
         public const int NULL = int.MinValue;
-        private static readonly Dictionary<string, EnumInfo> _enums = new Dictionary<string, EnumInfo>();
-        public static Dictionary<string, EnumInfo> Enums { get { return _enums; } }
+        private static readonly Dictionary<string, EnumWrap> _enums = new Dictionary<string, EnumWrap>();
+        public static Dictionary<string, EnumWrap> Enums { get { return _enums; } }
         public static bool IsEnum(string fullName)
         {
             return _enums.ContainsKey(fullName);
         }
-        public static List<EnumInfo> GetExports()
+        public static List<EnumWrap> GetExports()
         {
-            return new List<EnumInfo>(Enums.Values);
+            return new List<EnumWrap>(Enums.Values);
         }
-        static void Add(EnumInfo info)
+        static void Add(EnumWrap info)
         {
             if (_enums.ContainsKey(info._fullName))
                 Util.LogWarningFormat("{0} 重复定义!", info._fullName);
@@ -31,14 +30,14 @@ namespace TypeInfo
         public string Namespace { get { return _namespace; } }
         public string Name { get { return _des.Name; } }
         public string Desc { get { return _des.Desc; } }
-        public Dictionary<string, string> Values { get { return _values; } }
+        public Dictionary<string, int> Values { get { return _values; } }
         public Dictionary<string, string> Aliases { get { return _aliases; } }
 
-        public string GetEnumValue(string name)
+        public int GetEnumValue(string name)
         {
             if (_values.ContainsKey(name))
                 return _values[name];
-            return Setting.Null;
+            return -1;
         }
         public string GetEnumName(string alias)
         {
@@ -54,14 +53,14 @@ namespace TypeInfo
         /// key-枚举名;
         /// value-枚举值
         /// </summary>
-        private Dictionary<string, string> _values = new Dictionary<string, string>();
+        private Dictionary<string, int> _values = new Dictionary<string, int>();
         /// <summary>
         /// key-枚举别名;
         /// value-枚举名
         /// </summary>
         private Dictionary<string, string> _aliases = new Dictionary<string, string>();
 
-        public EnumInfo(EnumXml des, string namespace0)
+        public EnumWrap(EnumXml des, string namespace0)
         {
             _des = des;
             _namespace = namespace0;
@@ -70,23 +69,20 @@ namespace TypeInfo
             if (!Util.MatchIdentifier(Name))
                 Error("命名不合法:" + Name);
 
-            var consts = des.Enums;
-            for (int i = 0; i < consts.Count; i++)
+            var items = des.Items;
+            for (int i = 0; i < items.Count; i++)
             {
-                var cst = consts[i];
-                int value = 0;
-                if (!cst.Value.IsEmpty() && !int.TryParse(cst.Value, out value))
-                    Error("值无法转换成数字:" + cst.Value);
-                if (!_values.ContainsKey(cst.Name))
-                    _values.Add(cst.Name, cst.Value);
+                var item = items[i];
+                if (!_values.ContainsKey(item.Name))
+                    _values.Add(item.Name, item.Value);
                 else
-                    Error("Name重复定义:" + cst.Name);
-                if (!cst.Alias.IsEmpty())
+                    Error("Name重复定义:" + item.Name);
+                if (!item.Alias.IsEmpty())
                 {
-                    if (!_aliases.ContainsKey(cst.Alias))
-                        _aliases.Add(cst.Alias, cst.Name);
+                    if (!_aliases.ContainsKey(item.Alias))
+                        _aliases.Add(item.Alias, item.Name);
                     else
-                        Error("Alias重复定义:" + cst.Alias);
+                        Error("Alias重复定义:" + item.Alias);
                 }
             }
 

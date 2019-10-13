@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace DDL.Xml
+namespace Xml
 {
     [XmlRoot("Namespace")]
     public class NamespaceXml

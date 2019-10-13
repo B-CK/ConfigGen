@@ -1,19 +1,19 @@
 ﻿using Import;
-using TypeInfo;
+using Wrap;
 using System;
 using System.Xml;
 
-namespace Wrap
+namespace DataSet
 {
     public class FInt : Data
     {
         public readonly int Value;
 
-        public FInt(FClass host, FieldInfo define, ImportExcel excel) : base(host, define)
+        public FInt(FClass host, FieldWrap define, ImportExcel excel) : base(host, define)
         {
             Value = excel.GetInt();
         }
-        public FInt(FClass host, FieldInfo define, XmlElement value) : base(host, define)
+        public FInt(FClass host, FieldWrap define, XmlElement value) : base(host, define)
         {
             string v = value.InnerText;
             int r;

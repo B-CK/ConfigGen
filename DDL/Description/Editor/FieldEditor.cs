@@ -16,7 +16,7 @@ namespace Description.Editor
         const string TYPE = "Type?";
         const string NAME = "Name?";
 
-        public static FieldEditor Create(ClassEditorDock dock, FieldWrap wrap, bool isInherit = false)
+        public static FieldEditor Create(ClassEditorDock dock, FieldWrap wrap, int seq, bool isInherit = false)
         {
             FieldEditor editor = PoolManager.Ins.Pop<FieldEditor>();
             if (editor == null) editor = new FieldEditor();
@@ -24,7 +24,7 @@ namespace Description.Editor
             editor._isInherit = isInherit;
             return editor;
         }
-        public static FieldEditor Create(ClassEditorDock dock, string name)
+        public static FieldEditor Create(ClassEditorDock dock, string name, int seq)
         {
             FieldEditor editor = PoolManager.Ins.Pop<FieldEditor>();
             if (editor == null) editor = new FieldEditor();
@@ -75,6 +75,10 @@ namespace Description.Editor
             }
         }
 
+        /// <summary>
+        /// 顺序
+        /// </summary>
+        public int Seq => (_wrap as FieldWrap).Seq;
         public bool IsInherit => _isInherit;
         private bool _isInherit;
         private FieldEditor()
@@ -217,6 +221,20 @@ namespace Description.Editor
         {
             base.Show();
             GetDock<ClassEditorDock>().MemberSplitContainer.Panel2.Controls.Add(this);
+        }
+        /// <summary>
+        /// 上移动
+        /// </summary>
+        public void Up()
+        {
+            (_wrap as FieldWrap).Up();
+        }
+        /// <summary>
+        /// 下移动
+        /// </summary>
+        public void Down()
+        {
+            (_wrap as FieldWrap).Down();
         }
         private bool IsConst
         {

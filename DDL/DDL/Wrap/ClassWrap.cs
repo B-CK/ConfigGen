@@ -1,17 +1,20 @@
-﻿using Xml;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Xml;
 
-namespace TypeInfo
+namespace Wrap
 {
-    public class ClassInfo
+    /// <summary>
+    /// 类型信息,不用于数据配置解析
+    /// </summary>
+    public class ClassWrap
     {
-        private static Dictionary<string, ClassInfo> _classes = new Dictionary<string, ClassInfo>();
-        public static Dictionary<string, ClassInfo> Classes { get { return _classes; } }
-        public static ClassInfo Get(string fullName)
+        private static Dictionary<string, ClassWrap> _classes = new Dictionary<string, ClassWrap>();
+        public static Dictionary<string, ClassWrap> Classes { get { return _classes; } }
+        public static ClassWrap Get(string fullName)
         {
             return IsClass(fullName) ? _classes[fullName] : null;
         }
@@ -26,14 +29,14 @@ namespace TypeInfo
         {
             if (IsClass(fullName))
             {
-                ClassInfo cls = _classes[fullName];
+                ClassWrap cls = _classes[fullName];
                 return cls != null && cls.IsDynamic();
             }
             return false;
         }
-        public static List<ClassInfo> GetExports()
+        public static List<ClassWrap> GetExports()
         {
-            var exports = new List<ClassInfo>();
+            var exports = new List<ClassWrap>();
             var cit = _classes.GetEnumerator();
             while (cit.MoveNext())
             {
@@ -43,7 +46,7 @@ namespace TypeInfo
             }
             return exports;
         }
-        public static string CorrectType(ClassInfo host, string type)
+        public static string CorrectType(ClassWrap host, string type)
         {
             if (host == null) return type;
 
@@ -51,7 +54,7 @@ namespace TypeInfo
                 type = string.Format("{0}.{1}", host.Namespace, type);
             return type;
         }
-        static void Add(ClassInfo info)
+        static void Add(ClassWrap info)
         {
             if (_classes.ContainsKey(info._fullType))
                 Util.LogWarningFormat("{1} 重复定义!", info._fullType);
@@ -68,8 +71,7 @@ namespace TypeInfo
         /// </summary>
         public string Inherit { get { return _inherit; } }
         public string Desc { get { return _des.Desc; } }
-        public List<FieldInfo> Fields { get { return _fields; } }
-        public List<ConstInfo> Consts { get { return _consts; } }
+        public List<FieldWrap> Fields { get { return _fields; } }
         public HashSet<string> Groups { get { return _groups; } }
 
         private ClassXml _des;
@@ -77,16 +79,14 @@ namespace TypeInfo
         private string _fullType;
         private string _inherit;
 
-        private readonly List<FieldInfo> _fields;
-        private readonly List<ConstInfo> _consts;
+        private readonly List<FieldWrap> _fields;
         private readonly HashSet<string> _children;
         private readonly HashSet<string> _groups;
 
-        public ClassInfo(ClassXml des, string namespace0)
+        public ClassWrap(ClassXml des, string namespace0)
         {
             _des = des;
-            _fields = new List<FieldInfo>();
-            _consts = new List<ConstInfo>();
+            _fields = new List<FieldWrap>();
             _children = new HashSet<string>();
             if (Name.IsEmpty())
                 Error("未指定Class名称");
@@ -97,23 +97,17 @@ namespace TypeInfo
             _fullType = string.Format("{0}.{1}", namespace0, des.Name);
             _inherit = des.Inherit;
             _inherit = CorrectType(this, _inherit);
-            _groups = new HashSet<string>(Util.Split(des.Group));
+            _groups = new HashSet<string>(Util.SplitArgs(des.Group));
             if (_groups.Count == 0)
                 _groups.Add(global::Setting.DefualtGroup);
 
             Add(this);
-            _consts = new List<ConstInfo>();
-            for (int i = 0; i < des.Consts.Count; i++)
-            {
-                var info = new ConstInfo(_fullType, des.Consts[i]);
-                Consts.Add(info);
-            }
-            _fields = new List<FieldInfo>();
+            _fields = new List<FieldWrap>();
             for (int i = 0; i < des.Fields.Count; i++)
             {
-                var fieldDes = des.Fields[i];
-                var info = new FieldInfo(this, fieldDes.Name, fieldDes.Type, fieldDes.Group, fieldDes.Desc, _groups);
-                info.InitCheck(fieldDes.Ref, fieldDes.RefPath);
+                var fieldXml = des.Fields[i];
+                var info = new FieldWrap(this, fieldXml.Name, fieldXml.Type, fieldXml.Group, fieldXml.Desc, _groups);
+                info.Init(fieldXml.IsConst, fieldXml.Value, fieldXml.Checker);
                 Fields.Add(info);
             }
         }
@@ -153,16 +147,6 @@ namespace TypeInfo
             else
             {
                 HashSet<string> hash = new HashSet<string>();
-                for (int i = 0; i < _consts.Count; i++)
-                {
-                    string name = _consts[i].Name;
-                    if (!hash.Contains(name))
-                        hash.Add(name);
-                    else
-                        Error("Const名重复:" + name);
-                    _consts[i].VerifyDefine();
-                }
-                hash.Clear();
                 for (int i = 0; i < _fields.Count; i++)
                 {
                     string name = _fields[i].Name;
@@ -176,7 +160,7 @@ namespace TypeInfo
 
             var git = _groups.GetEnumerator();
             while (git.MoveNext())
-                if (!GroupInfo.IsGroup(git.Current))
+                if (!GroupWrap.IsGroup(git.Current))
                     Error("未知 Group:" + git.Current);
         }
         public override string ToString()
@@ -185,8 +169,6 @@ namespace TypeInfo
             builder.AppendFormat("Class - FullName:{0}\tInherit:{1}\tGroup:{2}\n", FullType, Inherit, _des.Group);
             for (int i = 0; i < _fields.Count; i++)
                 builder.AppendFormat("\t{0}\n", _fields[i]);
-            for (int i = 0; i < _consts.Count; i++)
-                builder.AppendFormat("\t{0}\n", _consts[i]);
             return builder.ToString();
         }
         private void Error(string msg)

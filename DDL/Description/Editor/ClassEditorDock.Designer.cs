@@ -31,6 +31,8 @@
             this.components = new System.ComponentModel.Container();
             this.MemberGroupBox = new System.Windows.Forms.GroupBox();
             this.MemberSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.Down = new System.Windows.Forms.PictureBox();
+            this.Up = new System.Windows.Forms.PictureBox();
             this._memberListBox = new System.Windows.Forms.ListBox();
             this._memberMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.AddMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -60,6 +62,8 @@
             this.MemberSplitContainer.Panel1.SuspendLayout();
             this.MemberSplitContainer.Panel2.SuspendLayout();
             this.MemberSplitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Down)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Up)).BeginInit();
             this._memberMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._memPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._spliter)).BeginInit();
@@ -93,6 +97,8 @@
             // 
             // MemberSplitContainer.Panel1
             // 
+            this.MemberSplitContainer.Panel1.Controls.Add(this.Down);
+            this.MemberSplitContainer.Panel1.Controls.Add(this.Up);
             this.MemberSplitContainer.Panel1.Controls.Add(this._memberListBox);
             this.MemberSplitContainer.Panel1.Controls.Add(this._memPictureBox);
             this.MemberSplitContainer.Panel1.Controls.Add(this._memFindBox);
@@ -102,8 +108,42 @@
             // 
             this.MemberSplitContainer.Panel2.Controls.Add(this._spliter);
             this.MemberSplitContainer.Size = new System.Drawing.Size(822, 309);
-            this.MemberSplitContainer.SplitterDistance = 327;
+            this.MemberSplitContainer.SplitterDistance = 338;
             this.MemberSplitContainer.TabIndex = 0;
+            // 
+            // Down
+            // 
+            this.Down.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.Down.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.Down.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Down.Cursor = System.Windows.Forms.Cursors.Default;
+            this.Down.Image = global::Description.Properties.Resources.ArrowDown;
+            this.Down.InitialImage = global::Description.Properties.Resources.ArrowDown;
+            this.Down.Location = new System.Drawing.Point(298, 6);
+            this.Down.Name = "Down";
+            this.Down.Size = new System.Drawing.Size(35, 35);
+            this.Down.TabIndex = 9;
+            this.Down.TabStop = false;
+            this.Down.Click += new System.EventHandler(this.Down_Click);
+            this.Down.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Picture_MouseDown);
+            this.Down.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Picture_MouseUp);
+            // 
+            // Up
+            // 
+            this.Up.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.Up.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.Up.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Up.Cursor = System.Windows.Forms.Cursors.Default;
+            this.Up.Image = global::Description.Properties.Resources.ArrowUp;
+            this.Up.InitialImage = global::Description.Properties.Resources.ArrowUp;
+            this.Up.Location = new System.Drawing.Point(258, 7);
+            this.Up.Name = "Up";
+            this.Up.Size = new System.Drawing.Size(35, 35);
+            this.Up.TabIndex = 9;
+            this.Up.TabStop = false;
+            this.Up.Click += new System.EventHandler(this.Up_Click);
+            this.Up.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Picture_MouseDown);
+            this.Up.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Picture_MouseUp);
             // 
             // _memberListBox
             // 
@@ -121,8 +161,7 @@
             this._memberListBox.Location = new System.Drawing.Point(5, 46);
             this._memberListBox.Name = "_memberListBox";
             this._memberListBox.ScrollAlwaysVisible = true;
-            this._memberListBox.Size = new System.Drawing.Size(309, 257);
-            this._memberListBox.Sorted = true;
+            this._memberListBox.Size = new System.Drawing.Size(330, 257);
             this._memberListBox.TabIndex = 8;
             this._memberListBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.MemberListBox_MouseDown);
             // 
@@ -164,12 +203,14 @@
             // 
             // _memFindBox
             // 
+            this._memFindBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this._memFindBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
             this._memFindBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this._memFindBox.ForeColor = System.Drawing.Color.LightGray;
             this._memFindBox.Location = new System.Drawing.Point(38, 10);
             this._memFindBox.Name = "_memFindBox";
-            this._memFindBox.Size = new System.Drawing.Size(271, 27);
+            this._memFindBox.Size = new System.Drawing.Size(215, 27);
             this._memFindBox.TabIndex = 2;
             this._memFindBox.TextChanged += new System.EventHandler(this.MemFilterBox_TextChanged);
             // 
@@ -442,6 +483,8 @@
             this.MemberSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.MemberSplitContainer)).EndInit();
             this.MemberSplitContainer.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.Down)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Up)).EndInit();
             this._memberMenu.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this._memPictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._spliter)).EndInit();
@@ -478,5 +521,7 @@
         private System.Windows.Forms.Label GroupLabel;
         private System.Windows.Forms.TextBox _groupTextBox;
         private System.Windows.Forms.Button _groupButton;
+        private System.Windows.Forms.PictureBox Up;
+        private System.Windows.Forms.PictureBox Down;
     }
 }

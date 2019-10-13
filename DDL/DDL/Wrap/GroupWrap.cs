@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace TypeInfo
+namespace Wrap
 {
-    public class GroupInfo
+    public class GroupWrap
     {
         private static HashSet<string> _groups;
-        private GroupInfo() { }
+        private GroupWrap() { }
 
         public static void LoadGroup(string g)
         {
-            _groups = new HashSet<string>(Util.Split(g));
+            _groups = new HashSet<string>(Util.SplitArgs(g.ToLowerExt()));
             if (!_groups.Contains(Setting.DefualtGroup))
                 _groups.Add(Setting.DefualtGroup);
         }

@@ -50,7 +50,7 @@ public static class Util
     /// <param name="filePath">excel文件路径</param>
     /// <param name="sheetDict">sheet表类型及名字列表</param>
     /// <returns>excel中多个sheet数据集</returns>
-    public static DataSet ReadXlsxFile(string filePath)
+    public static System.Data.DataSet ReadXlsxFile(string filePath)
     {
         // 检查文件是否存在且没被打开
         FileState fileState = GetFileState(filePath);
@@ -61,7 +61,7 @@ public static class Util
 
         OleDbConnection conn = null;
         OleDbDataAdapter da = null;
-        DataSet ds = new DataSet();
+        System.Data.DataSet ds = new System.Data.DataSet();
         ds.DataSetName = filePath;
 
         try
@@ -198,11 +198,11 @@ public static class Util
     }
     public static string GetRelPath(string path)
     {
-        return path.Replace(Setting.ConfigDir, "");
+        return path.Replace(Setting.ExcelDir, "");
     }
     public static string GetAbsPath(string relPath)
     {
-        return Path.Combine(Setting.ConfigDir, relPath);
+        return Path.Combine(Setting.ExcelDir, relPath);
     }
     public static void TryDeleteDirectory(string path)
     {
@@ -240,6 +240,11 @@ public static class Util
 
         File.WriteAllText(filePath, content, UTF8);
     }
+    public static string[] SplitArgs(string type)
+    {
+        return type.IsEmpty() ? new string[0] : type.Split(Setting.ArgsSplitFlag);
+    }
+
 
     /// <summary>
     /// 各种空
@@ -247,10 +252,6 @@ public static class Util
     public static bool IsEmpty(this string str)
     {
         return string.IsNullOrWhiteSpace(str);
-    }
-    public static string[] Split(this string type)
-    {
-        return type.IsEmpty() ? new string[0] : type.Split(Setting.ArgsSplitFlag);
     }
     public static string ToLowerExt(this string self)
     {
@@ -262,14 +263,14 @@ public static class Util
     {
         return Char.ToUpper(name[0]) + name.Substring(1);
     }
-    public static string ToString(object[] array, string split = ",")
+    public static string ToString(this object[] array, string split = ",")
     {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < array.Length; i++)
             sb.AppendFormat("{0}{1}", array[i], i != array.Length - 1 ? split : "");
         return sb.ToString();
     }
-    public static string ToString(List<string> list, string split = ",")
+    public static string ToString(this List<string> list, string split = ",")
     {
         return ToString(list.ToArray(), split);
     }

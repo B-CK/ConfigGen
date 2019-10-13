@@ -1,5 +1,5 @@
-﻿using Wrap;
-using TypeInfo;
+﻿using DataSet;
+using Wrap;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,8 +16,8 @@ namespace Import
         public abstract float GetFloat();
         public abstract string GetString();
         public abstract string GetEnum();
-        public abstract void GetClass(FClass data, ClassInfo info);
-        public abstract void GetList(FList data, FieldInfo define);
-        public abstract void GetDict(FDict data, FieldInfo define);
+        public abstract void GetClass(FClass data, ClassWrap info);
+        public abstract void GetList(FList data, FieldWrap define);
+        public abstract void GetDict(FDict data, FieldWrap define);
     }
 }

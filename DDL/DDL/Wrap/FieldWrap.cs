@@ -1,20 +1,18 @@
-﻿using Wrap;
+﻿using DataSet;
 using Xml;
 using System;
 using System.Collections.Generic;
 
-namespace TypeInfo
+namespace Wrap
 {
-    public class FieldInfo
+    public class FieldWrap
     {
         public static bool IsRawOrEnumOrClass(string type)
         {
             return Setting.RawTypes.Contains(type)
-                || EnumInfo.IsEnum(type) || ClassInfo.IsClass(type);
+                || EnumWrap.IsEnum(type) || ClassWrap.IsClass(type);
         }
-
-
-        public ClassInfo Host { get { return _host; } }
+        public ClassWrap Host { get { return _host; } }
         /// <summary>
         /// 字段名称
         /// </summary>
@@ -30,23 +28,20 @@ namespace TypeInfo
         public string OriginalType { get { return _types[0]; } }
         public string[] Types { get { return _types; } }
         public HashSet<string> Group { get { return _groups; } }
+        public string Value { get { return _value; } }
+        public bool IsConst { get { return _isConst; } }
         public bool IsRaw { get { return Setting.RawTypes.Contains(OriginalType); } }
         public bool IsContainer { get { return Setting.ContainerTypes.Contains(OriginalType); } }
-        public bool IsClass { get { return ClassInfo.IsClass(OriginalType); } }
-        public bool IsDynamic { get { return ClassInfo.IsDynamic(OriginalType); } }
-        public bool IsEnum { get { return EnumInfo.IsEnum(OriginalType); } }
-        public bool IsInherit
-        {
-            get
-            {
-                ClassInfo parent = ClassInfo.Get(OriginalType);
-                return parent.HasChild(_fullType);
-            }
-        }
+        public bool IsClass { get { return ClassWrap.IsClass(OriginalType); } }
+        /// <summary>
+        /// 父类
+        /// </summary>
+        public bool IsDynamic { get { return ClassWrap.IsDynamic(OriginalType); } }
+        public bool IsEnum { get { return EnumWrap.IsEnum(OriginalType); } }
         public string[] Refs { get { return _refs; } }
         public string[] RefPaths { get { return _refPaths; } }
 
-        private ClassInfo _host;
+        private ClassWrap _host;
         private string _name;
         private string _fullType;
         private string _desc;
@@ -63,24 +58,31 @@ namespace TypeInfo
         /// 优先Class.Group,其次才是Field.Group
         /// </summary>
         private HashSet<string> _groups;
+
+        private string _value;
+        private bool _isConst;
         private string[] _refs;
         private string[] _refPaths;
 
-        public void InitCheck(string refs, string refPaths)
+        public void Init(bool isConst, string value, string checker)
         {
-            _refs = Util.Split(refs);
-            _refPaths = Util.Split(refPaths);
+            //_refs = Util.SplitArgs(refs);
+            //_refPaths = Util.SplitArgs(refPaths);
+            _isConst = isConst;
+            _value = value;
+            _refs = new string[0];
+            _refPaths = new string[0];
         }
         /// <summary>
         /// Class 字段
         /// </summary>
-        public FieldInfo(ClassInfo host, string name, string type, string group, string desc, HashSet<string> gs)
-            : this(host, name, type, Util.Split(type), gs)
+        public FieldWrap(ClassWrap host, string name, string type, string group, string desc, HashSet<string> gs)
+            : this(host, name, type, Util.SplitArgs(type), gs)
         {
             _group = group;
             if (_groups == null)
             {
-                _groups = new HashSet<string>(Util.Split(group));
+                _groups = new HashSet<string>(Util.SplitArgs(group));
                 if (_groups.Count == 0)
                     _groups.Add(Setting.DefualtGroup);
             }
@@ -89,7 +91,7 @@ namespace TypeInfo
         /// <summary>
         /// config作为字段定义
         /// </summary>
-        public FieldInfo(ClassInfo host, string name, string type, string[] types, HashSet<string> gs)
+        public FieldWrap(ClassWrap host, string name, string type, string[] types, HashSet<string> gs)
         {
             _host = host;
             _name = name;
@@ -118,23 +120,23 @@ namespace TypeInfo
         /// <summary>
         /// list 项定义
         /// </summary>
-        public FieldInfo GetItemDefine()
+        public FieldWrap GetItemDefine()
         {
-            return new FieldInfo(_host, _name, _types[1], new string[] { _types[1] }, _groups);
+            return new FieldWrap(_host, _name, _types[1], new string[] { _types[1] }, _groups);
         }
         /// <summary>
         /// dict key 定义
         /// </summary>
-        public FieldInfo GetKeyDefine()
+        public FieldWrap GetKeyDefine()
         {
-            return new FieldInfo(_host, _name, _types[1], new string[] { _types[1] }, _groups);
+            return new FieldWrap(_host, _name, _types[1], new string[] { _types[1] }, _groups);
         }
         /// <summary>
         /// dict value 定义
         /// </summary>
-        public FieldInfo GetValueDefine()
+        public FieldWrap GetValueDefine()
         {
-            return new FieldInfo(_host, _name, _types[2], new string[] { _types[2] }, _groups);
+            return new FieldWrap(_host, _name, _types[2], new string[] { _types[2] }, _groups);
         }
 
         public void VerifyDefine()
@@ -158,7 +160,7 @@ namespace TypeInfo
                     {
                         CheckType(3);
                         string key = _types[1];
-                        if (!Setting.RawTypes.Contains(key) && !EnumInfo.IsEnum(key))
+                        if (!Setting.RawTypes.Contains(key) && !EnumWrap.IsEnum(key))
                             Error("非法的dict key类型:" + key);
                         string value = _types[2];
                         if (!IsRawOrEnumOrClass(value))
@@ -173,7 +175,7 @@ namespace TypeInfo
 
             var git = _groups.GetEnumerator();
             while (git.MoveNext())
-                if (!GroupInfo.IsGroup(git.Current))
+                if (!GroupWrap.IsGroup(git.Current))
                     Error("未知 Group:" + git.Current);
         }
         void CheckType(int size)
@@ -188,7 +190,7 @@ namespace TypeInfo
         }
         public override string ToString()
         {
-            return string.Format("Field - Name:{0}\tType:{1}\tGroup:{2}", Name, FullType, _group);
+            return string.Format("Field - Name:{0}\tType:{1}\tGroup:{2}\tIsConst:{3}", Name, FullType, _group, _isConst);
         }
 
     }

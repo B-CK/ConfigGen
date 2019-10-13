@@ -1,8 +1,9 @@
-﻿using System;
+﻿using DDL;
 using Wrap;
-using TypeInfo;
+using System;
+using DataSet;
 using System.Collections.Generic;
-using System.Data;
+
 
 namespace Import
 {
@@ -190,43 +191,43 @@ namespace Import
         {
             return GetNextAndCheckNotEmpty();
         }
-        public override void GetClass(FClass data, ClassInfo info)
+        public override void GetClass(FClass data, ClassWrap info)
         {
             if (!info.Inherit.IsEmpty())
             {
-                ClassInfo parent = ClassInfo.Get(info.Inherit);
+                ClassWrap parent = ClassWrap.Get(info.Inherit);
                 GetClass(data, parent);
             }
 
             var fields = info.Fields;
-            ConfigInfo cfg = ConfigInfo.Get(info.FullType);
+            ConfigWrap cfg = ConfigWrap.Get(info.FullType);
             for (int i = 0; i < fields.Count; i++)
             {
-                var d = Data.Create(data, fields[i], this);
+                var d = DataSet.Data.Create(data, fields[i], this);
                 data.Values.Add(d);
                 if (data.Host == null && fields[i] == cfg.Index)
                     FList.AddIndex(cfg.Index, d);
             }
         }
-        public override void GetList(FList data, FieldInfo define)
+        public override void GetList(FList data, FieldWrap define)
         {
-            FieldInfo item = define.GetItemDefine();
+            FieldWrap item = define.GetItemDefine();
             while (!IsSectionEnd())
             {
-                var d = Data.Create(data.Host, item, this);
+                var d = DataSet.Data.Create(data.Host, item, this);
                 if (data.Host == null)
-                    Program.AddLastData(d);
+                    Program.RecordLastData(d);
                 data.Values.Add(d);
             }
         }
-        public override void GetDict(FDict data, FieldInfo define)
+        public override void GetDict(FDict data, FieldWrap define)
         {
-            FieldInfo key = define.GetKeyDefine();
-            FieldInfo value = define.GetValueDefine();
+            FieldWrap key = define.GetKeyDefine();
+            FieldWrap value = define.GetValueDefine();
             while (!IsSectionEnd())
             {
-                var dk = Data.Create(data.Host, key, this);
-                var dv = Data.Create(data.Host, value, this);
+                var dk = DataSet.Data.Create(data.Host, key, this);
+                var dv = DataSet.Data.Create(data.Host, value, this);
                 data.Values.Add(dk, dv);
             }
         }

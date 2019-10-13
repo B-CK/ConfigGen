@@ -6,9 +6,9 @@ public class Setting
 {
     #region 基础配置
     /// <summary>
-    /// 工具所在目录
+    /// 应用调用位置开始,例:bat中调用,则为bat文件所有在目录路径
     /// </summary>
-    public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
+    public static readonly string CurrentDir = Directory.GetCurrentDirectory();
 
     /// <summary>
     /// 数据表数据占位符,仅用于基础类型;不填写数据时,使用null占位.
@@ -26,15 +26,15 @@ public class Setting
     public static readonly HashSet<string> RawTypes = new HashSet<string>() { BOOL, INT, FLOAT, LONG, STRING };
     public static readonly HashSet<string> ContainerTypes = new HashSet<string>() { LIST, DICT };
     /// <summary>
-    /// 多参数分隔符,适用检查规则,分组,键值对
+    /// 多参数分隔符[:],适用检查规则,分组,键值对
     /// </summary>
     public static readonly char[] ArgsSplitFlag = new char[1] { ':' };
     /// <summary>
-    /// 常量集合元素分隔符
+    /// 常量集合元素分隔符[,]
     /// </summary>
     public static readonly char[] SplitFlag = new char[1] { ',' };
     /// <summary>
-    /// 类型名称分隔符
+    /// 类型名称分隔符[.]
     /// </summary>
     public static readonly char[] DotSplit = new char[] { '.' };
     /// <summary>
@@ -53,47 +53,45 @@ public class Setting
 
     #region 命令配置
     /// <summary>
-    /// 数据表文件夹路径
+    /// 工具执行操作类型
     /// </summary>
-    public static string ConfigDir { get; set; }
+    public static string Operate { get; set; }
     /// <summary>
     /// 需要导出的数据和结构文件的描述文件,以模块未单位
     /// </summary>
     public static string ModuleXml { get; set; }
     /// <summary>
+    /// 输入路径
+    /// </summary>
+    public static string Input { get; set; }
+    /// <summary>
+    /// 输出路径
+    /// </summary>
+    public static string Output { get; set; }
+    /// <summary>
+    /// 导出语言类型
+    /// </summary>
+    public static string Language { get; set; }
+    /// <summary>
+    /// 命名空间根节点名称
+    /// </summary>
+    public static string ModuleName { get; set; }
+    /// <summary>
+    /// 单个命名空间Xml路径
+    /// </summary>
+    public static string NamespaceXml { get; set; }
+    /// <summary>
+    /// Excel数据表文件夹路径
+    /// </summary>
+    public static string ExcelDir { get; set; }
+    /// <summary>
     /// 导出CSharp类型
     /// </summary>
     public static string CSDir { get; set; }
     /// <summary>
-    /// 导出Java类型
-    /// </summary>
-    public static string JavaDir { get; set; }
-    /// <summary>
-    /// 导出Lua类型
-    /// </summary>
-    public static string LuaDir { get; set; }
-    /// <summary>
-    /// 导出CSharp类型Xml操作类
-    /// </summary>
-    public static string XmlCodeDir { get; set; }
-
-    /// <summary>
-    /// 导出csv存储路径
-    /// </summary>
-    public static string DataDir { get; set; }
-    /// <summary>
     /// 数据导出分组
     /// </summary>
-    public static HashSet<string> ExportGroup = new HashSet<string>();
-    /// <summary>
-    /// 导出Csv数据读写类命名空间根节点
-    /// </summary>
-    public static string ConfigRootNode { get; set; }
-    /// <summary>
-    /// 导出Xml数据读写类命名空间根节点
-    /// </summary>
-    public static string XmlRootNode { get { return "Xml"; } }
-    public static bool Check { get; set; }
+    public static HashSet<string> ExportGroup;
     #endregion
 
     #region 文件相关常量  

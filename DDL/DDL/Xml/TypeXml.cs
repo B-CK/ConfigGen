@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace DDL.Xml
+namespace Xml
 {
     [XmlInclude(typeof(TypeXml))]
     public abstract partial class TypeXml

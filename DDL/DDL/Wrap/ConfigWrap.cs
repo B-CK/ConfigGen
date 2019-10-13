@@ -1,19 +1,21 @@
-﻿using System;
+﻿using Xml;
+using DataSet;
+using Import;
+using System;
 using System.IO;
 using System.Text;
-using Wrap;
-using Import;
-using Xml;
 using System.Collections.Generic;
-using System.Xml;
 
-namespace TypeInfo
+namespace Wrap
 {
-    public class ConfigInfo
+    /// <summary>
+    /// 用于解析数据配置的类型,区别于ClassInfo
+    /// </summary>
+    public class ConfigWrap
     {
-        private static Dictionary<string, ConfigInfo> _configs = new Dictionary<string, ConfigInfo>();
-        public static Dictionary<string, ConfigInfo> Configs { get { return _configs; } }
-        public static ConfigInfo Get(string fullName)
+        private static Dictionary<string, ConfigWrap> _configs = new Dictionary<string, ConfigWrap>();
+        public static Dictionary<string, ConfigWrap> Configs { get { return _configs; } }
+        public static ConfigWrap Get(string fullName)
         {
             return IsConfig(fullName) ? _configs[fullName] : null;
         }
@@ -21,9 +23,9 @@ namespace TypeInfo
         {
             return _configs.ContainsKey(fullName);
         }
-        public static List<ConfigInfo> GetExports()
+        public static List<ConfigWrap> GetExports()
         {
-            var exports = new List<ConfigInfo>();
+            var exports = new List<ConfigWrap>();
             var cit = _configs.GetEnumerator();
             while (cit.MoveNext())
             {
@@ -33,7 +35,7 @@ namespace TypeInfo
             }
             return exports;
         }
-        static void Add(ConfigInfo info)
+        static void Add(ConfigWrap info)
         {
             if (_configs.ContainsKey(info._fullType))
                 Util.LogWarningFormat("{0} 重复定义!", info._fullType);
@@ -45,7 +47,7 @@ namespace TypeInfo
         public string FullType { get { return _fullType; } }
         public string Namespace { get { return _namespace; } }
         public string Name { get { return _des.Name; } }
-        public FieldInfo Index { get { return _index; } }
+        public FieldWrap Index { get { return _index; } }
         public HashSet<string> Groups { get { return _groups; } }
         public FList Data { get { return _data; } }
         public string[] InputFiles { get { return _inputFiles; } }
@@ -57,32 +59,32 @@ namespace TypeInfo
         private string _namespace;
         private string[] _inputFiles;
         private string _outputFile;
-        private FieldInfo _index;
+        private FieldWrap _index;
         private FList _data;
         private readonly HashSet<string> _groups;
 
-        public ConfigInfo(ClassXml des, string namespace0, string xmlDir)
+        public ConfigWrap(ClassXml des, string namespace0)
         {
             _des = des;
             _namespace = namespace0;
             _fullType = string.Format("{0}.{1}", namespace0, des.Name);
-            _groups = new HashSet<string>(Util.Split(des.Group));
+            _groups = new HashSet<string>(Util.SplitArgs(des.Group));
             if (_groups.Count == 0)
                 _groups.Add(Setting.DefualtGroup);
 
             if (des.Index.IsEmpty())
                 Error("索引(Index)未填写");
-            ClassInfo cls = ClassInfo.Get(_fullType);
+            ClassWrap cls = ClassWrap.Get(_fullType);
             _index = cls.Fields.Find(f => f.Name == des.Index);
 
-            string path = Path.Combine(xmlDir, _des.DataPath);
+            string path = Path.Combine(Setting.ExcelDir, _des.DataPath);
             if (File.Exists(path))
                 _inputFiles = new string[] { path };
             else if (Directory.Exists(path))
                 _inputFiles = Directory.GetFiles(path);
             else
                 Error("数据路径不存在:" + path);
-            _outputFile = _fullType.Replace('.', '/').Substring(Setting.ConfigRootNode.Length + 1).ToLower();
+            _outputFile = _fullType.Replace('.', '/').Substring(Setting.ModuleName.Length + 1).ToLower();
 
             Add(this);
         }
@@ -113,24 +115,15 @@ namespace TypeInfo
                 {
                     string ext = Path.GetExtension(path);
                     string fullType = "list:" + _fullType;
-                    FieldInfo field = new FieldInfo(null, Name, fullType, Util.Split(fullType), _groups);
-                    if (ext == "xml")
-                    {
-                        var xml = new ImportXml(path);
-                        _data = new FList(null, field, xml.Data);
-                    }
-                    else
-                    {
-                        var excel = new ImportExcel(path);
-                        _data = new FList(null, field, excel);
-                    }
+                    FieldWrap field = new FieldWrap(null, Name, fullType, Util.SplitArgs(fullType), _groups);
+                    var excel = new ImportExcel(path);
+                    _data = new FList(null, field, excel);
                 }
                 catch (Exception e)
                 {
                     Util.LogErrorFormat("{0}\n{1}\n", e.Message, e.StackTrace);
                     Error("[加载文件失败]:" + path);
                 }
-
             }
         }
         public void VerifyData()

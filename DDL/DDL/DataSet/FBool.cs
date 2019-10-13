@@ -1,19 +1,19 @@
 ﻿using Import;
-using TypeInfo;
+using Wrap;
 using System;
 using System.Xml;
 
-namespace Wrap
+namespace DataSet
 {
     public class FBool : Data
     {
         public readonly bool Value;
 
-        public FBool(FClass host, FieldInfo define, ImportExcel excel) : base(host, define)
+        public FBool(FClass host, FieldWrap define, ImportExcel excel) : base(host, define)
         {
             Value = excel.GetBool();
         }
-        public FBool(FClass host, FieldInfo define, XmlElement xml) : base(host, define)
+        public FBool(FClass host, FieldWrap define, XmlElement xml) : base(host, define)
         {
             string v = xml.InnerText;
             if (v.Equals("true", StringComparison.CurrentCultureIgnoreCase))

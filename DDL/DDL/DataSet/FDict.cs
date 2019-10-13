@@ -1,26 +1,26 @@
 ﻿using Import;
-using TypeInfo;
+using Wrap;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace Wrap
+namespace DataSet
 {
     public class FDict : Data
     {
         public Dictionary<Data, Data> Values { get { return _values; } }
 
         private Dictionary<Data, Data> _values = new Dictionary<Data, Data>();
-        private FieldInfo _key;
-        private FieldInfo _value;
+        private FieldWrap _key;
+        private FieldWrap _value;
 
-        public FDict(FClass host, FieldInfo define, ImportExcel excel) : base(host, define)
+        public FDict(FClass host, FieldWrap define, ImportExcel excel) : base(host, define)
         {
             _key = define.GetKeyDefine();
             _value = define.GetValueDefine();
             excel.GetDict(this, define);
         }
-        public FDict(FClass host, FieldInfo define, XmlElement data) : base(host, define)
+        public FDict(FClass host, FieldWrap define, XmlElement data) : base(host, define)
         {
             _key = define.GetKeyDefine();
             _value = define.GetValueDefine();

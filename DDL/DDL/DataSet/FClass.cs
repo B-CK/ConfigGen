@@ -1,10 +1,10 @@
 ﻿using Import;
-using TypeInfo;
+using Wrap;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace Wrap
+namespace DataSet
 {
     public class FClass : Data
     {
@@ -17,16 +17,16 @@ namespace Wrap
         private string _fullType;
         private List<Data> _values = new List<Data>();
 
-        public FClass(FClass host, FieldInfo define, ImportExcel excel) : base(host, define)
+        public FClass(FClass host, FieldWrap define, ImportExcel excel) : base(host, define)
         {
             _fullType = define.FullType;
-            excel.GetClass(this, ClassInfo.Get(define.FullType));
+            excel.GetClass(this, ClassWrap.Get(define.FullType));
         }
-        public FClass(FClass host, FieldInfo define, XmlElement value) : base(host, define)
+        public FClass(FClass host, FieldWrap define, XmlElement value) : base(host, define)
         {
             _fullType = define.FullType;
 
-            ClassInfo info = ClassInfo.Get(define.FullType);
+            ClassWrap info = ClassWrap.Get(define.FullType);
             Load(info, value);
         }
         /// <summary>
@@ -36,18 +36,18 @@ namespace Wrap
         {
             _fullType = fullType;
         }
-        void Load(ClassInfo info, XmlElement data)
+        void Load(ClassWrap info, XmlElement data)
         {
             if (info.IsDynamic())
             {
                 if (!info.Inherit.IsEmpty())
                 {
-                    ClassInfo parent = ClassInfo.Get(info.Inherit);
+                    ClassWrap parent = ClassWrap.Get(info.Inherit);
                     Load(parent, data);
                 }
 
                 string type = data.GetAttribute("Type");
-                ClassInfo dynamic = ClassInfo.Get(type);
+                ClassWrap dynamic = ClassWrap.Get(type);
                 if (dynamic == null)
                     Util.Error("多态类型{0}未知", type);
                 if (!info.HasChild(type))

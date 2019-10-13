@@ -1,6 +1,7 @@
 ﻿using Description.Wrap;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -24,6 +25,10 @@ namespace Description.Editor
 
         List<MemberEditor> _listBox = new List<MemberEditor>();
         MemberEditor _currentMember;
+        /// <summary>
+        /// 父类字段数量
+        /// </summary>
+        int _baseFieldCount = 0;
         private ClassEditorDock()
         {
             InitializeComponent();
@@ -62,9 +67,9 @@ namespace Description.Editor
             {
                 var parent = ClassWrap.Dict[wrap.Inherit];
                 var pFields = parent.Fields;
-                for (int i = 0; i < pFields.Count; i++)
+                for (int i = 0; i < pFields.Count; i++, _baseFieldCount++)
                 {
-                    var fieldEditor = FieldEditor.Create(this, pFields[i], true);
+                    var fieldEditor = FieldEditor.Create(this, pFields[i], _baseFieldCount, true);
                     items.Add(fieldEditor);
                     _indexComboBox.Items.Add(fieldEditor);
                 }
@@ -73,7 +78,7 @@ namespace Description.Editor
             var fields = wrap.Fields;
             for (int i = 0; i < fields.Count; i++)
             {
-                var fieldEditor = FieldEditor.Create(this, fields[i]);
+                var fieldEditor = FieldEditor.Create(this, fields[i], _baseFieldCount + i);
                 items.Add(fieldEditor);
                 AddMember(fieldEditor);
                 _indexComboBox.Items.Add(fieldEditor);
@@ -104,7 +109,6 @@ namespace Description.Editor
                 cls.Desc = _descTextBox.Text;
                 UpdateTreeNode(fullName);
             }
-
 
             SetNamespace<ClassWrap>(cls.Namespace, _namespaceComboBox.SelectedItem as NamespaceWrap);
 
@@ -194,11 +198,11 @@ namespace Description.Editor
                 items.Remove(_listBox[i]);
         }
 
-        private void OnValueChange(object sender, System.EventArgs e)
+        private void OnValueChange(object sender, EventArgs e)
         {
             OnValueChange();
         }
-        private void DataPathButton_Click(object sender, System.EventArgs e)
+        private void DataPathButton_Click(object sender, EventArgs e)
         {
             try
             {
@@ -234,7 +238,7 @@ namespace Description.Editor
 
             member.Show();
         }
-        private void RemoveMenuItem_Click(object sender, System.EventArgs e)
+        private void RemoveMenuItem_Click(object sender, EventArgs e)
         {
             var member = _memberListBox.SelectedItem as MemberEditor;
             _memberListBox.Items.Remove(member);
@@ -244,9 +248,9 @@ namespace Description.Editor
             member.Clear();
             OnValueChange();
         }
-        private void AddMenuItem_Click(object sender, System.EventArgs e)
+        private void AddMenuItem_Click(object sender, EventArgs e)
         {
-            var member = FieldEditor.Create(this, UnqueName);
+            var member = FieldEditor.Create(this, UnqueName, _memberListBox.Items.Count);
             _memberListBox.Items.Add(member);
             _indexComboBox.Items.Add(member);
             _memberListBox.SelectedItem = member;
@@ -292,5 +296,46 @@ namespace Description.Editor
         {
             GroupDock.Ins.ShowGroups(_groupTextBox);
         }
+
+        #region 字段移动按钮
+        private void Down_Click(object sender, EventArgs e)
+        {
+            if (_currentMember == null) return;
+            var from = _currentMember as FieldEditor;
+            if (_memberDict.Count + _baseFieldCount <= (from.Seq + 1))
+                return;
+
+            from.Down();
+            var to = _memberListBox.Items[from.Seq] as FieldEditor;
+            to.Up();
+            _memberListBox.Items[from.Seq] = from;
+            _memberListBox.Items[to.Seq] = to;
+            OnValueChange();
+        }
+        private void Up_Click(object sender, EventArgs e)
+        {
+            if (_currentMember == null) return;
+            var from = _currentMember as FieldEditor;
+            if (from.Seq <= _baseFieldCount)
+                return;
+
+            from.Up();
+            var to = _memberListBox.Items[from.Seq] as FieldEditor;
+            to.Down();
+            _memberListBox.Items[from.Seq] = from;
+            _memberListBox.Items[to.Seq] = to;
+            OnValueChange();
+        }
+        private void Picture_MouseDown(object sender, MouseEventArgs e)
+        {
+            var picture = sender as PictureBox;
+            picture.BackColor = Color.CornflowerBlue;
+        }
+        private void Picture_MouseUp(object sender, MouseEventArgs e)
+        {
+            var picture = sender as PictureBox;
+            picture.BackColor = Color.FromArgb(56, 56, 56);
+        }
+        #endregion
     }
 }

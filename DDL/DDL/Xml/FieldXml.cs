@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace DDL.Xml
+namespace Xml
 {
     [XmlInclude(typeof(MemberXml))]
     public abstract class MemberXml

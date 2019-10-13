@@ -24,6 +24,10 @@ namespace Description.Wrap
             return wrap._xml;
         }
 
+        /// <summary>
+        /// 字段在类中的顺序
+        /// </summary>
+        public int Seq => _seq;
         public virtual string DisplayFullName
         {
             get
@@ -64,9 +68,9 @@ namespace Description.Wrap
         public string Checker { get { return _xml.Checker; } set { _xml.Checker = value; } }
 
 
-
         private ClassWrap _cls;
         private FieldXml _xml;
+        private int _seq = -1;
         protected FieldWrap(FieldXml xml, ClassWrap cls)
         {
             Init(xml, cls);
@@ -103,6 +107,29 @@ namespace Description.Wrap
                     break;
             }
             return r;
+        }
+        /// <summary>
+        /// 上移动
+        /// </summary>
+        public void Up()
+        {
+            --_seq;
+            var pre = _cls.Fields[_seq];
+            ++pre._seq;
+            _cls.Fields[_seq] = this;
+            _cls.Fields[pre._seq] = pre;
+
+        }
+        /// <summary>
+        /// 下移动
+        /// </summary>
+        public void Down()
+        {
+            ++_seq;
+            var next = _cls.Fields[_seq];
+            --next._seq;
+            _cls.Fields[_seq] = this;
+            _cls.Fields[next._seq] = next;
         }
         private bool CheckType(string type, bool isSubType = false)
         {

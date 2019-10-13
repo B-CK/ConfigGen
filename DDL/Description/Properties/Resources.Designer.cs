@@ -63,6 +63,26 @@ namespace Description.Properties {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
+        internal static System.Drawing.Bitmap ArrowDown {
+            get {
+                object obj = ResourceManager.GetObject("ArrowDown", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap ArrowUp {
+            get {
+                object obj = ResourceManager.GetObject("ArrowUp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
         internal static System.Drawing.Bitmap ConsoleErroricon {
             get {
                 object obj = ResourceManager.GetObject("ConsoleErroricon", resourceCulture);

@@ -1,8 +1,8 @@
 ﻿using Import;
-using TypeInfo;
+using Wrap;
 using System.Xml;
 
-namespace Wrap
+namespace DataSet
 {
     /// <summary>
     /// 数据导出控制类
@@ -10,12 +10,12 @@ namespace Wrap
     public abstract class Data
     {
         public FClass Host { get { return _host; } }
-        public FieldInfo Define { get { return _define; } }
+        public FieldWrap Define { get { return _define; } }
 
         protected FClass _host;
-        protected FieldInfo _define;
+        protected FieldWrap _define;
 
-        public Data(FClass host, FieldInfo define)
+        public Data(FClass host, FieldWrap define)
         {
             _define = define;
             _host = host;
@@ -32,7 +32,7 @@ namespace Wrap
                 string type = _define.Refs[i];
                 if (type.IndexOfAny(Setting.DotSplit) < 0)
                     type = string.Format("{0}.{1}", _define.Host.Namespace, type);
-                ConfigInfo cfg = ConfigInfo.Get(type);
+                ConfigWrap cfg = ConfigWrap.Get(type);
                 if (!FList.ContainsIndex(cfg.Index, this))
                     Util.LogWarningFormat("Class:{0} {1} {2}主键无法在{3}找到",
                         _host.FullType, _define, ExportData(), type);
@@ -40,7 +40,7 @@ namespace Wrap
         }
 
         #region 创建数据
-        public static Data Create(FClass host, FieldInfo define, ImportExcel excel)
+        public static Data Create(FClass host, FieldWrap define, ImportExcel excel)
         {
             string type = define.OriginalType;
             if (define.IsRaw)
@@ -66,15 +66,16 @@ namespace Wrap
                 if (!define.IsDynamic)
                     return new FClass(host, define, excel);
 
+                //解析具体类型
                 string dType = excel.GetString();
-                ClassInfo cls = ClassInfo.Get(define.FullType);
-                dType = ClassInfo.CorrectType(cls, dType);
-                ClassInfo dynamic = ClassInfo.Get(dType);
+                ClassWrap cls = ClassWrap.Get(define.FullType);
+                dType = ClassWrap.CorrectType(cls, dType);
+                ClassWrap dynamic = ClassWrap.Get(dType);
                 if (dynamic == null)
                     excel.Error("多态类型" + dType + "未知");
                 if (cls.FullType != dType && !cls.HasChild(dType))
                     excel.Error(string.Format("数据类型{0}非{1}子类", dType, cls.FullType));
-                var define0 = new FieldInfo(define.Host, define.Name, dType, new string[] { define.FullType }, define.Group);
+                var define0 = new FieldWrap(define.Host, define.Name, dType, new string[] { define.FullType }, define.Group);
                 return new FClass(host, define0, excel);
             }
             else if (define.IsContainer)
@@ -88,7 +89,7 @@ namespace Wrap
             Util.LogError("未知类型" + type);
             return null;
         }
-        public static Data Create(FClass host, FieldInfo define, XmlElement xml)
+        public static Data Create(FClass host, FieldWrap define, XmlElement xml)
         {
             string type = define.OriginalType;
             if (define.IsRaw)
@@ -117,14 +118,14 @@ namespace Wrap
                     return new FClass(host, define, xml);
 
                 string dType = xml.GetAttribute("Type");
-                ClassInfo cls = ClassInfo.Get(define.FullType);
-                dType = ClassInfo.CorrectType(cls, dType);
-                ClassInfo dynamic = ClassInfo.Get(dType);
+                ClassWrap cls = ClassWrap.Get(define.FullType);
+                dType = ClassWrap.CorrectType(cls, dType);
+                ClassWrap dynamic = ClassWrap.Get(dType);
                 if (dynamic == null)
                     Util.Error("多态类型" + dType + "未知");
                 if (cls.FullType != dType && !cls.HasChild(dType))
                     Util.Error(string.Format("数据类型{0}非{1}子类", dType, cls.FullType));
-                var define0 = new FieldInfo(define.Host, define.Name, dType, new string[] { define.FullType }, define.Group);
+                var define0 = new FieldWrap(define.Host, define.Name, dType, new string[] { define.FullType }, define.Group);
                 return new FClass(host, define0, xml);
             }
             else if (define.IsContainer)

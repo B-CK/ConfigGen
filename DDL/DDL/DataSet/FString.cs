@@ -1,5 +1,5 @@
 ﻿using Import;
-using TypeInfo;
+using Wrap;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,17 +7,17 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Wrap
+namespace DataSet
 {
     public class FString : Data
     {
         public readonly string Value;
 
-        public FString(FClass host, FieldInfo define, ImportExcel excel) : base(host, define)
+        public FString(FClass host, FieldWrap define, ImportExcel excel) : base(host, define)
         {
             Value = excel.GetString();
         }
-        public FString(FClass host, FieldInfo define, XmlElement value) : base(host, define)
+        public FString(FClass host, FieldWrap define, XmlElement value) : base(host, define)
         {
             Value = value.InnerText;
         }
