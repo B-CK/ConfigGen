@@ -10,22 +10,22 @@ namespace Description.Wrap
 {
     public class NamespaceWrap : BaseWrap, IDisposable
     {
-        public static Dictionary<string, NamespaceWrap> AllNamespaces { get { return _allNamespaces; } }
-        static Dictionary<string, NamespaceWrap> _allNamespaces = new Dictionary<string, NamespaceWrap>();
-        public static NamespaceWrap[] Namespaces
+        public static Dictionary<string, NamespaceWrap> Dict { get { return _dict; } }
+        static Dictionary<string, NamespaceWrap> _dict = new Dictionary<string, NamespaceWrap>();
+        public static NamespaceWrap[] Array
         {
             get
             {
-                if (_namespaces.Length != _allNamespaces.Count)
+                if (array.Length != _dict.Count)
                 {
-                    var ls = new List<NamespaceWrap>(_allNamespaces.Values);
+                    var ls = new List<NamespaceWrap>(_dict.Values);
                     ls.Sort((a, b) => Comparer<string>.Default.Compare(a.DisplayName, b.DisplayName));
-                    _namespaces = ls.ToArray();
+                    array = ls.ToArray();
                 }
-                return _namespaces;
+                return array;
             }
         }
-        static NamespaceWrap[] _namespaces = new NamespaceWrap[0];
+        static NamespaceWrap[] array = new NamespaceWrap[0];
         public static void InitNamespaces()
         {
             string[] fs = Directory.GetFiles(Util.NamespaceDir);
@@ -47,16 +47,29 @@ namespace Description.Wrap
         }
         public static void ClearAll()
         {
-            foreach (var item in _allNamespaces)
+            foreach (var item in _dict)
                 item.Value.Dispose();
-            _allNamespaces.Clear();
+            _dict.Clear();
             ClassWrap.ClearAll();
             EnumWrap.ClearAll();
         }
+        public static void Remove(NamespaceWrap wrap)
+        {
+            if (_dict.ContainsKey(wrap.FullName))
+            {
+                _dict.Remove(wrap.FullName);
+                var cls = wrap.Classes;
+                for (int i = 0; i < cls.Count; i++)
+                    ClassWrap.Dict.Remove(cls[i].FullName);
+                var ens = wrap.Enums;
+                for (int i = 0; i < ens.Count; i++)
+                    EnumWrap.Dict.Remove(ens[i].FullName);
+            }
+        }
         public static NamespaceWrap GetNamespace(string name)
         {
-            if (_allNamespaces.ContainsKey(name))
-                return _allNamespaces[name];
+            if (_dict.ContainsKey(name))
+                return _dict[name];
             else
                 return null;
         }
@@ -82,7 +95,7 @@ namespace Description.Wrap
         /// 是否有被修改
         /// </summary>
         public bool IsDirty { get { return _isDirty; } }
-        private bool _isDirty = false;
+        public string FilePath { get { return _path; } }
 
         public List<ClassWrap> Classes { get { return _classes; } }
         public List<EnumWrap> Enums { get { return _enums; } }
@@ -103,8 +116,9 @@ namespace Description.Wrap
         private List<EnumWrap> _enums;
         private NamespaceXml _xml;
 
+        private bool _isDirty = false;
         private string _path;
-        protected NamespaceWrap(NamespaceXml xml) 
+        protected NamespaceWrap(NamespaceXml xml)
         {
             Init(xml);
         }
@@ -126,7 +140,7 @@ namespace Description.Wrap
             for (int i = 0; i < xenums.Count; i++)
                 EnumWrap.Create(xenums[i], this);
 
-            _allNamespaces.Add(FullName, this);
+            _dict.Add(FullName, this);
             _isDirty = false;
         }
 
@@ -155,6 +169,26 @@ namespace Description.Wrap
                 _classes.Remove(wrap as ClassWrap);
             else if (wrap is EnumWrap)
                 _enums.Remove(wrap as EnumWrap);
+        }
+        public void UpdateStateWithChild(NodeState state)
+        {
+            AddNodeState(state);
+            var classes = Classes;
+            for (int i = 0; i < classes.Count; i++)
+                classes[i].AddNodeState(state);
+            var enums = Enums;
+            for (int i = 0; i < enums.Count; i++)
+                enums[i].AddNodeState(state);
+        }
+        public void ResetStateWithChild(NodeState state)
+        {
+            RemoveNodeState(state);
+            var classes = Classes;
+            for (int i = 0; i < classes.Count; i++)
+                classes[i].RemoveNodeState(state);
+            var enums = Enums;
+            for (int i = 0; i < enums.Count; i++)
+                enums[i].RemoveNodeState(state);
         }
         public void SetDirty()
         {
@@ -242,7 +276,7 @@ namespace Description.Wrap
                 {
                     string path = Util.GetNamespaceAbsPath(FullName + ".xml");
                     File.Delete(path);
-                    _allNamespaces.Remove(FullName);
+                    _dict.Remove(FullName);
                 }
                 catch (Exception e)
                 {

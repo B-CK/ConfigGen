@@ -1,29 +1,47 @@
 ﻿using Description.Editor;
 using Description.Xml;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 
 namespace Description.Wrap
 {
-    internal class ModuleWrap : BaseWrap
+    public class ModuleWrap : BaseWrap
     {
         public static ModuleWrap Default { get { return _default; } }
         public static ModuleWrap Current { get { return _current; } }
         static ModuleWrap _default;
         static ModuleWrap _current;
         static int _noSaveNum = 0;
+
+        static Dictionary<string, ModuleXml> _dict = new Dictionary<string, ModuleXml>();
         public static void InitModule()
         {
-            ModuleXml xml = new ModuleXml() { Name = Util.DefaultModuleName };
-            _default = new ModuleWrap(xml) { _path = Util.DefaultModule };
-            var allNsw = NamespaceWrap.AllNamespaces;
+            _dict.Clear();
+            var ms = Directory.GetFiles(Util.ModuleDir, "*.xml");
+            for (int i = 0; i < ms.Length; i++)
+            {
+                string path = ms[i];
+                if (!_dict.ContainsKey(path))
+                {
+                    var module = Util.Deserialize<ModuleXml>(path);
+                    _dict.Add(path, module);
+                }
+            }
+
+            ModuleXml xml = _dict[Util.DefaultModule];
+            _default = new ModuleWrap();
+            _default.Init(xml);
+            var allNsw = NamespaceWrap.Dict;
             foreach (var item in allNsw)
                 _default.AddImport(item.Value, true);
             _default.Save(false);
 
-            //打开模块,即当前模块
-            Open(Util.LastRecord);
+            if (Util.LastRecord.IsEmpty())
+                Open(Util.DefaultModule);
+            else
+                Open(Util.LastRecord);
         }
 
         public static void CloseCurrent()
@@ -39,10 +57,11 @@ namespace Description.Wrap
                 Util.Serialize(path, xml);
             }
             else
-                xml = Util.Deserialize<ModuleXml>(path);
+                xml = _dict[path];
             Debug.LogFormat("创建模块{0}", path);
             ModuleWrap wrap = PoolManager.Ins.Pop<ModuleWrap>();
-            if (wrap == null) wrap = new ModuleWrap(xml);
+            if (wrap == null) wrap = new ModuleWrap();
+            wrap.Init(xml);
             return wrap;
         }
         public static ModuleWrap Open(string path)
@@ -56,11 +75,8 @@ namespace Description.Wrap
                 ModuleWrap wrap = PoolManager.Ins.Pop<ModuleWrap>();
                 if (path == Util.DefaultModule && _default != null)
                     wrap = _default;
-                else
-                {
-                    var xml = Util.Deserialize<ModuleXml>(path);
-                    if (wrap == null) wrap = new ModuleWrap(xml);
-                }
+                else if (wrap == null)
+                    wrap = new ModuleWrap();
 
                 if (_current != null)
                 {
@@ -76,9 +92,11 @@ namespace Description.Wrap
             }
 
             _noSaveNum = 0;
+            _current.Init(_dict[path]);
             _current.InitState();
             MainWindow.Ins.Text = Util.Format("结构描述 - {0}", _current.FullName);
             Debug.LogFormat("打开模板{0}", path);
+            GC.Collect();
             return _current;
         }
         public static void AddDirty() { ++_noSaveNum; }
@@ -123,55 +141,56 @@ namespace Description.Wrap
 
         }
         public override string FullName { get { return _path; } }
-
+        public List<string> Groups { get { return _groups; } }
         public List<string> Imports { get { return _imports; } }
 
         public override string DisplayName => FullName;
 
-
+        private HashSet<string> _checkTypes;
         private List<string> _imports;
+        private List<string> _groups;
         private ModuleXml _xml;
         private string _path;
-        protected ModuleWrap(ModuleXml xml)
+        protected ModuleWrap() { }
+        protected void Init(ModuleXml xml)
         {
             base.Init(xml.Name);
 
             _xml = xml;
             _path = Util.GetModuleAbsPath(_name + ".xml");
+            _checkTypes = new HashSet<string>();
             _imports = new List<string>();
-            if (_xml.Imports == null) return;
-
-            var imps = _xml.Imports;
-            for (int i = 0; i < imps.Count; i++)
+            _groups = new List<string>();
+            if (_xml.Imports != null)
             {
-                _imports.Add(imps[i]);
-                Add(imps[i]);
+                var imps = _xml.Imports;
+                for (int i = 0; i < imps.Count; i++)
+                {
+                    _imports.Add(imps[i]);
+                    Add(imps[i]);
+                }
+            }
+            if (!_xml.Groups.IsEmpty())
+            {
+                var groups = _xml.Groups.Split(Util.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
+                _groups.AddRange(groups);
             }
         }
         protected void InitState()
         {
-            var allNsw = NamespaceWrap.AllNamespaces;
-            var imps = Imports;
-            for (int k = 0; k < imps.Count; k++)
+            var allNsw = NamespaceWrap.Dict;
+            foreach (var item in allNsw)
             {
-                string ns = imps[k];
-                if (allNsw.ContainsKey(ns))
-                {
-                    var nsw = allNsw[ns];
-                    nsw.AddNodeState(NodeState.Include);
-                    var classes = nsw.Classes;
-                    for (int i = 0; i < classes.Count; i++)
-                        classes[i].AddNodeState(NodeState.Include);
-                    var enums = nsw.Enums;
-                    for (int i = 0; i < enums.Count; i++)
-                        enums[i].AddNodeState(NodeState.Include);
-                }
+                var nsw = item.Value;
+                var state = Contains(nsw.FullName) ? NodeState.Include : NodeState.Exclude;
+                nsw.UpdateStateWithChild(state);
             }
         }
         public void SaveAnother(string path)
         {
             var another = new ModuleXml();
             another.Name = Path.GetFileNameWithoutExtension(path);
+            another.Groups = _groups.ToString(Util.ArgsSplitFlag[0].ToString());
             another.Imports = _xml.Imports;
             Util.Serialize(path, another);
             Debug.LogFormat("另存模板{0}", path);
@@ -188,7 +207,7 @@ namespace Description.Wrap
             if (Contains(name)) return;
             Add(name);
             _imports.Add(name);
-            wrap.AddNodeState(NodeState.Include);
+            wrap.UpdateStateWithChild(NodeState.Include);
             if (!isInit)
                 AddDirty();
         }
@@ -198,13 +217,20 @@ namespace Description.Wrap
             if (!Contains(name)) return;
             Remove(name);
             Imports.Remove(name);
-            wrap.AddNodeState(NodeState.Exclude);
+            wrap.ResetStateWithChild(~NodeState.Exclude);
+            AddDirty();
+        }
+        public void RemoveImport(string fullName)
+        {
+            Remove(fullName);
+            Imports.Remove(fullName);
             AddDirty();
         }
         public void Save(bool saveNsw = true)
         {
-            //_xml.Name = _name;
+            _xml.Name = _name;
             _xml.Imports = _imports;
+            _xml.Groups = _groups.ToString(Util.ArgsSplitFlag[0].ToString());
             Util.Serialize(_path, _xml);
             Debug.LogFormat("保存模板{0}", _path);
 
@@ -212,7 +238,7 @@ namespace Description.Wrap
             for (int i = 0; i < _imports.Count; i++)
             {
                 string key = _imports[i];
-                var nsw = NamespaceWrap.AllNamespaces[key];
+                var nsw = NamespaceWrap.Dict[key];
                 if (nsw != null && nsw.IsDirty)
                     nsw.Save();
             }
@@ -224,14 +250,37 @@ namespace Description.Wrap
             for (int i = 0; i < _imports.Count; i++)
             {
                 string key = _imports[i];
-                var nsw = NamespaceWrap.AllNamespaces[key];
+                var nsw = NamespaceWrap.Dict[key];
                 if (nsw != null && nsw.IsDirty)
                     nsw.Cancle();
             }
         }
 
+        /// <summary>
+        /// 仅供当前模块使用
+        /// </summary>
+        private void UpdateCheckTypes()
+        {
+            //重置检查类型
+            _checkTypes.Clear();
+            for (int i = 0; i < _imports.Count; i++)
+            {
+                string key = _imports[i];
+                if (NamespaceWrap.Dict.ContainsKey(key))
+                {
+                    var nsw = NamespaceWrap.Dict[key];
+                    foreach (var item in nsw.Hash)
+                        _checkTypes.Add($"{nsw.FullName}.{item}");
+                }
+            }
+        }
+        public bool CheckType(string fullName)
+        {
+            return _checkTypes.Contains(fullName);
+        }
         public override bool Check()
         {
+            _current.UpdateCheckTypes();
             Debug.LogFormat("开始检查{0}模块!", _name);
             bool isOk = Util.CheckIdentifier(_name);
             if (isOk == false)
@@ -239,8 +288,16 @@ namespace Description.Wrap
             for (int i = 0; i < _imports.Count; i++)
             {
                 string key = _imports[i];
-                var nsw = NamespaceWrap.AllNamespaces[key];
-                nsw.Check();
+                if (NamespaceWrap.Dict.ContainsKey(key))
+                {
+                    var nsw = NamespaceWrap.Dict[key];
+                    nsw.Check();
+                }
+                else
+                {
+                    isOk &= false;
+                    Debug.LogErrorFormat("{0}模块的{1}命名空间数据文件不存在!", _name, key);
+                }
             }
             Debug.LogFormat("{0}模块检查完毕~", _name);
             return isOk;

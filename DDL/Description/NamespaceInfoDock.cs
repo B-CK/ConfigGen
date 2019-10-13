@@ -42,7 +42,7 @@ namespace Description
         private void OkButton_Click(object sender, EventArgs e)
         {
             if (!Util.CheckName(_nameTextBox.Text)) return;
-            if (NamespaceWrap.AllNamespaces.ContainsKey(_nameTextBox.Text))
+            if (NamespaceWrap.Dict.ContainsKey(_nameTextBox.Text))
             {
                 Util.MsgWarning("在当前模块/默认模块中已经存在{0}根节点!", _nameTextBox.Text);
                 return;
@@ -50,7 +50,7 @@ namespace Description
             ModuleWrap.Default.RemoveImport(_wrap);
             if (ModuleWrap.Default != ModuleWrap.Current)
                 ModuleWrap.Current.RemoveImport(_wrap);
-            NamespaceWrap.AllNamespaces.Remove(_wrap.FullName);
+            NamespaceWrap.Dict.Remove(_wrap.FullName);
             var classes = _wrap.Classes;
             var enums = _wrap.Enums;
             for (int i = 0; i < classes.Count; i++)
@@ -65,7 +65,7 @@ namespace Description
             ModuleWrap.Default.AddImport(_wrap);
             if (ModuleWrap.Default != ModuleWrap.Current)
                 ModuleWrap.Current.AddImport(_wrap);
-            NamespaceWrap.AllNamespaces.Add(_wrap.FullName, _wrap);
+            NamespaceWrap.Dict.Add(_wrap.FullName, _wrap);
             for (int i = 0; i < classes.Count; i++)
                 ClassWrap.Dict.Add(classes[i].FullName, classes[i]);
             for (int i = 0; i < enums.Count; i++)

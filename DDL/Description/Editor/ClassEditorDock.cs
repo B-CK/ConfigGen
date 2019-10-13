@@ -34,7 +34,7 @@ namespace Description.Editor
             base.OnInit(arg);
 
             var wrap = GetWrap<ClassWrap>();
-            _namespaceComboBox.Items.AddRange(NamespaceWrap.Namespaces);
+            _namespaceComboBox.Items.AddRange(NamespaceWrap.Array);
             _inheritComboBox.Items.Add(string.Empty);
             _inheritComboBox.Items.AddRange(ClassWrap.Array);
             _inheritComboBox.Items.Remove(wrap);
@@ -53,7 +53,7 @@ namespace Description.Editor
             }
             else
                 _inheritComboBox.SelectedText = string.Empty;
-            _groupTextBox.Text = wrap.Group.IsEmpty() ? Util.Groups[0] : wrap.Group;
+            _groupTextBox.Text = wrap.Group.IsEmpty() ? Util.DefaultGroup : wrap.Group;
             _descTextBox.Text = wrap.Desc;
             _dataPathTextBox.Text = wrap.DataPath;
 
@@ -224,7 +224,7 @@ namespace Description.Editor
 
             var list = sender as ListBox;
             var member = list.SelectedItem as MemberEditor;
-            if (member == null || _currentMember == member) return;           
+            if (member == null || _currentMember == member) return;
             if (_currentMember != null)
                 _currentMember.Hide();
             _currentMember = member;

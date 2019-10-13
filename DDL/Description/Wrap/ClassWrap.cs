@@ -79,7 +79,7 @@ namespace Description.Wrap
         public string DataPath { get { return Xml.DataPath; } set { Xml.DataPath = value; } }
         public string Desc { get { return Xml.Desc; } set { Xml.Desc = value; } }
         public string Group { get { return Xml.Group; } set { Xml.Group = value; } }
-        public List<FieldWrap> Fields { get { return _fields; } }      
+        public List<FieldWrap> Fields { get { return _fields; } }
 
         private ClassXml Xml => base._xml as ClassXml;
         private List<FieldWrap> _fields;
@@ -174,6 +174,11 @@ namespace Description.Wrap
                 isOk &= c;
                 if (c == false)
                     Debug.LogErrorFormat("[Class]类型{0}的父类[{1}]不存在!", FullName, Inherit);
+                c = ModuleWrap.Current.CheckType(Inherit);
+                isOk &= c;
+                if (c == false)
+                    Debug.LogErrorFormat("[Class]{0}模块中不包含类型{1}的父类[{2}]!",
+                        ModuleWrap.Current.Name, FullName, Inherit);
             }
             if (isOk == false)
                 AddNodeState(NodeState.Error);

@@ -182,7 +182,7 @@ namespace Description.Export
                             string[] list = cst.Value.Split(Setting.SplitFlag);
                             for (int k = 0; k < list.Length; k++)
                                 list[k] = CheckConst(cst.Types[1], list[k]);
-                            value = string.Format("{{ {0} }}", Util.List2String(list));
+                            value = string.Format("{{ {0} }}", Util.ToString(list));
                             break;
                         case Setting.DICT:
                             string[] dict = cst.Value.Split(Setting.SplitFlag);
@@ -193,7 +193,7 @@ namespace Description.Export
                                 nodes[1] = CheckConst(cst.Types[2], nodes[1]);
                                 dict[k] = string.Format("{0} = {1},", nodes[0], nodes[1]);
                             }
-                            value = string.Format("{{ {0} }}", Util.List2String(dict));
+                            value = string.Format("{{ {0} }}", Util.ToString(dict));
                             break;
                     }
                     builder.AppendFormat("meta.{0} = {1}\n", cst.Name, value);

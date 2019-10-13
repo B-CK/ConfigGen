@@ -43,8 +43,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CmdOption.cs" />
+    <Compile Include="Config\Data.cs" />
+    <Compile Include="Config\FBool.cs" />
+    <Compile Include="Config\FClass.cs" />
+    <Compile Include="Config\FDict.cs" />
+    <Compile Include="Config\FEnum.cs" />
+    <Compile Include="Config\FFloat.cs" />
+    <Compile Include="Config\FInt.cs" />
+    <Compile Include="Config\FList.cs" />
+    <Compile Include="Config\FLong.cs" />
+    <Compile Include="Config\FString.cs" />
+    <Compile Include="Export\CodeWriter.cs" />
+    <Compile Include="Export\ExportCSharp.cs" />
+    <Compile Include="Export\ExportCsv.cs" />
+    <Compile Include="Export\ExportLua.cs" />
+    <Compile Include="Export\ExportXmlCode.cs" />
+    <Compile Include="Import\Import.cs" />
+    <Compile Include="Import\ImportExcel.cs" />
+    <Compile Include="Import\ImportXml.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Setting.cs" />
+    <Compile Include="TypeInfo\ClassInfo.cs" />
+    <Compile Include="TypeInfo\ConfigInfo.cs" />
+    <Compile Include="TypeInfo\ConstInfo.cs" />
+    <Compile Include="TypeInfo\EnumInfo.cs" />
+    <Compile Include="TypeInfo\FieldInfo.cs" />
+    <Compile Include="TypeInfo\GroupInfo.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="Xml\ClassXml.cs" />
     <Compile Include="Xml\EnumXml.cs" />
@@ -56,8 +82,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Option\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

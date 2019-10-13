@@ -32,11 +32,11 @@ namespace Description.Editor
             base.OnInit(arg);
 
             var wrap = GetWrap<EnumWrap>();
-            _namespaceComboBox.Items.AddRange(NamespaceWrap.Namespaces);
+            _namespaceComboBox.Items.AddRange(NamespaceWrap.Array);
 
             _nameTextBox.Text = wrap.Name;
             _namespaceComboBox.SelectedItem = wrap.Namespace;
-            _groupTextBox.Text = wrap.Group.IsEmpty() ? Util.Groups[0] : wrap.Group;
+            _groupTextBox.Text = wrap.Group.IsEmpty() ? Util.DefaultGroup : wrap.Group;
             _descTextBox.Text = wrap.Desc;
 
             var enums = wrap.Items;

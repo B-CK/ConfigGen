@@ -9,17 +9,50 @@ using System.Windows.Forms;
 using Description.Properties;
 using System.Drawing;
 using Description.Wrap;
+using System.Runtime.InteropServices;
 
 namespace Description
 {
     public static class Util
     {
+        #region 删除文件进过回收站
+        private const int FO_DELETE = 0x3;
+        private const ushort FOF_NOCONFIRMATION = 0x10;
+        private const ushort FOF_ALLOWUNDO = 0x40;
+
+        [DllImport("shell32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern int SHFileOperation([In, Out] _SHFILEOPSTRUCT str);
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public class _SHFILEOPSTRUCT
+        {
+            public IntPtr hwnd;
+            public UInt32 wFunc;
+            public string pFrom;
+            public string pTo;
+            public UInt16 fFlags;
+            public Int32 fAnyOperationsAborted;
+            public IntPtr hNameMappings;
+            public string lpszProgressTitle;
+        }
+
+        public static int Delete(string path)
+        {
+            _SHFILEOPSTRUCT pm = new _SHFILEOPSTRUCT();
+            pm.wFunc = FO_DELETE;
+            pm.pFrom = path + '\0';
+            pm.pTo = null;
+            pm.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION;
+            return SHFileOperation(pm);
+        }
+        #endregion
+
+
         #region 基础配置
         /// <summary>
         /// 工具所在目录
         /// </summary>
         public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
-        public const string DefaultModuleName = "Default";
         /// <summary>
         /// 空命名空间符号
         /// </summary>
@@ -29,7 +62,7 @@ namespace Description
             get
             {
                 if (_defaultModule.IsEmpty())
-                    _defaultModule = Path.GetFullPath(GetModuleAbsPath(DefaultModuleName + ".xml"));
+                    _defaultModule = Path.GetFullPath(GetModuleAbsPath("Default.xml"));
                 return _defaultModule;
             }
         }
@@ -83,7 +116,20 @@ namespace Description
         /// <summary>
         /// 分组种类
         /// </summary>
-        public static string[] Groups { get; set; }
+        public static string[] Groups { get { return ModuleWrap.Current.Groups.ToArray(); } }
+        /// <summary>
+        /// 默认组
+        /// </summary>
+        public static string DefaultGroup
+        {
+            get
+            {
+                if (ModuleWrap.Current.Groups.Count == 0)
+                    return "All";
+                else
+                    return ModuleWrap.Current.Groups[0];
+            }
+        }
         /// <summary>
         /// Excel数据目录
         /// </summary>
@@ -386,13 +432,13 @@ namespace Description
         {
             return Char.ToUpper(name[0]) + name.Substring(1);
         }
-        public static string List2String(object[] array, string split = ",")
+        public static string ToString(this object[] array, string split = ",")
         {
             return string.Join(split, array);
         }
-        public static string List2String(List<string> list, string split = ",")
+        public static string ToString(this List<string> list, string split = ",")
         {
-            return List2String(list.ToArray(), split);
+            return ToString(list.ToArray(), split);
         }
     }
 }

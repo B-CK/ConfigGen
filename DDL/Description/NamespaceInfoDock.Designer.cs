@@ -80,26 +80,22 @@
             // 
             // _okButton
             // 
-            this._okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
             this._okButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this._okButton.ForeColor = System.Drawing.Color.LightGray;
-            this._okButton.Location = new System.Drawing.Point(108, 87);
+            this._okButton.Location = new System.Drawing.Point(103, 90);
             this._okButton.Name = "_okButton";
-            this._okButton.Size = new System.Drawing.Size(80, 1);
+            this._okButton.Size = new System.Drawing.Size(82, 31);
             this._okButton.TabIndex = 5;
-            this._okButton.Text = "保存";
+            this._okButton.Text = "确定";
             this._okButton.UseVisualStyleBackColor = true;
             this._okButton.Click += new System.EventHandler(this.OkButton_Click);
             // 
             // _cancleButton
             // 
-            this._cancleButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
             this._cancleButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this._cancleButton.ForeColor = System.Drawing.Color.LightGray;
-            this._cancleButton.Location = new System.Drawing.Point(306, 87);
+            this._cancleButton.Location = new System.Drawing.Point(308, 90);
             this._cancleButton.Name = "_cancleButton";
-            this._cancleButton.Size = new System.Drawing.Size(80, 1);
-            this._cancleButton.TabIndex = 6;
+            this._cancleButton.Size = new System.Drawing.Size(82, 31);
+            this._cancleButton.TabIndex = 5;
             this._cancleButton.Text = "取消";
             this._cancleButton.UseVisualStyleBackColor = true;
             this._cancleButton.Click += new System.EventHandler(this.CancleButton_Click);

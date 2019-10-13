@@ -49,11 +49,11 @@ namespace Description.Editor
                     string type = field.Type ?? TYPE;
                     string value = field.Value;
                     if (IsConst)
-                        return Util.Format("#{0}:{1}={2}", name, type, value);
+                        return Util.Format("# {0}({1})={2}", name, type, value);
                     else if (Util.LIST == type || Util.DICT == type)
-                        return Util.Format("#{0}:{1}:{2}", name, type, value);
+                        return Util.Format("# {0}({1}:{2})", name, type, value);
                     else
-                        return Util.Format("#{0}:{1}", name, type);
+                        return Util.Format("# {0}({1})", name, type);
                 }
                 else
                 {
@@ -66,11 +66,11 @@ namespace Description.Editor
                         type = (item as TypeWrap).FullName;
                     string value = _valueTypeBox.GetValue();
                     if (IsConst)
-                        return Util.Format("{0}:{1}={2}", name, type, value);
+                        return Util.Format("  {0}({1})={2}", name, type, value);
                     else if (Util.LIST == type || Util.DICT == type)
-                        return Util.Format("{0}:{1}:{2}", name, type, value);
+                        return Util.Format("  {0}({1}:{2})", name, type, value);
                     else
-                        return Util.Format("{0}:{1}", name, type);
+                        return Util.Format("  {0}({1})", name, type);
                 }
             }
         }
@@ -109,7 +109,7 @@ namespace Description.Editor
             }
             _isConstCheckBox.Checked = field.IsConst;
             _valueTypeBox.OnCheckChange = OnFieldValueChanged;
-            _groupTextBox.Text = field.Group.IsEmpty() ? Util.Groups[0] : field.Group;
+            _groupTextBox.Text = field.Group.IsEmpty() ? Util.DefaultGroup : field.Group;
             _desTextBox.Text = field.Desc;
             _checkerComboBox.Text = field.Checker;
         }

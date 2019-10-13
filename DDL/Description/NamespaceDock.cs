@@ -60,21 +60,26 @@ namespace Description
         public void InitTree()
         {
             ModuleWrap.Current.Check();
+            _showAllBox.Checked = false;
             _nodeFilterBox.Text = "";
             _nodeTreeView.BeginUpdate();
             ClearNodes(_nodeTreeView.Nodes);
-            var all = NamespaceWrap.AllNamespaces;
+            var all = NamespaceWrap.Dict;
             var current = ModuleWrap.Current.Imports;
             for (int k = 0; k < current.Count; k++)
             {
-                var root = NamespaceWrap.AllNamespaces[current[k]];
-                if ((root.NodeState & NodeState.Include) != 0)
+                var import = current[k];
+                if (NamespaceWrap.Dict.ContainsKey(import))
                 {
-                    AddRootNode(root);
-                    for (int i = 0; i < root.Classes.Count; i++)
-                        AddSubNode(root.Classes[i], root);
-                    for (int i = 0; i < root.Enums.Count; i++)
-                        AddSubNode(root.Enums[i], root);
+                    var root = NamespaceWrap.Dict[import];
+                    if ((root.NodeState & NodeState.Include) != 0)
+                        AddRootNode(root);
+                }
+                else
+                {
+                    TreeNode root = new TreeNode(import);
+                    _nodeTreeView.Nodes.Add(root);
+                    root.ForeColor = Color.OrangeRed;
                 }
             }
             _nodeTreeView.EndUpdate();
@@ -85,15 +90,18 @@ namespace Description
         /// </summary>
         public void UpdateModule(bool needCheck = true)
         {
-            if (needCheck)
+            if (needCheck)           
                 ModuleWrap.Default.Check();
             var imps = ModuleWrap.Current.Imports;
             for (int i = 0; i < imps.Count; i++)
             {
                 string key = imps[i];
-                var wrap = NamespaceWrap.AllNamespaces[key];
-                if ((wrap.NodeState | NodeState.Modify | NodeState.Error) != 0)
-                    UpdateNamespaceNode(wrap);
+                if (NamespaceWrap.Dict.ContainsKey(key))
+                {
+                    var wrap = NamespaceWrap.Dict[key];
+                    if ((wrap.NodeState | NodeState.Modify | NodeState.Error) != 0)
+                        UpdateNamespaceWrap(wrap);
+                }
             }
         }
         public void AddRootNode(NamespaceWrap wrap)
@@ -101,6 +109,11 @@ namespace Description
             TreeNode root = CreateNode(wrap);
             _nodeTreeView.Nodes.Add(root);
             SetNodeColor(root);
+
+            for (int i = 0; i < wrap.Classes.Count; i++)
+                AddSubNode(wrap.Classes[i], wrap);
+            for (int i = 0; i < wrap.Enums.Count; i++)
+                AddSubNode(wrap.Enums[i], wrap);
         }
         public void AddType2Namespace(TypeWrap wrap, NamespaceWrap nWrap)
         {
@@ -182,7 +195,10 @@ namespace Description
             SetNodeColor(node);
             return node;
         }
-        public void UpdateNamespaceNode(NamespaceWrap wrap)
+        /// <summary>
+        /// 更新整个命名空间,包含子节点
+        /// </summary>
+        public void UpdateNamespaceWrap(NamespaceWrap wrap)
         {
             UpdateNodeColorState(wrap);
             var classes = wrap.Classes;
@@ -254,9 +270,8 @@ namespace Description
                     node.ForeColor = Color.LightGray;
                     break;
                 case NodeState.Exclude:
-                    node.ForeColor = Color.Gray;
-                    break;
                 default:
+                    node.ForeColor = Color.Gray;
                     break;
             }
             //Debug.LogErrorFormat("未知节点状态类型{0}", wrap.NodeState);
@@ -302,18 +317,31 @@ namespace Description
             var point = _nodeTreeView.PointToScreen(e.Location);
             _nodeMenu.Show(point);
         }
+        /// <summary>
+        /// 删除命名空间
+        /// </summary>
         private void NodeTreeView_DeleteNode(object sender, EventArgs e)
         {
             var node = _nodeTreeView.SelectedNode;
             if (node == null) return;
 
             object wrap = node.Tag;
-            if (wrap is NamespaceWrap)
+            if (wrap is NamespaceWrap)//是否考虑先排除在模块外,再删除;或者仅默认模块能删除
             {
-                var nsw = wrap as NamespaceWrap;
-                ModuleWrap.Current.RemoveImport(nsw);
-                PoolManager.Ins.Push(nsw);
-                _nodeTreeView.Nodes.Remove(node);
+                var result = MessageBox.Show("删除文件可能造成其他丢失数据!请保证数据仅在该模块使用.", "删除命名空间", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                if (result == DialogResult.OK)
+                {
+                    var nsw = wrap as NamespaceWrap;
+                    ModuleWrap.Current.RemoveImport(nsw);
+                    PoolManager.Ins.Push(nsw);
+                    ClearNodes(node.Nodes);
+                    _nodeTreeView.Nodes.Remove(node);
+
+                    //移除命名空间相关数据
+                    NamespaceWrap.Remove(nsw);
+                    Util.Delete(nsw.FilePath);
+                    ModuleWrap.Current.Check();
+                }
             }
             else if (wrap is TypeWrap)
             {
@@ -325,6 +353,11 @@ namespace Description
                 tw.Dispose();
                 PoolManager.Ins.Push(tw);
                 UpdateNodeColorState(root.Tag as BaseWrap);
+            }
+            else
+            {   //命名空间数据文件不存在,但记录仍保留在模块中
+                _nodeTreeView.Nodes.Remove(node);
+                ModuleWrap.Current.RemoveImport(node.Text);
             }
             PoolManager.Ins.Push(node);
             UpdateModule();
@@ -356,7 +389,8 @@ namespace Description
             {
                 var nsw = wrap as NamespaceWrap;
                 ModuleWrap.Current.AddImport(nsw);
-                SetNodeColor(node);
+                UpdateNamespaceWrap(nsw);
+                UpdateModule();
             }
         }
         private void NodeTreeView_Exclude(object sender, EventArgs e)
@@ -367,7 +401,18 @@ namespace Description
             {
                 var nsw = wrap as NamespaceWrap;
                 ModuleWrap.Current.RemoveImport(nsw);
-                SetNodeColor(node);
+                if (_showAllBox.Checked)
+                {
+                    UpdateNamespaceWrap(nsw);
+                }
+                else
+                {
+                    PoolManager.Ins.Push(nsw);
+                    ClearNodes(node.Nodes);
+                    _nodeTreeView.Nodes.Remove(node);
+                    SetNodeColor(node);
+                }
+                UpdateModule();
             }
         }
         private void CommitToLib(object sender, EventArgs e)
@@ -378,35 +423,60 @@ namespace Description
         {
 
         }
-
+        /// <summary>
+        /// 显示所有节点
+        /// </summary>
         private void ShowAllBox_CheckedChanged(object sender, EventArgs e)
         {
             if (ModuleWrap.Default == ModuleWrap.Current) return;
 
             var state = sender as CheckBox;
             var nodes = _nodeTreeView.Nodes;
-            var module = state.Checked ? ModuleWrap.Default : ModuleWrap.Current;
-            var imps = module.Imports;
-            for (int i = 0; i < imps.Count; i++)
+            if (state.Checked)
             {
-                string key = imps[i];
-                if (NamespaceWrap.AllNamespaces.ContainsKey(key))
+                var imps = ModuleWrap.Default.Imports;
+                for (int i = 0; i < imps.Count; i++)
                 {
-                    if (nodes.ContainsKey(key)) continue;
+                    string key = imps[i];
+                    if (NamespaceWrap.Dict.ContainsKey(key))
+                    {
+                        if (nodes.ContainsKey(key)) continue;
 
-                    var item = NamespaceWrap.AllNamespaces[key];
-                    if (item.FullName.IndexOf(_nodeFilterBox.Text, StringComparison.OrdinalIgnoreCase) != -1)
-                        AddRootNode(item);
-                }
-                else
-                {
-                    Util.MsgError("{0}模块中的命名空间{1}居然会不在字典中!?\n改了命名空间库,却没修改模块?", module.Name, key);
+                        var root = NamespaceWrap.Dict[key];
+                        if (root.FullName.IndexOf(_nodeFilterBox.Text, StringComparison.OrdinalIgnoreCase) != -1)
+                            AddRootNode(root);
+                    }
+                    else
+                    {
+                        Debug.LogErrorFormat("{0}模块中的命名空间{1}居然会不在字典中!?\n改了命名空间库,却没修改模块?",
+                            ModuleWrap.Default.Name, key);
+                    }
                 }
             }
-        }
-        private void ErrorBox_CheckedChanged(object sender, EventArgs e)
-        {
-
+            else
+            {
+                var cur = new HashSet<string>(ModuleWrap.Current.Imports);
+                var imps = new HashSet<string>(ModuleWrap.Default.Imports);
+                imps.ExceptWith(cur);
+                foreach (var key in imps)
+                {
+                    if (NamespaceWrap.Dict.ContainsKey(key))
+                    {
+                        if (nodes.ContainsKey(key))
+                        {
+                            ClearNodes(nodes[key].Nodes);
+                            var root = nodes[key];
+                            nodes.Remove(root);
+                            PoolManager.Ins.Push(root);
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogErrorFormat("{0}模块中的命名空间{1}居然会不在字典中!?\n改了命名空间库,却没修改模块?",
+                            ModuleWrap.Default.Name, key);
+                    }
+                }
+            }
         }
         private void NodeFilterBox_TextChanged(object sender, EventArgs e)
         {

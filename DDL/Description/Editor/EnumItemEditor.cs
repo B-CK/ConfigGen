@@ -68,7 +68,7 @@ namespace Description.Editor
             _defaultValue.Value = item.Value;
             _aliasTextBox.Text = item.Alias;
             _groupComboBox.Items.AddRange(Util.Groups);
-            _groupComboBox.Text = item.Group.IsEmpty() ? Util.Groups[0] : item.Group;
+            _groupComboBox.Text = item.Group.IsEmpty() ? Util.DefaultGroup : item.Group;
             _desTextBox.Text = item.Desc;
         }
         public override void Save()

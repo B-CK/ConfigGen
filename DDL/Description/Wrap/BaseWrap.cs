@@ -15,11 +15,14 @@ namespace Description.Wrap
         public virtual string FullName { get { return _name ?? "_"; } }
         public virtual NodeState NodeState { get { return _nodestate; } }
         /// <summary>
+        /// 数据集合,可作重复判断
+        /// </summary>
+        public HashSet<string> Hash => _hash;
+        /// <summary>
         /// 子对象名称集合,用于保证子对象不重名
         /// </summary>
         private HashSet<string> _hash;
         private NodeState _nodestate = NodeState.Exclude;
-        protected BaseWrap() { }
         protected virtual void Init(string name)
         {
             _name = name;
@@ -58,7 +61,7 @@ namespace Description.Wrap
         /// <summary>
         /// 添加状态
         /// </summary>
-        public void AddNodeState(NodeState state)
+        public virtual void AddNodeState(NodeState state)
         {
             if ((state & NodeState.Include) != 0)
                 _nodestate &= ~NodeState.Exclude;
@@ -69,7 +72,7 @@ namespace Description.Wrap
         /// <summary>
         /// 清除状态
         /// </summary>
-        public void RemoveNodeState(NodeState state)
+        public virtual void RemoveNodeState(NodeState state)
         {
             _nodestate &= ~state;
         }

@@ -44,7 +44,6 @@
             this.提交ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.flowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this._showAllBox = new System.Windows.Forms.CheckBox();
-            this._errorBox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this._classPictureBox)).BeginInit();
             this._nodeMenu.SuspendLayout();
             this.flowLayoutPanel.SuspendLayout();
@@ -98,72 +97,72 @@
             this._nodeMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._modifyRootMenuItem,
             this._saveRootMenuItem,
-            this._excludeMenuItem,
             this._includeMenuItem,
+            this._excludeMenuItem,
             this._rootSeparator,
             this.DeleteNodeMenuItem,
             this._nodeSeparator,
             this.提交SVNToolStripMenuItem,
             this.提交ToolStripMenuItem});
             this._nodeMenu.Name = "_nodeMenu";
-            this._nodeMenu.Size = new System.Drawing.Size(169, 184);
+            this._nodeMenu.Size = new System.Drawing.Size(211, 212);
             // 
             // _modifyRootMenuItem
             // 
             this._modifyRootMenuItem.Name = "_modifyRootMenuItem";
-            this._modifyRootMenuItem.Size = new System.Drawing.Size(168, 24);
+            this._modifyRootMenuItem.Size = new System.Drawing.Size(210, 24);
             this._modifyRootMenuItem.Text = "修改根属性";
             this._modifyRootMenuItem.Click += new System.EventHandler(this.NodeTreeView_Modify);
             // 
             // _saveRootMenuItem
             // 
             this._saveRootMenuItem.Name = "_saveRootMenuItem";
-            this._saveRootMenuItem.Size = new System.Drawing.Size(168, 24);
+            this._saveRootMenuItem.Size = new System.Drawing.Size(210, 24);
             this._saveRootMenuItem.Text = "保存根节点";
             this._saveRootMenuItem.Click += new System.EventHandler(this.NodeTreeView_Save);
             // 
             // _excludeMenuItem
             // 
             this._excludeMenuItem.Name = "_excludeMenuItem";
-            this._excludeMenuItem.Size = new System.Drawing.Size(168, 24);
-            this._excludeMenuItem.Text = "排除到模块外";
+            this._excludeMenuItem.Size = new System.Drawing.Size(210, 24);
+            this._excludeMenuItem.Text = "排除";
             this._excludeMenuItem.Click += new System.EventHandler(this.NodeTreeView_Exclude);
             // 
             // _includeMenuItem
             // 
             this._includeMenuItem.Name = "_includeMenuItem";
-            this._includeMenuItem.Size = new System.Drawing.Size(168, 24);
-            this._includeMenuItem.Text = "包含到模块中";
+            this._includeMenuItem.Size = new System.Drawing.Size(210, 24);
+            this._includeMenuItem.Text = "包含";
             this._includeMenuItem.Click += new System.EventHandler(this.NodeTreeView_Include);
             // 
             // _rootSeparator
             // 
             this._rootSeparator.Name = "_rootSeparator";
-            this._rootSeparator.Size = new System.Drawing.Size(165, 6);
+            this._rootSeparator.Size = new System.Drawing.Size(207, 6);
             // 
             // DeleteNodeMenuItem
             // 
             this.DeleteNodeMenuItem.Name = "DeleteNodeMenuItem";
-            this.DeleteNodeMenuItem.Size = new System.Drawing.Size(168, 24);
+            this.DeleteNodeMenuItem.Size = new System.Drawing.Size(210, 24);
             this.DeleteNodeMenuItem.Text = "删除节点";
             this.DeleteNodeMenuItem.Click += new System.EventHandler(this.NodeTreeView_DeleteNode);
             // 
             // _nodeSeparator
             // 
             this._nodeSeparator.Name = "_nodeSeparator";
-            this._nodeSeparator.Size = new System.Drawing.Size(165, 6);
+            this._nodeSeparator.Size = new System.Drawing.Size(207, 6);
             // 
             // 提交SVNToolStripMenuItem
             // 
             this.提交SVNToolStripMenuItem.Name = "提交SVNToolStripMenuItem";
-            this.提交SVNToolStripMenuItem.Size = new System.Drawing.Size(168, 24);
+            this.提交SVNToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
             this.提交SVNToolStripMenuItem.Text = "更新";
             this.提交SVNToolStripMenuItem.Click += new System.EventHandler(this.UpdateToLib);
             // 
             // 提交ToolStripMenuItem
             // 
             this.提交ToolStripMenuItem.Name = "提交ToolStripMenuItem";
-            this.提交ToolStripMenuItem.Size = new System.Drawing.Size(168, 24);
+            this.提交ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
             this.提交ToolStripMenuItem.Text = "提交";
             this.提交ToolStripMenuItem.Click += new System.EventHandler(this.CommitToLib);
             // 
@@ -173,7 +172,6 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flowLayoutPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.flowLayoutPanel.Controls.Add(this._showAllBox);
-            this.flowLayoutPanel.Controls.Add(this._errorBox);
             this.flowLayoutPanel.ForeColor = System.Drawing.Color.LightGray;
             this.flowLayoutPanel.Location = new System.Drawing.Point(3, 1);
             this.flowLayoutPanel.Name = "flowLayoutPanel";
@@ -195,21 +193,6 @@
             this._showAllBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this._showAllBox.UseVisualStyleBackColor = false;
             this._showAllBox.CheckedChanged += new System.EventHandler(this.ShowAllBox_CheckedChanged);
-            // 
-            // _errorBox
-            // 
-            this._errorBox.Appearance = System.Windows.Forms.Appearance.Button;
-            this._errorBox.CheckAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this._errorBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this._errorBox.Location = new System.Drawing.Point(32, 0);
-            this._errorBox.Margin = new System.Windows.Forms.Padding(3, 0, 3, 3);
-            this._errorBox.Name = "_errorBox";
-            this._errorBox.Size = new System.Drawing.Size(23, 27);
-            this._errorBox.TabIndex = 0;
-            this._errorBox.Text = "E";
-            this._errorBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this._errorBox.UseVisualStyleBackColor = true;
-            this._errorBox.CheckedChanged += new System.EventHandler(this.ErrorBox_CheckedChanged);
             // 
             // NamespaceDock
             // 
@@ -251,7 +234,6 @@
         private System.Windows.Forms.ToolStripMenuItem _excludeMenuItem;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
         private System.Windows.Forms.CheckBox _showAllBox;
-        private System.Windows.Forms.CheckBox _errorBox;
         private System.Windows.Forms.ToolStripMenuItem _saveRootMenuItem;
         private System.Windows.Forms.ToolStripSeparator _nodeSeparator;
         private System.Windows.Forms.ToolStripMenuItem _modifyRootMenuItem;

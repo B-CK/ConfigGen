@@ -91,6 +91,12 @@
       <DependentUpon>MemberEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="HotKey.cs" />
+    <Compile Include="ModuleInfoDock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModuleInfoDock.Designer.cs">
+      <DependentUpon>ModuleInfoDock.cs</DependentUpon>
+    </Compile>
     <Compile Include="NamespaceInfoDock.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -178,6 +184,9 @@
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
       <LastGenOutput>DescriptorWindow1.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModuleInfoDock.resx">
+      <DependentUpon>ModuleInfoDock.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="NamespaceDock.resx">
       <DependentUpon>NamespaceDock.cs</DependentUpon>

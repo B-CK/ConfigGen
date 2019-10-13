@@ -264,17 +264,16 @@ namespace Description
         {
             return Char.ToUpper(name[0]) + name.Substring(1);
         }
-        public static string List2String(object[] array, string split = ",")
+        public static string ToString(object[] array, string split = ",")
         {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < array.Length; i++)
                 sb.AppendFormat("{0}{1}", array[i], i != array.Length - 1 ? split : "");
             return sb.ToString();
         }
-        public static string List2String(List<string> list, string split = ",")
+        public static string ToString(List<string> list, string split = ",")
         {
-            return List2String(list.ToArray(), split);
+            return ToString(list.ToArray(), split);
         }
-
     }
 }

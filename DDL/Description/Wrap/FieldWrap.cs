@@ -104,18 +104,26 @@ namespace Description.Wrap
             }
             return r;
         }
-        private bool CheckType(string type, bool isSet = false)
+        private bool CheckType(string type, bool isSubType = false)
         {
             bool isOK = Util.HasType(type);
             if (isOK == false)
                 Debug.LogErrorFormat("[Class]类型{0}中字段{1}的类型异常[{2}]![{3}]类型不存在.", _cls.FullName, _name, Type, type);
-            if (EnumWrap.Dict.ContainsKey(type) && !isSet)
+            if (EnumWrap.Dict.ContainsKey(type) && !isSubType)
             {
                 var enm = EnumWrap.Dict[type];
                 var c = enm.Contains(Value);
                 if (c == false)
                     Debug.LogErrorFormat("[Class]类型{0}中字段{1}的枚举值{2}.[{3}]不存在!.", _cls.FullName, _name, Type, Value);
                 isOK &= c;
+            }
+            if (!Util.BaseHash.Contains(type))
+            {
+                bool d = ModuleWrap.Current.CheckType(type);
+                isOK &= d;
+                if (d == false)
+                    Debug.LogErrorFormat("[Class]{0}模块中不包含{1}类型{2}字段的类型{3}!",
+                        ModuleWrap.Current.Name, _cls.FullName, _name, type);
             }
             return isOK;
         }

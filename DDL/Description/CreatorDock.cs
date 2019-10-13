@@ -23,7 +23,7 @@ namespace Description
         {
             _2Label.Text = "命名空间:";
             _2ComboBox.Items.Clear();
-            _2ComboBox.Items.AddRange(NamespaceWrap.Namespaces);
+            _2ComboBox.Items.AddRange(NamespaceWrap.Array);
             _2ComboBox.Text = Util.EmptyNamespace;
             _2ComboBox.Enabled = true;
         }

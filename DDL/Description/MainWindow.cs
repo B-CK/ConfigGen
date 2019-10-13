@@ -1,15 +1,9 @@
-﻿using Description;
-using Description.Editor;
+﻿using Description.Editor;
 using Description.Properties;
-using Description.Wrap;
-using Description.Xml;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
+using Description.Wrap;
 using System.Windows.Forms;
-using WeifenLuo.WinFormsUI.Docking;
-using SPath = System.IO.Path;
 
 namespace Description
 {
@@ -51,8 +45,6 @@ namespace Description
                 Directory.CreateDirectory(Util.ModuleDir);
             if (!Directory.Exists(Util.NamespaceDir))
                 Directory.CreateDirectory(Util.NamespaceDir);
-            Util.Groups = new string[Settings.Default.Groups.Count];
-            Settings.Default.Groups.CopyTo(Util.Groups, 0);
 
             NamespaceWrap.InitNamespaces();
             ModuleWrap.InitModule();
@@ -134,7 +126,7 @@ namespace Description
             var imps = ModuleWrap.Current.Imports;
             for (int i = 0; i < imps.Count; i++)
             {
-                var wrap = NamespaceWrap.AllNamespaces[imps[i]];
+                var wrap = NamespaceWrap.Dict[imps[i]];
                 if ((wrap.NodeState & NodeState.Modify & NodeState.Modify) != 0)
                     NamespaceDock.Ins.SaveNamespaceWrap(wrap);
             }
@@ -159,6 +151,10 @@ namespace Description
         #endregion
 
         #region 编辑
+        private void EditeModuleMenuItem_Click(object sender, EventArgs e)
+        {
+            ModuleInfoDock.Ins.Show(ModuleWrap.Current);
+        }
         private void RefreshItem_Click(object sender, EventArgs e)
         {
             var result = ModuleWrap.TrSave();
@@ -187,5 +183,7 @@ namespace Description
             ConsoleDock.Inspect();
         }
         #endregion
+
+
     }
 }
