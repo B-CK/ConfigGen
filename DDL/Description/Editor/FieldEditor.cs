@@ -16,7 +16,7 @@ namespace Description.Editor
         const string TYPE = "Type?";
         const string NAME = "Name?";
 
-        public static FieldEditor Create(ClassEditorDock dock, FieldWrap wrap, int seq, bool isInherit = false)
+        public static FieldEditor Create(ClassEditorDock dock, FieldWrap wrap, bool isInherit = false)
         {
             FieldEditor editor = PoolManager.Ins.Pop<FieldEditor>();
             if (editor == null) editor = new FieldEditor();
@@ -24,7 +24,7 @@ namespace Description.Editor
             editor._isInherit = isInherit;
             return editor;
         }
-        public static FieldEditor Create(ClassEditorDock dock, string name, int seq)
+        public static FieldEditor Create(ClassEditorDock dock, string name)
         {
             FieldEditor editor = PoolManager.Ins.Pop<FieldEditor>();
             if (editor == null) editor = new FieldEditor();
@@ -74,13 +74,12 @@ namespace Description.Editor
                 }
             }
         }
-
+        public string FieldName => (_wrap as FieldWrap).Name;
         /// <summary>
-        /// 顺序
+        /// 继承字段,禁止修改
         /// </summary>
-        public int Seq => (_wrap as FieldWrap).Seq;
         public bool IsInherit => _isInherit;
-        private bool _isInherit;
+        protected bool _isInherit;        
         private FieldEditor()
         {
             InitializeComponent();
@@ -88,13 +87,12 @@ namespace Description.Editor
         protected override void OnInit()
         {
             base.OnInit();
-            _isInherit = false;
             var field = _wrap as FieldWrap;
             Location = Point.Empty;
             var panel = GetDock<ClassEditorDock>().MemberSplitContainer.Panel2;
             Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Top;
             Size = new Size(panel.Width - 95, panel.Height);
-            _isNew = true;
+            _isInherit = false;   
 
             _nameTextBox.Text = field.Name;
             _typeComboBox.Items.AddRange(Util.GetAllTypes());
@@ -194,9 +192,7 @@ namespace Description.Editor
         public override void Save()
         {
             base.Save();
-            var field = _wrap as FieldWrap;
-            if (field.Name != _nameTextBox.Text)
-                GetDock<ClassEditorDock>().GetWrap<ClassWrap>().RemoveField(field);
+            var field = _wrap as FieldWrap;         
             field.Name = _nameTextBox.Text;
             var typeItem = _typeComboBox.SelectedItem;
             field.Type = typeItem == null ? "" : typeItem.ToString();
@@ -221,20 +217,6 @@ namespace Description.Editor
         {
             base.Show();
             GetDock<ClassEditorDock>().MemberSplitContainer.Panel2.Controls.Add(this);
-        }
-        /// <summary>
-        /// 上移动
-        /// </summary>
-        public void Up()
-        {
-            (_wrap as FieldWrap).Up();
-        }
-        /// <summary>
-        /// 下移动
-        /// </summary>
-        public void Down()
-        {
-            (_wrap as FieldWrap).Down();
         }
         private bool IsConst
         {

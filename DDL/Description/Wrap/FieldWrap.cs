@@ -1,5 +1,6 @@
 ﻿using Description.Xml;
 using System;
+using System.Collections.Generic;
 
 namespace Description.Wrap
 {
@@ -23,11 +24,7 @@ namespace Description.Wrap
         {
             return wrap._xml;
         }
-
-        /// <summary>
-        /// 字段在类中的顺序
-        /// </summary>
-        public int Seq => _seq;
+  
         public virtual string DisplayFullName
         {
             get
@@ -67,10 +64,8 @@ namespace Description.Wrap
         public string Desc { get { return _xml.Desc; } set { _xml.Desc = value; } }
         public string Checker { get { return _xml.Checker; } set { _xml.Checker = value; } }
 
-
         private ClassWrap _cls;
         private FieldXml _xml;
-        private int _seq = -1;
         protected FieldWrap(FieldXml xml, ClassWrap cls)
         {
             Init(xml, cls);
@@ -81,6 +76,19 @@ namespace Description.Wrap
 
             _xml = xml;
             _cls = cls;
+        }
+        /// <summary>
+        /// 重写字段数据
+        /// </summary>
+        public void Override(FieldWrap wrap)
+        {
+            Name = wrap.Name;
+            Type = wrap.Type;
+            IsConst = wrap.IsConst;
+            Value = wrap.Value;
+            Group = wrap.Group;
+            Desc = wrap.Desc;
+            Checker = wrap.Checker;
         }
         public override bool Check()
         {
@@ -107,29 +115,6 @@ namespace Description.Wrap
                     break;
             }
             return r;
-        }
-        /// <summary>
-        /// 上移动
-        /// </summary>
-        public void Up()
-        {
-            --_seq;
-            var pre = _cls.Fields[_seq];
-            ++pre._seq;
-            _cls.Fields[_seq] = this;
-            _cls.Fields[pre._seq] = pre;
-
-        }
-        /// <summary>
-        /// 下移动
-        /// </summary>
-        public void Down()
-        {
-            ++_seq;
-            var next = _cls.Fields[_seq];
-            --next._seq;
-            _cls.Fields[_seq] = this;
-            _cls.Fields[next._seq] = next;
         }
         private bool CheckType(string type, bool isSubType = false)
         {

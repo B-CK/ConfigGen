@@ -65,16 +65,9 @@ namespace Description.Editor
 
             foreach (var item in _memberDict)
             {
-                var editor = item.Value as MemberEditor;
+                var editor = item.Value as EnumItemEditor;
                 editor.Save();
-                if (editor.IsNew)
-                {
-                    enm.OverrideField(editor as EnumItemEditor);
-                }
-                else
-                {
-                    enm.RemoveItem(editor as EnumItemEditor);
-                }
+                enm.OverrideField(editor);
             }
         }
         protected override void Clear()
@@ -152,7 +145,6 @@ namespace Description.Editor
                 _currentMember.Hide();
             _currentMember = member;
             AddMember(member);
-            member.IsNew = true;
             member.Show();
             OnValueChange();
         }

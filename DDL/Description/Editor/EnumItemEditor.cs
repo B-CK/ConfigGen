@@ -59,8 +59,6 @@ namespace Description.Editor
             var panel = GetDock<EnumEditorDock>().MemberSplitContainer.Panel2;
             Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Top;
             Size = new Size(panel.Width - 95, panel.Height);
-            _isNew = true;
-
 
             _nameTextBox.Text = item.Name;
             _defaultValue.Maximum = int.MaxValue;

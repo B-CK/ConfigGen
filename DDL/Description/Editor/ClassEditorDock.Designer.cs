@@ -108,7 +108,7 @@
             // 
             this.MemberSplitContainer.Panel2.Controls.Add(this._spliter);
             this.MemberSplitContainer.Size = new System.Drawing.Size(822, 309);
-            this.MemberSplitContainer.SplitterDistance = 338;
+            this.MemberSplitContainer.SplitterDistance = 337;
             this.MemberSplitContainer.TabIndex = 0;
             // 
             // Down
@@ -119,7 +119,7 @@
             this.Down.Cursor = System.Windows.Forms.Cursors.Default;
             this.Down.Image = global::Description.Properties.Resources.ArrowDown;
             this.Down.InitialImage = global::Description.Properties.Resources.ArrowDown;
-            this.Down.Location = new System.Drawing.Point(298, 6);
+            this.Down.Location = new System.Drawing.Point(297, 4);
             this.Down.Name = "Down";
             this.Down.Size = new System.Drawing.Size(35, 35);
             this.Down.TabIndex = 9;
@@ -136,7 +136,7 @@
             this.Up.Cursor = System.Windows.Forms.Cursors.Default;
             this.Up.Image = global::Description.Properties.Resources.ArrowUp;
             this.Up.InitialImage = global::Description.Properties.Resources.ArrowUp;
-            this.Up.Location = new System.Drawing.Point(258, 7);
+            this.Up.Location = new System.Drawing.Point(257, 5);
             this.Up.Name = "Up";
             this.Up.Size = new System.Drawing.Size(35, 35);
             this.Up.TabIndex = 9;
@@ -161,7 +161,7 @@
             this._memberListBox.Location = new System.Drawing.Point(5, 46);
             this._memberListBox.Name = "_memberListBox";
             this._memberListBox.ScrollAlwaysVisible = true;
-            this._memberListBox.Size = new System.Drawing.Size(330, 257);
+            this._memberListBox.Size = new System.Drawing.Size(329, 257);
             this._memberListBox.TabIndex = 8;
             this._memberListBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.MemberListBox_MouseDown);
             // 
@@ -210,7 +210,7 @@
             this._memFindBox.ForeColor = System.Drawing.Color.LightGray;
             this._memFindBox.Location = new System.Drawing.Point(38, 10);
             this._memFindBox.Name = "_memFindBox";
-            this._memFindBox.Size = new System.Drawing.Size(215, 27);
+            this._memFindBox.Size = new System.Drawing.Size(214, 27);
             this._memFindBox.TabIndex = 2;
             this._memFindBox.TextChanged += new System.EventHandler(this.MemFilterBox_TextChanged);
             // 

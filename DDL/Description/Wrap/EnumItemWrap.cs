@@ -58,6 +58,17 @@ namespace Description.Wrap
             _xml = xml;
             _enum = enum0;
         }
+        /// <summary>
+        /// 重写字段数据
+        /// </summary>
+        public void Override(EnumItemWrap wrap)
+        {
+            Name = wrap.Name;
+            Value = wrap.Value;
+            Alias = wrap.Alias;
+            Group = wrap.Group;
+            Desc = wrap.Desc;
+        }
 
         public static implicit operator EnumItemXml(EnumItemWrap wrap)
         {

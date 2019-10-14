@@ -93,6 +93,9 @@ namespace Description.Editor
         protected bool _isSilent;
 
         protected TypeWrap _wrap;
+        /// <summary>
+        /// 在多态环境中,不包含父类成员
+        /// </summary>
         protected Dictionary<string, MemberEditor> _memberDict = new Dictionary<string, MemberEditor>();
         private int _nameId = 0;
 
@@ -131,6 +134,10 @@ namespace Description.Editor
                 AddOpen(ID, this);
         }
         protected virtual void OnSave() { }
+        /// <summary>
+        /// 不保存数据时的一些重置操作
+        /// </summary>
+        protected virtual void OnDiscard() { }
         protected virtual void Clear()
         {
             foreach (var item in _memberDict)
@@ -231,6 +238,7 @@ namespace Description.Editor
                             Save();
                             break;
                         case DialogResult.No:
+                            OnDiscard();
                             break;
                     }
                 }

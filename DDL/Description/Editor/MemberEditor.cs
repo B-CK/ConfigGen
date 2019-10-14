@@ -20,14 +20,10 @@ namespace Description.Editor
         /// <summary>
         /// true:新建;false:移除
         /// </summary>
-        public virtual bool IsNew
-        {
-            get => _isNew;
-            set => _isNew = value;
-        }
         protected string ParentName { get { return _dock.ID; } }
+        public bool IsDelete => _isDelete;
 
-        protected bool _isNew;
+        protected bool _isDelete;
         protected bool _isInit;
         protected BaseWrap _wrap;
         private EditorDock _dock;
@@ -37,6 +33,7 @@ namespace Description.Editor
         }
         public void Init(EditorDock dock, BaseWrap wrap)
         {
+            _isDelete = false;
             _isInit = false;
             _wrap = wrap;
             _dock = dock;
@@ -52,8 +49,7 @@ namespace Description.Editor
         public virtual void Clear()
         {
             Hide();
-
-            _isNew = false;
+            _isDelete = true;
             PoolManager.Ins.Push(this);
         }
 

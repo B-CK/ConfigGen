@@ -23,12 +23,7 @@ namespace Description.Editor
 
         static OpenFileDialog OpenFileDialog = new OpenFileDialog();
 
-        List<MemberEditor> _listBox = new List<MemberEditor>();
         MemberEditor _currentMember;
-        /// <summary>
-        /// 父类字段数量
-        /// </summary>
-        int _baseFieldCount = 0;
         private ClassEditorDock()
         {
             InitializeComponent();
@@ -66,24 +61,27 @@ namespace Description.Editor
             if (ClassWrap.Dict.ContainsKey(wrap.Inherit))
             {
                 var parent = ClassWrap.Dict[wrap.Inherit];
-                var pFields = parent.Fields;
-                for (int i = 0; i < pFields.Count; i++, _baseFieldCount++)
+                var pcurrent = parent.Fields.First;
+                while (pcurrent != null)
                 {
-                    var fieldEditor = FieldEditor.Create(this, pFields[i], _baseFieldCount, true);
+                    var fieldEditor = FieldEditor.Create(this, pcurrent.Value, true);
                     items.Add(fieldEditor);
+                    AddMember(fieldEditor);
                     _indexComboBox.Items.Add(fieldEditor);
+                    pcurrent = pcurrent.Next;
                 }
             }
             string fieldName = wrap.Index ?? "";
-            var fields = wrap.Fields;
-            for (int i = 0; i < fields.Count; i++)
+            var current = wrap.Fields.First;
+            while (current != null)
             {
-                var fieldEditor = FieldEditor.Create(this, fields[i], _baseFieldCount + i);
+                var fieldEditor = FieldEditor.Create(this, current.Value);
                 items.Add(fieldEditor);
                 AddMember(fieldEditor);
                 _indexComboBox.Items.Add(fieldEditor);
                 if (fieldName == fieldEditor.Name)
                     _indexComboBox.SelectedItem = fieldEditor;
+                current = current.Next;
             }
             if (_dataPathTextBox.Text.IsEmpty())
                 _indexComboBox.Enabled = false;
@@ -114,19 +112,25 @@ namespace Description.Editor
 
             foreach (var item in _memberDict)
             {
-                var editor = item.Value as MemberEditor;
-                editor.Save();
-                if (editor.IsNew)
-                {
-                    if (editor is FieldEditor)
-                        cls.OverrideField(editor as FieldEditor);
-                }
+                var editor = item.Value as FieldEditor;
+                if (editor.IsInherit) continue;
+                if (editor.IsDelete)
+                    cls.RemoveField(editor);
                 else
                 {
-                    if (editor is FieldEditor)
-                        cls.RemoveField(editor as FieldEditor);
+                    editor.Save();
+                    cls.OverrideField(editor);
                 }
             }
+            cls.ResortField();
+        }
+        protected override void OnDiscard()
+        {
+            base.OnDiscard();
+            if (!_isDirty) return;
+
+            var cls = GetWrap<ClassWrap>();
+            cls.RecoverField();
         }
         protected override void Clear()
         {
@@ -141,20 +145,49 @@ namespace Description.Editor
         }
         /// <summary>
         /// 刷新成员列表,以及索引列表
+        /// 父类修改/添加/删除字段均需刷新列表
         /// </summary>
         public void RefreshMember()
         {
-            var items = _memberListBox.Items;
-            var array = new object[items.Count];
-            items.CopyTo(array, 0);
-            items.Clear();
-            items.AddRange(array);
+            _memberListBox.BeginUpdate();
+            _indexComboBox.BeginUpdate();
 
+            List<object> mbRemain = new List<object>();
+            var mbItems = _memberListBox.Items;
+            for (int i = 0; i < mbItems.Count; i++)
+            {
+                if (!(mbItems[i] as FieldEditor).IsInherit)
+                    mbRemain.Add(mbItems[i]);
+            }
+            mbItems.Clear();
+
+            List<object> iRemain = new List<object>();
             var iItems = _indexComboBox.Items;
-            var iArray = new object[iItems.Count];
-            iItems.CopyTo(iArray, 0);
+            for (int i = 0; i < iItems.Count; i++)
+            {
+                if (!(iItems[i] as FieldEditor).IsInherit)
+                    iRemain.Add(iItems[i]);
+            }
             iItems.Clear();
-            iItems.AddRange(iArray);
+
+            var cls = GetWrap<ClassWrap>();
+            var parent = cls.Parent;
+            if (parent != null)
+            {
+                var pcurrent = parent.Fields.First;
+                while (pcurrent != null)
+                {
+                    var item = _memberDict[pcurrent.Value.Name];
+                    pcurrent = pcurrent.Next;
+                    mbItems.Add(item);
+                    iItems.Add(item);
+                }
+            }
+            mbItems.AddRange(mbRemain.ToArray());
+            iItems.AddRange(iRemain.ToArray());
+
+            _indexComboBox.EndUpdate();
+            _memberListBox.EndUpdate();
         }
         public void RefreshMember(MemberEditor member, string oldFullName = null)
         {
@@ -182,20 +215,33 @@ namespace Description.Editor
             iItems.Insert(index, member);
             _indexComboBox.SelectedIndex = selectedIndex;
         }
+        /// <summary>
+        /// 查找字段
+        /// </summary>
         private void FindMember(string name)
         {
-            if (name.IsEmpty()) return;
-            _memberListBox.Items.AddRange(_listBox.ToArray());
-            _listBox.Clear();
-            foreach (var item in _memberDict)
+            _memberListBox.Items.Clear();
+            var cls = GetWrap<ClassWrap>();
+            var parent = cls.Parent;
+            if (parent != null)
             {
-                var mem = item.Value as MemberEditor;
-                if (mem.Name.IndexOf(name) == -1)
-                    _listBox.Add(mem);
+                var pcurrent = parent.Fields.First;
+                while (pcurrent != null)
+                {
+                    var item = _memberDict[pcurrent.Value.Name];
+                    pcurrent = pcurrent.Next;
+                    if (item.IsDelete || item.Name.IndexOf(name, StringComparison.OrdinalIgnoreCase) == -1) continue;
+                    _memberListBox.Items.Add(item);
+                }
             }
-            var items = _memberListBox.Items;
-            for (int i = 0; i < _listBox.Count; i++)
-                items.Remove(_listBox[i]);
+            var current = cls.Fields.First;
+            while (current != null)
+            {
+                var item = _memberDict[current.Value.Name];
+                current = current.Next;
+                if (item.IsDelete || item.Name.IndexOf(name, StringComparison.OrdinalIgnoreCase) == -1) continue;
+                _memberListBox.Items.Add(item);
+            }
         }
 
         private void OnValueChange(object sender, EventArgs e)
@@ -250,7 +296,7 @@ namespace Description.Editor
         }
         private void AddMenuItem_Click(object sender, EventArgs e)
         {
-            var member = FieldEditor.Create(this, UnqueName, _memberListBox.Items.Count);
+            var member = FieldEditor.Create(this, UnqueName);
             _memberListBox.Items.Add(member);
             _indexComboBox.Items.Add(member);
             _memberListBox.SelectedItem = member;
@@ -258,7 +304,6 @@ namespace Description.Editor
                 _currentMember.Hide();
             _currentMember = member;
             AddMember(member);
-            member.IsNew = true;
             member.Show();
             OnValueChange();
         }
@@ -302,28 +347,34 @@ namespace Description.Editor
         {
             if (_currentMember == null) return;
             var from = _currentMember as FieldEditor;
-            if (_memberDict.Count + _baseFieldCount <= (from.Seq + 1))
-                return;
+            if (from.IsInherit) return;
 
-            from.Down();
-            var to = _memberListBox.Items[from.Seq] as FieldEditor;
-            to.Up();
-            _memberListBox.Items[from.Seq] = from;
-            _memberListBox.Items[to.Seq] = to;
+            var cls = GetWrap<ClassWrap>();
+            cls.DownField(from.FieldName);
+
+            int index = _memberListBox.Items.IndexOf(from);
+            if (index == _memberDict.Count - 1) return;
+            var to = _memberListBox.Items[index + 1] as FieldEditor;
+            _memberListBox.Items[index] = to;
+            _memberListBox.Items[index + 1] = from;
             OnValueChange();
         }
         private void Up_Click(object sender, EventArgs e)
         {
             if (_currentMember == null) return;
             var from = _currentMember as FieldEditor;
-            if (from.Seq <= _baseFieldCount)
-                return;
+            if (from.IsInherit) return;
 
-            from.Up();
-            var to = _memberListBox.Items[from.Seq] as FieldEditor;
-            to.Down();
-            _memberListBox.Items[from.Seq] = from;
-            _memberListBox.Items[to.Seq] = to;
+            var cls = GetWrap<ClassWrap>();
+            cls.UpField(from.FieldName);
+
+            int index = _memberListBox.Items.IndexOf(from);
+            if (index == 0) return;//非继承时
+            if (cls.Parent != null && index == cls.Parent.Fields.Count)
+                return;//继承时
+            var to = _memberListBox.Items[index - 1] as FieldEditor;
+            _memberListBox.Items[index] = to;
+            _memberListBox.Items[index - 1] = from;
             OnValueChange();
         }
         private void Picture_MouseDown(object sender, MouseEventArgs e)

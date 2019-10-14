@@ -114,17 +114,14 @@ namespace Description.Wrap
         }
         public void OverrideField(EnumItemWrap wrap)
         {
-            EnumItemWrap old = null;
             for (int i = 0; i < Items.Count; i++)
             {
                 if (Items[i].Name == wrap.Name)
                 {
-                    old = wrap;
-                    break;
+                    Items[i].Override(wrap);
+                    return;
                 }
             }
-            if (old != null)
-                RemoveItem(old);
             AddItem(wrap);
         }
         public override bool Check()
