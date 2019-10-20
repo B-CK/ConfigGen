@@ -1,0 +1,263 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B6DBA24D-AB24-4BE8-9CA3-4920C5DE5A91}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Desc</RootNamespace>
+    <AssemblyName>Desc</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WeifenLuo.WinFormsUI.Docking">
+      <HintPath>..\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Console\Debug.cs" />
+    <Compile Include="Editor\EditorDock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Editor\EditorDock.Designer.cs">
+      <DependentUpon>EditorDock.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Editor\EnumEditorDock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Editor\EnumEditorDock.Designer.cs">
+      <DependentUpon>EnumEditorDock.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Editor\EnumItemEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Editor\EnumItemEditor.Designer.cs">
+      <DependentUpon>EnumItemEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Editor\FieldEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Editor\FieldEditor.Designer.cs">
+      <DependentUpon>FieldEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Editor\GroupDock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Editor\GroupDock.Designer.cs">
+      <DependentUpon>GroupDock.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Editor\MemberEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Editor\MemberEditor.Designer.cs">
+      <DependentUpon>MemberEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GridWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GridWindow.Designer.cs">
+      <DependentUpon>GridWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="HotKey.cs" />
+    <Compile Include="ModuleInfoDock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModuleInfoDock.Designer.cs">
+      <DependentUpon>ModuleInfoDock.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NamespaceInfoDock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NamespaceInfoDock.Designer.cs">
+      <DependentUpon>NamespaceInfoDock.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PoolManager.cs" />
+    <Compile Include="TypeBox.cs">
+      <SubType>UserControl</SubType>
+      <Generator>TypeBox</Generator>
+      <CustomToolNamespace>Description</CustomToolNamespace>
+    </Compile>
+    <Compile Include="TypeBox.Designer.cs">
+      <DependentUpon>TypeBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Wrap\BaseWrap.cs" />
+    <Compile Include="Wrap\ClassWrap.cs" />
+    <Compile Include="Wrap\EnumItemWrap.cs" />
+    <Compile Include="Wrap\EnumWrap.cs" />
+    <Compile Include="Wrap\FieldWrap.cs" />
+    <Compile Include="Wrap\ModuleWrap.cs" />
+    <Compile Include="Wrap\NamespaceWrap.cs" />
+    <Compile Include="Console\ConsoleDock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Console\ConsoleDock.Designer.cs">
+      <DependentUpon>ConsoleDock.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CreatorDock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CreatorDock.Designer.cs">
+      <DependentUpon>CreatorDock.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Console\Log.cs" />
+    <Compile Include="NamespaceDock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NamespaceDock.Designer.cs">
+      <DependentUpon>NamespaceDock.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Editor\ClassEditorDock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Editor\ClassEditorDock.Designer.cs">
+      <DependentUpon>ClassEditorDock.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Wrap\TypeWrap.cs" />
+    <Compile Include="Xml\ClassXml.cs" />
+    <Compile Include="Xml\EnumXml.cs" />
+    <Compile Include="Xml\FieldXml.cs" />
+    <Compile Include="Xml\ModuleXml.cs" />
+    <Compile Include="Xml\NamespaceXml.cs" />
+    <Compile Include="MainWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainWindow.Designer.cs">
+      <DependentUpon>MainWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util.cs" />
+    <Compile Include="Xml\TypeXml.cs" />
+    <EmbeddedResource Include="Console\ConsoleDock.resx">
+      <DependentUpon>ConsoleDock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CreatorDock.resx">
+      <DependentUpon>CreatorDock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Editor\EditorDock.resx">
+      <DependentUpon>EditorDock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Editor\EnumEditorDock.resx">
+      <DependentUpon>EnumEditorDock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Editor\EnumItemEditor.resx">
+      <DependentUpon>EnumItemEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Editor\FieldEditor.resx">
+      <DependentUpon>FieldEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Editor\GroupDock.resx">
+      <DependentUpon>GroupDock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridWindow.resx">
+      <DependentUpon>GridWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainWindow.resx">
+      <DependentUpon>MainWindow.cs</DependentUpon>
+      <LastGenOutput>DescriptorWindow1.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModuleInfoDock.resx">
+      <DependentUpon>ModuleInfoDock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NamespaceDock.resx">
+      <DependentUpon>NamespaceDock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NamespaceInfoDock.resx">
+      <DependentUpon>NamespaceInfoDock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="Editor\ClassEditorDock.resx">
+      <DependentUpon>ClassEditorDock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TypeBox.resx">
+      <DependentUpon>TypeBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ArrowDown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ArrowUp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\MagnifyingGlass.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Minus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\TriangleUp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\TriangleDown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ConsoleWarnicon.png" />
+    <None Include="Resources\ConsoleErroricon.png" />
+    <None Include="Resources\ConsoleInfoIcon.png" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

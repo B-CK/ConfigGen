@@ -1,5 +1,5 @@
-REM dotnet new console -n Tool -o ./Tool --force
-REM dotnet sln add DDL.sln Tool
+REM dotnet new console -n MPO -o ./MPO --force
+REM dotnet sln add DDL.sln ./MPO/MPO.csproj
 
 
 pause
