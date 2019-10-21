@@ -216,63 +216,12 @@ namespace Desc
             wrap.Save();
         }
 
-        #region 废弃/待修改代码
-        /// <summary>
-        /// 更新TypeWrap类型节点
-        /// </summary>
-        public void UpdateChildNodeName(string src, TypeWrap wrap)
-        {
-            string ns = wrap.Namespace.FullName;
-            TreeNode root = _nodeTreeView.Nodes[ns];
-            TreeNode node = root.Nodes[src];
-            node.Text = wrap.DisplayName;
-            node.Name = wrap.FullName;
-        }
-        /// <summary>
-        /// 仅更新当前节点,不包含子节点
-        /// </summary>
-        public TreeNode UpdateNodeColorState(BaseWrap wrap)
-        {
-            return null;
-        }
-        /// <summary>
-        /// 检查所有数据,且更新显示状态
-        /// </summary>
-        //public void UpdateModule(bool needCheck = true)
-        //{
-        //    if (needCheck)
-        //        ModuleWrap.Current.Check();
-        //    var imps = ModuleWrap.Current.Imports;
-        //    for (int i = 0; i < imps.Count; i++)
-        //    {
-        //        string key = imps[i];
-        //        if (NamespaceWrap.Dict.ContainsKey(key))
-        //        {
-        //            var wrap = NamespaceWrap.Dict[key];
-        //            if ((wrap.NodeState | NodeState.Modify | NodeState.Error) != 0)
-        //                UpdateNamespaceWrap(wrap);
-        //        }
-        //    }
-        //}
-        public void SwapNamespace(string srcFullName, TypeWrap wrap, string src, string dst)
-        {
-            TreeNode srcNode = _nodeTreeView.Nodes[src];
-            TreeNode dstNode = _nodeTreeView.Nodes[dst];
-            TreeNode node = srcNode.Nodes[srcFullName];
-            srcNode.Nodes.Remove(node);
-            node.Text = wrap.DisplayName;
-            node.Name = wrap.FullName;
-            dstNode.Nodes.Add(node);
-        }
-        #endregion
-
         #region GUI事件
         /// <summary>
         /// 打开类型信息界面
         /// </summary>
         private void NodeTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            return;
             BaseWrap data = e.Node.Tag as BaseWrap;
             if ((data.NodeState & NodeState.Include) == 0) return;
             if (data is NamespaceWrap) return;

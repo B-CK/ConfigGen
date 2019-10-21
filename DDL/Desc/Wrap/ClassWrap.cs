@@ -81,8 +81,7 @@ namespace Desc.Wrap
             return wrap.Xml;
         }
 
-        public Action<FieldWrap> OnAddField;
-        public Action<FieldWrap> OnRemoveField;
+        public Action<ClassWrap> OnDataChange;
 
         /// <summary>
         /// 父类
@@ -151,7 +150,6 @@ namespace Desc.Wrap
             Xml.Fields.Add(wrap);
             _fields.Add(wrap);
             Xml.Fields.Add(wrap);
-            OnAddField?.Invoke(wrap);
         }
         public void RemoveField(FieldWrap wrap)
         {
@@ -160,12 +158,11 @@ namespace Desc.Wrap
             Remove(wrap.Name);
             _fields.Remove(wrap);
             Xml.Fields.Remove(wrap);
-            OnRemoveField?.Invoke(wrap);
             wrap.Dispose();
         }
 
         /// <summary>
-        /// 保存时,调整xml中字段顺序
+        /// 保存时(数据有修改),调整xml中字段顺序
         /// </summary>
         public void ResortField(List<FieldWrap> fields)
         {
@@ -173,6 +170,7 @@ namespace Desc.Wrap
             _fields = fields;
             for (int i = 0; i < fields.Count; i++)
                 Xml.Fields.Add(fields[i]);
+            OnDataChange?.Invoke(this);
         }
         ///// <summary>
         ///// 重置字段在列表中的顺序编号

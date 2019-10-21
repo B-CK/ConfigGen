@@ -50,6 +50,9 @@ namespace Desc.Wrap
             ClassWrap.ClearAll();
             EnumWrap.ClearAll();
         }
+        /// <summary>
+        /// 移除命名空间以及类型等
+        /// </summary>
         public static void Remove(NamespaceWrap wrap)
         {
             if (_dict.ContainsKey(wrap.FullName))
@@ -112,13 +115,13 @@ namespace Desc.Wrap
         public List<EnumWrap> Enums { get { return _enums; } }
         public string Desc
         {
-            get { return Xml.Desc; }
+            get { return _xml.Desc; }
             set
             {
-                if (Xml.Desc != value)
+                if (_xml.Desc != value)
                 {
-                    string desc = Xml.Desc;
-                    Xml.Desc = value;
+                    string desc = _xml.Desc;
+                    _xml.Desc = value;
                     OnDescChange?.Invoke(this, desc);
                 }
             }

@@ -238,7 +238,7 @@ namespace Desc.Editor
         {
             if (!_isInit) return;
             GetDock<ClassEditorDock>().OnValueChange();
-            GetDock<ClassEditorDock>().RefreshMember(this);
+            //GetDock<ClassEditorDock>().RefreshMember(this);
         }
         private void OnFieldNameChanged(object sender, EventArgs e)
         {
@@ -257,7 +257,7 @@ namespace Desc.Editor
             {
                 string oldName = Name;
                 Name = nameBox.Text;
-                dock.RefreshMember(this, oldName);
+                //dock.RefreshMember(this, oldName);
             }
         }
         private void TypeComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -328,7 +328,7 @@ namespace Desc.Editor
                         break;
                 }
             }
-            dock.RefreshMember(this);
+            //dock.RefreshMember(this);
         }
         private void GroupButton_Click(object sender, EventArgs e)
         {

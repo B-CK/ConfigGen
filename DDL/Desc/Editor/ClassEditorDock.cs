@@ -22,9 +22,9 @@ namespace Desc.Editor
         }
 
         static OpenFileDialog OpenFileDialog = new OpenFileDialog();
-        MemberEditor _currentMember;
         //当前选择对象所在行
         int _selectionIndex = 0;
+        ClassWrap _inherit;
         private ClassEditorDock()
         {
             InitializeComponent();
@@ -53,10 +53,11 @@ namespace Desc.Editor
             _fieldTypeLib.DisplayIndex = 0;
             _fieldTypeLib.DisplayMember = "DisplayFullName";
             var rows = _memberList.Rows;
-            if (!wrap.Inherit.IsEmpty() && ClassWrap.Dict.ContainsKey(wrap.Inherit))
+            if (!wrap.Inherit.IsEmpty() && ModuleWrap.Current.Classes.ContainsKey(wrap.Inherit))
             {
-                var parent = ClassWrap.Dict[wrap.Inherit];
-                var pfields = parent.Fields;
+                _inherit = ModuleWrap.Current.Classes[wrap.Inherit];
+                _inherit.OnDataChange += OnParentChange;
+                var pfields = _inherit.Fields;
                 for (int i = 0; i < pfields.Count; i++)
                     rows.Add(InitField(pfields[i], true));
             }
@@ -85,16 +86,21 @@ namespace Desc.Editor
             _nameTextBox.Text = wrap.Name;
             _indexComboBox.SelectedText = wrap.Index ?? "";
             _namespaceComboBox.SelectedItem = wrap.Namespace;
-            if (!wrap.Inherit.IsEmpty() && ModuleWrap.Current.Classes.ContainsKey(wrap.FullName))
-            {
-                var inherit = ClassWrap.Dict[wrap.Inherit];
-                _inheritComboBox.SelectedItem = inherit;
-            }
+            if (_inherit != null)
+                _inheritComboBox.SelectedItem = _inherit;
             else
                 _inheritComboBox.SelectedText = string.Empty;
             _groupTextBox.Text = wrap.Group.IsEmpty() ? Util.DefaultGroup : wrap.Group;
             _descTextBox.Text = wrap.Desc;
             _dataPathTextBox.Text = wrap.DataPath;
+
+            _fieldNameLib.DisplayIndex = 0;
+            _isOnlyReadLib.DisplayIndex = 1;
+            _fieldTypeLib.DisplayIndex = 2;
+            _elememtLib.DisplayIndex = 3;
+            _descLib.DisplayIndex = 4;
+            _fieldGroup.DisplayIndex = 5;
+            _checkerLib.DisplayIndex = 6;
 
             ModuleWrap.Current.OnAddNamespace += OnAddNamespace;
             ModuleWrap.Current.OnRemoveNamespace += OnRemoveNamespace;
@@ -102,6 +108,21 @@ namespace Desc.Editor
             ModuleWrap.Current.OnRemoveAnyType += OnRemoveAnyType;
             ModuleWrap.Current.OnNamespaceNameChange += OnNamespaceNameChange;
             ModuleWrap.Current.OnTypeNameChange += OnTypeNameChange;
+        }
+        protected override void Clear()
+        {
+            base.Clear();
+
+            ModuleWrap.Current.OnAddNamespace -= OnAddNamespace;
+            ModuleWrap.Current.OnRemoveNamespace -= OnRemoveNamespace;
+            ModuleWrap.Current.OnAddAnyType -= OnAddAnyType;
+            ModuleWrap.Current.OnRemoveAnyType -= OnRemoveAnyType;
+            ModuleWrap.Current.OnNamespaceNameChange -= OnNamespaceNameChange;
+            ModuleWrap.Current.OnTypeNameChange -= OnTypeNameChange;
+            if (_inherit != null)
+                _inherit.OnDataChange -= OnParentChange;
+            _inherit = null;
+            _selectionIndex = 0;
         }
         protected override void OnSave()
         {
@@ -120,7 +141,7 @@ namespace Desc.Editor
 
             //切换命名空间
             SwapNamespace(cls.Namespace, _namespaceComboBox.SelectedItem as NamespaceWrap);
- 
+
             Dictionary<string, FieldWrap> dict = new Dictionary<string, FieldWrap>();
             var rows = _memberList.Rows;
             for (int i = 0; i < rows.Count; i++)
@@ -175,9 +196,12 @@ namespace Desc.Editor
             cls.ResortField(list);
         }
 
-        private void OnParentFieldChange()
+        private void OnParentChange(ClassWrap inherit)
         {
-
+            var rows = _memberList.Rows;
+            var pfields = _inherit.Fields;
+            for (int i = 0; i < pfields.Count; i++)
+                rows.Insert(i, InitField(pfields[i], true));
         }
         private void OnAddNamespace(NamespaceWrap wrap)
         {
@@ -232,7 +256,8 @@ namespace Desc.Editor
         #region 字段初始化
         protected DataGridViewRow InitField(FieldWrap field, bool isHerit = false)
         {
-            DataGridViewRow row = new DataGridViewRow();
+            var row = PoolManager.Ins.Pop<DataGridViewRow>();
+            if (row == null) row = new DataGridViewRow();
             string[] nodes = field.Type.Split(Util.ArgsSplitFlag);
             switch (nodes.Length)
             {
@@ -252,32 +277,49 @@ namespace Desc.Editor
                     Debug.LogErrorFormat("未知类型:{0}", field.Type);
                     break;
             }
-            row.Frozen = isHerit;
+            row.ReadOnly = isHerit;
+            for (int i = 0; i < row.Cells.Count; i++)
+            {
+                var style = row.Cells[i].Style;
+                style.ForeColor = isHerit ? Color.Yellow : Color.LightGray;
+            }
             row.Cells[0].ToolTipText = field.DisplayName;
             row.Cells[0].Tag = field;
             return row;
         }
         protected void SaveField(FieldWrap field, DataGridViewCellCollection cells)
         {
-            field.Name = cells[0].Value as string;
-            field.IsConst = (bool)cells[1].Value;
-            field.Type = cells[2].Value as string;
+            field.Name = cells[0].Value == null ? string.Empty : cells[0].Value as string;
+            field.IsConst = cells[1].Value == null ? false : (bool)cells[1].Value;
+            field.Type = cells[2].Value == null ? Util.BOOL : cells[2].Value as string;
             if (ClassWrap.Dict.ContainsKey(field.Type))
-                field.Value = "";
+                field.Value = string.Empty;
             else
-                field.Value = cells[3].Value as string;
-            field.Desc = cells[4].Value as string;
-            field.Group = cells[5].Value as string;
-            field.Checker = cells[6].Value as string;
+                field.Value = cells[3].Value == null ? string.Empty : cells[3].Value as string;
+            field.Desc = cells[4].Value == null ? string.Empty : cells[4].Value as string;
+            field.Group = cells[5].Value == null ? string.Empty : cells[5].Value as string;
+            field.Checker = cells[6].Value == null ? string.Empty : cells[6].Value as string;
         }
-        private void MemberList_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        private void MemberList_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
+            if (!_isInit) return;
             //字段名称/类型改变
             if (e.ColumnIndex == 0 || e.ColumnIndex == 2)
             {
                 var list = sender as DataGridView;
                 var cell = list.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                if (cell.Tag == null)
+                    cell.Tag = FieldWrap.Create("?", GetWrap<ClassWrap>());
                 var field = cell.Tag as FieldWrap;
+                switch (e.ColumnIndex)
+                {
+                    case 0:
+                        field.Name = cell.Value as string;
+                        break;
+                    case 2:
+                        field.Type = cell.Value as string;
+                        break;
+                }
                 var items = _indexComboBox.Items;
                 if (SurportIndexKey(field.Type))
                 {
@@ -289,8 +331,12 @@ namespace Desc.Editor
                     items.Remove(field);
                 }
             }
+            OnValueChange();
         }
-
+        private void MemberList_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            Debug.Log($"Row:{e.RowIndex}\tCol:{e.ColumnIndex}");
+        }
         //--DataGridView拖拽功能
         private void MemberList_DragEnter(object sender, DragEventArgs e)
         {
@@ -334,106 +380,9 @@ namespace Desc.Editor
             {
                 _memberList.Rows[_selectionIndex].Selected = true;
                 _memberList.CurrentCell = _memberList.Rows[_selectionIndex].Cells[0];
-
             }
         }
         //--
-        #endregion
-
-
-        #region 待修改或废弃的代码
-        /// <summary>
-        /// 刷新成员列表,以及索引列表
-        /// 父类修改/添加/删除字段均需刷新列表
-        /// </summary>
-        public void RefreshMember()
-        {
-            //_memberListBox.BeginUpdate();
-            //_indexComboBox.BeginUpdate();
-
-            //List<object> mbRemain = new List<object>();
-            //var mbItems = _memberListBox.Items;
-            //for (int i = 0; i < mbItems.Count; i++)
-            //{
-            //    if (!(mbItems[i] as FieldEditor).IsInherit)
-            //        mbRemain.Add(mbItems[i]);
-            //}
-            //mbItems.Clear();
-
-            //List<object> iRemain = new List<object>();
-            //var iItems = _indexComboBox.Items;
-            //for (int i = 0; i < iItems.Count; i++)
-            //{
-            //    if (!(iItems[i] as FieldEditor).IsInherit)
-            //        iRemain.Add(iItems[i]);
-            //}
-            //iItems.Clear();
-
-            //var cls = GetWrap<ClassWrap>();
-            //var parent = cls.Parent;
-            //if (parent != null)
-            //{
-            //    var pcurrent = parent.Fields.First;
-            //    while (pcurrent != null)
-            //    {
-            //        MemberEditor item = PoolManager.Ins.Pop<MemberEditor>();
-            //        if (_memberDict.ContainsKey(pcurrent.Value.Name))
-            //            item = _memberDict[pcurrent.Value.Name];
-            //        else
-            //        {
-            //            if (item == null)
-            //                item = FieldEditor.Create(this, pcurrent.Value, true);
-            //            AddMember(item);
-            //        }
-
-            //        pcurrent = pcurrent.Next;
-            //        mbItems.Add(item);
-            //        iItems.Add(item);
-            //    }
-            //}
-            //for (int i = 0; i < mbRemain.Count; i++)
-            //{
-            //    if (_memberDict.ContainsKey((mbRemain[i] as FieldEditor).Name))
-            //    {
-            //        mbItems.Add(mbRemain[i]);
-            //        iItems.Add(iRemain[i]);
-            //    }
-            //}
-
-            //_indexComboBox.EndUpdate();
-            //_memberListBox.EndUpdate();
-        }
-        /// <summary>
-        /// 更新单个
-        /// </summary>
-        /// <param name="member"></param>
-        /// <param name="oldFullName"></param>
-        public void RefreshMember(MemberEditor member, string oldFullName = null)
-        {
-            ////修改成员列表数据
-            //if (!oldFullName.IsEmpty())
-            //{
-            //    RemoveMember(oldFullName);
-            //    AddMember(member);
-            //}
-
-            ////修改成员列表界面
-            //var mItems = _memberListBox.Items;
-            //int index = mItems.IndexOf(member);
-            //mItems.Remove(member);
-            //mItems.Insert(index, member);
-            ////筛选出后,再修改名称时,是否过滤掉?
-            ////if (!_memFindBox.Text.IsEmpty())
-            ////    FindMember(_memFindBox.Text);
-
-            ////修改关键字CombBox界面
-            //var iItems = _indexComboBox.Items;
-            //index = iItems.IndexOf(member);
-            //int selectedIndex = _indexComboBox.SelectedIndex;
-            //iItems.Remove(member);
-            //iItems.Insert(index, member);
-            //_indexComboBox.SelectedIndex = selectedIndex;
-        }
         #endregion
 
         #region GUI事件
@@ -485,7 +434,23 @@ namespace Desc.Editor
         private void OnInheritChange(object sender, EventArgs e)
         {
             if (!IsInit) return;
-            RefreshMember();
+            var rows = _memberList.Rows;
+            if (_inherit != null)
+            {
+                _inherit.OnDataChange -= OnParentChange;
+                var pfields = _inherit.Fields;
+                for (int i = 0; i < pfields.Count; i++)
+                {
+                    PoolManager.Ins.Push(rows[0]);
+                    rows.RemoveAt(0);
+                }
+            }
+            _inherit = _inheritComboBox.SelectedItem as ClassWrap;
+            if (_inherit != null)
+            {
+                _inherit.OnDataChange += OnParentChange;
+                OnParentChange(_inherit);
+            }
             OnValueChange();
         }
         private void OnNameValueChange(object sender, EventArgs e)
@@ -517,8 +482,6 @@ namespace Desc.Editor
             GroupDock.Ins.ShowGroups(_groupTextBox);
         }
         #endregion
-
-    
 
 
     }

@@ -62,14 +62,14 @@
             this.IndexLabel = new System.Windows.Forms.Label();
             this.InhertLabel = new System.Windows.Forms.Label();
             this._memberList = new System.Windows.Forms.DataGridView();
-            this.MemberListLabel = new System.Windows.Forms.Label();
             this._fieldNameLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this._isOnlyReadLib = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this._fieldTypeLib = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this._elememtLib = new System.Windows.Forms.DataGridViewButtonColumn();
+            this._elememtLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this._descLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this._fieldGroup = new System.Windows.Forms.DataGridViewButtonColumn();
-            this._checkerLib = new System.Windows.Forms.DataGridViewButtonColumn();
+            this._fieldGroup = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this._checkerLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MemberListLabel = new System.Windows.Forms.Label();
             this._memberMenu.SuspendLayout();
             this._typeGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._memberList)).BeginInit();
@@ -347,8 +347,13 @@
             dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             dataGridViewCellStyle1.ForeColor = System.Drawing.Color.LightGray;
             this._memberList.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            this._memberList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._memberList.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this._memberList.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             this._memberList.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this._memberList.CausesValidation = false;
             this._memberList.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
@@ -387,6 +392,7 @@
             dataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this._memberList.RowHeadersDefaultCellStyle = dataGridViewCellStyle11;
+            this._memberList.RowHeadersWidth = 28;
             dataGridViewCellStyle12.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             dataGridViewCellStyle12.ForeColor = System.Drawing.Color.LightGray;
             this._memberList.RowsDefaultCellStyle = dataGridViewCellStyle12;
@@ -396,22 +402,12 @@
             this._memberList.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this._memberList.Size = new System.Drawing.Size(826, 312);
             this._memberList.TabIndex = 8;
+            this._memberList.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.MemberList_CellEndEdit);
+            this._memberList.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.MemberList_CellMouseDoubleClick);
             this._memberList.CellMouseMove += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.MemberList_CellMouseMove);
-            this._memberList.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.MemberList_CellValueChanged);
             this._memberList.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.MemberList_RowsAdded);
             this._memberList.DragDrop += new System.Windows.Forms.DragEventHandler(this.MemberList_DragDrop);
             this._memberList.DragEnter += new System.Windows.Forms.DragEventHandler(this.MemberList_DragEnter);
-            // 
-            // MemberListLabel
-            // 
-            this.MemberListLabel.AutoSize = true;
-            this.MemberListLabel.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold);
-            this.MemberListLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.MemberListLabel.Location = new System.Drawing.Point(5, 259);
-            this.MemberListLabel.Name = "MemberListLabel";
-            this.MemberListLabel.Size = new System.Drawing.Size(90, 17);
-            this.MemberListLabel.TabIndex = 9;
-            this.MemberListLabel.Text = ">成员列表";
             // 
             // _fieldNameLib
             // 
@@ -433,37 +429,29 @@
             this._isOnlyReadLib.DefaultCellStyle = dataGridViewCellStyle4;
             this._isOnlyReadLib.HeaderText = "只读";
             this._isOnlyReadLib.Name = "_isOnlyReadLib";
-            this._isOnlyReadLib.ReadOnly = true;
             this._isOnlyReadLib.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this._isOnlyReadLib.Width = 50;
             // 
             // _fieldTypeLib
             // 
             dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.Color.LightGray;
             this._fieldTypeLib.DefaultCellStyle = dataGridViewCellStyle5;
             this._fieldTypeLib.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
             this._fieldTypeLib.HeaderText = "类型";
-            this._fieldTypeLib.Items.AddRange(new object[] {
-            "Box",
-            "Sharp",
-            "Bob",
-            "Jack"});
             this._fieldTypeLib.Name = "_fieldTypeLib";
             this._fieldTypeLib.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this._fieldTypeLib.Width = 150;
             // 
             // _elememtLib
             // 
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             dataGridViewCellStyle6.ForeColor = System.Drawing.Color.LightGray;
             this._elememtLib.DefaultCellStyle = dataGridViewCellStyle6;
             this._elememtLib.HeaderText = "值/集合类";
             this._elememtLib.Name = "_elememtLib";
+            this._elememtLib.ReadOnly = true;
             this._elememtLib.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this._elememtLib.Text = "";
-            this._elememtLib.UseColumnTextForButtonValue = true;
-            this._elememtLib.Width = 150;
+            this._elememtLib.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
             // _descLib
             // 
@@ -477,22 +465,35 @@
             // 
             // _fieldGroup
             // 
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle8.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             this._fieldGroup.DefaultCellStyle = dataGridViewCellStyle8;
             this._fieldGroup.HeaderText = "组";
             this._fieldGroup.Name = "_fieldGroup";
+            this._fieldGroup.ReadOnly = true;
+            this._fieldGroup.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this._fieldGroup.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
             // _checkerLib
             // 
-            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle9.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             dataGridViewCellStyle9.ForeColor = System.Drawing.Color.LightGray;
             this._checkerLib.DefaultCellStyle = dataGridViewCellStyle9;
             this._checkerLib.HeaderText = "检查条件";
             this._checkerLib.Name = "_checkerLib";
+            this._checkerLib.ReadOnly = true;
             this._checkerLib.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this._checkerLib.Width = 150;
+            this._checkerLib.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // MemberListLabel
+            // 
+            this.MemberListLabel.AutoSize = true;
+            this.MemberListLabel.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold);
+            this.MemberListLabel.ForeColor = System.Drawing.Color.LightGray;
+            this.MemberListLabel.Location = new System.Drawing.Point(5, 259);
+            this.MemberListLabel.Name = "MemberListLabel";
+            this.MemberListLabel.Size = new System.Drawing.Size(90, 17);
+            this.MemberListLabel.TabIndex = 9;
+            this.MemberListLabel.Text = ">成员列表";
             // 
             // ClassEditorDock
             // 
@@ -535,14 +536,14 @@
         private System.Windows.Forms.Label GroupLabel;
         private System.Windows.Forms.TextBox _groupTextBox;
         private System.Windows.Forms.Button _groupButton;
-        private System.Windows.Forms.DataGridView _memberList;
         private System.Windows.Forms.Label MemberListLabel;
+        private System.Windows.Forms.DataGridView _memberList;
         private System.Windows.Forms.DataGridViewTextBoxColumn _fieldNameLib;
         private System.Windows.Forms.DataGridViewCheckBoxColumn _isOnlyReadLib;
         private System.Windows.Forms.DataGridViewComboBoxColumn _fieldTypeLib;
-        private System.Windows.Forms.DataGridViewButtonColumn _elememtLib;
+        private System.Windows.Forms.DataGridViewTextBoxColumn _elememtLib;
         private System.Windows.Forms.DataGridViewTextBoxColumn _descLib;
-        private System.Windows.Forms.DataGridViewButtonColumn _fieldGroup;
-        private System.Windows.Forms.DataGridViewButtonColumn _checkerLib;
+        private System.Windows.Forms.DataGridViewTextBoxColumn _fieldGroup;
+        private System.Windows.Forms.DataGridViewTextBoxColumn _checkerLib;
     }
 }
