@@ -44,7 +44,7 @@ namespace Desc.Wrap
                 {
                     string desc = _xml.Desc;
                     _xml.Desc = value;
-                    OnDescChange?.Invoke(this, desc);
+                    OnDescChange?.Invoke(this, FullName);
                 }
             }
         }

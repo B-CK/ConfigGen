@@ -106,6 +106,7 @@ namespace Desc.Editor
         /// 在多态环境中,不包含父类成员
         /// </summary>
         protected Dictionary<string, MemberEditor> _memberDict = new Dictionary<string, MemberEditor>();
+        protected HashSet<string> _members = new HashSet<string>();
         private int _nameId = 0;
 
         public T GetWrap<T>() where T : BaseWrap { return _wrap as T; }
@@ -206,7 +207,10 @@ namespace Desc.Editor
         {
             OnSave();
             if (_isDirty)
+            {
+                _wrap.SetNodeState(_wrap.NodeState | NodeState.Modify);
                 _wrap.Namespace.SetDirty();
+            }
             //ModuleWrap.Current.Check();
             Text = _wrap.Name;
             _isDirty = false;

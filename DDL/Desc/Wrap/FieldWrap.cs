@@ -25,7 +25,6 @@ namespace Desc.Wrap
             return wrap._xml;
         }
 
-        public ClassWrap Host => _cls;
         public override string DisplayName
         {
             get
@@ -58,7 +57,7 @@ namespace Desc.Wrap
                 _xml.Type = value;
             }
         }
-        public bool IsConst { get { return _xml.IsConst; } set { _xml.IsConst = value; } }
+        //public bool IsConst { get { return _xml.IsConst; } set { _xml.IsConst = value; } }
         /// <summary>
         /// 既可作常量值,也可作默认值,还能做集合类型子类型
         /// </summary>

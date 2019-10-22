@@ -142,7 +142,7 @@ namespace Desc.Wrap
         {
             if (Contains(wrap.Name))
             {
-                Util.MsgWarning("[Class]类型{0}中已经存在字段{0}.", wrap.Name);
+                Util.MsgWarning("[Class]类型{0}中已经存在字段{1}.", FullName, wrap.Name);
                 return;
             }
 

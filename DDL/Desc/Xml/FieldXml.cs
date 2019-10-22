@@ -18,8 +18,8 @@ namespace Desc.Xml
     {
         [XmlAttribute]
         public string Type;
-        [XmlAttribute]
-        public bool IsConst;
+        //[XmlAttribute]
+        //public bool IsConst;
         [XmlAttribute]
         public string Value;
         [XmlAttribute]

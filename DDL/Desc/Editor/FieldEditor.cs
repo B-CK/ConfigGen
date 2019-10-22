@@ -109,7 +109,7 @@ namespace Desc.Editor
                 if (_typeComboBox.Text == Util.LIST || _typeComboBox.Text == Util.DICT)
                     _defaultLabel.Text = "元素类型:";
             }
-            _isConstCheckBox.Checked = field.IsConst;
+            //_isConstCheckBox.Checked = field.IsConst;
             _valueTypeBox.OnCheckChange = OnFieldValueChanged;
             _groupTextBox.Text = field.Group.IsEmpty() ? Util.DefaultGroup : field.Group;
             _desTextBox.Text = field.Desc;
@@ -203,7 +203,7 @@ namespace Desc.Editor
             }
             else
                 field.Value = _valueTypeBox.GetValue();
-            field.IsConst = IsConst;
+            //field.IsConst = IsConst;
             field.Group = _groupTextBox.Text;
             field.Desc = _desTextBox.Text;
             field.Checker = _checkerComboBox.Text;

@@ -18,7 +18,7 @@ namespace Desc.Wrap
             {
                 if (_name.IsEmpty() || _name != value)
                 {
-                    string src = _name;
+                    string src = FullName;
                     _name = value;
                     OnNameChange?.Invoke(this, src);
                 }
