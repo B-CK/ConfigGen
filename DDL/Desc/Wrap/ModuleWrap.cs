@@ -255,7 +255,6 @@ namespace Desc.Wrap
         public void RemoveImport(NamespaceWrap wrap)
         {
             string name = wrap.FullName;
-            if (!Contains(name)) return;
             AddDirty();
 
             Remove(name);

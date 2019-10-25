@@ -185,8 +185,6 @@ namespace Desc.Wrap
         }
         public void RemoveTypeWrap(TypeWrap wrap)
         {
-            if (!Contains(wrap.Name)) return;
-
             SetDirty();
             Remove(wrap.Name);
 
@@ -245,16 +243,33 @@ namespace Desc.Wrap
         public override bool Check()
         {
             bool isOk = base.Check();
+            List<string> repeat = new List<string>();
+            HashSet<string> hash = new HashSet<string>();
             for (int i = 0; i < _classes.Count; i++)
             {
-                bool c = _classes[i].Check();
+                var cls = _classes[i];
+                bool c = cls.Check();
                 isOk &= c;
+                if (hash.Contains(cls.Name))
+                    repeat.Add(cls.Name);
+                else
+                    hash.Add(cls.Name);
             }
             var xenums = _xml.Enums;
             for (int i = 0; i < _enums.Count; i++)
             {
-                bool c = _enums[i].Check();
+                var enm = _enums[i];
+                bool c = enm.Check();
                 isOk &= c;
+                if (hash.Contains(enm.Name))
+                    repeat.Add(enm.Name);
+                else
+                    hash.Add(enm.Name);
+            }
+            if (repeat.Count != 0)
+            {
+                isOk &= false;
+                Debug.LogErrorFormat("[Namespace]{0}空间中命名重复:{1}", FullName, string.Join(",", repeat));
             }
             if (isOk == false)
                 SetNodeState(NodeState | NodeState.Error);

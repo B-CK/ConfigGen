@@ -101,29 +101,23 @@ namespace Desc.Editor
         protected bool _isDirty;
         protected bool _isSilent;
 
-        protected TypeWrap _wrap;
-        /// <summary>
-        /// 在多态环境中,不包含父类成员
-        /// </summary>
-        protected Dictionary<string, MemberEditor> _memberDict = new Dictionary<string, MemberEditor>();
+        //仅记录自己的字段,不包含父类字段
         protected HashSet<string> _members = new HashSet<string>();
+        protected TypeWrap _wrap;
         private int _nameId = 0;
 
         public T GetWrap<T>() where T : BaseWrap { return _wrap as T; }
-        public string UnqueName
+        protected string UnqueName
         {
             get
             {
                 string name = Util.Format("_{0}", _nameId++);
-                while (_memberDict.ContainsKey(name))
+                while (_members.Contains(name))
                     name = Util.Format("_{0}", _nameId++);
                 return name;
             }
         }
-        public bool ContainMember(string name)
-        {
-            return _memberDict.ContainsKey(name);
-        }
+
         public void OnValueChange()
         {
             if (!_isInit) return;
@@ -139,7 +133,7 @@ namespace Desc.Editor
             _nameId = 0;
             _isSilent = false;
             _wrap = wrap;
-            _memberDict.Clear();
+            _members.Clear();
             if (!IsContain(ID))
                 AddOpen(ID, this);
         }
@@ -150,20 +144,20 @@ namespace Desc.Editor
         protected virtual void OnDiscard() { }
         protected virtual void Clear()
         {
-            foreach (var item in _memberDict)
-                item.Value.Clear();
+            _members.Clear();
         }
-        protected virtual void AddMember(MemberEditor mem)
+        public bool ContainMember(string name)
         {
-            if (_memberDict.ContainsKey(mem.Name))
-                Util.MsgWarning("重复定义字段{0}", mem.Name);
-            else
-                _memberDict.Add(mem.Name, mem);
+            return _members.Contains(name);
         }
         protected virtual void RemoveMember(string name)
         {
-            if (_memberDict.ContainsKey(name))
-                _memberDict.Remove(name);
+            _members.Remove(name);
+        }
+        protected virtual void AddMemeber(string name)
+        {
+            if (!_members.Contains(name))
+                _members.Add(name);
         }
         protected override void WndProc(ref Message m)
         {
@@ -211,7 +205,7 @@ namespace Desc.Editor
                 _wrap.SetNodeState(_wrap.NodeState | NodeState.Modify);
                 _wrap.Namespace.SetDirty();
             }
-            //ModuleWrap.Current.Check();
+            ModuleWrap.Current.Check();
             Text = _wrap.Name;
             _isDirty = false;
         }
@@ -254,5 +248,6 @@ namespace Desc.Editor
                 Util.MsgError("{0}\n{1}\n", ex.Message, ex.StackTrace);
             }
         }
+
     }
 }

@@ -139,6 +139,8 @@ namespace Desc.Wrap
             var wrap = PoolManager.Ins.Pop<FieldWrap>();
             if (wrap == null)
                 wrap = new FieldWrap(_xml, _cls);
+            else
+                wrap.Init(_xml, _cls);
             return wrap;
         }
     }

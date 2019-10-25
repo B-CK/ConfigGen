@@ -107,8 +107,6 @@ namespace Desc.Wrap
         }
         public void RemoveItem(EnumItemWrap wrap)
         {
-            if (!Contains(wrap.Name)) return;
-
             Remove(wrap.Name);
             _items.Remove(wrap);
             Xml.Items.Remove(wrap);

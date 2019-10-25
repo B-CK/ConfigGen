@@ -45,7 +45,7 @@ namespace Desc.Editor
             {
                 var itemEditor = EnumItemEditor.Create(this, enums[i]);
                 items.Add(itemEditor);
-                AddMember(itemEditor);
+                //AddMember(itemEditor);
             }
         }
         protected override void OnSave()
@@ -63,12 +63,12 @@ namespace Desc.Editor
 
             SwapNamespace(enm.Namespace, _namespaceComboBox.SelectedItem as NamespaceWrap);
 
-            foreach (var item in _memberDict)
-            {
-                var editor = item.Value as EnumItemEditor;
-                editor.Save();
-                enm.OverrideField(editor);
-            }
+            //foreach (var item in _memberDict)
+            //{
+            //    var editor = item.Value as EnumItemEditor;
+            //    editor.Save();
+            //    enm.OverrideField(editor);
+            //}
         }
         protected override void Clear()
         {
@@ -81,7 +81,7 @@ namespace Desc.Editor
             if (!oldFullName.IsEmpty())
             {
                 RemoveMember(oldFullName);
-                AddMember(member);
+                //AddMember(member);
             }
 
             //修改成员列表界面
@@ -98,12 +98,12 @@ namespace Desc.Editor
             if (name.IsEmpty()) return;
             _memberListBox.Items.AddRange(_listBox.ToArray());
             _listBox.Clear();
-            foreach (var item in _memberDict)
-            {
-                var mem = item.Value as MemberEditor;
-                if (mem.Name.IndexOf(name) == -1)
-                    _listBox.Add(mem);
-            }
+            //foreach (var item in _memberDict)
+            //{
+            //    var mem = item.Value as MemberEditor;
+            //    if (mem.Name.IndexOf(name) == -1)
+            //        _listBox.Add(mem);
+            //}
             var items = _memberListBox.Items;
             for (int i = 0; i < _listBox.Count; i++)
                 items.Remove(_listBox[i]);
@@ -144,7 +144,7 @@ namespace Desc.Editor
             if (_currentMember != null)
                 _currentMember.Hide();
             _currentMember = member;
-            AddMember(member);
+            //AddMember(member);
             member.Show();
             OnValueChange();
         }

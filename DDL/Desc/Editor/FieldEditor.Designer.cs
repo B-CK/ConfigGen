@@ -39,9 +39,11 @@
             this.label6 = new System.Windows.Forms.Label();
             this._typeComboBox = new System.Windows.Forms.ComboBox();
             this._isConstCheckBox = new System.Windows.Forms.CheckBox();
-            this._valueTypeBox = new Desc.TypeBox();
             this._groupButton = new System.Windows.Forms.Button();
             this._groupTextBox = new System.Windows.Forms.TextBox();
+            this._listComboBox = new System.Windows.Forms.ComboBox();
+            this._valueComboBox = new System.Windows.Forms.ComboBox();
+            this._keyComboBox = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // _nameTextBox
@@ -110,9 +112,9 @@
             this._defaultLabel.ForeColor = System.Drawing.Color.LightGray;
             this._defaultLabel.Location = new System.Drawing.Point(8, 80);
             this._defaultLabel.Name = "_defaultLabel";
-            this._defaultLabel.Size = new System.Drawing.Size(60, 15);
+            this._defaultLabel.Size = new System.Drawing.Size(45, 15);
             this._defaultLabel.TabIndex = 7;
-            this._defaultLabel.Text = "默认值:";
+            this._defaultLabel.Text = "元素:";
             // 
             // _checkerComboBox
             // 
@@ -179,18 +181,6 @@
             this._isConstCheckBox.UseVisualStyleBackColor = true;
             this._isConstCheckBox.CheckedChanged += new System.EventHandler(this.OnFieldTextChanged);
             // 
-            // _valueTypeBox
-            // 
-            this._valueTypeBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._valueTypeBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._valueTypeBox.ForeColor = System.Drawing.Color.LightGray;
-            this._valueTypeBox.Location = new System.Drawing.Point(79, 71);
-            this._valueTypeBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this._valueTypeBox.Name = "_valueTypeBox";
-            this._valueTypeBox.Size = new System.Drawing.Size(401, 32);
-            this._valueTypeBox.TabIndex = 16;
-            // 
             // _groupButton
             // 
             this._groupButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -213,12 +203,59 @@
             this._groupTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
             this._groupTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this._groupTextBox.ForeColor = System.Drawing.Color.LightGray;
-            this._groupTextBox.Location = new System.Drawing.Point(82, 111);
+            this._groupTextBox.Location = new System.Drawing.Point(79, 111);
             this._groupTextBox.Name = "_groupTextBox";
             this._groupTextBox.ReadOnly = true;
             this._groupTextBox.Size = new System.Drawing.Size(327, 18);
             this._groupTextBox.TabIndex = 2;
             this._groupTextBox.TextChanged += new System.EventHandler(this.OnFieldTextChanged);
+            // 
+            // _listComboBox
+            // 
+            this._listComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._listComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._listComboBox.DisplayMember = "DisplayFullName";
+            this._listComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this._listComboBox.ForeColor = System.Drawing.Color.LightGray;
+            this._listComboBox.FormattingEnabled = true;
+            this._listComboBox.Location = new System.Drawing.Point(79, 73);
+            this._listComboBox.Name = "_listComboBox";
+            this._listComboBox.Size = new System.Drawing.Size(400, 23);
+            this._listComboBox.Sorted = true;
+            this._listComboBox.TabIndex = 16;
+            // 
+            // _valueComboBox
+            // 
+            this._valueComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._valueComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._valueComboBox.DisplayMember = "DisplayFullName";
+            this._valueComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this._valueComboBox.ForeColor = System.Drawing.Color.LightGray;
+            this._valueComboBox.FormattingEnabled = true;
+            this._valueComboBox.Location = new System.Drawing.Point(281, 73);
+            this._valueComboBox.Name = "_valueComboBox";
+            this._valueComboBox.Size = new System.Drawing.Size(200, 23);
+            this._valueComboBox.Sorted = true;
+            this._valueComboBox.TabIndex = 18;
+            // 
+            // _keyComboBox
+            // 
+            this._keyComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this._keyComboBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
+            this._keyComboBox.DisplayMember = "DisplayFullName";
+            this._keyComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this._keyComboBox.ForeColor = System.Drawing.Color.LightGray;
+            this._keyComboBox.FormattingEnabled = true;
+            this._keyComboBox.Location = new System.Drawing.Point(79, 73);
+            this._keyComboBox.Name = "_keyComboBox";
+            this._keyComboBox.Size = new System.Drawing.Size(200, 23);
+            this._keyComboBox.Sorted = true;
+            this._keyComboBox.TabIndex = 17;
             // 
             // FieldEditor
             // 
@@ -226,7 +263,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             this.Controls.Add(this._nameTextBox);
-            this.Controls.Add(this._valueTypeBox);
             this.Controls.Add(this._desTextBox);
             this.Controls.Add(this._groupTextBox);
             this.Controls.Add(this._isConstCheckBox);
@@ -239,6 +275,9 @@
             this.Controls.Add(this.label5);
             this.Controls.Add(this._defaultLabel);
             this.Controls.Add(this._checkerComboBox);
+            this.Controls.Add(this._listComboBox);
+            this.Controls.Add(this._keyComboBox);
+            this.Controls.Add(this._valueComboBox);
             this.ForeColor = System.Drawing.Color.LightGray;
             this.Name = "FieldEditor";
             this.Size = new System.Drawing.Size(492, 204);
@@ -260,8 +299,10 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ComboBox _typeComboBox;
         private System.Windows.Forms.CheckBox _isConstCheckBox;
-        private TypeBox _valueTypeBox;
         private System.Windows.Forms.Button _groupButton;
         private System.Windows.Forms.TextBox _groupTextBox;
+        private System.Windows.Forms.ComboBox _listComboBox;
+        private System.Windows.Forms.ComboBox _valueComboBox;
+        private System.Windows.Forms.ComboBox _keyComboBox;
     }
 }

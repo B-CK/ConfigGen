@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 namespace Desc.Wrap
 {
     /// <summary>
-    ///注: MessagePack中多态时,根必须是抽象类/接口
+    /// 注: MessagePack中多态时,根必须是抽象类/接口
+    /// 子类中字段名称将覆盖父类字段名称
     /// </summary>
     public class ClassWrap : TypeWrap
     {
@@ -81,7 +82,10 @@ namespace Desc.Wrap
             return wrap.Xml;
         }
 
-        public Action<ClassWrap> OnDataChange;
+        /// <summary>
+        /// 类型信息改变
+        /// </summary>
+        public Action<ClassWrap> OnWrapChange;
 
         /// <summary>
         /// 父类
@@ -149,29 +153,31 @@ namespace Desc.Wrap
             Add(wrap.Name);
             Xml.Fields.Add(wrap);
             _fields.Add(wrap);
-            Xml.Fields.Add(wrap);
         }
         public void RemoveField(FieldWrap wrap)
         {
-            if (!Contains(wrap.Name)) return;
-
             Remove(wrap.Name);
             _fields.Remove(wrap);
             Xml.Fields.Remove(wrap);
             wrap.Dispose();
         }
 
-        /// <summary>
-        /// 保存时(数据有修改),调整xml中字段顺序
-        /// </summary>
-        public void ResortField(List<FieldWrap> fields)
+        public void OnSave()
         {
-            Xml.Fields.Clear();
-            _fields = fields;
-            for (int i = 0; i < fields.Count; i++)
-                Xml.Fields.Add(fields[i]);
-            OnDataChange?.Invoke(this);
+            OnWrapChange?.Invoke(this);
         }
+
+        ///// <summary>
+        ///// 保存时(数据有修改),调整xml中字段顺序
+        ///// </summary>
+        //public void ResortField(List<FieldWrap> fields)
+        //{
+        //    Xml.Fields.Clear();
+        //    _fields = fields;
+        //    for (int i = 0; i < fields.Count; i++)
+        //        Xml.Fields.Add(fields[i]);
+        //    OnWrapChange?.Invoke(this);
+        //}
         ///// <summary>
         ///// 重置字段在列表中的顺序编号
         ///// </summary>
@@ -203,12 +209,37 @@ namespace Desc.Wrap
         {
             bool isOk = base.Check();
             bool hasIndex = false;
+            List<string> repeat = new List<string>();
+            HashSet<string> hash = new HashSet<string>();
             for (int i = 0; i < _fields.Count; i++)
             {
                 var field = _fields[i];
                 isOk &= field.Check();
-                hasIndex = field.FullName == Index;
+                hasIndex |= field.FullName == Index;
+                if (hash.Contains(field.Name))
+                    repeat.Add(field.Name);
+                else
+                    hash.Add(field.Name);
             }
+            if (repeat.Count != 0)
+            {
+                isOk &= false;
+                Debug.LogErrorFormat("[Class]类型{0}的字段命名重复:{1}", FullName, string.Join(",", repeat));
+            }
+            repeat.Clear();
+            if (Parent != null)
+            {
+                var fields = Parent.Fields;
+                for (int i = 0; i < fields.Count; i++)
+                {
+                    var field = fields[i];
+                    hasIndex |= field.FullName == Index;
+                    if (Contains(field.Name))
+                        repeat.Add(field.Name);
+                }
+            }
+            if (repeat.Count != 0)
+                Debug.LogWarningFormat("[Class]类型{0}的字段与父类字段重复:{1}", FullName, string.Join(",", repeat));
             if (!DataPath.IsEmpty())
             {
                 string path = Util.GetDataDirAbsPath(DataPath);

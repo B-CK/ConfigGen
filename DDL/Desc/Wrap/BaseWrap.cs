@@ -54,7 +54,8 @@ namespace Desc.Wrap
         }
         protected virtual void Add(string name)
         {
-            _hash.Add(name);
+            if (!_hash.Contains(name))
+                _hash.Add(name);
         }
         protected virtual void Remove(string name)
         {

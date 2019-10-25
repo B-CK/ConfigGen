@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
@@ -52,6 +53,8 @@
             this.InhertLabel = new System.Windows.Forms.Label();
             this._memberList = new System.Windows.Forms.DataGridView();
             this.MemberListLabel = new System.Windows.Forms.Label();
+            this.DataMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._fieldNameLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this._fieldTypeLib = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this._elememtLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -60,6 +63,7 @@
             this._checkerLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this._typeGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._memberList)).BeginInit();
+            this.DataMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // _typeGroupBox
@@ -326,7 +330,7 @@
             dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this._memberList.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
-            this._memberList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this._memberList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this._memberList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this._fieldNameLib,
             this._fieldTypeLib,
@@ -334,6 +338,7 @@
             this._descLib,
             this._fieldGroup,
             this._checkerLib});
+            this._memberList.ContextMenuStrip = this.DataMenuStrip;
             dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             dataGridViewCellStyle3.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -354,6 +359,7 @@
             dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this._memberList.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this._memberList.RowHeadersWidth = 28;
+            this._memberList.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             dataGridViewCellStyle5.ForeColor = System.Drawing.Color.LightGray;
             this._memberList.RowsDefaultCellStyle = dataGridViewCellStyle5;
@@ -361,13 +367,13 @@
             this._memberList.RowTemplate.DefaultCellStyle.ForeColor = System.Drawing.Color.LightGray;
             this._memberList.RowTemplate.Height = 27;
             this._memberList.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this._memberList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this._memberList.Size = new System.Drawing.Size(826, 312);
             this._memberList.TabIndex = 8;
             this._memberList.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.MemberList_CellEndEdit);
             this._memberList.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.MemberList_CellMouseDoubleClick);
             this._memberList.CellMouseMove += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.MemberList_CellMouseMove);
             this._memberList.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.MemberList_RowsAdded);
-            this._memberList.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.MemberList_RowsRemoved);
             this._memberList.DragDrop += new System.Windows.Forms.DragEventHandler(this.MemberList_DragDrop);
             this._memberList.DragEnter += new System.Windows.Forms.DragEventHandler(this.MemberList_DragEnter);
             // 
@@ -382,8 +388,24 @@
             this.MemberListLabel.TabIndex = 9;
             this.MemberListLabel.Text = ">成员列表";
             // 
+            // DataMenuStrip
+            // 
+            this.DataMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.DataMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.DeleteToolStripMenuItem});
+            this.DataMenuStrip.Name = "DataMenuStrip";
+            this.DataMenuStrip.Size = new System.Drawing.Size(154, 28);
+            // 
+            // DeleteToolStripMenuItem
+            // 
+            this.DeleteToolStripMenuItem.Name = "DeleteToolStripMenuItem";
+            this.DeleteToolStripMenuItem.Size = new System.Drawing.Size(153, 24);
+            this.DeleteToolStripMenuItem.Text = "删除选择行";
+            this.DeleteToolStripMenuItem.Click += new System.EventHandler(this.DeleteToolStripMenuItem_Click);
+            // 
             // _fieldNameLib
             // 
+            this._fieldNameLib.FillWeight = 89.54317F;
             this._fieldNameLib.HeaderText = "名称";
             this._fieldNameLib.Name = "_fieldNameLib";
             this._fieldNameLib.Resizable = System.Windows.Forms.DataGridViewTriState.True;
@@ -392,12 +414,13 @@
             // _fieldTypeLib
             // 
             this._fieldTypeLib.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
+            this._fieldTypeLib.FillWeight = 180F;
             this._fieldTypeLib.HeaderText = "类型";
             this._fieldTypeLib.Name = "_fieldTypeLib";
-            this._fieldTypeLib.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             // 
             // _elememtLib
             // 
+            this._elememtLib.FillWeight = 89.54317F;
             this._elememtLib.HeaderText = "值/集合类";
             this._elememtLib.Name = "_elememtLib";
             this._elememtLib.ReadOnly = true;
@@ -406,12 +429,14 @@
             // 
             // _descLib
             // 
+            this._descLib.FillWeight = 89.54317F;
             this._descLib.HeaderText = "描述";
             this._descLib.Name = "_descLib";
             this._descLib.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
             // _fieldGroup
             // 
+            this._fieldGroup.FillWeight = 89.54317F;
             this._fieldGroup.HeaderText = "组";
             this._fieldGroup.Name = "_fieldGroup";
             this._fieldGroup.ReadOnly = true;
@@ -420,6 +445,7 @@
             // 
             // _checkerLib
             // 
+            this._checkerLib.FillWeight = 89.54317F;
             this._checkerLib.HeaderText = "检查条件";
             this._checkerLib.Name = "_checkerLib";
             this._checkerLib.ReadOnly = true;
@@ -440,6 +466,7 @@
             this._typeGroupBox.ResumeLayout(false);
             this._typeGroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this._memberList)).EndInit();
+            this.DataMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -465,6 +492,8 @@
         private System.Windows.Forms.Button _groupButton;
         private System.Windows.Forms.Label MemberListLabel;
         private System.Windows.Forms.DataGridView _memberList;
+        private System.Windows.Forms.ContextMenuStrip DataMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem DeleteToolStripMenuItem;
         private System.Windows.Forms.DataGridViewTextBoxColumn _fieldNameLib;
         private System.Windows.Forms.DataGridViewComboBoxColumn _fieldTypeLib;
         private System.Windows.Forms.DataGridViewTextBoxColumn _elememtLib;

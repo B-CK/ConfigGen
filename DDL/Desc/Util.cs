@@ -179,14 +179,14 @@ namespace Desc
         public static object[] GetKeyTypes()
         {
             List<object> all = new List<object>(KeyTypes);
-            all.AddRange(EnumWrap.Array);
+            all.AddRange(ModuleWrap.Current.Enums.Values);
             return all.ToArray();
         }
         public static object[] GetAllTypes()
         {
             List<object> all = new List<object>(BaseTypes);
-            all.AddRange(ClassWrap.Array);
-            all.AddRange(EnumWrap.Array);
+            all.AddRange(ModuleWrap.Current.Classes.Values);
+            all.AddRange(ModuleWrap.Current.Enums.Values);
 
             return all.ToArray();
         }
@@ -197,14 +197,15 @@ namespace Desc
         public static object[] GetCombTypes()
         {
             List<object> all = new List<object>() { BOOL, INT, LONG, FLOAT, STRING };
-            all.AddRange(ClassWrap.Array);
-            all.AddRange(EnumWrap.Array);
+            all.AddRange(ModuleWrap.Current.Classes.Values);
+            all.AddRange(ModuleWrap.Current.Enums.Values);
 
             return all.ToArray();
         }
         public static bool HasType(string fullName)
         {
-            return BaseHash.Contains(fullName) || ClassWrap.Dict.ContainsKey(fullName) || EnumWrap.Dict.ContainsKey(fullName);
+            return BaseHash.Contains(fullName) || ModuleWrap.Current.Classes.ContainsKey(fullName) 
+                || ModuleWrap.Current.Enums.ContainsKey(fullName);
         }
         public static object FindTypeItem(string fullName, object[] types)
         {
