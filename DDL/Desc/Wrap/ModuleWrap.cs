@@ -40,7 +40,7 @@ namespace Desc.Wrap
             _default.Save(false);
             ResetAllState();
 
-            if (Util.LastRecord.IsEmpty())
+            if (Util.LastRecord.IsEmpty() || !File.Exists(Util.LastRecord))
                 Open(Util.DefaultModule);
             else
                 Open(Util.LastRecord);

@@ -110,7 +110,7 @@ namespace Desc
             set
             {
                 _lastRecord = value;
-                Settings.Default.LastModule = value;
+                Settings.Default.LastModule = _lastRecord;
             }
         }
         /// <summary>
@@ -175,16 +175,20 @@ namespace Desc
         public static readonly HashSet<string> BaseHash = new HashSet<string>(BaseTypes);
 
         private static readonly string[] KeyTypes = new string[] { INT, LONG, STRING };
-       
+
         public static object[] GetKeyTypes()
         {
             List<object> all = new List<object>(KeyTypes);
             all.AddRange(ModuleWrap.Current.Enums.Values);
             return all.ToArray();
         }
-        public static object[] GetAllTypes()
+        public static object[] GetAllTypes(bool excludeSet = false)
         {
-            List<object> all = new List<object>(BaseTypes);
+            List<object> all = null;
+            if (excludeSet)
+                all = new List<object>() { BOOL, INT, LONG, FLOAT, STRING };
+            else
+                all = new List<object>(BaseTypes);
             all.AddRange(ModuleWrap.Current.Classes.Values);
             all.AddRange(ModuleWrap.Current.Enums.Values);
 
@@ -204,7 +208,7 @@ namespace Desc
         }
         public static bool HasType(string fullName)
         {
-            return BaseHash.Contains(fullName) || ModuleWrap.Current.Classes.ContainsKey(fullName) 
+            return BaseHash.Contains(fullName) || ModuleWrap.Current.Classes.ContainsKey(fullName)
                 || ModuleWrap.Current.Enums.ContainsKey(fullName);
         }
         public static object FindTypeItem(string fullName, object[] types)
@@ -253,7 +257,6 @@ namespace Desc
         {
             return string.Format(fmt, args);
         }
-
 
         /// <summary>
         /// Xml文件反序列化
@@ -340,12 +343,12 @@ namespace Desc
         }
         public static string GetDataDirAbsPath(string path)
         {
-            return Format(@"{0}\{1}\{2}", ApplicationDir, _dataDir, path);
+            return Format(@"{0}/{1}/{2}", ApplicationDir, _dataDir, path);
         }
         public static string GetDataDirRelPath(string path)
         {
-            string dir = Format(@"{0}\{1}", ApplicationDir, _dataDir);
-            return path.Replace(dir, @".\");
+            string dir = Format(@"{0}/{1}", ApplicationDir, _dataDir);
+            return path.Replace(dir, @"./");
         }
         public static void TryDeleteDirectory(string path)
         {

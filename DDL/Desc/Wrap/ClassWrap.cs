@@ -64,7 +64,7 @@ namespace Desc.Wrap
             wrap.OnNameChange += OnClassNameChange;
             nsw.AddTypeWrap(wrap, false);
             return wrap;
-        }
+        }      
         private static void OnClassNameChange(BaseWrap wrap, string src)
         {
             if (_dict.ContainsKey(src))
@@ -276,6 +276,7 @@ namespace Desc.Wrap
             for (int i = 0; i < _fields.Count; i++)
                 _fields[i].Dispose();
             _fields.Clear();
+            Namespace = null;
             PoolManager.Ins.Push(this);
         }
     }

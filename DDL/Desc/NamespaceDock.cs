@@ -90,7 +90,7 @@ namespace Desc
                 AddChildNode(wrap.Classes[i]);
             for (int i = 0; i < wrap.Enums.Count; i++)
                 AddChildNode(wrap.Enums[i]);
-        }    
+        }
         private void RemoveRootNode(NamespaceWrap wrap)
         {
             for (int i = 0; i < wrap.Classes.Count; i++)
@@ -130,6 +130,24 @@ namespace Desc
             TreeNode root = _nodeTreeView.Nodes[src];
             root.Text = namespaceWrap.DisplayName;
             root.Name = namespaceWrap.FullName;
+            var classes = namespaceWrap.Classes;
+            for (int i = 0; i < classes.Count; i++)
+            {
+                var cls = classes[i];
+                string key = cls.FullName.Replace(wrap.FullName, src);
+                var node = root.Nodes[key];
+                node.Text = cls.DisplayName;
+                node.Name = cls.FullName;
+            }
+            var enums = namespaceWrap.Enums;
+            for (int i = 0; i < enums.Count; i++)
+            {
+                var enm = enums[i];
+                string key = enm.FullName.Replace(wrap.FullName, src);
+                var node = root.Nodes[key];
+                node.Text = enm.DisplayName;
+                node.Name = enm.FullName;
+            }
         }
         private void OnNodeNameChange(BaseWrap wrap, string src)
         {

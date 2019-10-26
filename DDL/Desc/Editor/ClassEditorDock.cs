@@ -200,9 +200,11 @@ namespace Desc.Editor
         }
         private void OnNamespaceNameChange(NamespaceWrap wrap, string src)
         {
+            var myItem = _namespaceComboBox.SelectedItem;
             var items = _namespaceComboBox.Items;
             items.Remove(wrap);
             items.Add(wrap);
+            _namespaceComboBox.SelectedItem = myItem;
         }
         private void OnTypeNameChange(BaseWrap wrap, string src)
         {
@@ -229,31 +231,20 @@ namespace Desc.Editor
             if (row == null) row = new DataGridViewRow();
             string type = field.Type;
             string element = field.Value;
-            string[] nodes = field.Type.Split(Util.ArgsSplitFlag);
-            switch (nodes.Length)
+            if (field.Type != Util.LIST && field.Type != Util.DICT)
             {
-                case 1:
-                    if (Util.BaseHash.Contains(field.Type) || EnumWrap.Dict.ContainsKey(field.Type))
-                        row.CreateCells(_memberList, field.Name, field.Type, field.Value, field.Desc, field.Checker);
-                    else if (ClassWrap.Dict.ContainsKey(field.Type))
-                    {
-                        element = "";
-                        row.CreateCells(_memberList, field.Name, field.Type, element, field.Desc, field.Checker);
-                    }
-                    break;
-                case 2:
-                    type = nodes[0];
-                    element = nodes[1];
-                    row.CreateCells(_memberList, field.Name, type, element, field.Desc, field.Checker);
-                    break;
-                case 3:
-                    type = nodes[0];
-                    element = $"{nodes[1]}:{nodes[2]}";
-                    row.CreateCells(_memberList, field.Name, type, element, field.Desc, field.Checker);
-                    break;
-                default:
-                    Debug.LogErrorFormat("未知类型:{0}", field.Type);
-                    break;
+                if (Util.BaseHash.Contains(field.Type) || EnumWrap.Dict.ContainsKey(field.Type))
+                    row.CreateCells(_memberList, field.Name, field.Type, field.Value, field.Desc, field.Checker);
+                else if (ClassWrap.Dict.ContainsKey(field.Type))
+                {
+                    element = "";
+                    row.CreateCells(_memberList, field.Name, field.Type, element, field.Desc, field.Checker);
+                }
+                element = "##";
+            }
+            else
+            {
+                row.CreateCells(_memberList, field.Name, field.Type, field.Value, field.Desc, field.Checker);
             }
             row.Cells[1].Value = type;
             row.Cells[2].Value = element;
@@ -269,64 +260,83 @@ namespace Desc.Editor
         }
         protected void SaveField(FieldWrap field, DataGridViewCellCollection cells)
         {
-            field.Name = cells[0].Value == null ? string.Empty : cells[0].Value as string;
-            field.Type = cells[1].Value == null ? Util.BOOL : cells[1].Value as string;
-            if (ClassWrap.Dict.ContainsKey(field.Type))
+            var name = cells[_fieldNameLib.DisplayIndex].Value;
+            var type = cells[_fieldTypeLib.DisplayIndex].Value;
+            var value = cells[_elememtLib.DisplayIndex].Value;
+            var desc = cells[_descLib.DisplayIndex].Value;
+            var group = cells[_fieldGroup.DisplayIndex].Value;
+            var checker = cells[_checkerLib.DisplayIndex].Value;
+
+            field.Name = name == null ? string.Empty : name as string;
+            field.Type = type == null ? Util.BOOL : type as string;
+            if (field.Type != Util.LIST && field.Type != Util.DICT)
                 field.Value = string.Empty;
             else
-                field.Value = cells[2].Value == null ? string.Empty : cells[2].Value as string;
-            field.Desc = cells[3].Value == null ? string.Empty : cells[3].Value as string;
-            field.Group = cells[4].Value == null ? string.Empty : cells[4].Value as string;
-            field.Checker = cells[5].Value == null ? string.Empty : cells[5].Value as string;
+                field.Value = value == null ? string.Empty : value as string;
+            field.Desc = desc == null ? string.Empty : desc as string;
+            field.Group = group == null ? string.Empty : group as string;
+            field.Checker = checker == null ? string.Empty : checker as string;
         }
         private void MemberList_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            if (!_isInit) return;
+            if (!_isInit || e.RowIndex < 0) return;
+
+            var cls = GetWrap<ClassWrap>();
+            var list = sender as DataGridView;
+            var row = list.Rows[e.RowIndex];
+            var cell = row.Cells[e.ColumnIndex];
+            if (row.Tag == null)
+                row.Tag = FieldWrap.Create(UnqueName, GetWrap<ClassWrap>());
+            var field = row.Tag as FieldWrap;
             //字段名称/类型改变
-            if (e.ColumnIndex == 0 || e.ColumnIndex == 2)
+            switch (e.ColumnIndex)
             {
-                var cls = GetWrap<ClassWrap>();
-                var list = sender as DataGridView;
-                var row = list.Rows[e.RowIndex];
-                var cell = row.Cells[e.ColumnIndex];
-                if (row.Tag == null)
-                    row.Tag = FieldWrap.Create(UnqueName, GetWrap<ClassWrap>());
-                var field = row.Tag as FieldWrap;
-                switch (e.ColumnIndex)
-                {
-                    case 0:
-                        string fieldName = cell.Value as string;
-                        if (ContainMember(fieldName))
-                        {
-                            Util.MsgWarning("字段名重复:{0}", field.Name);
-                            cell.Value = field.Name;
-                            return;
-                        }
-                        var typeCell = row.Cells[1];
-                        var type = typeCell.Value as string;
-                        if (type.IsEmpty())
-                            typeCell.Value = Util.BOOL;
-                        break;
-                    case 2:
-                        //field.Type = cell.Value as string;
-                        break;
-                }
-                var items = _indexComboBox.Items;
-                if (SurportIndexKey(field.Type))
-                {
-                    items.Remove(field);
-                    items.Add(field);
-                }
-                else
-                {
-                    items.Remove(field);
-                }
+                case 0:
+                    string fieldName = cell.Value as string;
+                    if (ContainMember(fieldName))
+                    {
+                        Util.MsgWarning("字段名重复:{0}", field.Name);
+                        cell.Value = field.Name;
+                        return;
+                    }
+                    var typeCell = row.Cells[_fieldNameLib.DisplayIndex];
+                    var type = typeCell.Value as string;
+                    if (type.IsEmpty())
+                        typeCell.Value = Util.BOOL;
+                    var items = _indexComboBox.Items;
+                    if (SurportIndexKey(field.Type))
+                    {
+                        items.Remove(field);
+                        items.Add(field);
+                    }
+                    else
+                    {
+                        items.Remove(field);
+                    }
+                    break;
+                case 1:
+                    string fieldType = cell.Value as string;
+                    if (fieldType != Util.LIST && fieldType != Util.DICT)
+                        row.Cells[_elememtLib.DisplayIndex].Value = "##";
+                    else
+                        row.Cells[_elememtLib.DisplayIndex].Value = "";
+                    break;
+                default:
+                    break;
             }
             OnValueChange();
         }
         private void MemberList_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            Debug.Log($"[DoubleClick]:Row:{e.RowIndex}\tCol:{e.ColumnIndex}");
+            if (e.RowIndex < 0) return;
+            var row = _memberList.Rows[e.RowIndex];
+            if (e.ColumnIndex == _elememtLib.DisplayIndex && !row.IsNewRow && !row.ReadOnly)
+            {
+                var cells = row.Cells;
+                var type = cells[_fieldTypeLib.DisplayIndex].Value as string;
+                if (type == Util.LIST || type == Util.DICT)
+                    ElementEditor.Ins.Show(cells, e.ColumnIndex, type, OnValueChange);
+            }
         }
         //--DataGridView拖拽功能
         private void MemberList_DragEnter(object sender, DragEventArgs e)
@@ -480,6 +490,7 @@ namespace Desc.Editor
             if (removes.Count > 0)
                 OnValueChange();
         }
+
         #endregion
     }
 }

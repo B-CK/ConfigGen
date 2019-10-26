@@ -93,8 +93,23 @@ namespace Desc.Wrap
         {
             if (_dict.ContainsKey(src))
             {
+                var nsw = wrap as NamespaceWrap;
                 _dict.Remove(src);
-                _dict.Add(wrap.FullName, wrap as NamespaceWrap);
+                _dict.Add(nsw.FullName, nsw);
+                for (int i = 0; i < nsw._classes.Count; i++)
+                {
+                    var cls = nsw._classes[i];
+                    string key = cls.FullName.Replace(wrap.FullName, src);
+                    ClassWrap.Dict.Remove(key);
+                    ClassWrap.Dict.Add(cls.FullName, cls);
+                }
+                for (int i = 0; i < nsw._enums.Count; i++)
+                {
+                    var enm = nsw._enums[i];
+                    string key = enm.FullName.Replace(wrap.FullName, src);
+                    EnumWrap.Dict.Remove(key);
+                    EnumWrap.Dict.Add(enm.FullName, enm);
+                }
             }
             else
             {
@@ -122,7 +137,7 @@ namespace Desc.Wrap
                 {
                     string desc = _xml.Desc;
                     _xml.Desc = value;
-                    OnDescChange?.Invoke(this, desc);
+                    OnDescChange?.Invoke(this, FullName);
                 }
             }
         }
@@ -134,7 +149,7 @@ namespace Desc.Wrap
                 if (Desc.IsEmpty())
                     return FullName;
                 else
-                    return Util.Format("{0}:{1}", FullName, Desc);
+                    return $"{FullName}:{Desc}";
             }
         }
         private List<ClassWrap> _classes;
@@ -159,10 +174,16 @@ namespace Desc.Wrap
 
             var xclasses = _xml.Classes;
             for (int i = 0; i < xclasses.Count; i++)
-                ClassWrap.Create(xclasses[i], this);
+            {
+                var cls = ClassWrap.Create(xclasses[i], this);
+                cls.OnNameChange += OnTypeNameChange;
+            }
             var xenums = _xml.Enums;
             for (int i = 0; i < xenums.Count; i++)
-                EnumWrap.Create(xenums[i], this);
+            {
+                var enm = EnumWrap.Create(xenums[i], this);
+                enm.OnNameChange += OnTypeNameChange;
+            }
 
             _dict.Add(FullName, this);
             _isDirty = false;
@@ -173,6 +194,7 @@ namespace Desc.Wrap
             {
                 wrap.SetNodeState(NodeState | NodeState.Modify);
                 SetDirty();
+                wrap.OnNameChange += OnTypeNameChange;
             }
 
             wrap.Namespace = this;
@@ -193,7 +215,6 @@ namespace Desc.Wrap
             else if (wrap is EnumWrap)
                 _enums.Remove(wrap as EnumWrap);
             OnRemoveType?.Invoke(wrap);
-            wrap.Namespace = null;
             wrap.Dispose();
         }
         public void SetDirty()
@@ -303,6 +324,14 @@ namespace Desc.Wrap
             _classes.Clear();
             _enums.Clear();
             PoolManager.Ins.Push(this);
+        }
+
+        private void OnTypeNameChange(BaseWrap wrap, string src)
+        {
+            var typeWrap = wrap as TypeWrap;
+            int length = typeWrap.Namespace.Name.Length + 1;
+            Remove(src.Substring(length));
+            Add(wrap.Name);
         }
     }
 }

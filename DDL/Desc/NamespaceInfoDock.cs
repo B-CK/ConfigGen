@@ -38,38 +38,18 @@ namespace Desc
             _descTextBox.Text = wrap.Desc;
             ShowDialog();
         }
-
+       
         private void OkButton_Click(object sender, EventArgs e)
         {
             if (!Util.CheckName(_nameTextBox.Text)) return;
-            if (NamespaceWrap.Dict.ContainsKey(_nameTextBox.Text))
+            if (_nameTextBox.Text != _wrap.Name && NamespaceWrap.Dict.ContainsKey(_nameTextBox.Text))
             {
                 Util.MsgWarning("在当前模块/默认模块中已经存在{0}根节点!", _nameTextBox.Text);
                 return;
             }
-            ModuleWrap.Default.RemoveImport(_wrap);
-            if (ModuleWrap.Default != ModuleWrap.Current)
-                ModuleWrap.Current.RemoveImport(_wrap);
-            NamespaceWrap.Dict.Remove(_wrap.FullName);
-            var classes = _wrap.Classes;
-            var enums = _wrap.Enums;
-            for (int i = 0; i < classes.Count; i++)
-                ClassWrap.Dict.Remove(classes[i].FullName);
-            for (int i = 0; i < enums.Count; i++)
-                EnumWrap.Dict.Remove(enums[i].FullName);
-
-            string src = _wrap.FullName;
             _wrap.Name = _nameTextBox.Text;
             _wrap.Desc = _descTextBox.Text;
             _wrap.SetDirty();
-            ModuleWrap.Default.AddImport(_wrap);
-            if (ModuleWrap.Default != ModuleWrap.Current)
-                ModuleWrap.Current.AddImport(_wrap);
-            NamespaceWrap.Dict.Add(_wrap.FullName, _wrap);
-            for (int i = 0; i < classes.Count; i++)
-                ClassWrap.Dict.Add(classes[i].FullName, classes[i]);
-            for (int i = 0; i < enums.Count; i++)
-                EnumWrap.Dict.Add(enums[i].FullName, enums[i]);
 
             Close();
         }

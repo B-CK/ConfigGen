@@ -52,15 +52,15 @@
             this.IndexLabel = new System.Windows.Forms.Label();
             this.InhertLabel = new System.Windows.Forms.Label();
             this._memberList = new System.Windows.Forms.DataGridView();
-            this.MemberListLabel = new System.Windows.Forms.Label();
-            this.DataMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._fieldNameLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this._fieldTypeLib = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this._elememtLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this._descLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this._fieldGroup = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this._checkerLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DataMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.MemberListLabel = new System.Windows.Forms.Label();
             this._typeGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._memberList)).BeginInit();
             this.DataMenuStrip.SuspendLayout();
@@ -311,6 +311,7 @@
             // _memberList
             // 
             this._memberList.AllowDrop = true;
+            this._memberList.AllowUserToDeleteRows = false;
             dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             dataGridViewCellStyle1.ForeColor = System.Drawing.Color.LightGray;
             this._memberList.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
@@ -377,32 +378,6 @@
             this._memberList.DragDrop += new System.Windows.Forms.DragEventHandler(this.MemberList_DragDrop);
             this._memberList.DragEnter += new System.Windows.Forms.DragEventHandler(this.MemberList_DragEnter);
             // 
-            // MemberListLabel
-            // 
-            this.MemberListLabel.AutoSize = true;
-            this.MemberListLabel.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold);
-            this.MemberListLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.MemberListLabel.Location = new System.Drawing.Point(5, 259);
-            this.MemberListLabel.Name = "MemberListLabel";
-            this.MemberListLabel.Size = new System.Drawing.Size(90, 17);
-            this.MemberListLabel.TabIndex = 9;
-            this.MemberListLabel.Text = ">成员列表";
-            // 
-            // DataMenuStrip
-            // 
-            this.DataMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.DataMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.DeleteToolStripMenuItem});
-            this.DataMenuStrip.Name = "DataMenuStrip";
-            this.DataMenuStrip.Size = new System.Drawing.Size(154, 28);
-            // 
-            // DeleteToolStripMenuItem
-            // 
-            this.DeleteToolStripMenuItem.Name = "DeleteToolStripMenuItem";
-            this.DeleteToolStripMenuItem.Size = new System.Drawing.Size(153, 24);
-            this.DeleteToolStripMenuItem.Text = "删除选择行";
-            this.DeleteToolStripMenuItem.Click += new System.EventHandler(this.DeleteToolStripMenuItem_Click);
-            // 
             // _fieldNameLib
             // 
             this._fieldNameLib.FillWeight = 89.54317F;
@@ -421,7 +396,7 @@
             // _elememtLib
             // 
             this._elememtLib.FillWeight = 89.54317F;
-            this._elememtLib.HeaderText = "值/集合类";
+            this._elememtLib.HeaderText = "复合类型";
             this._elememtLib.Name = "_elememtLib";
             this._elememtLib.ReadOnly = true;
             this._elememtLib.Resizable = System.Windows.Forms.DataGridViewTriState.True;
@@ -451,6 +426,32 @@
             this._checkerLib.ReadOnly = true;
             this._checkerLib.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this._checkerLib.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // DataMenuStrip
+            // 
+            this.DataMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.DataMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.DeleteToolStripMenuItem});
+            this.DataMenuStrip.Name = "DataMenuStrip";
+            this.DataMenuStrip.Size = new System.Drawing.Size(154, 28);
+            // 
+            // DeleteToolStripMenuItem
+            // 
+            this.DeleteToolStripMenuItem.Name = "DeleteToolStripMenuItem";
+            this.DeleteToolStripMenuItem.Size = new System.Drawing.Size(153, 24);
+            this.DeleteToolStripMenuItem.Text = "删除选择行";
+            this.DeleteToolStripMenuItem.Click += new System.EventHandler(this.DeleteToolStripMenuItem_Click);
+            // 
+            // MemberListLabel
+            // 
+            this.MemberListLabel.AutoSize = true;
+            this.MemberListLabel.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold);
+            this.MemberListLabel.ForeColor = System.Drawing.Color.LightGray;
+            this.MemberListLabel.Location = new System.Drawing.Point(5, 259);
+            this.MemberListLabel.Name = "MemberListLabel";
+            this.MemberListLabel.Size = new System.Drawing.Size(90, 17);
+            this.MemberListLabel.TabIndex = 9;
+            this.MemberListLabel.Text = ">成员列表";
             // 
             // ClassEditorDock
             // 

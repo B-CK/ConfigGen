@@ -60,6 +60,12 @@
     <Compile Include="Editor\EditorDock.Designer.cs">
       <DependentUpon>EditorDock.cs</DependentUpon>
     </Compile>
+    <Compile Include="Editor\ElementEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Editor\ElementEditor.Designer.cs">
+      <DependentUpon>ElementEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Editor\EnumEditorDock.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -90,10 +96,10 @@
     <Compile Include="Editor\MemberEditor.Designer.cs">
       <DependentUpon>MemberEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="GridWindow.cs">
+    <Compile Include="Test\GridWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GridWindow.Designer.cs">
+    <Compile Include="Test\GridWindow.Designer.cs">
       <DependentUpon>GridWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="HotKey.cs" />
@@ -175,6 +181,9 @@
     <EmbeddedResource Include="Editor\EditorDock.resx">
       <DependentUpon>EditorDock.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Editor\ElementEditor.resx">
+      <DependentUpon>ElementEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Editor\EnumEditorDock.resx">
       <DependentUpon>EnumEditorDock.cs</DependentUpon>
     </EmbeddedResource>
@@ -187,7 +196,7 @@
     <EmbeddedResource Include="Editor\GroupDock.resx">
       <DependentUpon>GroupDock.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="GridWindow.resx">
+    <EmbeddedResource Include="Test\GridWindow.resx">
       <DependentUpon>GridWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
