@@ -82,10 +82,6 @@ namespace Desc.Wrap
             return wrap.Xml;
         }
 
-        /// <summary>
-        /// 类型信息改变
-        /// </summary>
-        public Action<ClassWrap> OnWrapChange;
 
         /// <summary>
         /// 父类
@@ -160,12 +156,7 @@ namespace Desc.Wrap
             _fields.Remove(wrap);
             Xml.Fields.Remove(wrap);
             wrap.Dispose();
-        }
-
-        public void OnSave()
-        {
-            OnWrapChange?.Invoke(this);
-        }
+        }       
 
         ///// <summary>
         ///// 保存时(数据有修改),调整xml中字段顺序

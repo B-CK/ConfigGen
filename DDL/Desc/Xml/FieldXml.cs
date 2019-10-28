@@ -20,6 +20,11 @@ namespace Desc.Xml
         public string Type;
         //[XmlAttribute]
         //public bool IsConst;
+
+        /// <summary>
+        /// List<T>:T类型
+        /// Dict<K,V>:K:V类型
+        /// </summary>
         [XmlAttribute]
         public string Value;
         [XmlAttribute]

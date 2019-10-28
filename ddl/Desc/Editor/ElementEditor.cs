@@ -48,7 +48,7 @@ namespace Desc.Editor
                 _typeComboBox2.Visible = false;
                 var items = _typeComboBox1.Items;
                 items.Clear();
-                items.AddRange(Util.GetAllTypes(true));
+                items.AddRange(Util.GetCombTypes());
                 var i = items.IndexOf(types.Trim());
                 _typeComboBox1.SelectedIndex = i;
             }
@@ -62,7 +62,7 @@ namespace Desc.Editor
                 items.AddRange(Util.GetKeyTypes());
                 items = _typeComboBox2.Items;
                 items.Clear();
-                items.AddRange(Util.GetAllTypes(true));
+                items.AddRange(Util.GetCombTypes());
 
                 string[] nodes = types.Split(Util.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
                 if (nodes != null && nodes.Length == 2)

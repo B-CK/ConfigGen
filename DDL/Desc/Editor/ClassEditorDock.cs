@@ -155,7 +155,7 @@ namespace Desc.Editor
             cls.OnSave();
         }
 
-        private void OnParentChange(ClassWrap inherit)
+        private void OnParentChange(TypeWrap inherit)
         {
             var removes = new List<DataGridViewRow>();
             var rows = _memberList.Rows;
@@ -187,34 +187,66 @@ namespace Desc.Editor
         }
         private void OnAddAnyType(TypeWrap wrap)
         {
-            _inheritComboBox.Items.Add(wrap);
-            _fieldTypeLib.Items.Add(wrap);
+            _inheritComboBox.Items.Add(wrap.FullName);
+            _fieldTypeLib.Items.Add(wrap.FullName);
         }
         private void OnRemoveAnyType(TypeWrap wrap)
         {
-            if (wrap == _wrap)
-                return;
-
-            _inheritComboBox.Items.Remove(wrap);
-            _fieldTypeLib.Items.Remove(wrap);
+            _inheritComboBox.Items.Remove(wrap.FullName);
+            _fieldTypeLib.Items.Remove(wrap.FullName);
         }
         private void OnNamespaceNameChange(NamespaceWrap wrap, string src)
         {
+            //修改命名空间列表
             var myItem = _namespaceComboBox.SelectedItem;
             var items = _namespaceComboBox.Items;
             items.Remove(wrap);
             items.Add(wrap);
             _namespaceComboBox.SelectedItem = myItem;
+
+            //修改继承类列表|字段类型列表
+            var classes = wrap.Classes;
+            for (int i = 0; i < classes.Count; i++)
+            {
+                var cls = classes[i];
+                string srcFullName = $"{src}.{cls.Name}";
+                OnTypeNameChange(cls, srcFullName);
+            }
         }
         private void OnTypeNameChange(BaseWrap wrap, string src)
         {
-            if (wrap == _wrap) return;
+            //名称修改时排除触发自己
+            if (wrap == _wrap)
+            {
+                UpdateDock(src);
+                return;
+            }
 
-            var items = _inheritComboBox.Items;
-            items.Remove(wrap);
-            items.Add(wrap);
-            string srcFullName = wrap.FullName.Replace(wrap.Name, src);
-            UpdateDock(srcFullName);
+            if (wrap is ClassWrap)
+            {
+                //修改继承类列表
+                var srcInherit = _inheritComboBox.SelectedItem;
+                var inherits = _inheritComboBox.Items;
+                inherits.Remove(wrap);
+                inherits.Add(wrap);
+                _inheritComboBox.SelectedItem = srcInherit;
+            }
+
+            //修改字段类型列表
+            var fTypes = _fieldTypeLib.Items;
+            fTypes.Add(wrap.FullName);
+            var rows = _memberList.Rows;
+            for (int i = 0; i < rows.Count; i++)
+            {
+                if (rows[i].IsNewRow || rows[i].ReadOnly) continue;
+
+                var cells = rows[i].Cells;
+                var type = cells[_fieldTypeLib.DisplayIndex].Value as string;
+                if (type == src)
+                    cells[_fieldTypeLib.DisplayIndex].Value = wrap.FullName;
+            }
+            fTypes.Remove(src);
+            OnValueChange();
         }
         /// <summary>
         /// 键所支持的类型
@@ -224,30 +256,22 @@ namespace Desc.Editor
             return type == Util.INT || type == Util.LONG || type == Util.STRING || EnumWrap.Dict.ContainsKey(type);
         }
 
-        #region 字段初始化
+        #region 字段设置
         protected DataGridViewRow InitField(FieldWrap field, bool isHerit = false)
         {
             var row = PoolManager.Ins.Pop<DataGridViewRow>();
             if (row == null) row = new DataGridViewRow();
             string type = field.Type;
-            string element = field.Value;
-            if (field.Type != Util.LIST && field.Type != Util.DICT)
+            string group = field.Group ?? Util.DefaultGroup;
+            if (type != Util.LIST && type != Util.DICT)
             {
-                if (Util.BaseHash.Contains(field.Type) || EnumWrap.Dict.ContainsKey(field.Type))
-                    row.CreateCells(_memberList, field.Name, field.Type, field.Value, field.Desc, field.Checker);
-                else if (ClassWrap.Dict.ContainsKey(field.Type))
-                {
-                    element = "";
-                    row.CreateCells(_memberList, field.Name, field.Type, element, field.Desc, field.Checker);
-                }
-                element = "##";
+                if (Util.HasType(type))
+                    row.CreateCells(_memberList, field.Name, type, "##", field.Desc, group, field.Checker);
+                else
+                    row.CreateCells(_memberList, field.Name, null, "##", field.Desc, group, field.Checker);
             }
             else
-            {
-                row.CreateCells(_memberList, field.Name, field.Type, field.Value, field.Desc, field.Checker);
-            }
-            row.Cells[1].Value = type;
-            row.Cells[2].Value = element;
+                row.CreateCells(_memberList, field.Name, type, field.Value, field.Desc, group, field.Checker);
             row.Tag = field;
             row.ReadOnly = isHerit;
             for (int i = 0; i < row.Cells.Count; i++)
@@ -264,7 +288,7 @@ namespace Desc.Editor
             var type = cells[_fieldTypeLib.DisplayIndex].Value;
             var value = cells[_elememtLib.DisplayIndex].Value;
             var desc = cells[_descLib.DisplayIndex].Value;
-            var group = cells[_fieldGroup.DisplayIndex].Value;
+            var group = cells[_fieldGroupLib.DisplayIndex].Value;
             var checker = cells[_checkerLib.DisplayIndex].Value;
 
             field.Name = name == null ? string.Empty : name as string;
@@ -286,7 +310,7 @@ namespace Desc.Editor
             var row = list.Rows[e.RowIndex];
             var cell = row.Cells[e.ColumnIndex];
             if (row.Tag == null)
-                row.Tag = FieldWrap.Create(UnqueName, GetWrap<ClassWrap>());
+                row.Tag = FieldWrap.Create(UnqueName, cls);
             var field = row.Tag as FieldWrap;
             //字段名称/类型改变
             switch (e.ColumnIndex)
@@ -299,20 +323,6 @@ namespace Desc.Editor
                         cell.Value = field.Name;
                         return;
                     }
-                    var typeCell = row.Cells[_fieldNameLib.DisplayIndex];
-                    var type = typeCell.Value as string;
-                    if (type.IsEmpty())
-                        typeCell.Value = Util.BOOL;
-                    var items = _indexComboBox.Items;
-                    if (SurportIndexKey(field.Type))
-                    {
-                        items.Remove(field);
-                        items.Add(field);
-                    }
-                    else
-                    {
-                        items.Remove(field);
-                    }
                     break;
                 case 1:
                     string fieldType = cell.Value as string;
@@ -324,18 +334,46 @@ namespace Desc.Editor
                 default:
                     break;
             }
+
+            var typeCell = row.Cells[_fieldNameLib.DisplayIndex];
+            var type = typeCell.Value as string;
+            if (type.IsEmpty())
+                typeCell.Value = Util.BOOL;
+            var items = _indexComboBox.Items;
+            if (SurportIndexKey(field.Type))
+            {
+                items.Remove(field);
+                items.Add(field);
+            }
+            else
+                items.Remove(field);
+            if (field.Type.IsEmpty())
+            {
+                var groupCell = row.Cells[_fieldGroupLib.DisplayIndex];
+                var group = groupCell.Value as string;
+                if (group.IsEmpty())
+                    groupCell.Value = Util.DefaultGroup;
+            }
             OnValueChange();
         }
+        //修改集合包含类型|字段组信息
         private void MemberList_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.RowIndex < 0) return;
             var row = _memberList.Rows[e.RowIndex];
-            if (e.ColumnIndex == _elememtLib.DisplayIndex && !row.IsNewRow && !row.ReadOnly)
+            if (row.IsNewRow && row.ReadOnly) return;
+
+            var cells = row.Cells;
+            if (e.ColumnIndex == _elememtLib.DisplayIndex)
             {
-                var cells = row.Cells;
                 var type = cells[_fieldTypeLib.DisplayIndex].Value as string;
                 if (type == Util.LIST || type == Util.DICT)
                     ElementEditor.Ins.Show(cells, e.ColumnIndex, type, OnValueChange);
+            }
+            else if (e.ColumnIndex == _fieldGroupLib.DisplayIndex)
+            {
+                var groups = cells[_fieldGroupLib.DisplayIndex].Value as string;
+                GroupDock.Ins.ShowGroups(groups, (gs) => cells[_fieldGroupLib.DisplayIndex].Value = gs);
             }
         }
         //--DataGridView拖拽功能
@@ -417,6 +455,10 @@ namespace Desc.Editor
                 nameBox.Text = cls.Name;
             }
         }
+        private void GroupButton_Click(object sender, EventArgs e)
+        {
+            GroupDock.Ins.ShowGroups(_groupTextBox.Text, (gs) => _groupTextBox.Text = gs);
+        }
         private void OnInheritChange(object sender, EventArgs e)
         {
             if (!IsInit) return;
@@ -438,10 +480,6 @@ namespace Desc.Editor
                 OnParentChange(_inherit);
             }
             OnValueChange();
-        }
-        private void GroupButton_Click(object sender, EventArgs e)
-        {
-            GroupDock.Ins.ShowGroups(_groupTextBox);
         }
         private void OnDataPathChange(object sender, EventArgs e)
         {
@@ -494,41 +532,3 @@ namespace Desc.Editor
         #endregion
     }
 }
-
-//保存时,更新类字段信息
-//Dictionary<string, FieldWrap> dict = new Dictionary<string, FieldWrap>();
-//var rows = _memberList.Rows;
-//for (int i = 0; i < rows.Count; i++)
-//{
-//    if (rows[i].IsNewRow || rows[i].ReadOnly)
-//        continue;
-
-//    var field = rows[i].Tag as FieldWrap;
-//    SaveField(field, rows[i].Cells);
-//    dict.Add(field.Name, field);
-//}
-//HashSet<string> hash = new HashSet<string>();
-//var fields = cls.Fields;
-//for (int i = 0; i < fields.Count; i++)
-//{
-//    var field = fields[i];
-//    if (!dict.ContainsKey(field.Name))
-//        cls.RemoveField(field);
-//    else
-//    {
-//        fields[i] = dict[field.Name];
-//        hash.Add(fields[i].Name);
-//    }
-//}
-//List<FieldWrap> list = new List<FieldWrap>();
-//for (int i = 0; i < rows.Count; i++)
-//{
-//    if (rows[i].IsNewRow || rows[i].ReadOnly)
-//        continue;
-
-//    var field = rows[i].Tag as FieldWrap;
-//    if (!hash.Contains(field.Name))
-//        cls.AddField(field);
-//    list.Add(field);
-//}
-//cls.ResortField(list);

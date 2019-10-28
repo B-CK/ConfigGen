@@ -82,26 +82,25 @@ namespace Desc.Wrap
         public override bool Check()
         {
             bool r = base.Check();
-            string[] nodes = Type.Split(Util.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
-            switch (nodes.Length)
+            r &= CheckType(Type);
+            if (Type == Util.LIST || Type == Util.DICT)
             {
-                case 1:
-                    r &= CheckType(nodes[0]);
-                    break;
-                case 2:
-                    r &= CheckType(nodes[0]);
-                    r &= CheckType(nodes[1], true);
-                    break;
-                case 3:
-                    r &= CheckType(nodes[0]);
-                    r &= CheckType(nodes[1], true);
-                    r &= CheckType(nodes[2], true);
-                    break;
-                case 0:
-                default:
-                    r = false;
-                    Debug.LogErrorFormat("[Class]类型{0}中字段{1}的类型异常[{2}]", _cls.FullName, _name, Type);
-                    break;
+                string[] nodes = Value.Split(Util.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
+                switch (nodes.Length)
+                {
+                    case 1:
+                        r &= CheckType(nodes[0]);
+                        break;
+                    case 2:
+                        r &= CheckType(nodes[0], true);
+                        r &= CheckType(nodes[1], true);
+                        break;
+                    case 0:
+                    default:
+                        r = false;
+                        Debug.LogErrorFormat("[Class]类型{0}中字段{1}的类型异常[{2}]", _cls.FullName, _name, Type);
+                        break;
+                }
             }
             return r;
         }
@@ -110,14 +109,6 @@ namespace Desc.Wrap
             bool isOK = Util.HasType(type);
             if (isOK == false)
                 Debug.LogErrorFormat("[Class]类型{0}中字段{1}的类型异常[{2}]![{3}]类型不存在.", _cls.FullName, _name, Type, type);
-            if (EnumWrap.Dict.ContainsKey(type) && !isSubType)
-            {
-                var enm = EnumWrap.Dict[type];
-                var c = enm.Contains(Value);
-                if (c == false)
-                    Debug.LogErrorFormat("[Class]类型{0}中字段{1}的枚举值{2}.[{3}]不存在!.", _cls.FullName, _name, Type, Value);
-                isOK &= c;
-            }
             if (!Util.BaseHash.Contains(type))
             {
                 bool d = ModuleWrap.Current.Classes.ContainsKey(type)

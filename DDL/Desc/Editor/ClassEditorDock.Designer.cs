@@ -56,7 +56,7 @@
             this._fieldTypeLib = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this._elememtLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this._descLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this._fieldGroup = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this._fieldGroupLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this._checkerLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DataMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -337,7 +337,7 @@
             this._fieldTypeLib,
             this._elememtLib,
             this._descLib,
-            this._fieldGroup,
+            this._fieldGroupLib,
             this._checkerLib});
             this._memberList.ContextMenuStrip = this.DataMenuStrip;
             dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
@@ -369,6 +369,7 @@
             this._memberList.RowTemplate.Height = 27;
             this._memberList.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this._memberList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this._memberList.ShowCellErrors = false;
             this._memberList.Size = new System.Drawing.Size(826, 312);
             this._memberList.TabIndex = 8;
             this._memberList.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.MemberList_CellEndEdit);
@@ -409,14 +410,14 @@
             this._descLib.Name = "_descLib";
             this._descLib.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
-            // _fieldGroup
+            // _fieldGroupLib
             // 
-            this._fieldGroup.FillWeight = 89.54317F;
-            this._fieldGroup.HeaderText = "组";
-            this._fieldGroup.Name = "_fieldGroup";
-            this._fieldGroup.ReadOnly = true;
-            this._fieldGroup.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this._fieldGroup.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this._fieldGroupLib.FillWeight = 89.54317F;
+            this._fieldGroupLib.HeaderText = "组";
+            this._fieldGroupLib.Name = "_fieldGroupLib";
+            this._fieldGroupLib.ReadOnly = true;
+            this._fieldGroupLib.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this._fieldGroupLib.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
             // _checkerLib
             // 
@@ -499,7 +500,7 @@
         private System.Windows.Forms.DataGridViewComboBoxColumn _fieldTypeLib;
         private System.Windows.Forms.DataGridViewTextBoxColumn _elememtLib;
         private System.Windows.Forms.DataGridViewTextBoxColumn _descLib;
-        private System.Windows.Forms.DataGridViewTextBoxColumn _fieldGroup;
+        private System.Windows.Forms.DataGridViewTextBoxColumn _fieldGroupLib;
         private System.Windows.Forms.DataGridViewTextBoxColumn _checkerLib;
     }
 }

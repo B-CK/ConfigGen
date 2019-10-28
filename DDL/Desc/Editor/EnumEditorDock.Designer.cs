@@ -29,6 +29,11 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             this._typeGroupBox = new System.Windows.Forms.GroupBox();
             this._namespaceComboBox = new System.Windows.Forms.ComboBox();
             this.NameLabel = new System.Windows.Forms.Label();
@@ -40,24 +45,18 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this._nameTextBox = new System.Windows.Forms.TextBox();
-            this.MemberGroupBox = new System.Windows.Forms.GroupBox();
-            this.MemberSplitContainer = new System.Windows.Forms.SplitContainer();
-            this._memberListBox = new System.Windows.Forms.ListBox();
-            this._memberMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.AddMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.RemoveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this._memPictureBox = new System.Windows.Forms.PictureBox();
-            this._memFilterBox = new System.Windows.Forms.TextBox();
-            this._spliter = new System.Windows.Forms.PictureBox();
+            this.MemberListLabel = new System.Windows.Forms.Label();
+            this._memberList = new System.Windows.Forms.DataGridView();
+            this._fieldNameLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this._fieldAliasLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this._fieldValueLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this._fieldDescLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this._fieldGroupLib = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DataMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._typeGroupBox.SuspendLayout();
-            this.MemberGroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.MemberSplitContainer)).BeginInit();
-            this.MemberSplitContainer.Panel1.SuspendLayout();
-            this.MemberSplitContainer.Panel2.SuspendLayout();
-            this.MemberSplitContainer.SuspendLayout();
-            this._memberMenu.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this._memPictureBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this._spliter)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._memberList)).BeginInit();
+            this.DataMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // _typeGroupBox
@@ -210,144 +209,155 @@
             this._nameTextBox.TabIndex = 2;
             this._nameTextBox.TextChanged += new System.EventHandler(this.OnNameValueChange);
             // 
-            // MemberGroupBox
+            // MemberListLabel
             // 
-            this.MemberGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.MemberListLabel.AutoSize = true;
+            this.MemberListLabel.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold);
+            this.MemberListLabel.ForeColor = System.Drawing.Color.LightGray;
+            this.MemberListLabel.Location = new System.Drawing.Point(4, 211);
+            this.MemberListLabel.Name = "MemberListLabel";
+            this.MemberListLabel.Size = new System.Drawing.Size(90, 17);
+            this.MemberListLabel.TabIndex = 11;
+            this.MemberListLabel.Text = ">成员列表";
+            // 
+            // _memberList
+            // 
+            this._memberList.AllowDrop = true;
+            this._memberList.AllowUserToDeleteRows = false;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.LightGray;
+            this._memberList.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            this._memberList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.MemberGroupBox.Controls.Add(this.MemberSplitContainer);
-            this.MemberGroupBox.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.MemberGroupBox.ForeColor = System.Drawing.Color.LightGray;
-            this.MemberGroupBox.Location = new System.Drawing.Point(3, 215);
-            this.MemberGroupBox.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
-            this.MemberGroupBox.Name = "MemberGroupBox";
-            this.MemberGroupBox.Padding = new System.Windows.Forms.Padding(3, 3, 3, 0);
-            this.MemberGroupBox.Size = new System.Drawing.Size(828, 378);
-            this.MemberGroupBox.TabIndex = 6;
-            this.MemberGroupBox.TabStop = false;
-            this.MemberGroupBox.Text = "成员列表";
+            this._memberList.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this._memberList.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
+            this._memberList.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this._memberList.CausesValidation = false;
+            this._memberList.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.LightGray;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this._memberList.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            this._memberList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this._memberList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this._fieldNameLib,
+            this._fieldAliasLib,
+            this._fieldValueLib,
+            this._fieldDescLib,
+            this._fieldGroupLib});
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.LightGray;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this._memberList.DefaultCellStyle = dataGridViewCellStyle3;
+            this._memberList.GridColor = System.Drawing.Color.Silver;
+            this._memberList.Location = new System.Drawing.Point(4, 232);
+            this._memberList.Name = "_memberList";
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.Color.LightGray;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this._memberList.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
+            this._memberList.RowHeadersWidth = 28;
+            this._memberList.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.Color.LightGray;
+            this._memberList.RowsDefaultCellStyle = dataGridViewCellStyle5;
+            this._memberList.RowTemplate.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
+            this._memberList.RowTemplate.DefaultCellStyle.ForeColor = System.Drawing.Color.LightGray;
+            this._memberList.RowTemplate.Height = 27;
+            this._memberList.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this._memberList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this._memberList.Size = new System.Drawing.Size(826, 360);
+            this._memberList.TabIndex = 10;
+            this._memberList.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.MemberList_CellEndEdit);
+            this._memberList.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.MemberList_CellMouseDoubleClick);
+            this._memberList.CellMouseMove += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.MemberList_CellMouseMove);
+            this._memberList.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.MemberList_RowsAdded);
+            this._memberList.DragDrop += new System.Windows.Forms.DragEventHandler(this.MemberList_DragDrop);
+            this._memberList.DragEnter += new System.Windows.Forms.DragEventHandler(this.MemberList_DragEnter);
             // 
-            // MemberSplitContainer
+            // _fieldNameLib
             // 
-            this.MemberSplitContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.MemberSplitContainer.Location = new System.Drawing.Point(3, 18);
-            this.MemberSplitContainer.Name = "MemberSplitContainer";
+            this._fieldNameLib.FillWeight = 89.54317F;
+            this._fieldNameLib.HeaderText = "名称";
+            this._fieldNameLib.Name = "_fieldNameLib";
+            this._fieldNameLib.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this._fieldNameLib.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
-            // MemberSplitContainer.Panel1
+            // _fieldAliasLib
             // 
-            this.MemberSplitContainer.Panel1.Controls.Add(this._memberListBox);
-            this.MemberSplitContainer.Panel1.Controls.Add(this._memPictureBox);
-            this.MemberSplitContainer.Panel1.Controls.Add(this._memFilterBox);
-            this.MemberSplitContainer.Panel1MinSize = 322;
+            this._fieldAliasLib.HeaderText = "别名";
+            this._fieldAliasLib.Name = "_fieldAliasLib";
+            this._fieldAliasLib.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this._fieldAliasLib.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
-            // MemberSplitContainer.Panel2
+            // _fieldValueLib
             // 
-            this.MemberSplitContainer.Panel2.Controls.Add(this._spliter);
-            this.MemberSplitContainer.Size = new System.Drawing.Size(822, 357);
-            this.MemberSplitContainer.SplitterDistance = 327;
-            this.MemberSplitContainer.TabIndex = 0;
+            this._fieldValueLib.FillWeight = 89.54317F;
+            this._fieldValueLib.HeaderText = "值";
+            this._fieldValueLib.Name = "_fieldValueLib";
+            this._fieldValueLib.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this._fieldValueLib.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
-            // _memberListBox
+            // _fieldDescLib
             // 
-            this._memberListBox.AllowDrop = true;
-            this._memberListBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this._memberListBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._memberListBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this._memberListBox.ContextMenuStrip = this._memberMenu;
-            this._memberListBox.DisplayMember = "DisplayName";
-            this._memberListBox.ForeColor = System.Drawing.Color.LightGray;
-            this._memberListBox.FormattingEnabled = true;
-            this._memberListBox.ItemHeight = 17;
-            this._memberListBox.Location = new System.Drawing.Point(5, 46);
-            this._memberListBox.Name = "_memberListBox";
-            this._memberListBox.ScrollAlwaysVisible = true;
-            this._memberListBox.Size = new System.Drawing.Size(314, 342);
-            this._memberListBox.TabIndex = 8;
-            this._memberListBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.MemberListBox_MouseDown);
+            this._fieldDescLib.FillWeight = 150F;
+            this._fieldDescLib.HeaderText = "描述";
+            this._fieldDescLib.Name = "_fieldDescLib";
+            this._fieldDescLib.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
-            // _memberMenu
+            // _fieldGroupLib
             // 
-            this._memberMenu.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this._memberMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this._memberMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.AddMenuItem,
-            this.RemoveMenuItem});
-            this._memberMenu.Name = "_memberMenu";
-            this._memberMenu.Size = new System.Drawing.Size(135, 48);
+            this._fieldGroupLib.FillWeight = 89.54317F;
+            this._fieldGroupLib.HeaderText = "组";
+            this._fieldGroupLib.Name = "_fieldGroupLib";
+            this._fieldGroupLib.ReadOnly = true;
+            this._fieldGroupLib.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this._fieldGroupLib.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
-            // AddMenuItem
+            // DataMenuStrip
             // 
-            this.AddMenuItem.Name = "AddMenuItem";
-            this.AddMenuItem.Size = new System.Drawing.Size(134, 22);
-            this.AddMenuItem.Text = "添加成员";
-            this.AddMenuItem.Click += new System.EventHandler(this.AddMenuItem_Click);
+            this.DataMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.DataMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.DeleteToolStripMenuItem});
+            this.DataMenuStrip.Name = "DataMenuStrip";
+            this.DataMenuStrip.Size = new System.Drawing.Size(154, 28);
             // 
-            // RemoveMenuItem
+            // DeleteToolStripMenuItem
             // 
-            this.RemoveMenuItem.Name = "RemoveMenuItem";
-            this.RemoveMenuItem.Size = new System.Drawing.Size(134, 22);
-            this.RemoveMenuItem.Text = "移除成员";
-            this.RemoveMenuItem.Click += new System.EventHandler(this.RemoveMenuItem_Click);
-            // 
-            // _memPictureBox
-            // 
-            this._memPictureBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._memPictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this._memPictureBox.Image = global::Desc.Properties.Resources.MagnifyingGlass;
-            this._memPictureBox.Location = new System.Drawing.Point(6, 10);
-            this._memPictureBox.Name = "_memPictureBox";
-            this._memPictureBox.Size = new System.Drawing.Size(26, 26);
-            this._memPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this._memPictureBox.TabIndex = 6;
-            this._memPictureBox.TabStop = false;
-            // 
-            // _memFilterBox
-            // 
-            this._memFilterBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(65)))), ((int)(((byte)(65)))));
-            this._memFilterBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this._memFilterBox.ForeColor = System.Drawing.Color.LightGray;
-            this._memFilterBox.Location = new System.Drawing.Point(38, 10);
-            this._memFilterBox.Name = "_memFilterBox";
-            this._memFilterBox.Size = new System.Drawing.Size(276, 27);
-            this._memFilterBox.TabIndex = 2;
-            this._memFilterBox.TextChanged += new System.EventHandler(this.MemFilterBox_TextChanged);
-            // 
-            // _spliter
-            // 
-            this._spliter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this._spliter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this._spliter.Location = new System.Drawing.Point(3, 3);
-            this._spliter.Name = "_spliter";
-            this._spliter.Size = new System.Drawing.Size(1, 426);
-            this._spliter.TabIndex = 9;
-            this._spliter.TabStop = false;
+            this.DeleteToolStripMenuItem.Name = "DeleteToolStripMenuItem";
+            this.DeleteToolStripMenuItem.Size = new System.Drawing.Size(153, 24);
+            this.DeleteToolStripMenuItem.Text = "删除选择行";
+            this.DeleteToolStripMenuItem.Click += new System.EventHandler(this.DeleteToolStripMenuItem_Click);
             // 
             // EnumEditorDock
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             this.ClientSize = new System.Drawing.Size(835, 594);
-            this.Controls.Add(this.MemberGroupBox);
+            this.Controls.Add(this.MemberListLabel);
+            this.Controls.Add(this._memberList);
             this.Controls.Add(this._typeGroupBox);
             this.Name = "EnumEditorDock";
             this.Text = "Enum编辑";
             this._typeGroupBox.ResumeLayout(false);
             this._typeGroupBox.PerformLayout();
-            this.MemberGroupBox.ResumeLayout(false);
-            this.MemberSplitContainer.Panel1.ResumeLayout(false);
-            this.MemberSplitContainer.Panel1.PerformLayout();
-            this.MemberSplitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.MemberSplitContainer)).EndInit();
-            this.MemberSplitContainer.ResumeLayout(false);
-            this._memberMenu.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this._memPictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this._spliter)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._memberList)).EndInit();
+            this.DataMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -361,17 +371,17 @@
         private System.Windows.Forms.Label DescLabel;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox _nameTextBox;
-        private System.Windows.Forms.GroupBox MemberGroupBox;
-        private System.Windows.Forms.ListBox _memberListBox;
-        private System.Windows.Forms.PictureBox _memPictureBox;
-        private System.Windows.Forms.TextBox _memFilterBox;
-        internal System.Windows.Forms.SplitContainer MemberSplitContainer;
-        private System.Windows.Forms.PictureBox _spliter;
-        private System.Windows.Forms.ContextMenuStrip _memberMenu;
-        private System.Windows.Forms.ToolStripMenuItem AddMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem RemoveMenuItem;
         private System.Windows.Forms.TextBox _groupTextBox;
         private System.Windows.Forms.Button _groupButton;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label MemberListLabel;
+        private System.Windows.Forms.DataGridView _memberList;
+        private System.Windows.Forms.ContextMenuStrip DataMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem DeleteToolStripMenuItem;
+        private System.Windows.Forms.DataGridViewTextBoxColumn _fieldNameLib;
+        private System.Windows.Forms.DataGridViewTextBoxColumn _fieldAliasLib;
+        private System.Windows.Forms.DataGridViewTextBoxColumn _fieldValueLib;
+        private System.Windows.Forms.DataGridViewTextBoxColumn _fieldDescLib;
+        private System.Windows.Forms.DataGridViewTextBoxColumn _fieldGroupLib;
     }
 }

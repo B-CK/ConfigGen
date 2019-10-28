@@ -32,7 +32,7 @@ namespace Desc.Wrap
         /// 命名空间:Name
         /// Class/Enum:NamespaceName.Name
         /// </summary>
-        public virtual string FullName { get { return _name ?? "_"; } }
+        public virtual string FullName { get { return  $"{Util.EmptyNamespace}.{_name}" ?? "_"; } }
         public virtual NodeState NodeState { get { return _nodestate; } }
         /// <summary>
         /// 数据集合,可作重复判断

@@ -30,23 +30,17 @@ namespace Desc
             InitializeComponent();
         }
 
-        bool _hasChange = false;
         ModuleWrap _wrap;
         public void Show(ModuleWrap wrap)
         {
             _wrap = wrap;
             _nameTextBox.Text = wrap.Name;
-            _groupGridView.Rows.Clear();
-            var rows = _groupGridView.Rows;
-            for (int i = 0; i < wrap.Groups.Count; i++)
-                rows.Add(wrap.Groups[i]);
             ShowDialog();
-            _hasChange = false;
         }
 
         private void OkButton_Click(object sender, EventArgs e)
         {
-            if (_hasChange)
+            if (_wrap.Name != _nameTextBox.Text)
             {
                 string path = $"{Util.ModuleDir}\\{_nameTextBox.Text}.xml";
                 if (File.Exists(path))
@@ -56,29 +50,15 @@ namespace Desc
                 }
             }
             _wrap.Name = _nameTextBox.Text;
-            _wrap.Groups.Clear();
-            var rows = _groupGridView.Rows;
-            for (int i = 0; i < rows.Count; i++)
-            {
-                var value = rows[i].Cells[0].Value as string;
-                if (value != null)
-                    _wrap.Groups.Add(value);
-            }
             _wrap.Save(false);
+            Util.LastRecord = _wrap.FullName;
+            MainWindow.Ins.Text = Util.Format("结构描述 - {0}", _wrap.FullName);
             Close();
         }
 
         private void CancleButton_Click(object sender, EventArgs e)
         {
             Close();
-        }
-
-        private void NameTextBox_TextChanged(object sender, EventArgs e)
-        {
-            if (ModuleWrap.Default == ModuleWrap.Current)
-                _nameTextBox.Text = ModuleWrap.Default.Name;
-            else
-                _hasChange = true;
         }
     }
 }

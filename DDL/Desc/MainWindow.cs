@@ -151,7 +151,11 @@ namespace Desc
         #endregion
 
         #region 编辑
-        private void EditeModuleMenuItem_Click(object sender, EventArgs e)
+        private void EditGroupToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            GroupSettingDock.Ins.Show();
+        }
+        private void EditModuleMenuItem_Click(object sender, EventArgs e)
         {
             ModuleInfoDock.Ins.Show(ModuleWrap.Current);
         }
@@ -182,8 +186,9 @@ namespace Desc
         {
             ConsoleDock.Inspect();
         }
+
         #endregion
 
-
+     
     }
 }

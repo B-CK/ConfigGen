@@ -159,8 +159,13 @@ namespace Desc.Wrap
         {
 
         }
+        /// <summary>
+        /// 模块路径
+        /// </summary>
         public override string FullName { get { return _path; } }
-        public List<string> Groups { get { return _groups; } }
+        /// <summary>
+        /// 不要直接调组,而是调Util.Groups;
+        /// </summary>
         public List<string> Imports { get { return _imports; } }
         public Dictionary<string, NamespaceWrap> Namespaces { get { return _namespaces; } }
         public Dictionary<string, ClassWrap> Classes { get { return _classes; } }
@@ -216,6 +221,14 @@ namespace Desc.Wrap
                 var groups = _xml.Groups.Split(Util.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
                 _groups.AddRange(groups);
             }
+            OnNameChange += OnModuleNameChange;
+        }
+        private void OnModuleNameChange(BaseWrap wrap, string src)
+        {
+            var srcPath = _path;
+            var dirName = Path.GetDirectoryName(_path);
+            _path = $"{dirName}\\{wrap.Name}.xml";
+            File.Move(srcPath, _path);
         }
         public void SaveAnother(string path)
         {
@@ -252,6 +265,9 @@ namespace Desc.Wrap
             _imports.Add(name);
             AddNamespace(wrap);
         }
+        /// <summary>
+        /// 断开树状结构上的每一个数据
+        /// </summary>
         public void RemoveImport(NamespaceWrap wrap)
         {
             string name = wrap.FullName;
@@ -261,17 +277,57 @@ namespace Desc.Wrap
             _imports.Remove(name);
             RemoveNamespace(wrap);
         }
-        public void RemoveImport(string fullName)
+        /// <summary>
+        /// 仅移除名称,不触发事件
+        /// </summary>
+        public void RemoveImportNoEvent(NamespaceWrap wrap)
         {
+            var fullName = wrap.FullName;
             Remove(fullName);
             Imports.Remove(fullName);
             AddDirty();
+
+            var state = NodeState.Exclude;
+            wrap.SetNodeState(state);
+            _namespaces.Remove(fullName);
+            foreach (var item in wrap.Classes)
+            {
+                item.SetNodeState(state);
+                _classes.Remove(item.FullName);
+            }
+            foreach (var item in wrap.Enums)
+            {
+                item.SetNodeState(state);
+                _enums.Remove(item.FullName);
+            }
+        }
+        public void AddImportNoEvent(NamespaceWrap wrap)
+        {
+            var fullName = wrap.FullName;
+            if (Contains(fullName)) return;
+            AddDirty();
+            Add(fullName);
+            _imports.Add(fullName);
+
+            var state = NodeState.Include;
+            wrap.SetNodeState(state);
+            _namespaces.Add(fullName, wrap);
+            foreach (var item in wrap.Classes)
+            {
+                item.SetNodeState(state);
+                _classes.Add(item.FullName, item);
+            }
+            foreach (var item in wrap.Enums)
+            {
+                item.SetNodeState(state);
+                _enums.Add(item.FullName, item);
+            }
         }
         public void Save(bool saveNsw = true)
         {
             _xml.Name = _name;
             _xml.Imports = _imports;
-            _xml.Groups = _groups.ToString(Util.ArgsSplitFlag[0].ToString());
+            _xml.Groups = string.Join(Util.ArgsSplitFlag[0].ToString(), Util.Groups);
             Util.Serialize(_path, _xml);
             Debug.LogFormat("保存模板{0}", _path);
 
@@ -314,6 +370,7 @@ namespace Desc.Wrap
             wrap.OnAddType += AddTypeWrap;
             wrap.OnRemoveType += RemoveTypeWrap;
             wrap.OnNameChange += NamespaceNameChange;
+            wrap.OnTypeNameChange += TypeNameChange;
             _namespaces.Add(wrap.FullName, wrap);
             foreach (var item in wrap.Classes)
                 AddTypeWrap(item);
@@ -325,16 +382,16 @@ namespace Desc.Wrap
         }
         private void RemoveNamespace(NamespaceWrap wrap)
         {
+            _namespaces.Remove(wrap.FullName);
             var state = NodeState.Exclude;
             wrap.SetNodeState(state);
-            _namespaces.Remove(wrap.FullName);
-            foreach (var item in wrap.Classes)
+            var array = new List<TypeWrap>();
+            array.AddRange(wrap.Classes);
+            array.AddRange(wrap.Enums);
+            foreach (var item in array)
                 wrap.RemoveTypeWrap(item);
-            foreach (var item in wrap.Enums)
-                wrap.RemoveTypeWrap(item);
-            wrap.OnAddType = null;
-            wrap.OnRemoveType = null;
             OnRemoveNamespace?.Invoke(wrap);
+            wrap.Dispose();
         }
         private void AddTypeWrap(TypeWrap wrap)
         {
@@ -353,16 +410,48 @@ namespace Desc.Wrap
                 _classes.Remove(wrap.FullName);
             else if (wrap is EnumWrap)
                 _enums.Remove(wrap.FullName);
-
-            var state = NodeState.Exclude;
-            wrap.SetNodeState(state);
             OnRemoveAnyType?.Invoke(wrap);
         }
         private void NamespaceNameChange(BaseWrap wrap, string src)
         {
             int index = _imports.IndexOf(src);
             _imports[index] = wrap.FullName;
+            var nsw = wrap as NamespaceWrap;
+            var classes = nsw.Classes;
+            for (int i = 0; i < classes.Count; i++)
+            {
+                var cls = classes[i];
+                var srcFullName = $"{src}.{cls.Name}";
+                _classes.Remove(srcFullName);
+                _classes.Add(cls.FullName, cls);
+            }
+            var enums = nsw.Enums;
+            for (int i = 0; i < enums.Count; i++)
+            {
+                var enm = enums[i];
+                var srcFullName = $"{src}.{enm.Name}";
+                _enums.Remove(srcFullName);
+                _enums.Add(enm.FullName, enm);
+            }
             OnNamespaceNameChange?.Invoke(wrap as NamespaceWrap, src);
+        }
+        private void TypeNameChange(BaseWrap wrap, string src)
+        {
+            switch (wrap)
+            {
+                case ClassWrap cls:
+                    _classes.Remove(src);
+                    _classes.Add(cls.FullName, cls);
+                    break;
+                case EnumWrap enm:
+                    _enums.Remove(src);
+                    _enums.Add(enm.FullName, enm);
+                    break;
+                default:
+                    Debug.LogError($"TypeWrap无法解析!未知类型:{wrap.FullName}");
+                    break;
+            }
+            OnTypeNameChange?.Invoke(wrap, src);
         }
         public override bool Check()
         {

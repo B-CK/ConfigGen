@@ -72,16 +72,16 @@
     <Compile Include="Editor\EnumEditorDock.Designer.cs">
       <DependentUpon>EnumEditorDock.cs</DependentUpon>
     </Compile>
-    <Compile Include="Editor\EnumItemEditor.cs">
+    <Compile Include="Test\EnumItemEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Editor\EnumItemEditor.Designer.cs">
+    <Compile Include="Test\EnumItemEditor.Designer.cs">
       <DependentUpon>EnumItemEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Editor\FieldEditor.cs">
+    <Compile Include="Test\FieldEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Editor\FieldEditor.Designer.cs">
+    <Compile Include="Test\FieldEditor.Designer.cs">
       <DependentUpon>FieldEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Editor\GroupDock.cs">
@@ -90,11 +90,17 @@
     <Compile Include="Editor\GroupDock.Designer.cs">
       <DependentUpon>GroupDock.cs</DependentUpon>
     </Compile>
-    <Compile Include="Editor\MemberEditor.cs">
+    <Compile Include="Test\MemberEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Editor\MemberEditor.Designer.cs">
+    <Compile Include="Test\MemberEditor.Designer.cs">
       <DependentUpon>MemberEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GroupSettingDock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GroupSettingDock.Designer.cs">
+      <DependentUpon>GroupSettingDock.cs</DependentUpon>
     </Compile>
     <Compile Include="Test\GridWindow.cs">
       <SubType>Form</SubType>
@@ -116,12 +122,12 @@
       <DependentUpon>NamespaceInfoDock.cs</DependentUpon>
     </Compile>
     <Compile Include="PoolManager.cs" />
-    <Compile Include="TypeBox.cs">
+    <Compile Include="Test\TypeBox.cs">
       <SubType>UserControl</SubType>
       <Generator>TypeBox</Generator>
       <CustomToolNamespace>Description</CustomToolNamespace>
     </Compile>
-    <Compile Include="TypeBox.Designer.cs">
+    <Compile Include="Test\TypeBox.Designer.cs">
       <DependentUpon>TypeBox.cs</DependentUpon>
     </Compile>
     <Compile Include="Wrap\BaseWrap.cs" />
@@ -187,14 +193,17 @@
     <EmbeddedResource Include="Editor\EnumEditorDock.resx">
       <DependentUpon>EnumEditorDock.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Editor\EnumItemEditor.resx">
+    <EmbeddedResource Include="Test\EnumItemEditor.resx">
       <DependentUpon>EnumItemEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Editor\FieldEditor.resx">
+    <EmbeddedResource Include="Test\FieldEditor.resx">
       <DependentUpon>FieldEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Editor\GroupDock.resx">
       <DependentUpon>GroupDock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GroupSettingDock.resx">
+      <DependentUpon>GroupSettingDock.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Test\GridWindow.resx">
       <DependentUpon>GridWindow.cs</DependentUpon>
@@ -225,7 +234,7 @@
     <EmbeddedResource Include="Editor\ClassEditorDock.resx">
       <DependentUpon>ClassEditorDock.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="TypeBox.resx">
+    <EmbeddedResource Include="Test\TypeBox.resx">
       <DependentUpon>TypeBox.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">

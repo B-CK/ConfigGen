@@ -120,6 +120,7 @@ namespace Desc.Wrap
         public Action<TypeWrap> OnAddType;
         public Action<TypeWrap> OnRemoveType;
         public Action<BaseWrap, string> OnDescChange;
+        public Action<BaseWrap, string > OnTypeNameChange;
 
         /// <summary>
         /// 是否有被修改
@@ -142,6 +143,7 @@ namespace Desc.Wrap
             }
         }
 
+        public override string FullName => Name;
         public override string DisplayName
         {
             get
@@ -176,13 +178,13 @@ namespace Desc.Wrap
             for (int i = 0; i < xclasses.Count; i++)
             {
                 var cls = ClassWrap.Create(xclasses[i], this);
-                cls.OnNameChange += OnTypeNameChange;
+                cls.OnNameChange += TypeNameChange;
             }
             var xenums = _xml.Enums;
             for (int i = 0; i < xenums.Count; i++)
             {
                 var enm = EnumWrap.Create(xenums[i], this);
-                enm.OnNameChange += OnTypeNameChange;
+                enm.OnNameChange += TypeNameChange;
             }
 
             _dict.Add(FullName, this);
@@ -194,7 +196,7 @@ namespace Desc.Wrap
             {
                 wrap.SetNodeState(NodeState | NodeState.Modify);
                 SetDirty();
-                wrap.OnNameChange += OnTypeNameChange;
+                wrap.OnNameChange += TypeNameChange;
             }
 
             wrap.Namespace = this;
@@ -256,6 +258,14 @@ namespace Desc.Wrap
                    _name, e.Message, e.StackTrace);
             }
         }
+        public void SetStateWithType(NodeState state)
+        {
+            SetNodeState(state);
+            foreach (var item in Classes)
+                item.SetNodeState(state);
+            foreach (var item in Enums)
+                item.SetNodeState(state);
+        }
         public void Cancle()
         {
             _name = "";
@@ -303,6 +313,8 @@ namespace Desc.Wrap
             base.Dispose();
             OnAddType = null;
             OnRemoveType = null;
+            OnNameChange = null;
+            OnTypeNameChange = null;
             if (ModuleWrap.Default == ModuleWrap.Current)
             {
                 try
@@ -326,12 +338,13 @@ namespace Desc.Wrap
             PoolManager.Ins.Push(this);
         }
 
-        private void OnTypeNameChange(BaseWrap wrap, string src)
+        private void TypeNameChange(BaseWrap wrap, string src)
         {
             var typeWrap = wrap as TypeWrap;
             int length = typeWrap.Namespace.Name.Length + 1;
             Remove(src.Substring(length));
             Add(wrap.Name);
+            OnTypeNameChange?.Invoke(wrap, src);
         }
     }
 }

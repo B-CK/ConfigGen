@@ -274,7 +274,14 @@ namespace Desc
             _saveRootMenuItem.Visible = isNsw;
             _includeMenuItem.Visible = isNsw && !isDefault;
             _excludeMenuItem.Visible = isNsw && !isDefault;
-            _deleteMenuItem.Visible = isNsw && (nsw.NodeState & NodeState.Exclude) != 0;
+            //在排除情况下的命名空间,直接删除,会影响其他模块
+            if (isNsw)
+                _deleteMenuItem.Visible = (nsw.NodeState & NodeState.Exclude) != 0;
+            else
+            {//类/枚举等删除
+                var typewrap = selected.Tag as TypeWrap;
+                _deleteMenuItem.Visible = (typewrap.NodeState & NodeState.Include) != 0;
+            }
             _rootSeparator.Visible = isNsw;
 
             var point = _nodeTreeView.PointToScreen(e.Location);
@@ -298,6 +305,7 @@ namespace Desc
                     var result = MessageBox.Show("删除文件可能造成其他丢失数据!请保证数据仅在该模块使用.", "删除命名空间", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
                     if (result == DialogResult.OK)
                     {
+                        ModuleWrap.Default.RemoveImport(nsw);
                         ModuleWrap.Current.RemoveImport(nsw);
                         PoolManager.Ins.Push(nsw);
 
@@ -309,7 +317,6 @@ namespace Desc
                     break;
                 case TypeWrap tw:
                     tw.Namespace.RemoveTypeWrap(tw);
-                    tw.Dispose();
                     break;
                 default:
                     break;
@@ -335,7 +342,7 @@ namespace Desc
             if (wrap is NamespaceWrap)
             {
                 var nsw = wrap as NamespaceWrap;
-                ModuleWrap.Current.AddImport(nsw);
+                ModuleWrap.Current.AddImportNoEvent(nsw);
                 ModuleWrap.Current.Check();
             }
         }
@@ -346,14 +353,8 @@ namespace Desc
             if (wrap is NamespaceWrap)
             {
                 var nsw = wrap as NamespaceWrap;
-                ModuleWrap.Current.RemoveImport(nsw);
-                if (!_showAllBox.Checked)
-                {
-                    ClearNodes(node.Nodes);
-                    _nodeTreeView.Nodes.Remove(node);
-                    PoolManager.Ins.Push(node);
-                    PoolManager.Ins.Push(nsw);
-                }
+                ModuleWrap.Current.RemoveImportNoEvent(nsw);
+                RemoveRootNode(nsw);
                 ModuleWrap.Current.Check();
             }
         }
@@ -388,11 +389,12 @@ namespace Desc
                         if (root.FullName.IndexOf(_nodeFilterBox.Text, StringComparison.OrdinalIgnoreCase) != -1)
                         {
                             AddRootNode(root);
-                            OnNodeStateChange(root, NodeState.Exclude);
-                            foreach (var cls in root.Classes)
-                                OnNodeStateChange(cls, NodeState.Exclude);
-                            foreach (var enm in root.Enums)
-                                OnNodeStateChange(enm, NodeState.Exclude);
+                            root.SetStateWithType(NodeState.Exclude);
+                            //OnNodeStateChange(root, NodeState.Exclude);
+                            //foreach (var cls in root.Classes)
+                            //    OnNodeStateChange(cls, NodeState.Exclude);
+                            //foreach (var enm in root.Enums)
+                            //    OnNodeStateChange(enm, NodeState.Exclude);
                         }
                     }
                     else

@@ -19,6 +19,10 @@ namespace Desc.Wrap
                 wrap.Init(xml, enum0);
             return wrap;
         }
+        public static implicit operator EnumItemXml(EnumItemWrap wrap)
+        {
+            return wrap._xml;
+        }
 
         public virtual string DisplayFullName => DisplayName;
         public override string DisplayName
@@ -70,14 +74,21 @@ namespace Desc.Wrap
             Desc = wrap.Desc;
         }
 
-        public static implicit operator EnumItemXml(EnumItemWrap wrap)
-        {
-            return wrap._xml;
-        }
+       
         public override void Dispose()
         {
             base.Dispose();
             PoolManager.Ins.Push(this);
+        }
+
+        public EnumItemWrap Clone()
+        {
+            var wrap = PoolManager.Ins.Pop<EnumItemWrap>();
+            if (wrap == null)
+                wrap = new EnumItemWrap(_xml, _enum);
+            else
+                wrap.Init(_xml, _enum);
+            return wrap;
         }
     }
 }

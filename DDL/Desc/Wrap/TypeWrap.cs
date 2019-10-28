@@ -13,6 +13,10 @@ namespace Desc.Wrap
     public abstract class TypeWrap : BaseWrap
     {
         public Action<BaseWrap, string> OnDescChange;
+        /// <summary>
+        /// 类型信息改变
+        /// </summary>
+        public Action<TypeWrap> OnWrapChange;
 
         public virtual string DisplayFullName
         {
@@ -61,6 +65,11 @@ namespace Desc.Wrap
             _xml = xml;
             _namespace = ns;
         }
-     
+
+        public void OnSave()
+        {
+            OnWrapChange?.Invoke(this);
+        }
+
     }
 }

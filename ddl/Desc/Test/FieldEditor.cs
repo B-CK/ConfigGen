@@ -258,7 +258,7 @@ namespace Desc.Editor
         }
         private void GroupButton_Click(object sender, EventArgs e)
         {
-            GroupDock.Ins.ShowGroups(_groupTextBox);
+            GroupDock.Ins.ShowGroups(_groupTextBox.Text, (gs) => _groupTextBox.Text = gs);
         }
     }
 }

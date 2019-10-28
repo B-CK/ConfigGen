@@ -56,9 +56,9 @@ namespace Desc.Editor
 
             var item = _wrap as EnumItemWrap;
             Location = Point.Empty;
-            var panel = GetDock<EnumEditorDock>().MemberSplitContainer.Panel2;
+            //var panel = GetDock<EnumEditorDock>().MemberSplitContainer.Panel2;
             Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Top;
-            Size = new Size(panel.Width - 95, panel.Height);
+            //Size = new Size(panel.Width - 95, panel.Height);
 
             _nameTextBox.Text = item.Name;
             _defaultValue.Maximum = int.MaxValue;
@@ -84,12 +84,12 @@ namespace Desc.Editor
         public override void Hide()
         {
             base.Hide();
-            GetDock<EnumEditorDock>().MemberSplitContainer.Panel2.Controls.Remove(this);
+            //GetDock<EnumEditorDock>().MemberSplitContainer.Panel2.Controls.Remove(this);
         }
         public override void Show()
         {
             base.Show();
-            GetDock<EnumEditorDock>().MemberSplitContainer.Panel2.Controls.Add(this);
+            //GetDock<EnumEditorDock>().MemberSplitContainer.Panel2.Controls.Add(this);
         }
 
         private void OnItemTextChanged(object sender, EventArgs e)
@@ -101,7 +101,7 @@ namespace Desc.Editor
         {
             if (!_isInit) return;
             GetDock<EnumEditorDock>().OnValueChange();
-            GetDock<EnumEditorDock>().RefreshMember(this);
+            //GetDock<EnumEditorDock>().RefreshMember(this);
         }
         private void OnItemNameChanged(object sender, EventArgs e)
         {
@@ -120,14 +120,14 @@ namespace Desc.Editor
             {
                 string oldName = Name;
                 Name = nameBox.Text;
-                dock.RefreshMember(this, oldName);
+                //dock.RefreshMember(this, oldName);
             }
         }
         private void OnItemAliasChanged(object sender, EventArgs e)
         {
             if (!_isInit) return;
             var dock = GetDock<EnumEditorDock>();
-            dock.RefreshMember(this);
+            //dock.RefreshMember(this);
             dock.OnValueChange();
         }
     }

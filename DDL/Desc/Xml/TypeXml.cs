@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 namespace Desc.Xml
 {
     [XmlInclude(typeof(TypeXml))]
-    public abstract partial class TypeXml
+    public abstract class TypeXml
     {
         [XmlAttribute]
         public string Name;

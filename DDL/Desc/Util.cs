@@ -116,20 +116,28 @@ namespace Desc
         /// <summary>
         /// 分组种类
         /// </summary>
-        public static string[] Groups { get { return ModuleWrap.Current.Groups.ToArray(); } }
-        /// <summary>
-        /// 默认组
-        /// </summary>
-        public static string DefaultGroup
+        public static string[] Groups
         {
             get
             {
-                if (ModuleWrap.Current.Groups.Count == 0)
-                    return "All";
-                else
-                    return ModuleWrap.Current.Groups[0];
+                var groups = Settings.Default.Groups;
+                if (!groups.Contains(DefaultGroup))
+                    groups.Add(DefaultGroup);
+                string[] gs = new string[groups.Count];
+                groups.CopyTo(gs, 0);
+                return gs;
+            }
+            set
+            {
+                var groups = Settings.Default.Groups;
+                groups.Clear();
+                groups.AddRange(value);
             }
         }
+        /// <summary>
+        /// 默认组
+        /// </summary>
+        public static string DefaultGroup => "All";
         /// <summary>
         /// Excel数据目录
         /// </summary>
@@ -160,6 +168,7 @@ namespace Desc
         public const string STRING = "string";
         public const string LIST = "list";
         public const string DICT = "dict";
+
         //枚举可继承类型(暂时无用)
         public static readonly Dictionary<string, string> EnumInhert = new Dictionary<string, string>()
         {
@@ -184,13 +193,14 @@ namespace Desc
         }
         public static object[] GetAllTypes(bool excludeSet = false)
         {
-            List<object> all = null;
-            if (excludeSet)
-                all = new List<object>() { BOOL, INT, LONG, FLOAT, STRING };
-            else
-                all = new List<object>(BaseTypes);
-            all.AddRange(ModuleWrap.Current.Classes.Values);
-            all.AddRange(ModuleWrap.Current.Enums.Values);
+            List<object> all = new List<object>(BaseTypes);
+            //all.AddRange(ModuleWrap.Current.Classes.Values);
+            //all.AddRange(ModuleWrap.Current.Enums.Values);
+            var ls = new List<TypeWrap>();
+            ls.AddRange(ModuleWrap.Current.Classes.Values);
+            ls.AddRange(ModuleWrap.Current.Enums.Values);
+            for (int i = 0; i < ls.Count; i++)
+                all.Add(ls[i].FullName);
 
             return all.ToArray();
         }
@@ -201,8 +211,11 @@ namespace Desc
         public static object[] GetCombTypes()
         {
             List<object> all = new List<object>() { BOOL, INT, LONG, FLOAT, STRING };
-            all.AddRange(ModuleWrap.Current.Classes.Values);
-            all.AddRange(ModuleWrap.Current.Enums.Values);
+            var ls = new List<TypeWrap>();
+            ls.AddRange(ModuleWrap.Current.Classes.Values);
+            ls.AddRange(ModuleWrap.Current.Enums.Values);
+            for (int i = 0; i < ls.Count; i++)
+                all.Add(ls[i].FullName);
 
             return all.ToArray();
         }

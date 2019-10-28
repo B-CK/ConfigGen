@@ -18,16 +18,17 @@ namespace Desc.Editor
         }
         static GroupDock _ins;
 
-        TextBox _group;
+        Action<string> _okEvt;
         private GroupDock()
         {
             _ins = this;
             InitializeComponent();
         }
 
-        public void ShowGroups(TextBox group)
+        public void ShowGroups(string gs, Action<string> okEvt)
         {
-            _group = group;
+            gs = gs ?? Util.DefaultGroup;
+            _okEvt = okEvt;
             HashSet<string> hash = new HashSet<string>(Util.Groups);
             for (int i = 0; i < Util.Groups.Length; i++)
             {
@@ -39,9 +40,11 @@ namespace Desc.Editor
                 check.Checked = false;
                 _flowLayoutPanel.Controls.Add(check);
             }
-            string[] nodes = group.Text.Split(Util.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
+            string[] nodes = gs.Split(Util.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < nodes.Length; i++)
             {
+                if (_flowLayoutPanel.Controls.Count == 0)
+                    break;
                 string key = nodes[i];
                 var check = _flowLayoutPanel.Controls[key] as CheckBox;
                 check.Text = key;
@@ -76,9 +79,8 @@ namespace Desc.Editor
             }
             string result = builder.ToString();
             if (builder.Length > 0)
-                _group.Text = result.Substring(0, result.Length - 1);
-            else
-                _group.Text = result;
+                result = result.Substring(0, result.Length - 1);
+            _okEvt?.Invoke(result);
             Close();
         }
     }

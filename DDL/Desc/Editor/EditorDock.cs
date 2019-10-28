@@ -101,7 +101,7 @@ namespace Desc.Editor
         protected bool _isDirty;
         protected bool _isSilent;
 
-        //仅记录自己的字段,不包含父类字段
+        //记录字段,包含父类字段
         protected HashSet<string> _members = new HashSet<string>();
         protected TypeWrap _wrap;
         private int _nameId = 0;
@@ -170,8 +170,8 @@ namespace Desc.Editor
         /// </summary>
         protected virtual void UpdateDock(string srcFullName)
         {
-            var wrap = _wrap as TypeWrap;
             RemoveOpen(srcFullName);
+            var wrap = _wrap as TypeWrap;
             AddOpen(wrap.FullName, this);
         }
         protected void SwapNamespace(NamespaceWrap src, NamespaceWrap dst)

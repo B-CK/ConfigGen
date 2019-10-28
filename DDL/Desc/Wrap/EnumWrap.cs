@@ -41,8 +41,21 @@ namespace Desc.Wrap
                 wrap = new EnumWrap(xml, nsw);
             else
                 wrap.Init(xml, nsw);
+            wrap.OnNameChange += OnEnumNameChange;
             nsw.AddTypeWrap(wrap, false);
             return wrap;
+        }
+        private static void OnEnumNameChange(BaseWrap wrap, string src)
+        {
+            if (_dict.ContainsKey(src))
+            {
+                _dict.Remove(src);
+                _dict.Add(wrap.FullName, wrap as EnumWrap);
+            }
+            else
+            {
+                Util.MsgError("{0}枚举修改名称为{1}触发事件异常!", src, wrap.FullName);
+            }
         }
         public static implicit operator EnumXml(EnumWrap wrap)
         {
@@ -110,7 +123,7 @@ namespace Desc.Wrap
             Remove(wrap.Name);
             _items.Remove(wrap);
             Xml.Items.Remove(wrap);
-            Dispose();
+            wrap.Dispose();
         }
         public void OverrideField(EnumItemWrap wrap)
         {
@@ -149,10 +162,11 @@ namespace Desc.Wrap
         public override void Dispose()
         {
             base.Dispose();
+            _dict.Remove(FullName);
             for (int i = 0; i < _items.Count; i++)
                 _items[i].Dispose();
             _items.Clear();
-            _dict.Remove(FullName);
+            Namespace = null;
             PoolManager.Ins.Push(this);
         }
     }
