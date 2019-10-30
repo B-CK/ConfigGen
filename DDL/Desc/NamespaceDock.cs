@@ -166,7 +166,7 @@ namespace Desc
             if (wrap is NamespaceWrap)
             {
                 if (!nodes.ContainsKey(key))
-                    Util.MsgError("TreeView中无法通过Key:{0}找到Namespace节点!", key);
+                    Util.MsgError("[NamespaceDock]TreeView中无法通过Key:{0}找到Namespace节点!", key);
                 node = nodes[key];
             }
             else
@@ -174,13 +174,13 @@ namespace Desc
                 TypeWrap tw = wrap as TypeWrap;
                 key = tw.Namespace.FullName;
                 if (!nodes.ContainsKey(key))
-                    Util.MsgError("TreeView中无法通过Key:{0}找到Namespace节点!", key);
+                    Util.MsgError("[NamespaceDock]TreeView中无法通过Key:{0}找到Namespace节点!", key);
                 else
                 {
                     var root = _nodeTreeView.Nodes[key];
                     key = wrap.FullName;
                     if (!root.Nodes.ContainsKey(key))
-                        Util.MsgError("TreeView中无法通过Key:{0}找到Class,Enum节点!", key);
+                        Util.MsgError("[NamespaceDock]TreeView中无法通过Key:{0}找到Class,Enum节点!", key);
                     node = root.Nodes[key];
                 }
             }
@@ -333,7 +333,7 @@ namespace Desc
         {
             var wrap = (_nodeTreeView.SelectedNode.Tag as NamespaceWrap);
             SaveNamespaceWrap(wrap);
-            Debug.LogFormat("成功手动保存命名空间{0}!", wrap.FullName);
+            Debug.LogFormat("[NamespaceDock]成功手动保存命名空间{0}!", wrap.FullName);
         }
         private void NodeTreeView_Include(object sender, EventArgs e)
         {
@@ -399,7 +399,7 @@ namespace Desc
                     }
                     else
                     {
-                        Debug.LogErrorFormat("{0}模块中的命名空间{1}居然会不在字典中!?\n改了命名空间库,却没修改模块?",
+                        Debug.LogErrorFormat("[NamespaceDock]{0}模块中的命名空间{1}居然会不在字典中!?\n改了命名空间库,却没修改模块?",
                             ModuleWrap.Default.Name, key);
                     }
                 }

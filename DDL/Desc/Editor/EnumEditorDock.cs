@@ -81,7 +81,7 @@ namespace Desc.Editor
                 enm.AddItem(item);
             }
             for (int i = 0; i < indexs.Count; i++)
-                Debug.LogWarning($"第{indexs[i]}行未命名,数据无效将无法保存!");
+                Debug.LogWarning($"[EnumDock]第{indexs[i]}行枚举项未命名,数据无效将无法保存!");
             enm.OnSave();
         }
         protected override void Clear()
@@ -224,7 +224,7 @@ namespace Desc.Editor
                 string itemName = cell.Value as string;
                 if (ContainMember(itemName))
                 {
-                    Util.MsgWarning("字段名重复:{0}", item.Name);
+                    Util.MsgWarning("[EnumDock]字段名重复:{0}", item.Name);
                     cell.Value = item.Name;
                     return;
                 }
@@ -235,7 +235,7 @@ namespace Desc.Editor
                 if (!int.TryParse(value, out int v))
                 {
                     cell.Value = cell.RowIndex.ToString();
-                    Util.MsgWarning($"\"{value}\"非整型!");
+                    Util.MsgWarning($"[EnumDock]\"{value}\"非整型!");
                 }
             }
             if (item.Group.IsEmpty())
@@ -276,7 +276,7 @@ namespace Desc.Editor
                 nameBox.Text = enm.Name;
             else if (nameBox.Text != enm.Name && nsw.Contains(nameBox.Text))
             {
-                Util.MsgWarning("命名空间{0}中重复定义类型{1}!", nsw.FullName, nameBox.Text);
+                Util.MsgWarning("[EnumDock]命名空间{0}中重复定义类型{1}!", nsw.FullName, nameBox.Text);
                 nameBox.Text = enm.Name;
             }
         }

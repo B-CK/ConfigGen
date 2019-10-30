@@ -54,7 +54,7 @@ namespace Desc.Wrap
             }
             else
             {
-                Util.MsgError("{0}枚举修改名称为{1}触发事件异常!", src, wrap.FullName);
+                Util.MsgError("[Enum]{0}枚举修改名称为{1}触发事件异常!", src, wrap.FullName);
             }
         }
         public static implicit operator EnumXml(EnumWrap wrap)

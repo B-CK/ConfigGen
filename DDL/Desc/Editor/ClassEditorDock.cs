@@ -151,7 +151,7 @@ namespace Desc.Editor
                 cls.AddField(field);
             }
             for (int i = 0; i < indexs.Count; i++)
-                Debug.LogWarning($"第{indexs[i]}行未命名,数据无效将无法保存!");
+                Debug.LogWarning($"[ClassDock]第{indexs[i]}行字段未命名,数据无效将无法保存!");
             cls.OnSave();
         }
 
@@ -319,7 +319,7 @@ namespace Desc.Editor
                     string fieldName = cell.Value as string;
                     if (ContainMember(fieldName))
                     {
-                        Util.MsgWarning("字段名重复:{0}", field.Name);
+                        Util.MsgWarning("[ClassDock]字段名重复:{0}", field.Name);
                         cell.Value = field.Name;
                         return;
                     }
@@ -451,7 +451,7 @@ namespace Desc.Editor
                 nameBox.Text = cls.Name;
             else if (nameBox.Text != cls.Name && nsw.Contains(nameBox.Text))
             {
-                Util.MsgWarning("命名空间{0}中重复定义类型{1}!", nsw.FullName, nameBox.Text);
+                Util.MsgWarning("[ClassDock]命名空间{0}中重复定义类型{1}!", nsw.FullName, nameBox.Text);
                 nameBox.Text = cls.Name;
             }
         }
@@ -501,7 +501,7 @@ namespace Desc.Editor
             }
             catch (Exception ex)
             {
-                Debug.LogErrorFormat("获取数据文件路径失败!{0}\n{1}", ex.Message, ex.StackTrace);
+                Debug.LogErrorFormat("[ClassDock]获取数据文件路径失败!{0}\n{1}", ex.Message, ex.StackTrace);
             }
         }
         /// <summary>

@@ -254,7 +254,7 @@ namespace Desc.Wrap
             }
             catch (Exception e)
             {
-                Debug.LogErrorFormat("序列化命名空间{0}失败!\n{1}\n{2}\n",
+                Debug.LogErrorFormat("[Module]序列化命名空间{0}失败!\n{1}\n{2}\n",
                    _name, e.Message, e.StackTrace);
             }
         }
@@ -325,7 +325,7 @@ namespace Desc.Wrap
                 }
                 catch (Exception e)
                 {
-                    Debug.LogErrorFormat("删除命名空间{0}失败!\n{1}\n{2}\n",
+                    Debug.LogErrorFormat("[Module]删除命名空间{0}失败!\n{1}\n{2}\n",
                        FullName, e.Message, e.StackTrace);
                 }
             }

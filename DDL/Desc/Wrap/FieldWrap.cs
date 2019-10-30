@@ -98,7 +98,7 @@ namespace Desc.Wrap
                     case 0:
                     default:
                         r = false;
-                        Debug.LogErrorFormat("[Class]类型{0}中字段{1}的类型异常[{2}]", _cls.FullName, _name, Type);
+                        Debug.LogErrorFormat("[Field]类型{0}中字段{1}的类型异常[{2}]", _cls.FullName, _name, Type);
                         break;
                 }
             }
@@ -108,14 +108,14 @@ namespace Desc.Wrap
         {
             bool isOK = Util.HasType(type);
             if (isOK == false)
-                Debug.LogErrorFormat("[Class]类型{0}中字段{1}的类型异常[{2}]![{3}]类型不存在.", _cls.FullName, _name, Type, type);
+                Debug.LogErrorFormat("[Field]类型{0}中字段{1}的类型异常[{2}]![{3}]类型不存在.", _cls.FullName, _name, Type, type);
             if (!Util.BaseHash.Contains(type))
             {
                 bool d = ModuleWrap.Current.Classes.ContainsKey(type)
                     || ModuleWrap.Current.Enums.ContainsKey(type);
                 isOK &= d;
                 if (d == false)
-                    Debug.LogErrorFormat("[Class]{0}模块中不包含{1}类型{2}字段的类型{3}!",
+                    Debug.LogErrorFormat("[Field]{0}模块中不包含{1}类型{2}字段的类型{3}!",
                         ModuleWrap.Current.Name, _cls.FullName, _name, type);
             }
             return isOK;

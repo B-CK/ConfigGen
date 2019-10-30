@@ -74,7 +74,7 @@ namespace Desc.Wrap
             }
             else
             {
-                Util.MsgError("{0}类修改名称为{1}触发事件异常!", src, wrap.FullName);
+                Util.MsgError("[Class]{0}类修改名称为{1}触发事件异常!", src, wrap.FullName);
             }
         }
         public static implicit operator ClassXml(ClassWrap wrap)

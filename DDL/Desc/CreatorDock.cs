@@ -48,7 +48,7 @@ namespace Desc
                     SelectType(); break;
                 case 2: SelectNamespace(); break;
                 default:
-                    Debug.LogErrorFormat("创建内容选项中不存在项{0}", _createListBox.SelectedIndex);
+                    Debug.LogErrorFormat("[CreatorDock]创建内容选项中不存在项{0}", _createListBox.SelectedIndex);
                     break;
             }
         }
@@ -67,7 +67,7 @@ namespace Desc
                         string fullName = Util.Format("{0}.{1}", nsw.FullName, name);
                         if (ClassWrap.Dict.ContainsKey(fullName))
                         {
-                            Util.MsgWarning("[Class]类型{0}已经存在!", fullName);
+                            Util.MsgWarning("[CreatorDock]Class:{0}已经存在!", fullName);
                             return;
                         }
 
@@ -86,7 +86,7 @@ namespace Desc
                         string fullName = Util.Format("{0}.{1}", nsw.FullName, name);
                         if (EnumWrap.Dict.ContainsKey(fullName))
                         {
-                            Util.MsgWarning("[Enum]枚举{0}已经存在!", fullName);
+                            Util.MsgWarning("[CreatorDock]Enum:{0}已经存在!", fullName);
                             return;
                         }
 
@@ -109,11 +109,11 @@ namespace Desc
                             Close();
                         }
                         else
-                            Util.MsgWarning("命名空间{0}已经存在.", name);
+                            Util.MsgWarning("[CreatorDock]命名空间{0}已经存在.", name);
                         break;
                     }
                 default:
-                    Debug.LogErrorFormat("创建内容选项中不存在项{0}", _createListBox.SelectedIndex);
+                    Debug.LogErrorFormat("[CreatorDock]创建内容选项中不存在项{0}", _createListBox.SelectedIndex);
                     break;
             }
         }

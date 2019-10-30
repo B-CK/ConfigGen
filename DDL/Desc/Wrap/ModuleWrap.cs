@@ -61,7 +61,7 @@ namespace Desc.Wrap
             }
             else
                 xml = _dict[path];
-            Debug.LogFormat("创建模块{0}", path);
+            Debug.LogFormat("[Module]创建模块{0}", path);
             ModuleWrap wrap = PoolManager.Ins.Pop<ModuleWrap>();
             if (wrap == null) wrap = new ModuleWrap();
             wrap.Init(xml);
@@ -90,7 +90,7 @@ namespace Desc.Wrap
             }
             else
             {
-                Debug.LogWarningFormat("模块{0}不存在,开启默认模块.", path);
+                Debug.LogWarningFormat("[Module]模块{0}不存在,开启默认模块.", path);
                 _current = _default;
             }
 
@@ -98,7 +98,7 @@ namespace Desc.Wrap
             ResetAllState();
             _current.Init(_dict[path]);
             MainWindow.Ins.Text = Util.Format("结构描述 - {0}", _current.FullName);
-            Debug.LogFormat("打开模板{0}", path);
+            Debug.LogFormat("[Module]打开模板{0}", path);
             GC.Collect();
             return _current;
         }
@@ -237,7 +237,7 @@ namespace Desc.Wrap
             another.Groups = _groups.ToString(Util.ArgsSplitFlag[0].ToString());
             another.Imports = _xml.Imports;
             Util.Serialize(path, another);
-            Debug.LogFormat("另存模板{0}", path);
+            Debug.LogFormat("[Module]另存模板{0}", path);
         }
         public NamespaceWrap[] GetNamespaces()
         {
@@ -329,7 +329,7 @@ namespace Desc.Wrap
             _xml.Imports = _imports;
             _xml.Groups = string.Join(Util.ArgsSplitFlag[0].ToString(), Util.Groups);
             Util.Serialize(_path, _xml);
-            Debug.LogFormat("保存模板{0}", _path);
+            Debug.LogFormat("[Module]保存模板{0}", _path);
 
             if (!saveNsw) return;
             for (int i = 0; i < _imports.Count; i++)
@@ -448,17 +448,17 @@ namespace Desc.Wrap
                     _enums.Add(enm.FullName, enm);
                     break;
                 default:
-                    Debug.LogError($"TypeWrap无法解析!未知类型:{wrap.FullName}");
+                    Debug.LogError($"[Module]TypeWrap无法解析!未知类型:{wrap.FullName}");
                     break;
             }
             OnTypeNameChange?.Invoke(wrap, src);
         }
         public override bool Check()
         {
-            Debug.LogFormat("开始检查{0}模块!", _name);
+            Debug.LogFormat("[Module]开始检查{0}模块!", _name);
             bool isOk = Util.CheckIdentifier(_name);
             if (isOk == false)
-                Debug.LogErrorFormat("名称[{0}]不规范,请以'_',字母和数字命名且首字母只能为'_'和字母!", _name);
+                Debug.LogErrorFormat("[Module]名称[{0}]不规范,请以'_',字母和数字命名且首字母只能为'_'和字母!", _name);
             for (int i = 0; i < _imports.Count; i++)
             {
                 string key = _imports[i];
@@ -470,10 +470,10 @@ namespace Desc.Wrap
                 else
                 {
                     isOk &= false;
-                    Debug.LogErrorFormat("{0}模块的{1}命名空间数据文件不存在!", _name, key);
+                    Debug.LogErrorFormat("[Module]{0}模块的{1}命名空间数据文件不存在!", _name, key);
                 }
             }
-            Debug.LogFormat("{0}模块检查完毕~", _name);
+            Debug.LogFormat("[Module]{0}模块检查完毕~", _name);
             return isOk;
         }
 

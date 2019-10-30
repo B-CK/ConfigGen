@@ -58,7 +58,7 @@ namespace Desc
                     _numericUpDown.Maximum = long.MaxValue;
                     break;
                 default:
-                    Debug.LogErrorFormat("不存在Int{0}大小!", size);
+                    Debug.LogErrorFormat("[NamespaceDock]不存在Int{0}大小!", size);
                     break;
             }
         }
