@@ -1,7 +1,5 @@
-﻿using System;
+﻿using Description;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Wrap
 {
@@ -12,7 +10,7 @@ namespace Wrap
 
         public static void LoadGroup(string g)
         {
-            _groups = new HashSet<string>(Util.SplitArgs(g.ToLowerExt()));
+            _groups = new HashSet<string>(Util.Split(g));
             if (!_groups.Contains(Setting.DefualtGroup))
                 _groups.Add(Setting.DefualtGroup);
         }

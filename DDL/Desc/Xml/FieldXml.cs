@@ -18,15 +18,6 @@ namespace Desc.Xml
     {
         [XmlAttribute]
         public string Type;
-        //[XmlAttribute]
-        //public bool IsConst;
-
-        /// <summary>
-        /// List<T>:T类型
-        /// Dict<K,V>:K:V类型
-        /// </summary>
-        [XmlAttribute]
-        public string Value;
         [XmlAttribute]
         public string Checker;//引用资源相对路径
     }

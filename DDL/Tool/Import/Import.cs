@@ -1,11 +1,11 @@
-﻿using DataSet;
+﻿using Description.Wrap;
 using Wrap;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Import
+namespace Description.Import
 {
     public abstract class Import
     {

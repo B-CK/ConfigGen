@@ -4,24 +4,39 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4E738303-FDD4-42C7-B250-68B0767BE70A}</ProjectGuid>
+    <ProjectGuid>{ADCEBA5D-9CAD-47EF-A9DC-C32BEE858E75}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Tool</RootNamespace>
     <AssemblyName>Tool</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Deterministic>true</Deterministic>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <OutputPath>..\Example\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -31,6 +46,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -39,41 +55,53 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Wrap\GroupWrap.cs" />
-    <Compile Include="DataSet\Data.cs" />
-    <Compile Include="DataSet\FBool.cs" />
-    <Compile Include="DataSet\FClass.cs" />
-    <Compile Include="DataSet\FDict.cs" />
-    <Compile Include="DataSet\FEnum.cs" />
-    <Compile Include="DataSet\FFloat.cs" />
-    <Compile Include="DataSet\FInt.cs" />
-    <Compile Include="DataSet\FList.cs" />
-    <Compile Include="DataSet\FLong.cs" />
-    <Compile Include="DataSet\FString.cs" />
-    <Compile Include="Import\Import.cs" />
-    <Compile Include="Import\ImportExcel.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Setting.cs" />
-    <Compile Include="Wrap\ClassWrap.cs" />
-    <Compile Include="Wrap\ConfigWrap.cs" />
-    <Compile Include="Wrap\EnumWrap.cs" />
-    <Compile Include="Wrap\FieldWrap.cs" />
-    <Compile Include="Util.cs" />
+    <Compile Include="CmdOption.cs" />
+    <Compile Include="Config\Data.cs" />
+    <Compile Include="Config\FBool.cs" />
+    <Compile Include="Config\FClass.cs" />
+    <Compile Include="Config\FDict.cs" />
+    <Compile Include="Config\FEnum.cs" />
+    <Compile Include="Config\FFloat.cs" />
+    <Compile Include="Config\FInt.cs" />
+    <Compile Include="Config\FList.cs" />
+    <Compile Include="Config\FLong.cs" />
+    <Compile Include="Config\FString.cs" />
     <Compile Include="Xml\ClassXml.cs" />
+    <Compile Include="Xml\ConfigXml.cs" />
     <Compile Include="Xml\EnumXml.cs" />
     <Compile Include="Xml\FieldXml.cs" />
     <Compile Include="Xml\ModuleXml.cs" />
     <Compile Include="Xml\NamespaceXml.cs" />
-    <Compile Include="Xml\TypeXml.cs" />
+    <Compile Include="Export\CodeWriter.cs" />
+    <Compile Include="Export\ExportCSharp.cs" />
+    <Compile Include="Export\ExportXmlCode.cs" />
+    <Compile Include="Export\ExportCsv.cs" />
+    <Compile Include="Export\ExportLua.cs" />
+    <Compile Include="Import\Import.cs" />
+    <Compile Include="Import\ImportXml.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Import\ImportExcel.cs" />
+    <Compile Include="Wrap\ClassWrap.cs" />
+    <Compile Include="Wrap\ConfigWrap.cs" />
+    <Compile Include="Wrap\EnumWrap.cs" />
+    <Compile Include="Wrap\FieldWrap.cs" />
+    <Compile Include="Wrap\GroupWrap.cs" />
+    <Compile Include="Util.cs" />
+    <Compile Include="Setting.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,0 +1,14 @@
+<Namespace Name="SetTypes" Desc="集合类型">
+  <Class Name="ListSet" Group="All" Desc="" Inherit="" Index="" DataPath="">
+    <Field Name="list_bool" Desc="布尔列表" Group="" Type="list:bool" Checker="" />
+    <Field Name="list_int" Desc="整形列表" Group="" Type="list:int" Checker="" />
+    <Field Name="list_long" Desc="长整形列表" Group="" Type="list:long" Checker="" />
+    <Field Name="list_float" Desc="浮点型列表" Group="" Type="list:float" Checker="" />
+    <Field Name="list_string" Desc="字符串列表" Group="" Type="list:string" Checker="" />
+  </Class>
+  <Class Name="DictSet" Group="All" Desc="" Inherit="" Index="" DataPath="">
+    <Field Name="dict_int" Desc="整形字典" Group="" Type="dict:int:bool" Checker="" />
+    <Field Name="dict_long" Desc="长整形字典" Group="" Type="dict:long:bool" Checker="" />
+    <Field Name="dict_string" Desc="" Group="" Type="dict:string:bool" Checker="" />
+  </Class>
+</Namespace>

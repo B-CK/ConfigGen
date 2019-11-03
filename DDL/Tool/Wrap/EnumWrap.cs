@@ -1,7 +1,9 @@
-﻿using Xml;
+﻿using Description;
+using Xml;
 using System;
-using System.Text;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Wrap
 {
@@ -33,11 +35,11 @@ namespace Wrap
         public Dictionary<string, int> Values { get { return _values; } }
         public Dictionary<string, string> Aliases { get { return _aliases; } }
 
-        public int GetEnumValue(string name)
+        public string GetEnumValue(string name)
         {
             if (_values.ContainsKey(name))
-                return _values[name];
-            return -1;
+                return _values[name].ToString();
+            return Setting.Null;
         }
         public string GetEnumName(string alias)
         {
@@ -92,13 +94,9 @@ namespace Wrap
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.AppendFormat("Enum - FullName:{0}\tDataPath{1}\tGroup:{2}\n", FullName, _des.Group);
-            var ait = _aliases.GetEnumerator();
-            while (ait.MoveNext())
-            {
-                var item = ait.Current;
+            builder.AppendFormat("Enum - FullName:{0}\tGroup:{1}\n", FullName, _des.Group);
+            foreach (var item in _aliases)
                 builder.AppendFormat("\t{0}({1}) = {2}\n", item.Value, item.Key, _values[item.Value]);
-            }
             return builder.ToString();
         }
         private void Error(string msg)

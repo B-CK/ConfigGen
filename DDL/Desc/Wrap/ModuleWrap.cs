@@ -210,7 +210,7 @@ namespace Desc.Wrap
                 var imps = _xml.Imports;
                 for (int i = 0; i < imps.Count; i++)
                 {
-                    string key = imps[i];
+                    string key = Path.GetFileNameWithoutExtension(imps[i]);
                     AddNamespace(NamespaceWrap.Dict[key]);
                     _imports.Add(key);
                     Add(key);
@@ -326,7 +326,18 @@ namespace Desc.Wrap
         public void Save(bool saveNsw = true)
         {
             _xml.Name = _name;
-            _xml.Imports = _imports;
+            var imps = new List<string>();
+            for (int i = 0; i < _imports.Count; i++)
+            {
+                var key = _imports[i];
+                if (NamespaceWrap.Dict.ContainsKey(key))
+                {
+                    var ns = NamespaceWrap.Dict[key];
+                    var relative = Util.GetRelativePath(ns.FilePath, Util.ModuleDir);
+                    imps.Add(relative);
+                }
+            }
+            _xml.Imports = imps;
             _xml.Groups = string.Join(Util.ArgsSplitFlag[0].ToString(), Util.Groups);
             Util.Serialize(_path, _xml);
             Debug.LogFormat("[Module]保存模板{0}", _path);

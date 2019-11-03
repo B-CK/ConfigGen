@@ -37,18 +37,6 @@ namespace Desc.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(".\\Namespace\\")]
-        public string NamespaceDir {
-            get {
-                return ((string)(this["NamespaceDir"]));
-            }
-            set {
-                this["NamespaceDir"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string LastModule {
             get {

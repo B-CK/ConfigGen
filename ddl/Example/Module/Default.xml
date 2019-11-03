@@ -1,0 +1,10 @@
+<Module Name="Default" Groups="All:Client:Editor:Server">
+  <Import>Namespaces\@.xml</Import>
+  <Import>Namespaces\BX.xml</Import>
+  <Import>Namespaces\SDK.xml</Import>
+  <Import>Namespaces\Test_X.xml</Import>
+  <Import>Namespaces\XSDK.xml</Import>
+  <Import>Namespaces\BaseTypesInfo0.xml</Import>
+  <Import>Namespaces\CustomTypes.xml</Import>
+  <Import>Namespaces\SetTypes.xml</Import>
+</Module>

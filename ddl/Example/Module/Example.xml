@@ -1,0 +1,5 @@
+<Module Name="Example" Groups="All:Client:Editor:Server">
+  <Import>Namespaces\BaseTypesInfo0.xml</Import>
+  <Import>Namespaces\CustomTypes.xml</Import>
+  <Import>Namespaces\SetTypes.xml</Import>
+</Module>

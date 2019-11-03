@@ -6,7 +6,7 @@ using Desc.Wrap;
 using System.Windows.Forms;
 
 namespace Desc
-{
+{   
     public partial class MainWindow : Form
     {
         static MainWindow _ins;
@@ -39,8 +39,6 @@ namespace Desc
         {
             if (!Settings.Default.ModuleDir.IsEmpty())
                 Util.ModuleDir = Settings.Default.ModuleDir;
-            if (!Settings.Default.NamespaceDir.IsEmpty())
-                Util.NamespaceDir = Settings.Default.NamespaceDir;
             if (!Directory.Exists(Util.ModuleDir))
                 Directory.CreateDirectory(Util.ModuleDir);
             if (!Directory.Exists(Util.NamespaceDir))

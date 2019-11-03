@@ -19,13 +19,10 @@ namespace Xml
         [XmlAttribute]
         public string Type;
         [XmlAttribute]
-        public bool IsConst;
+        public string Ref;//引用字段
         [XmlAttribute]
-        public string Value;
-        [XmlAttribute]
-        public string Checker;//引用资源相对路径
+        public string RefPath;//引用资源相对路径
     }
-
     [XmlInclude(typeof(EnumItemXml))]
     public class EnumItemXml : MemberXml
     {

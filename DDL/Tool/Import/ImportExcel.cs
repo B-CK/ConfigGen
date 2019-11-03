@@ -1,15 +1,13 @@
-﻿using Tool;
+﻿using System;
+using Description.Wrap;
 using Wrap;
-using System;
-using DataSet;
 using System.Collections.Generic;
+using System.Data;
 
-
-namespace Import
+namespace Description.Import
 {
     /// <summary>
     /// Excel 行列读取器
-    /// 注:遇到##符号则忽略当前行
     /// </summary>
     public class ImportExcel : Import
     {
@@ -204,7 +202,7 @@ namespace Import
             ConfigWrap cfg = ConfigWrap.Get(info.FullType);
             for (int i = 0; i < fields.Count; i++)
             {
-                var d = DataSet.Data.Create(data, fields[i], this);
+                var d = Data.Create(data, fields[i], this);
                 data.Values.Add(d);
                 if (data.Host == null && fields[i] == cfg.Index)
                     FList.AddIndex(cfg.Index, d);
@@ -215,9 +213,9 @@ namespace Import
             FieldWrap item = define.GetItemDefine();
             while (!IsSectionEnd())
             {
-                var d = DataSet.Data.Create(data.Host, item, this);
+                var d = Data.Create(data.Host, item, this);
                 if (data.Host == null)
-                    Program.RecordLastData(d);
+                    Program.AddLastData(d);
                 data.Values.Add(d);
             }
         }
@@ -227,8 +225,8 @@ namespace Import
             FieldWrap value = define.GetValueDefine();
             while (!IsSectionEnd())
             {
-                var dk = DataSet.Data.Create(data.Host, key, this);
-                var dv = DataSet.Data.Create(data.Host, value, this);
+                var dk = Data.Create(data.Host, key, this);
+                var dv = Data.Create(data.Host, value, this);
                 data.Values.Add(dk, dv);
             }
         }

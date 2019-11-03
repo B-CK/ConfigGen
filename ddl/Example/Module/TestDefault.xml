@@ -1,0 +1,7 @@
+<Module Name="TestDefault" Groups="">
+  <Import>@</Import>
+  <Import>SDK</Import>
+  <Import>XSDK</Import>
+  <Import>Test_X</Import>
+  <Import>BX</Import>
+</Module>

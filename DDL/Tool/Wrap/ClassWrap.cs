@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using Xml;
+using System;
+using Description;
 using System.Text;
-using Xml;
+using System.Collections.Generic;
 
 namespace Wrap
 {
-    /// <summary>
-    /// 类型信息,不用于数据配置解析
-    /// </summary>
     public class ClassWrap
     {
         private static Dictionary<string, ClassWrap> _classes = new Dictionary<string, ClassWrap>();
@@ -97,17 +93,17 @@ namespace Wrap
             _fullType = string.Format("{0}.{1}", namespace0, des.Name);
             _inherit = des.Inherit;
             _inherit = CorrectType(this, _inherit);
-            _groups = new HashSet<string>(Util.SplitArgs(des.Group));
+            _groups = new HashSet<string>(Util.Split(des.Group));
             if (_groups.Count == 0)
-                _groups.Add(global::Setting.DefualtGroup);
+                _groups.Add(Setting.DefualtGroup);
 
             Add(this);
             _fields = new List<FieldWrap>();
             for (int i = 0; i < des.Fields.Count; i++)
             {
-                var fieldXml = des.Fields[i];
-                var info = new FieldWrap(this, fieldXml.Name, fieldXml.Type, fieldXml.Group, fieldXml.Desc, _groups);
-                info.Init(fieldXml.IsConst, fieldXml.Value, fieldXml.Checker);
+                var fieldDes = des.Fields[i];
+                var info = new FieldWrap(this, fieldDes.Name, fieldDes.Type, fieldDes.Group, fieldDes.Desc, _groups);
+                info.InitCheck(fieldDes.Ref, fieldDes.RefPath);
                 Fields.Add(info);
             }
         }

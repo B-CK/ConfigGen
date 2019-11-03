@@ -1,6 +1,4 @@
-﻿using DataSet;
-using Xml;
-using System;
+﻿using Description;
 using System.Collections.Generic;
 
 namespace Wrap
@@ -12,6 +10,8 @@ namespace Wrap
             return Setting.RawTypes.Contains(type)
                 || EnumWrap.IsEnum(type) || ClassWrap.IsClass(type);
         }
+
+
         public ClassWrap Host { get { return _host; } }
         /// <summary>
         /// 字段名称
@@ -28,16 +28,19 @@ namespace Wrap
         public string OriginalType { get { return _types[0]; } }
         public string[] Types { get { return _types; } }
         public HashSet<string> Group { get { return _groups; } }
-        public string Value { get { return _value; } }
-        public bool IsConst { get { return _isConst; } }
         public bool IsRaw { get { return Setting.RawTypes.Contains(OriginalType); } }
         public bool IsContainer { get { return Setting.ContainerTypes.Contains(OriginalType); } }
         public bool IsClass { get { return ClassWrap.IsClass(OriginalType); } }
-        /// <summary>
-        /// 父类
-        /// </summary>
         public bool IsDynamic { get { return ClassWrap.IsDynamic(OriginalType); } }
         public bool IsEnum { get { return EnumWrap.IsEnum(OriginalType); } }
+        public bool IsInherit
+        {
+            get
+            {
+                ClassWrap parent = ClassWrap.Get(OriginalType);
+                return parent.HasChild(_fullType);
+            }
+        }
         public string[] Refs { get { return _refs; } }
         public string[] RefPaths { get { return _refPaths; } }
 
@@ -58,31 +61,24 @@ namespace Wrap
         /// 优先Class.Group,其次才是Field.Group
         /// </summary>
         private HashSet<string> _groups;
-
-        private string _value;
-        private bool _isConst;
         private string[] _refs;
         private string[] _refPaths;
 
-        public void Init(bool isConst, string value, string checker)
+        public void InitCheck(string refs, string refPaths)
         {
-            //_refs = Util.SplitArgs(refs);
-            //_refPaths = Util.SplitArgs(refPaths);
-            _isConst = isConst;
-            _value = value;
-            _refs = new string[0];
-            _refPaths = new string[0];
+            _refs = Util.Split(refs);
+            _refPaths = Util.Split(refPaths);
         }
         /// <summary>
         /// Class 字段
         /// </summary>
         public FieldWrap(ClassWrap host, string name, string type, string group, string desc, HashSet<string> gs)
-            : this(host, name, type, Util.SplitArgs(type), gs)
+            : this(host, name, type, Util.Split(type), gs)
         {
             _group = group;
             if (_groups == null)
             {
-                _groups = new HashSet<string>(Util.SplitArgs(group));
+                _groups = new HashSet<string>(Util.Split(group));
                 if (_groups.Count == 0)
                     _groups.Add(Setting.DefualtGroup);
             }
@@ -190,7 +186,7 @@ namespace Wrap
         }
         public override string ToString()
         {
-            return string.Format("Field - Name:{0}\tType:{1}\tGroup:{2}\tIsConst:{3}", Name, FullType, _group, _isConst);
+            return string.Format("Field - Name:{0}\tType:{1}\tGroup:{2}", Name, FullType, _group);
         }
 
     }

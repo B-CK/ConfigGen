@@ -1,15 +1,17 @@
-﻿using Xml;
-using DataSet;
-using Import;
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
+using Description.Wrap;
+using Description.Import;
+using Xml;
 using System.Collections.Generic;
+using System.Xml;
+using Description;
 
 namespace Wrap
 {
     /// <summary>
-    /// 用于解析数据配置的类型,区别于ClassInfo
+    /// 与数据关联的结构
     /// </summary>
     public class ConfigWrap
     {
@@ -63,12 +65,12 @@ namespace Wrap
         private FList _data;
         private readonly HashSet<string> _groups;
 
-        public ConfigWrap(ClassXml des, string namespace0)
+        public ConfigWrap(ClassXml des, string namespace0, string xmlDir)
         {
             _des = des;
             _namespace = namespace0;
             _fullType = string.Format("{0}.{1}", namespace0, des.Name);
-            _groups = new HashSet<string>(Util.SplitArgs(des.Group));
+            _groups = new HashSet<string>(Util.Split(des.Group));
             if (_groups.Count == 0)
                 _groups.Add(Setting.DefualtGroup);
 
@@ -77,7 +79,7 @@ namespace Wrap
             ClassWrap cls = ClassWrap.Get(_fullType);
             _index = cls.Fields.Find(f => f.Name == des.Index);
 
-            string path = Path.Combine(Setting.ExcelDir, _des.DataPath);
+            string path = Path.Combine(xmlDir, _des.DataPath);
             if (File.Exists(path))
                 _inputFiles = new string[] { path };
             else if (Directory.Exists(path))
@@ -115,15 +117,24 @@ namespace Wrap
                 {
                     string ext = Path.GetExtension(path);
                     string fullType = "list:" + _fullType;
-                    FieldWrap field = new FieldWrap(null, Name, fullType, Util.SplitArgs(fullType), _groups);
-                    var excel = new ImportExcel(path);
-                    _data = new FList(null, field, excel);
+                    FieldWrap field = new FieldWrap(null, Name, fullType, Util.Split(fullType), _groups);
+                    if (ext == "xml")
+                    {
+                        var xml = new ImportXml(path);
+                        _data = new FList(null, field, xml.Data);
+                    }
+                    else
+                    {
+                        var excel = new ImportExcel(path);
+                        _data = new FList(null, field, excel);
+                    }
                 }
                 catch (Exception e)
                 {
                     Util.LogErrorFormat("{0}\n{1}\n", e.Message, e.StackTrace);
                     Error("[加载文件失败]:" + path);
                 }
+
             }
         }
         public void VerifyData()

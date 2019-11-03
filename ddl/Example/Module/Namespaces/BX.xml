@@ -1,0 +1,16 @@
+<Namespace Name="BX" Desc="你是谁?">
+  <Class Name="gfhgfjA" Group="All:Server" Desc="" Inherit="" Index="" DataPath="" />
+  <Class Name="bbbbOK" Group="All:Client" Desc="描述Ok" Inherit="@.At_B" Index="z" DataPath="">
+    <Field Name="IDs" Desc="" Group="All:Client:Editor" Type="dict:int:BX.TestEnum" IsConst="false" Value="" Checker="" />
+    <Field Name="Name" Desc="" Group="All" Type="bool" IsConst="false" Value="False" Checker="" />
+    <Field Name="index" Desc="" Group="All" Type="long" IsConst="false" Value="-3" Checker="" />
+    <Field Name="Z" Desc="" Group="All" Type="bool" IsConst="false" Value="False" Checker="" />
+    <Field Name="z" Desc="" Group="All" Type="bool" IsConst="true" Value="True" Checker="" />
+    <Field Name="x_1" Desc="" Group="All" Type="bool" IsConst="false" Value="False" Checker="" />
+  </Class>
+  <Enum Name="TestEnum" Group="All" Desc="">
+    <Item Name="Item1" Desc="" Group="All" Value="3" Alias="2号" />
+    <Item Name="Item2" Desc="" Group="All" Value="6" Alias="3号" />
+    <Item Name="Item0" Desc="" Group="All" Value="0" Alias="1号" />
+  </Enum>
+</Namespace>

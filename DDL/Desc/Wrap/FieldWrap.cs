@@ -29,10 +29,7 @@ namespace Desc.Wrap
         {
             get
             {
-                if (Value.IsEmpty())
-                    return Util.Format("{0}:{1}", _name, Type);
-                else
-                    return Util.Format("{0}:{1}={2}", _name, Type, Value);
+                return Util.Format("{0}:{1}", _name, Type);
             }
         }
         public override string Name
@@ -57,11 +54,6 @@ namespace Desc.Wrap
                 _xml.Type = value;
             }
         }
-        //public bool IsConst { get { return _xml.IsConst; } set { _xml.IsConst = value; } }
-        /// <summary>
-        /// 既可作常量值,也可作默认值,还能做集合类型子类型
-        /// </summary>
-        public string Value { get { return _xml.Value; } set { _xml.Value = value; } }
         public string Group { get { return _xml.Group; } set { _xml.Group = value; } }
         public string Desc { get { return _xml.Desc; } set { _xml.Desc = value; } }
         public string Checker { get { return _xml.Checker; } set { _xml.Checker = value; } }
@@ -82,25 +74,34 @@ namespace Desc.Wrap
         public override bool Check()
         {
             bool r = base.Check();
-            r &= CheckType(Type);
-            if (Type == Util.LIST || Type == Util.DICT)
+            string[] nodes = Type.Split(Util.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
+            if (Type.IndexOf(Util.LIST)== 0 && nodes.Length != 2)
             {
-                string[] nodes = Value.Split(Util.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
-                switch (nodes.Length)
-                {
-                    case 1:
-                        r &= CheckType(nodes[0]);
-                        break;
-                    case 2:
-                        r &= CheckType(nodes[0], true);
-                        r &= CheckType(nodes[1], true);
-                        break;
-                    case 0:
-                    default:
-                        r = false;
-                        Debug.LogErrorFormat("[Field]类型{0}中字段{1}的类型异常[{2}]", _cls.FullName, _name, Type);
-                        break;
-                }
+                Debug.LogErrorFormat("[Field]类型{0}中字段{1}的类型异常:[{2}]", _cls.FullName, _name, Type);
+                r &= false;
+            }
+            if (Type.IndexOf(Util.DICT) == 0 && nodes.Length != 3)
+            {
+                Debug.LogErrorFormat("[Field]类型{0}中字段{1}的类型异常:[{2}]", _cls.FullName, _name, Type);
+                r &= false;
+            }
+            switch (nodes.Length)
+            {
+                case 1:
+                    r &= CheckType(nodes[0]);
+                    break;
+                case 2:
+                    r &= CheckType(nodes[1], true);
+                    break;
+                case 3:
+                    r &= CheckType(nodes[1], true);
+                    r &= CheckType(nodes[2], true);
+                    break;
+                case 0:
+                default:
+                    r = false;
+                    Debug.LogErrorFormat("[Field]类型{0}中字段{1}的类型异常:[{2}]", _cls.FullName, _name, Type);
+                    break;
             }
             return r;
         }

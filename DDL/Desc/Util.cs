@@ -90,12 +90,8 @@ namespace Desc
             get
             {
                 if (_namespaceDir.IsEmpty())
-                    _namespaceDir = Path.Combine(ApplicationDir, "Namespace");
+                    _namespaceDir = Path.Combine(ModuleDir, "Namespaces");
                 return _namespaceDir;
-            }
-            set
-            {
-                _namespaceDir = Path.GetFullPath(Path.Combine(ApplicationDir, value));
             }
         }
         /// <summary>
@@ -457,6 +453,21 @@ namespace Desc
         public static string ToString(this List<string> list, string split = ",")
         {
             return ToString(list.ToArray(), split);
+        }
+        //获取相对某个目录的相对路径
+        public static string GetRelativePath(string filePath, string folder)
+        {
+            if (!File.Exists(filePath) || !Directory.Exists(folder))
+                return null;
+            const string directorySeparatorChar = "\\";
+            Uri pathUri = new Uri(filePath);
+
+            if (!folder.EndsWith(directorySeparatorChar))
+            {
+                folder += directorySeparatorChar;
+            }
+            Uri folderUri = new Uri(folder);
+            return Uri.UnescapeDataString(folderUri.MakeRelativeUri(pathUri).ToString().Replace("/", directorySeparatorChar));
         }
     }
 }

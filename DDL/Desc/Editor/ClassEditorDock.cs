@@ -263,7 +263,7 @@ namespace Desc.Editor
             if (row == null) row = new DataGridViewRow();
             string type = field.Type;
             string group = field.Group ?? Util.DefaultGroup;
-            if (type != Util.LIST && type != Util.DICT)
+            if (type.IndexOf(Util.LIST) == 0 && type.IndexOf(Util.DICT) == 0)
             {
                 if (Util.HasType(type))
                     row.CreateCells(_memberList, field.Name, type, "##", field.Desc, group, field.Checker);
@@ -271,7 +271,21 @@ namespace Desc.Editor
                     row.CreateCells(_memberList, field.Name, null, "##", field.Desc, group, field.Checker);
             }
             else
-                row.CreateCells(_memberList, field.Name, type, field.Value, field.Desc, group, field.Checker);
+            {
+                string[] nodes = type.Split(Util.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
+                switch (nodes.Length)
+                {
+                    case 2:
+                        row.CreateCells(_memberList, field.Name, nodes[0], nodes[1], field.Desc, group, field.Checker);
+                        break;
+                    case 3:
+                        row.CreateCells(_memberList, field.Name, nodes[0], $"{nodes[1]}:{nodes[2]}", field.Desc, group, field.Checker);
+                        break;
+                    default:
+                        Debug.LogError($"[ClassDock]{GetWrap<ClassWrap>().FullName}的复合类型字段解析异常:{field}");
+                        break;
+                }
+            }
             row.Tag = field;
             row.ReadOnly = isHerit;
             for (int i = 0; i < row.Cells.Count; i++)
@@ -293,10 +307,8 @@ namespace Desc.Editor
 
             field.Name = name == null ? string.Empty : name as string;
             field.Type = type == null ? Util.BOOL : type as string;
-            if (field.Type != Util.LIST && field.Type != Util.DICT)
-                field.Value = string.Empty;
-            else
-                field.Value = value == null ? string.Empty : value as string;
+            if (field.Type.IndexOf(Util.LIST) == 0 || field.Type.IndexOf(Util.DICT) == 0)
+                field.Type += $":{value}";
             field.Desc = desc == null ? string.Empty : desc as string;
             field.Group = group == null ? string.Empty : group as string;
             field.Checker = checker == null ? string.Empty : checker as string;

@@ -41,7 +41,7 @@ namespace Desc.Editor
             _okEvt = ok;
             string types = cells[index].Value as string;
             types = types ?? "";
-            if (type == Util.LIST)
+            if (type.IndexOf(Util.LIST) == 0)
             {//List
                 _label1.Text = "元素类型:";
                 _label2.Visible = false;
@@ -52,7 +52,7 @@ namespace Desc.Editor
                 var i = items.IndexOf(types.Trim());
                 _typeComboBox1.SelectedIndex = i;
             }
-            else if (type == Util.DICT)
+            else if (type.IndexOf(Util.DICT) == 0)
             {//Dict
                 _label1.Text = "Key类型:";
                 _label2.Visible = true;
@@ -84,6 +84,8 @@ namespace Desc.Editor
             else
                 _cells[_index].Value = $"{_typeComboBox1.Text}{Util.ArgsSplitFlag[0]}{_typeComboBox2.Text}";
             _okEvt?.Invoke();
+            _typeComboBox1.Text = "";
+            _typeComboBox2.Text = "";
             Close();
         }
         private void CancleButton_Click(object sender, EventArgs e)
