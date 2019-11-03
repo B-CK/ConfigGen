@@ -19,7 +19,7 @@ namespace XmlCustomTypes
 		/// <summary>
 		/// 光环
 		/// <summary>
-		public int Buff;
+		public CustomTypes.BuffType Buff;
 
 		public override void Write(TextWriter _1)
 		{
@@ -32,7 +32,7 @@ namespace XmlCustomTypes
 			switch (_2.Name)
 			{
 				case "Alias": Alias = ReadString(_2); break;
-				case "Buff": Buff = ReadInt(_2); break;
+				case "Buff": Buff = (CustomTypes.BuffType)ReadInt(_2); break;
 			}
 		}
 	}

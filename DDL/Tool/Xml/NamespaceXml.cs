@@ -12,8 +12,5 @@ namespace Xml
         public List<ClassXml> Classes;
         [XmlElement("Enum")]
         public List<EnumXml> Enums;
-
-        [XmlIgnore]
-        public string XmlDir;
     }
 }

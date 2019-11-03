@@ -10,9 +10,14 @@ using Desc.Properties;
 using System.Drawing;
 using Desc.Wrap;
 using System.Runtime.InteropServices;
+using System.Reflection;
 
 namespace Desc
 {
+    /// <summary>
+    /// 工具相关配置文件路径以ApplicationDir为准
+    /// 文件中数据路径以ModuleDir为准
+    /// </summary>
     public static class Util
     {
         #region 删除文件进过回收站
@@ -52,7 +57,19 @@ namespace Desc
         /// <summary>
         /// 工具所在目录
         /// </summary>
-        public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
+        public static string ApplicationDir
+        {
+            get
+            {
+                if (_applicationDir == null)
+                {
+                    var asm = Assembly.GetExecutingAssembly();
+                    var uri = new Uri(asm.CodeBase);
+                    _applicationDir = Path.GetDirectoryName(uri.AbsolutePath);
+                }
+                return _applicationDir;
+            }
+        }
         /// <summary>
         /// 空命名空间符号
         /// </summary>
@@ -83,7 +100,7 @@ namespace Desc
             }
         }
         /// <summary>
-        /// ModuleXml描述文件目录
+        /// NamespaceXml描述文件目录:相对模块文件目录
         /// </summary>
         public static string NamespaceDir
         {
@@ -135,11 +152,12 @@ namespace Desc
         /// </summary>
         public static string DefaultGroup => "All";
         /// <summary>
-        /// Excel数据目录
+        /// Excel数据目录:相对模块文件目录
         /// </summary>
-        public static string DataDir { get { return Format("{0}/{1}", ApplicationDir, _dataDir); } set { _dataDir = value; } }
+        public static string DataDir { get { return Path.GetFullPath(Path.Combine(ModuleDir, _dataDir)); } set { _dataDir = value; } }
         public static string LogErrorFile { get { return Path.Combine(ApplicationDir, "error.log"); } }
 
+        static string _applicationDir;
         static string _defaultModule;
         static string _moduleDir;
         static string _namespaceDir;
@@ -352,12 +370,29 @@ namespace Desc
         }
         public static string GetDataDirAbsPath(string path)
         {
-            return Format(@"{0}/{1}/{2}", ApplicationDir, _dataDir, path);
+            return Path.Combine(ModuleDir, path);
         }
         public static string GetDataDirRelPath(string path)
         {
-            string dir = Format(@"{0}/{1}", ApplicationDir, _dataDir);
-            return path.Replace(dir, @"./");
+            return GetRelativePath(path, ModuleDir);
+        }
+        //获取相对某个目录的相对路径
+        public static string GetRelativePath(string absolutePath, string folder)
+        {
+            if (!File.Exists(absolutePath) || !Directory.Exists(folder))
+            {
+                MsgWarning("{0}路径或者{1}目录不存在,无法解析出相对路径!", absolutePath, folder);
+                return null;
+            }
+            const string directorySeparatorChar = "\\";
+            Uri pathUri = new Uri(absolutePath);
+
+            if (!folder.EndsWith(directorySeparatorChar))
+            {
+                folder += directorySeparatorChar;
+            }
+            Uri folderUri = new Uri(folder);
+            return Uri.UnescapeDataString(folderUri.MakeRelativeUri(pathUri).ToString().Replace("/", directorySeparatorChar));
         }
         public static void TryDeleteDirectory(string path)
         {
@@ -454,20 +489,6 @@ namespace Desc
         {
             return ToString(list.ToArray(), split);
         }
-        //获取相对某个目录的相对路径
-        public static string GetRelativePath(string filePath, string folder)
-        {
-            if (!File.Exists(filePath) || !Directory.Exists(folder))
-                return null;
-            const string directorySeparatorChar = "\\";
-            Uri pathUri = new Uri(filePath);
 
-            if (!folder.EndsWith(directorySeparatorChar))
-            {
-                folder += directorySeparatorChar;
-            }
-            Uri folderUri = new Uri(folder);
-            return Uri.UnescapeDataString(folderUri.MakeRelativeUri(pathUri).ToString().Replace("/", directorySeparatorChar));
-        }
     }
 }

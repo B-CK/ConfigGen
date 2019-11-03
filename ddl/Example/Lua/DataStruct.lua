@@ -24,7 +24,6 @@ function Stream:GetCustomTypesMonster()
 	local o = self:GetCustomTypesCustom()
 	setmetatable(o, CustomTypes.Monster)
 	o.Attack = self:GetInt()
-	o.ID = self:GetBool()
 	return o
 end
 meta= {}
@@ -58,10 +57,19 @@ end
 function Stream:GetCustomTypesCustom()
 	local o = {}
 	setmetatable(o, CustomTypes.Custom)
-	o.ID = self:GetInt()
 	o.Name = self:GetString()
 	o.Level = self:GetInt()
-	o.Base = self:GetInt()
+	return o
+end
+meta= {}
+meta.__index = meta
+meta.class = 'CustomTypes.Character'
+GetOrCreate('CustomTypes')['Character'] = meta
+function Stream:GetCustomTypesCharacter()
+	local o = {}
+	setmetatable(o, CustomTypes.Character)
+	o.ID = self:GetInt()
+	o.Custom = self:GetCustomTypesCustomMaker()
 	return o
 end
 meta= {}
@@ -71,11 +79,13 @@ GetOrCreate('SetTypes')['ListSet'] = meta
 function Stream:GetSetTypesListSet()
 	local o = {}
 	setmetatable(o, SetTypes.ListSet)
+	o.ID = self:GetInt()
 	o.list_bool = self:GetList('Bool')
 	o.list_int = self:GetList('Int')
 	o.list_long = self:GetList('Long')
 	o.list_float = self:GetList('Float')
 	o.list_string = self:GetList('String')
+	o.list_enum = self:GetList('CustomTypesBuffType')
 	return o
 end
 meta= {}
@@ -85,9 +95,11 @@ GetOrCreate('SetTypes')['DictSet'] = meta
 function Stream:GetSetTypesDictSet()
 	local o = {}
 	setmetatable(o, SetTypes.DictSet)
+	o.ID = self:GetInt()
 	o.dict_int = self:GetDict('Int', 'Bool')
 	o.dict_long = self:GetDict('Long', 'Bool')
 	o.dict_string = self:GetDict('String', 'Bool')
+	o.dict_enum = self:GetDict('Int', 'Bool')
 	return o
 end
 GetOrCreate('CustomTypes')['BuffType'] = {

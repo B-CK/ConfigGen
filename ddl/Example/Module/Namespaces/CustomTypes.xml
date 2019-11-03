@@ -1,20 +1,21 @@
 <Namespace Name="CustomTypes" Desc="自定义类型">
   <Class Name="Monster" Group="All" Desc="怪物" Inherit="CustomTypes.Custom" Index="" DataPath="">
-    <Field Name="Attack" Desc="攻击" Group="" Type="int" Value="" Checker="" />
-    <Field Name="ID" Desc="" Group="" Type="bool" Value="" Checker="" />
+    <Field Name="Attack" Desc="攻击" Group="" Type="int" Checker="" />
   </Class>
   <Class Name="NPC" Group="All" Desc="NPC" Inherit="CustomTypes.Custom" Index="" DataPath="">
-    <Field Name="Alias" Desc="别名" Group="" Type="string" Value="" Checker="" />
+    <Field Name="Alias" Desc="别名" Group="" Type="string" Checker="" />
   </Class>
   <Class Name="Partner" Group="All" Desc="伙伴" Inherit="CustomTypes.Custom" Index="" DataPath="">
-    <Field Name="Alias" Desc="别名" Group="" Type="string" Value="" Checker="" />
-    <Field Name="Buff" Desc="光环" Group="" Type="int" Value="" Checker="" />
+    <Field Name="Alias" Desc="别名" Group="All" Type="string" Checker="" />
+    <Field Name="Buff" Desc="光环" Group="All" Type="CustomTypes.BuffType" Checker="" />
   </Class>
   <Class Name="Custom" Group="All" Desc="自定义" Inherit="" Index="" DataPath="">
-    <Field Name="ID" Desc="ID" Group="" Type="int" Value="" Checker="" />
-    <Field Name="Name" Desc="名称" Group="" Type="string" Value="" Checker="" />
-    <Field Name="Level" Desc="等级" Group="" Type="int" Value="" Checker="" />
-    <Field Name="Base" Desc="类类型" Group="" Type="CustomTypes.BuffType" Value="" Checker="" />
+    <Field Name="Name" Desc="名称" Group="All" Type="string" Checker="" />
+    <Field Name="Level" Desc="等级" Group="All" Type="int" Checker="" />
+  </Class>
+  <Class Name="Character" Group="All" Desc="" Inherit="" Index="ID" DataPath="..\Excel\CustomTypes_自定义类型.xlsx">
+    <Field Name="ID" Desc="id" Group="All" Type="int" Checker="" />
+    <Field Name="Custom" Desc="角色信息" Group="All" Type="CustomTypes.Custom" Checker="" />
   </Class>
   <Enum Name="BuffType" Group="All:Client" Desc="Buff类型">
     <Item Name="Attack" Desc="攻击Buff" Group="All:Client:Editor" Value="1" Alias="攻击" />

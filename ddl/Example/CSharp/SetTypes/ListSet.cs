@@ -10,6 +10,10 @@ namespace SetTypes
 	public class ListSet : CfgObject
 	{
 		/// <summary>
+		/// id
+		/// <summary>
+		public readonly int ID;
+		/// <summary>
 		/// 布尔列表
 		/// <summary>
 		public readonly List<bool> list_bool = new List<bool>();
@@ -29,9 +33,14 @@ namespace SetTypes
 		/// 字符串列表
 		/// <summary>
 		public readonly List<string> list_string = new List<string>();
+		/// <summary>
+		/// 
+		/// <summary>
+		public readonly List<CustomTypes.BuffType> list_enum = new List<CustomTypes.BuffType>();
 		
 		public ListSet(DataStream data)
 		{
+			ID = data.GetInt();
 			for (int n = data.GetInt(); n-- > 0;)
 			{
 				bool v = data.GetBool();
@@ -56,6 +65,11 @@ namespace SetTypes
 			{
 				string v = data.GetString();
 				list_string.Add(v);
+			}
+			for (int n = data.GetInt(); n-- > 0;)
+			{
+				CustomTypes.BuffType v = (CustomTypes.BuffType)data.GetInt();
+				list_enum.Add(v);
 			}
 		}
 	}

@@ -18,7 +18,7 @@
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="DataDir" Type="System.String" Scope="User">
-      <Value Profile="(Default)">.</Value>
+      <Value Profile="(Default)">..\Excel\</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -199,7 +199,7 @@ namespace Desc.Wrap
         public override bool Check()
         {
             bool isOk = base.Check();
-            bool hasIndex = false;
+            bool hasIndex = true;
             List<string> repeat = new List<string>();
             HashSet<string> hash = new HashSet<string>();
             for (int i = 0; i < _fields.Count; i++)
@@ -223,8 +223,7 @@ namespace Desc.Wrap
                 var fields = Parent.Fields;
                 for (int i = 0; i < fields.Count; i++)
                 {
-                    var field = fields[i];
-                    hasIndex |= field.FullName == Index;
+                    var field = fields[i];                 
                     if (Contains(field.Name))
                         repeat.Add(field.Name);
                 }

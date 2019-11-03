@@ -67,7 +67,7 @@ namespace Desc.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(".")]
+        [global::System.Configuration.DefaultSettingValueAttribute("..\\Excel\\")]
         public string DataDir {
             get {
                 return ((string)(this["DataDir"]));

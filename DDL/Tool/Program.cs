@@ -71,7 +71,6 @@ namespace Description
         static void LoadDefine()
         {
             //解析类型定义
-            //解析类型定义
             Dictionary<string, NamespaceXml> allNs = new Dictionary<string, NamespaceXml>();
             string path = "无法解析Xml.NamespaceXml";
             try
@@ -97,7 +96,7 @@ namespace Description
                         ClassXml xml = cls[k];
                         var info = new ClassWrap(xml, space);
                         if (info.IsConfig())
-                            new ConfigWrap(xml, space, xml.DataPath);
+                            new ConfigWrap(xml, space, moduleDir);
                     }
                     var ens = nsx.Enums;
                     for (int k = 0; k < ens.Count; k++)
@@ -110,10 +109,10 @@ namespace Description
                 return;
             }
 
-            foreach (var item in ClassWrap.Classes)
-                Console.WriteLine(item.Value);
-            foreach (var item in EnumWrap.Enums)
-                Console.WriteLine(item.Value);
+            //foreach (var item in ClassWrap.Classes)
+            //    Console.WriteLine(item.Value);
+            //foreach (var item in EnumWrap.Enums)
+            //    Console.WriteLine(item.Value);
         }
 
         static void VerifyDefine()

@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace Description
@@ -10,7 +12,15 @@ namespace Description
         /// <summary>
         /// 工具所在目录
         /// </summary>
-        public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
+        public static string ApplicationDir
+        {
+            get
+            {
+                var asm = Assembly.GetExecutingAssembly();
+                var uri = new Uri(asm.CodeBase);
+                return Path.GetDirectoryName(uri.AbsolutePath);
+            }
+        }
 
         /// <summary>
         /// 数据表数据占位符,仅用于基础类型;不填写数据时,使用null占位.
@@ -124,7 +134,7 @@ namespace Description
         /// </summary>
         public const string VALUE = "Value";
         #endregion
-        
+
 
 
 

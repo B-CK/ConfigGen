@@ -16,12 +16,12 @@ namespace CustomTypes
 		/// <summary>
 		/// 光环
 		/// <summary>
-		public readonly int Buff;
+		public readonly CustomTypes.BuffType Buff;
 		
 		public Partner(DataStream data) : base(data)
 		{
 			Alias = data.GetString();
-			Buff = data.GetInt();
+			Buff = (CustomTypes.BuffType)data.GetInt();
 		}
 	}
 }

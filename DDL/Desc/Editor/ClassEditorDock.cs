@@ -66,7 +66,8 @@ namespace Desc.Editor
             for (int i = 0; i < fields.Count; i++)
                 rows.Add(InitField(fields[i].Clone(), false));
             //设置数据路径
-            if (_dataPathTextBox.Text.IsEmpty())
+            int selectedIndex = -1;
+            if (wrap.DataPath.IsEmpty())
                 _indexComboBox.Enabled = false;
             else
             {
@@ -75,14 +76,18 @@ namespace Desc.Editor
                     if (rows[i].IsNewRow) continue;
                     var field = rows[i].Tag as FieldWrap;
                     if (SurportIndexKey(field.Type))
+                    {
                         _indexComboBox.Items.Add(field);
+                        if (wrap.Index == field.Name)
+                            selectedIndex = _indexComboBox.Items.Count - 1;
+                    }
                 }
                 _indexComboBox.Enabled = true;
             }
 
             //填充内容
             _nameTextBox.Text = wrap.Name;
-            _indexComboBox.SelectedText = wrap.Index ?? "";
+            _indexComboBox.SelectedIndex = selectedIndex;
             _namespaceComboBox.SelectedItem = wrap.Namespace;
             if (_inherit != null)
                 _inheritComboBox.SelectedItem = _inherit;
@@ -262,8 +267,8 @@ namespace Desc.Editor
             var row = PoolManager.Ins.Pop<DataGridViewRow>();
             if (row == null) row = new DataGridViewRow();
             string type = field.Type;
-            string group = field.Group ?? Util.DefaultGroup;
-            if (type.IndexOf(Util.LIST) == 0 && type.IndexOf(Util.DICT) == 0)
+            string group = field.Group.IsEmpty() ? Util.DefaultGroup : field.Group;
+            if (type.IndexOf(Util.LIST) != 0 && type.IndexOf(Util.DICT) != 0)
             {
                 if (Util.HasType(type))
                     row.CreateCells(_memberList, field.Name, type, "##", field.Desc, group, field.Checker);
@@ -335,6 +340,7 @@ namespace Desc.Editor
                         cell.Value = field.Name;
                         return;
                     }
+                    field.Name = fieldName;
                     break;
                 case 1:
                     string fieldType = cell.Value as string;
@@ -342,6 +348,7 @@ namespace Desc.Editor
                         row.Cells[_elememtLib.DisplayIndex].Value = "##";
                     else
                         row.Cells[_elememtLib.DisplayIndex].Value = "";
+                    field.Type = fieldType;
                     break;
                 default:
                     break;
@@ -351,21 +358,24 @@ namespace Desc.Editor
             var type = typeCell.Value as string;
             if (type.IsEmpty())
                 typeCell.Value = Util.BOOL;
-            var items = _indexComboBox.Items;
-            if (SurportIndexKey(field.Type))
+
+            //添加类型支持的字段
+            if (_indexComboBox.Enabled)
             {
-                items.Remove(field);
-                items.Add(field);
+                var items = _indexComboBox.Items;
+                if (SurportIndexKey(field.Type))
+                {
+                    items.Remove(field);
+                    items.Add(field);
+                }
+                else
+                    items.Remove(field);
             }
-            else
-                items.Remove(field);
-            if (field.Type.IsEmpty())
-            {
-                var groupCell = row.Cells[_fieldGroupLib.DisplayIndex];
-                var group = groupCell.Value as string;
-                if (group.IsEmpty())
-                    groupCell.Value = Util.DefaultGroup;
-            }
+            var groupCell = row.Cells[_fieldGroupLib.DisplayIndex];
+            var group = groupCell.Value as string;
+            if (group.IsEmpty())
+                groupCell.Value = Util.DefaultGroup;
+
             OnValueChange();
         }
         //修改集合包含类型|字段组信息
@@ -495,11 +505,22 @@ namespace Desc.Editor
         }
         private void OnDataPathChange(object sender, EventArgs e)
         {
+            if (_isInit == false) return;
             OnValueChange();
             var textBox = sender as TextBox;
             _indexComboBox.Enabled = !textBox.Text.IsEmpty();
             if (!_indexComboBox.Enabled)
                 _indexComboBox.Text = "";
+
+            _indexComboBox.Items.Clear();
+            var rows = _memberList.Rows;
+            for (int i = 0; i < rows.Count; i++)
+            {
+                if (rows[i].IsNewRow) continue;
+                var field = rows[i].Tag as FieldWrap;
+                if (SurportIndexKey(field.Type))
+                    _indexComboBox.Items.Add(field);
+            }
         }
         private void DataPathButton_Click(object sender, EventArgs e)
         {
@@ -507,8 +528,15 @@ namespace Desc.Editor
             {
                 OpenFileDialog.InitialDirectory = Util.DataDir;
                 OpenFileDialog.Title = "引用数据文件";
-                OpenFileDialog.Filter = "表|*.xls|表|*.xlsx";
+                OpenFileDialog.Filter = "表|*.xls*";
                 DialogResult result = OpenFileDialog.ShowDialog();
+                if (result == DialogResult.Cancel)
+                {
+                    _dataPathTextBox.Text = "";
+                    _indexComboBox.SelectedIndex = -1;
+                    return;
+                }
+
                 _dataPathTextBox.Text = Util.GetDataDirRelPath(OpenFileDialog.FileName);
             }
             catch (Exception ex)

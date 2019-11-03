@@ -65,7 +65,7 @@ namespace Wrap
         private FList _data;
         private readonly HashSet<string> _groups;
 
-        public ConfigWrap(ClassXml des, string namespace0, string xmlDir)
+        public ConfigWrap(ClassXml des, string namespace0, string moduleDir)
         {
             _des = des;
             _namespace = namespace0;
@@ -79,14 +79,14 @@ namespace Wrap
             ClassWrap cls = ClassWrap.Get(_fullType);
             _index = cls.Fields.Find(f => f.Name == des.Index);
 
-            string path = Path.Combine(xmlDir, _des.DataPath);
+            string path = Path.Combine(moduleDir, _des.DataPath);
             if (File.Exists(path))
                 _inputFiles = new string[] { path };
             else if (Directory.Exists(path))
                 _inputFiles = Directory.GetFiles(path);
             else
                 Error("数据路径不存在:" + path);
-            _outputFile = _fullType.Replace('.', '/').Substring(Setting.ModuleName.Length + 1).ToLower();
+            _outputFile = _fullType.Replace('.', '\\').ToLower();
 
             Add(this);
         }

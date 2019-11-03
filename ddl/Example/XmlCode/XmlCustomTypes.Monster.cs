@@ -16,15 +16,10 @@ namespace XmlCustomTypes
 		/// 攻击
 		/// <summary>
 		public int Attack;
-		/// <summary>
-		/// 
-		/// <summary>
-		public bool ID;
 
 		public override void Write(TextWriter _1)
 		{
 			Write(_1, "Attack", this.Attack);
-			Write(_1, "ID", this.ID);
 		}
 		public override void Read(XmlNode _1)
 		{
@@ -32,7 +27,6 @@ namespace XmlCustomTypes
 			switch (_2.Name)
 			{
 				case "Attack": Attack = ReadInt(_2); break;
-				case "ID": ID = ReadBool(_2); break;
 			}
 		}
 	}

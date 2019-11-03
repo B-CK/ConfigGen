@@ -39,6 +39,8 @@ namespace Desc
         {
             if (!Settings.Default.ModuleDir.IsEmpty())
                 Util.ModuleDir = Settings.Default.ModuleDir;
+            if (!Settings.Default.DataDir.IsEmpty())
+                Util.DataDir = Settings.Default.DataDir;
             if (!Directory.Exists(Util.ModuleDir))
                 Directory.CreateDirectory(Util.ModuleDir);
             if (!Directory.Exists(Util.NamespaceDir))

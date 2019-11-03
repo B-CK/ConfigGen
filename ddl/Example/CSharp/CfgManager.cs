@@ -14,6 +14,10 @@ namespace Example
 		/// <summary>
 		public static string ConfigDir;
 		
+		public static readonly Dictionary<int, BaseTypesInfo0.BaseType> BaseType = new Dictionary<int, BaseTypesInfo0.BaseType>();
+		public static readonly Dictionary<int, CustomTypes.Character> Character = new Dictionary<int, CustomTypes.Character>();
+		public static readonly Dictionary<int, SetTypes.ListSet> ListSet = new Dictionary<int, SetTypes.ListSet>();
+		public static readonly Dictionary<int, SetTypes.DictSet> DictSet = new Dictionary<int, SetTypes.DictSet>();
 		
 		public static int _row;
 		/// <summary>
@@ -41,6 +45,18 @@ namespace Example
 			string path = "Data Path Empty";
 			try
 			{
+				path = ConfigDir + "basetypesinfo0\basetype.data";
+				var basetypes = Load(path, (d) => new BaseTypesInfo0.BaseType(d));
+				basetypes.ForEach(v => BaseType.Add(v.int_var, v));
+				path = ConfigDir + "customtypes\character.data";
+				var characters = Load(path, (d) => new CustomTypes.Character(d));
+				characters.ForEach(v => Character.Add(v.ID, v));
+				path = ConfigDir + "settypes\listset.data";
+				var listsets = Load(path, (d) => new SetTypes.ListSet(d));
+				listsets.ForEach(v => ListSet.Add(v.ID, v));
+				path = ConfigDir + "settypes\dictset.data";
+				var dictsets = Load(path, (d) => new SetTypes.DictSet(d));
+				dictsets.ForEach(v => DictSet.Add(v.ID, v));
 			}
 			catch (Exception e)
 			{
@@ -50,7 +66,11 @@ namespace Example
 		
 		public static void Clear()
 		{
-					}
+			BaseType.Clear();
+Character.Clear();
+ListSet.Clear();
+DictSet.Clear();
+		}
 		
 	}
 }
