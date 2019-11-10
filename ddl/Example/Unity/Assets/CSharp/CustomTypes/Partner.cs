@@ -6,7 +6,7 @@ namespace Example.CustomTypes
 	/// <summary>
 	/// 伙伴
 	/// <summary>
-public class Partner : Example.CustomTypes.Custom
+	public class Partner : Example.CustomTypes.Custom
 	{
 		/// <summary>
 		/// 别名

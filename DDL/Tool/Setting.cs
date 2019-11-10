@@ -104,7 +104,7 @@ namespace Description
         /// <summary>
         /// 导出Xml数据读写类命名空间名称
         /// </summary>
-        public static string EditorName { get { return "XmlEditor"; } }
+        public static string EditorName { get { return $"Xml{ModuleName}"; } }
         public static bool Check { get; set; }
         #endregion
 

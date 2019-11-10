@@ -6,7 +6,7 @@ namespace Example.CustomTypes
 	/// <summary>
 	/// 怪物
 	/// <summary>
-public class Monster : Example.CustomTypes.Custom
+	public class Monster : Example.CustomTypes.Custom
 	{
 		/// <summary>
 		/// 攻击

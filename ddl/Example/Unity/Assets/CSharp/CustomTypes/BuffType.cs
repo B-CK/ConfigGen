@@ -6,7 +6,7 @@ namespace Example.CustomTypes
 	/// <summary>
 	/// Buff类型
 	/// <summary>
-public enum BuffType
+	public enum BuffType
 	{
 		/// <summary>
 		/// 攻击

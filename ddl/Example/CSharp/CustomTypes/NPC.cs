@@ -6,7 +6,7 @@ namespace Example.CustomTypes
 	/// <summary>
 	/// NPC
 	/// <summary>
-public class NPC : Example.CustomTypes.Custom
+	public class NPC : Example.CustomTypes.Custom
 	{
 		/// <summary>
 		/// 别名

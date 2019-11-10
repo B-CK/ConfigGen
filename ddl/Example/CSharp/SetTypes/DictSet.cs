@@ -6,7 +6,7 @@ namespace Example.SetTypes
 	/// <summary>
 	/// 
 	/// <summary>
-public class DictSet : CfgObject
+	public class DictSet : CfgObject
 	{
 		/// <summary>
 		/// id

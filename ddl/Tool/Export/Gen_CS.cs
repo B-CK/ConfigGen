@@ -72,9 +72,9 @@ namespace Tool.Export
                     //类
                     Comment(cls.Desc, TYPE_LEVEL);
                     if (cls.Inherit.IsEmpty())
-                        builder.AppendLine($"public class {cls.Name} : {CLASS_CFG_OBJECT}");
+                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public class {cls.Name} : {CLASS_CFG_OBJECT}");
                     else
-                        builder.AppendLine($"public class {cls.Name} : {CorrectFullType(cls.Inherit)}");
+                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public class {cls.Name} : {CorrectFullType(cls.Inherit)}");
                     Start(TYPE_LEVEL);
                     {
                         StringBuilder initer = new StringBuilder();
@@ -149,7 +149,7 @@ namespace Tool.Export
                 initer.IntervalLevel(SEM_LEVEL).AppendLine("{");
                 {
                     FieldWrap item = field.GetItemDefine();
-                    initer.IntervalLevel(level).AppendLine($"var v = {ReadValue(field)};");
+                    initer.IntervalLevel(level).AppendLine($"var v = {ReadValue(item)};");
                     initer.IntervalLevel(level).AppendLine($"{field.Name}.Add(v);");
                 }
                 initer.IntervalLevel(SEM_LEVEL ).AppendLine("}");
@@ -184,7 +184,7 @@ namespace Tool.Export
                 {
                     //枚举
                     Comment(en.Desc, TYPE_LEVEL);
-                    builder.AppendLine($"public enum {en.Name}");
+                    builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public enum {en.Name}");
                     Start(TYPE_LEVEL);
                     {
                         foreach (var item in en.Values)

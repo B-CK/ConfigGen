@@ -61,25 +61,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Code.cs" />
-    <Compile Include="Assets\CSharp\BaseTypesInfo0.BaseType.cs" />
     <Compile Include="Assets\CSharp\BaseTypesInfo0\BaseType.cs" />
-    <Compile Include="Assets\CSharp\CustomTypes.Character.cs" />
-    <Compile Include="Assets\CSharp\CustomTypes.Custom.cs" />
-    <Compile Include="Assets\CSharp\CustomTypes.Monster.cs" />
-    <Compile Include="Assets\CSharp\CustomTypes.NPC.cs" />
-    <Compile Include="Assets\CSharp\CustomTypes.Partner.cs" />
     <Compile Include="Assets\CSharp\CustomTypes\BuffType.cs" />
     <Compile Include="Assets\CSharp\CustomTypes\Character.cs" />
     <Compile Include="Assets\CSharp\CustomTypes\Custom.cs" />
     <Compile Include="Assets\CSharp\CustomTypes\Monster.cs" />
     <Compile Include="Assets\CSharp\CustomTypes\NPC.cs" />
     <Compile Include="Assets\CSharp\CustomTypes\Partner.cs" />
-    <Compile Include="Assets\CSharp\SetTypes.DictSet.cs" />
-    <Compile Include="Assets\CSharp\SetTypes.ListSet.cs" />
     <Compile Include="Assets\CSharp\SetTypes\DictSet.cs" />
     <Compile Include="Assets\CSharp\SetTypes\ListSet.cs" />
     <Compile Include="Assets\DataStream.cs" />
+    <Compile Include="Assets\XmlCode\BaseTypesInfo0.BaseType.cs" />
     <Compile Include="Assets\XmlCode\CustomTypes.BuffType.cs" />
+    <Compile Include="Assets\XmlCode\CustomTypes.Character.cs" />
+    <Compile Include="Assets\XmlCode\CustomTypes.Custom.cs" />
+    <Compile Include="Assets\XmlCode\CustomTypes.Monster.cs" />
+    <Compile Include="Assets\XmlCode\CustomTypes.NPC.cs" />
+    <Compile Include="Assets\XmlCode\CustomTypes.Partner.cs" />
+    <Compile Include="Assets\XmlCode\SetTypes.DictSet.cs" />
+    <Compile Include="Assets\XmlCode\SetTypes.ListSet.cs" />
+    <Compile Include="Assets\XmlObject.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>E:/__Github/ConfigGen/ddl/Example/Unity/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>

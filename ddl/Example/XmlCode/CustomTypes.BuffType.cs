@@ -1,15 +1,15 @@
 using XmlEditor;
 using System;
-using System.IO
-using System.Xml
-using System.Linq
+using System.IO;
+using System.Xml;
+using System.Linq;
 using System.Collections.Generic;
-namespace Example.CustomTypes
+namespace XmlExample.CustomTypes
 {
 	/// <summary>
 	/// Buff类型
 	/// <summary>
-public enum BuffType
+	public enum BuffType
 	{
 		/// <summary>
 		/// 攻击

@@ -6,7 +6,7 @@ namespace Example.CustomTypes
 	/// <summary>
 	/// 自定义
 	/// <summary>
-public class Custom : CfgObject
+	public class Custom : CfgObject
 	{
 		/// <summary>
 		/// 名称

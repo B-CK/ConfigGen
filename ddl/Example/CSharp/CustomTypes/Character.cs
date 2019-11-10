@@ -6,7 +6,7 @@ namespace Example.CustomTypes
 	/// <summary>
 	/// 
 	/// <summary>
-public class Character : CfgObject
+	public class Character : CfgObject
 	{
 		/// <summary>
 		/// id

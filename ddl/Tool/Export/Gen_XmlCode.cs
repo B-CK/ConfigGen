@@ -21,11 +21,10 @@ namespace Tool.Export
         static StringBuilder builder = new StringBuilder();
         static List<string> namespaces = new List<string>()
         {
-            $"using {Setting.EditorName};",
             "using System;",
+            $"using XmlEditor;",
             "using System.IO;",
             "using System.Xml;",
-            "using System.Linq;",
             "using System.Collections.Generic;",
         };
 
@@ -70,15 +69,15 @@ namespace Tool.Export
                 ClassWrap cls = classes[i];
                 //命名空间
                 builder.AppendLine(string.Join("\r\n", namespaces));
-                builder.AppendLine($"namespace {Setting.ModuleName}.{cls.Namespace}");
+                builder.AppendLine($"namespace {Setting.EditorName}.{cls.Namespace}");
                 Start(0);
                 {
                     //类
                     Comment(cls.Desc, TYPE_LEVEL);
                     if (cls.Inherit.IsEmpty())
-                        builder.AppendLine($"public class {cls.Name} : {CLASS_XML_OBJECT}");
+                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public class {cls.Name} : {CLASS_XML_OBJECT}");
                     else
-                        builder.AppendLine($"public class {cls.Name} : {CorrectFullType(cls.Inherit)}");
+                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public class {cls.Name} : {CorrectFullType(cls.Inherit)}");
                     Start(TYPE_LEVEL);
                     {
 
@@ -96,9 +95,10 @@ namespace Tool.Export
 
                         //写函数
                         builder.IntervalLevel(MEM_LEVEL);
-                        builder.AppendLine($"public override Write(TextWriter _1)");
-                        Start(MEM_LEVEL); 
-                        builder.IntervalLevel(SEM_LEVEL).AppendLine("base.Write(_1);");
+                        builder.AppendLine($"public override void Write(TextWriter _1)");
+                        Start(MEM_LEVEL);
+                        if (!cls.Inherit.IsEmpty())
+                            builder.IntervalLevel(SEM_LEVEL).AppendLine("base.Write(_1);");
                         builder.Append(writer.ToString());
                         End(MEM_LEVEL);
                         //读函数
@@ -106,7 +106,8 @@ namespace Tool.Export
                         builder.AppendLine($"public override void Read(XmlNode _1)");
                         Start(MEM_LEVEL);
                         {
-                            builder.IntervalLevel(SEM_LEVEL).AppendLine("base.Read(_1);");
+                            if (!cls.Inherit.IsEmpty())
+                                builder.IntervalLevel(SEM_LEVEL).AppendLine("base.Read(_1);");
                             builder.IntervalLevel(SEM_LEVEL).AppendLine($"foreach (System.Xml.XmlNode _2 in GetChilds (_1))");
                             builder.IntervalLevel(SEM_LEVEL).AppendLine($"switch (_2.Name)");
                             Start(SEM_LEVEL);
@@ -118,7 +119,7 @@ namespace Tool.Export
                     End(TYPE_LEVEL);
                 }
                 End(0);
-                string path = Path.Combine(Setting.CSDir, cls.FullType + ".cs");
+                string path = Path.Combine(Setting.XmlCodeDir, cls.FullType + ".cs");
                 Util.SaveFile(path, builder.ToString());
                 builder.Clear();
             }
@@ -150,30 +151,32 @@ namespace Tool.Export
                 reader.IntervalLevel(level).AppendLine($"case \"{field.Name}\": {field.Name} = ReadObject<{type}>(_2, \"{type}\"); break;");
             else if (field.IsContainer)
             {
+                var level0 = level + 1;
+                reader.IntervalLevel(level).AppendLine($"case \"{field.Name}\":");
                 if (field.OriginalType == Setting.LIST)
                 {
                     var item = field.GetItemDefine();
-                    reader.IntervalLevel(level).AppendLine($"var {field.Name}s = GetChilds(_2);");
-                    reader.IntervalLevel(level).AppendLine($"for (int i = 0; i < {field.Name}s.Count; i++)");
-                    reader.IntervalLevel(level).AppendLine($"{{");
-                    reader.IntervalLevel(level + 1).AppendLine($"var _3 = {field.Name}s[i];");
-                    reader.IntervalLevel(level + 1).AppendLine($"{field.Name}.Add({ReadList(item)});");
-                    reader.IntervalLevel(level).AppendLine($"}}");
-                    reader.IntervalLevel(level).AppendLine($"break;");
+                    reader.IntervalLevel(level0).AppendLine($"var {field.Name}s = GetChilds(_2);");
+                    reader.IntervalLevel(level0).AppendLine($"for (int i = 0; i < {field.Name}s.Count; i++)");
+                    reader.IntervalLevel(level0).AppendLine($"{{");
+                    reader.IntervalLevel(level0 + 1).AppendLine($"var _3 = {field.Name}s[i];");
+                    reader.IntervalLevel(level0 + 1).AppendLine($"{field.Name}.Add({ReadList(item)});");
+                    reader.IntervalLevel(level0).AppendLine($"}}");
+                    reader.IntervalLevel(level0).AppendLine($"break;");
                 }
                 else if (field.OriginalType == Setting.DICT)
                 {
                     var key = field.GetKeyDefine();
                     var value = field.GetValueDefine();
-                    reader.IntervalLevel(level).AppendLine($"var {field.Name}s = GetChilds(_2);");
-                    reader.IntervalLevel(level).AppendLine($"for (int i = 0; i < {field.Name}s.Count; i++)");
-                    reader.IntervalLevel(level).AppendLine($"{{");
-                    reader.IntervalLevel(level + 1).AppendLine($"var _3 = {field.Name}s[i];");
-                    reader.IntervalLevel(level + 1).AppendLine($"var key = {ReadDict(key, Setting.KEY)};");
-                    reader.IntervalLevel(level + 1).AppendLine($"var value = {ReadDict(value, Setting.VALUE)};");
-                    reader.IntervalLevel(level + 1).AppendLine($"{field.Name}.Add(key, value);");
-                    reader.IntervalLevel(level).AppendLine($"}}");
-                    reader.IntervalLevel(level).AppendLine($"break;");
+                    reader.IntervalLevel(level0).AppendLine($"var {field.Name}s = GetChilds(_2);");
+                    reader.IntervalLevel(level0).AppendLine($"for (int i = 0; i < {field.Name}s.Count; i++)");
+                    reader.IntervalLevel(level0).AppendLine($"{{");
+                    reader.IntervalLevel(level0 + 1).AppendLine($"var _3 = {field.Name}s[i];");
+                    reader.IntervalLevel(level0 + 1).AppendLine($"var key = {ReadDict(key, Setting.KEY)};");
+                    reader.IntervalLevel(level0 + 1).AppendLine($"var value = {ReadDict(value, Setting.VALUE)};");
+                    reader.IntervalLevel(level0 + 1).AppendLine($"{field.Name}.Add(key, value);");
+                    reader.IntervalLevel(level0).AppendLine($"}}");
+                    reader.IntervalLevel(level0).AppendLine($"break;");
                 }
             }
         }
@@ -219,12 +222,12 @@ namespace Tool.Export
 
                 //命名空间
                 builder.AppendLine(string.Join("\r\n", namespaces));
-                builder.AppendLine($"namespace {Setting.ModuleName}.{en.Namespace}");
+                builder.AppendLine($"namespace {Setting.EditorName}.{en.Namespace}");
                 Start(0);
                 {
                     //枚举
                     Comment(en.Desc, TYPE_LEVEL);
-                    builder.AppendLine($"public enum {en.Name}");
+                    builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public enum {en.Name}");
                     Start(TYPE_LEVEL);
                     {
                         foreach (var item in en.Values)

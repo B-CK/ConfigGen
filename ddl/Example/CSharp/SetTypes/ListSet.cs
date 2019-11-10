@@ -6,7 +6,7 @@ namespace Example.SetTypes
 	/// <summary>
 	/// 
 	/// <summary>
-public class ListSet : CfgObject
+	public class ListSet : CfgObject
 	{
 		/// <summary>
 		/// id
@@ -41,32 +41,32 @@ public class ListSet : CfgObject
 			ID = data.GetInt();
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				var v = ;
+				var v = data.GetBool();
 				list_bool.Add(v);
 			}
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				var v = ;
+				var v = data.GetInt();
 				list_int.Add(v);
 			}
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				var v = ;
+				var v = data.GetLong();
 				list_long.Add(v);
 			}
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				var v = ;
+				var v = data.GetFloat();
 				list_float.Add(v);
 			}
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				var v = ;
+				var v = data.GetString();
 				list_string.Add(v);
 			}
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				var v = ;
+				var v = (Example.CustomTypes.BuffType)data.GetInt();
 				list_enum.Add(v);
 			}
 		}

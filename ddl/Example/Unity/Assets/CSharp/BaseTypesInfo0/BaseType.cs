@@ -6,7 +6,7 @@ namespace Example.BaseTypesInfo0
 	/// <summary>
 	/// 基础类型
 	/// <summary>
-public class BaseType : CfgObject
+	public class BaseType : CfgObject
 	{
 		/// <summary>
 		/// int类型
