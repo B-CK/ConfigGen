@@ -102,9 +102,9 @@ namespace Description
         /// </summary>
         public static string ModuleName { get; set; }
         /// <summary>
-        /// 导出Xml数据读写类命名空间根节点
+        /// 导出Xml数据读写类命名空间名称
         /// </summary>
-        public static string XmlRootNode { get { return "Xml"; } }
+        public static string EditorName { get { return "XmlEditor"; } }
         public static bool Check { get; set; }
         #endregion
 

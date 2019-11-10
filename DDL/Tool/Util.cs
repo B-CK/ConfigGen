@@ -219,6 +219,12 @@ namespace Description
 
             Directory.Delete(path, true);
         }
+        public static StringBuilder IntervalLevel(this StringBuilder builder, int n)
+        {
+            for (int i = 0; i < n; i++)
+                builder.Append("\t");
+            return builder;
+        }
 
 
         #region 扩展及操作
@@ -275,7 +281,6 @@ namespace Description
         {
             return ToString(list.ToArray(), split);
         }
-
         public static string GetRelativePath(string filePath, string folder)
         {
             if (!File.Exists(filePath) || !Directory.Exists(folder))

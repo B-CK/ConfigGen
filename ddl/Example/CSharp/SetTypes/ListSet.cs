@@ -1,13 +1,12 @@
+using Example;
 using System;
 using System.Collections.Generic;
-using Example;
-
-namespace SetTypes
+namespace Example.SetTypes
 {
 	/// <summary>
 	/// 
 	/// <summary>
-	public class ListSet : CfgObject
+public class ListSet : CfgObject
 	{
 		/// <summary>
 		/// id
@@ -16,59 +15,58 @@ namespace SetTypes
 		/// <summary>
 		/// 布尔列表
 		/// <summary>
-		public readonly List<bool> list_bool = new List<bool>();
+		public readonly List<bool> list_bool;
 		/// <summary>
 		/// 整形列表
 		/// <summary>
-		public readonly List<int> list_int = new List<int>();
+		public readonly List<int> list_int;
 		/// <summary>
 		/// 长整形列表
 		/// <summary>
-		public readonly List<long> list_long = new List<long>();
+		public readonly List<long> list_long;
 		/// <summary>
 		/// 浮点型列表
 		/// <summary>
-		public readonly List<float> list_float = new List<float>();
+		public readonly List<float> list_float;
 		/// <summary>
 		/// 字符串列表
 		/// <summary>
-		public readonly List<string> list_string = new List<string>();
+		public readonly List<string> list_string;
 		/// <summary>
 		/// 
 		/// <summary>
-		public readonly List<CustomTypes.BuffType> list_enum = new List<CustomTypes.BuffType>();
-		
+		public readonly List<Example.CustomTypes.BuffType> list_enum;
 		public ListSet(DataStream data)
 		{
 			ID = data.GetInt();
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				bool v = data.GetBool();
+				var v = ;
 				list_bool.Add(v);
 			}
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				int v = data.GetInt();
+				var v = ;
 				list_int.Add(v);
 			}
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				long v = data.GetLong();
+				var v = ;
 				list_long.Add(v);
 			}
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				float v = data.GetFloat();
+				var v = ;
 				list_float.Add(v);
 			}
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				string v = data.GetString();
+				var v = ;
 				list_string.Add(v);
 			}
 			for (int n = data.GetInt(); n-- > 0;)
 			{
-				CustomTypes.BuffType v = (CustomTypes.BuffType)data.GetInt();
+				var v = ;
 				list_enum.Add(v);
 			}
 		}

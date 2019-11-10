@@ -34,6 +34,7 @@ namespace Wrap
         public string Desc { get { return _des.Desc; } }
         public Dictionary<string, int> Values { get { return _values; } }
         public Dictionary<string, string> Aliases { get { return _aliases; } }
+        public Dictionary<string, EnumItemXml> Items => _items;
 
         public string GetEnumValue(string name)
         {
@@ -61,6 +62,7 @@ namespace Wrap
         /// value-枚举名
         /// </summary>
         private Dictionary<string, string> _aliases = new Dictionary<string, string>();
+        private Dictionary<string, EnumItemXml> _items = new Dictionary<string, EnumItemXml>();
 
         public EnumWrap(EnumXml des, string namespace0)
         {
@@ -86,6 +88,7 @@ namespace Wrap
                     else
                         Error("Alias重复定义:" + item.Alias);
                 }
+                _items.Add(item.Name, item);
             }
 
             Add(this);

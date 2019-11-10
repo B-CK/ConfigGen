@@ -38,7 +38,7 @@ namespace Description
 
             LoadDefine();
             VerifyDefine();
-            Export("CSharp", Setting.CSDir);
+            Export("CS", Setting.CSDir);
             Export("Java", Setting.JavaDir);
             Export("Lua", Setting.LuaDir);
             Export("XmlCode", Setting.XmlCodeDir);
@@ -49,7 +49,7 @@ namespace Description
                 {
                     LoadData();
                     VerifyData();
-                    Export("Csv", Setting.ModuleName);
+                    Export("Data", Setting.ModuleName);
                 }
                 catch (Exception e)
                 {
@@ -149,8 +149,8 @@ namespace Description
             if (path.IsEmpty()) return;
 
             Util.TryDeleteDirectory(path);
-            Type type = Type.GetType($"Export.Export{code}");
-            var export = type.GetMethod("Export", BindingFlags.Public | BindingFlags.Static);
+            Type type = Type.GetType($"Tool.Export.Gen_{code}");
+            var export = type.GetMethod("Gen", BindingFlags.Public | BindingFlags.Static);
             export.Invoke(null, null);
         }
     }
