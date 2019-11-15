@@ -1,15 +1,14 @@
-using XmlEditor;
 using System;
+using XmlEditor;
 using System.IO;
 using System.Xml;
-using System.Linq;
 using System.Collections.Generic;
-namespace XmlExample.CustomTypes
+namespace Editor.CustomTypes
 {
 	/// <summary>
 	/// 怪物
 	/// <summary>
-	public class Monster : XmlExample.CustomTypes.Custom
+	public class Monster : Editor.CustomTypes.Custom
 	{
 		/// <summary>
 		/// 攻击

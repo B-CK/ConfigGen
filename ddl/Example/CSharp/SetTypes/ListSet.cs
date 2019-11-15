@@ -1,5 +1,7 @@
 using Example;
 using System;
+using System.Text;
+using System.Linq;
 using System.Collections.Generic;
 namespace Example.SetTypes
 {
@@ -15,27 +17,27 @@ namespace Example.SetTypes
 		/// <summary>
 		/// 布尔列表
 		/// <summary>
-		public readonly List<bool> list_bool;
+		public readonly List<bool> list_bool = new List<bool>();
 		/// <summary>
 		/// 整形列表
 		/// <summary>
-		public readonly List<int> list_int;
+		public readonly List<int> list_int = new List<int>();
 		/// <summary>
 		/// 长整形列表
 		/// <summary>
-		public readonly List<long> list_long;
+		public readonly List<long> list_long = new List<long>();
 		/// <summary>
 		/// 浮点型列表
 		/// <summary>
-		public readonly List<float> list_float;
+		public readonly List<float> list_float = new List<float>();
 		/// <summary>
 		/// 字符串列表
 		/// <summary>
-		public readonly List<string> list_string;
+		public readonly List<string> list_string = new List<string>();
 		/// <summary>
 		/// 
 		/// <summary>
-		public readonly List<Example.CustomTypes.BuffType> list_enum;
+		public readonly List<Example.CustomTypes.BuffType> list_enum = new List<Example.CustomTypes.BuffType>();
 		public ListSet(DataStream data)
 		{
 			ID = data.GetInt();
@@ -69,6 +71,29 @@ namespace Example.SetTypes
 				var v = (Example.CustomTypes.BuffType)data.GetInt();
 				list_enum.Add(v);
 			}
+		}
+		public static Dictionary<int, Example.SetTypes.ListSet> Load()
+		{
+			var dict = new Dictionary<int, Example.SetTypes.ListSet>();
+			var path = "SetTypes/ListSet.data";
+			try
+			{
+				var data = new DataStream(path, Encoding.UTF8);
+				int length = data.GetInt();
+				for (int i = 0; i < length; i++)
+				{
+					var v = new Example.SetTypes.ListSet(data);
+					dict.Add(v.ID, v);
+				}
+			}
+			catch (Exception e)
+			{
+				UnityEngine.Debug.LogError($"{path}解析异常~\n{e.Message}");
+#if UNITY_EDITOR
+				UnityEngine.Debug.LogError($"最后一条数据Key:{dict.Last().Key}.");
+#endif
+			}
+			return dict;
 		}
 	}
 }

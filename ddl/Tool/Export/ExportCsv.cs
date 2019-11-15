@@ -17,7 +17,7 @@ namespace Export
             {
                 var cfg = cit.Current.Value;
                 builder.AppendLine(cfg.Data.ExportData());
-                string filePath = Path.Combine(Setting.DataDir, cfg.OutputFile + Setting.CsvFileExt);
+                string filePath = Path.Combine(Setting.DataDir, cfg.OutputFile + Setting.DataFileExt);
                 Util.SaveFile(filePath.ToLower(), builder.ToString());
                 builder.Clear();
             }

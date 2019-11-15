@@ -98,13 +98,9 @@ namespace Description
         /// </summary>
         public static HashSet<string> ExportGroup = new HashSet<string>();
         /// <summary>
-        /// 导出Csv数据读写类命名空间根节点
+        /// 导出类命名空间根节点
         /// </summary>
         public static string ModuleName { get; set; }
-        /// <summary>
-        /// 导出Xml数据读写类命名空间名称
-        /// </summary>
-        public static string EditorName { get { return $"Xml{ModuleName}"; } }
         public static bool Check { get; set; }
         #endregion
 
@@ -112,7 +108,7 @@ namespace Description
         /// <summary>
         /// Csv数据文件扩展名
         /// </summary>
-        public const string CsvFileExt = ".data";
+        public const string DataFileExt = ".data";
         /// <summary>
         /// Excel数据行结束符
         /// </summary>

@@ -40,7 +40,7 @@ namespace Export
                 ConfigWrap cfg = cit.Current.Value;
                 string method = string.Format("Get{0}", cfg.FullType.Replace(new string(Setting.DotSplit), ""));
                 string index = cfg.Index.Name;
-                string relPath = cfg.OutputFile + Setting.CsvFileExt;
+                string relPath = cfg.OutputFile + Setting.DataFileExt;
                 builder.AppendFormat("\t{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
                     cfg.Name, method, index, relPath.ToLower());
             }

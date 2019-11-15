@@ -1,5 +1,7 @@
 using Example;
 using System;
+using System.Text;
+using System.Linq;
 using System.Collections.Generic;
 namespace Example.BaseTypesInfo0
 {
@@ -35,6 +37,29 @@ namespace Example.BaseTypesInfo0
 			float_var = data.GetFloat();
 			bool_var = data.GetBool();
 			string_var = data.GetString();
+		}
+		public static Dictionary<int, Example.BaseTypesInfo0.BaseType> Load()
+		{
+			var dict = new Dictionary<int, Example.BaseTypesInfo0.BaseType>();
+			var path = "BaseTypesInfo0/BaseType.data";
+			try
+			{
+				var data = new DataStream(path, Encoding.UTF8);
+				int length = data.GetInt();
+				for (int i = 0; i < length; i++)
+				{
+					var v = new Example.BaseTypesInfo0.BaseType(data);
+					dict.Add(v.int_var, v);
+				}
+			}
+			catch (Exception e)
+			{
+				UnityEngine.Debug.LogError($"{path}解析异常~\n{e.Message}");
+#if UNITY_EDITOR
+				UnityEngine.Debug.LogError($"最后一条数据Key:{dict.Last().Key}.");
+#endif
+			}
+			return dict;
 		}
 	}
 }

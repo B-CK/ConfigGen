@@ -1,10 +1,9 @@
-using XmlEditor;
 using System;
+using XmlEditor;
 using System.IO;
 using System.Xml;
-using System.Linq;
 using System.Collections.Generic;
-namespace XmlExample.SetTypes
+namespace Editor.SetTypes
 {
 	/// <summary>
 	/// 
@@ -18,19 +17,19 @@ namespace XmlExample.SetTypes
 		/// <summary>
 		/// 整形字典
 		/// <summary>
-		public Dictionary<int, bool> dict_int;
+		public Dictionary<int, bool> dict_int = new Dictionary<int, bool>();
 		/// <summary>
 		/// 长整形字典
 		/// <summary>
-		public Dictionary<long, bool> dict_long;
+		public Dictionary<long, bool> dict_long = new Dictionary<long, bool>();
 		/// <summary>
 		/// 
 		/// <summary>
-		public Dictionary<string, bool> dict_string;
+		public Dictionary<string, bool> dict_string = new Dictionary<string, bool>();
 		/// <summary>
 		/// 枚举字典
 		/// <summary>
-		public Dictionary<CustomTypes.BuffType, bool> dict_enum;
+		public Dictionary<CustomTypes.BuffType, bool> dict_enum = new Dictionary<CustomTypes.BuffType, bool>();
 		public override void Write(TextWriter _1)
 		{
 			Write(_1, "ID", ID);
@@ -80,7 +79,7 @@ namespace XmlExample.SetTypes
 					for (int i = 0; i < dict_enums.Count; i++)
 					{
 						var _3 = dict_enums[i];
-						var key = (XmlExample.CustomTypes.BuffType)ReadInt(GetOnlyChild(_3, "Key"));
+						var key = (Editor.CustomTypes.BuffType)ReadInt(GetOnlyChild(_3, "Key"));
 						var value = ReadBool(GetOnlyChild(_3, "Value"));
 						dict_enum.Add(key, value);
 					}

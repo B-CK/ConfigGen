@@ -66,7 +66,7 @@ namespace Description.Wrap
             StringBuilder builder = new StringBuilder();
             bool isDynamic = _define.IsDynamic;
             if (isDynamic)
-                builder.Append(FullType + Setting.CsvSplitFlag);
+                builder.Append(Util.CorrectFullType(_fullType) + Setting.CsvSplitFlag);
             for (int i = 0; i < _values.Count; i++)
                 builder.AppendFormat("{0}{1}", i > 0 ? Setting.CsvSplitFlag : "", _values[i].ExportData());
             return builder.ToString();

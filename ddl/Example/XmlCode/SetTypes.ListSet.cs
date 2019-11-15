@@ -1,10 +1,9 @@
-using XmlEditor;
 using System;
+using XmlEditor;
 using System.IO;
 using System.Xml;
-using System.Linq;
 using System.Collections.Generic;
-namespace XmlExample.SetTypes
+namespace Editor.SetTypes
 {
 	/// <summary>
 	/// 
@@ -18,27 +17,27 @@ namespace XmlExample.SetTypes
 		/// <summary>
 		/// 布尔列表
 		/// <summary>
-		public List<bool> list_bool;
+		public List<bool> list_bool = new List<bool>();
 		/// <summary>
 		/// 整形列表
 		/// <summary>
-		public List<int> list_int;
+		public List<int> list_int = new List<int>();
 		/// <summary>
 		/// 长整形列表
 		/// <summary>
-		public List<long> list_long;
+		public List<long> list_long = new List<long>();
 		/// <summary>
 		/// 浮点型列表
 		/// <summary>
-		public List<float> list_float;
+		public List<float> list_float = new List<float>();
 		/// <summary>
 		/// 字符串列表
 		/// <summary>
-		public List<string> list_string;
+		public List<string> list_string = new List<string>();
 		/// <summary>
 		/// 
 		/// <summary>
-		public List<XmlExample.CustomTypes.BuffType> list_enum;
+		public List<Editor.CustomTypes.BuffType> list_enum = new List<Editor.CustomTypes.BuffType>();
 		public override void Write(TextWriter _1)
 		{
 			Write(_1, "ID", ID);
@@ -100,7 +99,7 @@ namespace XmlExample.SetTypes
 					for (int i = 0; i < list_enums.Count; i++)
 					{
 						var _3 = list_enums[i];
-						list_enum.Add((XmlExample.CustomTypes.BuffType)ReadInt(_3));
+						list_enum.Add((Editor.CustomTypes.BuffType)ReadInt(_3));
 					}
 					break;
 			}

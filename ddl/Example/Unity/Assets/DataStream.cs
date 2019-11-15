@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
+using UnityEngine;
+
 namespace Example
 {
     public abstract class CfgObject { }
@@ -16,7 +19,7 @@ namespace Example
         private int _index;
         public DataStream(string path, Encoding encoding)
         {
-            _line = File.ReadAllLines(path);
+            _line = File.ReadAllLines($"{Application.dataPath}/../../data/{path}");
             _index = 0;
         }
 
@@ -82,19 +85,29 @@ namespace Example
         /// <param name="constructor">constructor参数为指定类型的构造函数</param>
         /// <typeparam name="T">数据结构类型</typeparam>
         /// <returns></returns>
-        public static List<T> Load<T>(string path, Func<DataStream, T> constructor)
+        public static Dictionary<K, V> Load<K, V>(string path, Action<DataStream, Dictionary<K, V>> constructor)
         {
             if (!File.Exists(path))
             {
                 UnityEngine.Debug.LogError(path + "文件不存在!");
-                return new List<T>();
+                return null;
             }
-            DataStream data = new DataStream(path, Encoding.UTF8);
-            List<T> list = new List<T>();
-            int length = data.GetInt();
-            for (int i = 0; i < length; i++)
-                list.Add(constructor(data));
-            return list;
+            var dict = new Dictionary<K, V>();
+            try
+            {
+                DataStream data = new DataStream(path, Encoding.UTF8);
+                int length = data.GetInt();
+                for (int i = 0; i < length; i++)
+                    constructor(data, dict);
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogError($"{path}解析异常~\n{e.Message}");
+#if UNITY_EDITOR
+                UnityEngine.Debug.LogError($"最后一条数据Key:{dict.Last().Key}.");
+#endif
+            }
+            return dict;
         }
 
     }

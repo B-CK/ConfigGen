@@ -1,10 +1,9 @@
-using XmlEditor;
 using System;
+using XmlEditor;
 using System.IO;
 using System.Xml;
-using System.Linq;
 using System.Collections.Generic;
-namespace XmlExample.CustomTypes
+namespace Editor.CustomTypes
 {
 	/// <summary>
 	/// 自定义

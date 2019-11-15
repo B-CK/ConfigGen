@@ -6,14 +6,20 @@ using Xml;
 using Wrap;
 using Description.Wrap;
 
+//-module .\Module\Editor.xml -xmlCode XmlCode/ -group all
+//-module .\Module\Example.xml -data ./Data  -csharp CSharp/ -group all
+
+
 namespace Description
 {
     /// 所有的路径均以应用为相对路径生成
     /// 尽可能少配置Excel文件,文件读取非常耗时
+    /// 注:单独导出XmlCode,避免命名空间错误!根节点相同
     class Program
     {
         //未完成内容
         //1.说明文档按功能来整理
+        
 
         static Data lastData;
 

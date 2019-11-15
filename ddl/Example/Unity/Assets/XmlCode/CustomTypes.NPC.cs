@@ -1,15 +1,14 @@
-using XmlEditor;
 using System;
+using XmlEditor;
 using System.IO;
 using System.Xml;
-using System.Linq;
 using System.Collections.Generic;
-namespace XmlExample.CustomTypes
+namespace Editor.CustomTypes
 {
 	/// <summary>
 	/// NPC
 	/// <summary>
-	public class NPC : XmlExample.CustomTypes.Custom
+	public class NPC : Editor.CustomTypes.Custom
 	{
 		/// <summary>
 		/// 别名

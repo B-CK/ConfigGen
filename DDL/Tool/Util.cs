@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Data;
 using System.Data.OleDb;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Xml;
+using Wrap;
 
 namespace Description
 {
@@ -224,6 +224,12 @@ namespace Description
             for (int i = 0; i < n; i++)
                 builder.Append("\t");
             return builder;
+        }
+        public static string CorrectFullType(string fullType)
+        {
+            if (ClassWrap.Classes.ContainsKey(fullType) || EnumWrap.Enums.ContainsKey(fullType))
+                return $"{Setting.ModuleName}.{fullType}";
+            return fullType;
         }
 
 

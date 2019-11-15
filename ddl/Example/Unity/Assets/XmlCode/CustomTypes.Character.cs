@@ -1,10 +1,9 @@
-using XmlEditor;
 using System;
+using XmlEditor;
 using System.IO;
 using System.Xml;
-using System.Linq;
 using System.Collections.Generic;
-namespace XmlExample.CustomTypes
+namespace Editor.CustomTypes
 {
 	/// <summary>
 	/// 
@@ -18,7 +17,7 @@ namespace XmlExample.CustomTypes
 		/// <summary>
 		/// 角色信息
 		/// <summary>
-		public XmlExample.CustomTypes.Custom Custom;
+		public Editor.CustomTypes.Custom Custom;
 		public override void Write(TextWriter _1)
 		{
 			Write(_1, "ID", ID);

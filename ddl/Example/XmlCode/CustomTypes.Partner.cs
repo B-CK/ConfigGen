@@ -1,15 +1,14 @@
-using XmlEditor;
 using System;
+using XmlEditor;
 using System.IO;
 using System.Xml;
-using System.Linq;
 using System.Collections.Generic;
-namespace XmlExample.CustomTypes
+namespace Editor.CustomTypes
 {
 	/// <summary>
 	/// 伙伴
 	/// <summary>
-	public class Partner : XmlExample.CustomTypes.Custom
+	public class Partner : Editor.CustomTypes.Custom
 	{
 		/// <summary>
 		/// 别名
@@ -18,7 +17,7 @@ namespace XmlExample.CustomTypes
 		/// <summary>
 		/// 光环
 		/// <summary>
-		public XmlExample.CustomTypes.BuffType Buff;
+		public Editor.CustomTypes.BuffType Buff;
 		public override void Write(TextWriter _1)
 		{
 			base.Write(_1);
@@ -32,7 +31,7 @@ namespace XmlExample.CustomTypes
 			switch (_2.Name)
 			{
 				case "Alias": Alias = ReadString(_2); break;
-				case "Buff": Buff = (XmlExample.CustomTypes.BuffType)ReadInt(_2); break;
+				case "Buff": Buff = (Editor.CustomTypes.BuffType)ReadInt(_2); break;
 			}
 		}
 	}

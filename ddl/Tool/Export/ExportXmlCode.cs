@@ -12,7 +12,7 @@ namespace Export
     {
         private const string XML_STREAM = "XmlManager";
         private const string CLASS_XML_OBJECT = "XmlObject";
-        private static readonly List<string> XmlNameSpaces = new List<string>() { "System", "System.Linq", "System.IO", Setting.EditorName + Setting.ModuleName, "System.Xml", "System.Collections.Generic" };
+        private static readonly List<string> XmlNameSpaces = new List<string>() { "System", "System.Linq", "System.IO", Setting.ModuleName + Setting.ModuleName, "System.Xml", "System.Collections.Generic" };
 
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Export
             string path = Path.Combine(Setting.XmlCodeDir, CLASS_XML_OBJECT + ".cs");
             builder.UsingNamespace(XmlNameSpaces);
             builder.AppendLine();
-            builder.NameSpace(Setting.EditorName + Setting.ModuleName);
+            builder.NameSpace(Setting.ModuleName + Setting.ModuleName);
 
             builder.DefineClass(CodeWriter.Public + " " + CodeWriter.Abstract, CLASS_XML_OBJECT);
             builder.AppendLine("public abstract void Write(TextWriter os);");
@@ -364,7 +364,7 @@ namespace Export
                 var cls = cit.Current.Value;
                 builder.UsingNamespace(XmlNameSpaces);
                 builder.AppendLine();
-                builder.NameSpace(Setting.EditorName + cls.Namespace);
+                builder.NameSpace(Setting.ModuleName + cls.Namespace);
                 builder.Comments(cls.Desc);
                 string inherit = cls.Inherit.IsEmpty() ? CLASS_XML_OBJECT : cls.Inherit;
                 builder.DefineClass(CodeWriter.Public, cls.Name, CLASS_XML_OBJECT);
@@ -416,7 +416,7 @@ namespace Export
                 builder.End();
                 builder.EndAll();
 
-                string file = string.Format("{0}{1}.cs", Setting.EditorName, cls.FullType);
+                string file = string.Format("{0}{1}.cs", Setting.ModuleName, cls.FullType);
                 string path = Path.Combine(Setting.XmlCodeDir, file);
                 Util.SaveFile(path, builder.ToString());
 
@@ -475,7 +475,7 @@ namespace Export
         public static string ToXmlType(string fullType)
         {
             if (fullType.StartsWith(Setting.ModuleName))
-                return Setting.EditorName + fullType;
+                return Setting.ModuleName + fullType;
             return fullType;
         }
         private static void GenXmlEnums()
@@ -485,14 +485,14 @@ namespace Export
             for (int i = 0; i < exports.Count; i++)
             {
                 EnumWrap en = exports[i];
-                builder.NameSpace(Setting.EditorName + en.Namespace);
+                builder.NameSpace(Setting.ModuleName + en.Namespace);
                 builder.Comments(en.Desc);
                 builder.Enum(CodeWriter.Public, en.Name);
                 foreach (var item in en.Values)
                     builder.DefineEnum(item.Key, item.Value.ToString());
 
                 builder.EndAll();
-                string path = string.Format("{0}{1}{2}.{3}.cs", Setting.XmlCodeDir, Setting.EditorName, en.Namespace, en.Name);
+                string path = string.Format("{0}{1}{2}.{3}.cs", Setting.XmlCodeDir, Setting.ModuleName, en.Namespace, en.Name);
                 Util.SaveFile(path, builder.ToString());
                 builder.Clear();
             }

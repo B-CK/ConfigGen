@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Assets\Code.cs" />
     <Compile Include="Assets\CSharp\BaseTypesInfo0\BaseType.cs" />
+    <Compile Include="Assets\CSharp\ConfigComponent.cs" />
     <Compile Include="Assets\CSharp\CustomTypes\BuffType.cs" />
     <Compile Include="Assets\CSharp\CustomTypes\Character.cs" />
     <Compile Include="Assets\CSharp\CustomTypes\Custom.cs" />
@@ -71,7 +72,6 @@
     <Compile Include="Assets\CSharp\SetTypes\DictSet.cs" />
     <Compile Include="Assets\CSharp\SetTypes\ListSet.cs" />
     <Compile Include="Assets\DataStream.cs" />
-    <Compile Include="Assets\XmlCode\BaseTypesInfo0.BaseType.cs" />
     <Compile Include="Assets\XmlCode\CustomTypes.BuffType.cs" />
     <Compile Include="Assets\XmlCode\CustomTypes.Character.cs" />
     <Compile Include="Assets\XmlCode\CustomTypes.Custom.cs" />

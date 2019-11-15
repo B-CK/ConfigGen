@@ -9,6 +9,7 @@ using Wrap;
 
 namespace Tool.Export
 {
+    //编辑器模块名称
     public class Gen_XmlCode
     {
         const string CLASS_XML_OBJECT = "XmlObject";
@@ -53,12 +54,6 @@ namespace Tool.Export
             builder.IntervalLevel(n);
             builder.AppendLine("/// <summary>");
         }
-        static string CorrectFullType(string fullType)
-        {
-            if (ClassWrap.Classes.ContainsKey(fullType) || EnumWrap.Enums.ContainsKey(fullType))
-                return $"{Setting.EditorName}.{fullType}";
-            return fullType;
-        }
 
         #region 类
         static void GenClass()
@@ -69,7 +64,7 @@ namespace Tool.Export
                 ClassWrap cls = classes[i];
                 //命名空间
                 builder.AppendLine(string.Join("\r\n", namespaces));
-                builder.AppendLine($"namespace {Setting.EditorName}.{cls.Namespace}");
+                builder.AppendLine($"namespace {Setting.ModuleName}.{cls.Namespace}");
                 Start(0);
                 {
                     //类
@@ -77,7 +72,7 @@ namespace Tool.Export
                     if (cls.Inherit.IsEmpty())
                         builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public class {cls.Name} : {CLASS_XML_OBJECT}");
                     else
-                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public class {cls.Name} : {CorrectFullType(cls.Inherit)}");
+                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public class {cls.Name} : {Util.CorrectFullType(cls.Inherit)}");
                     Start(TYPE_LEVEL);
                     {
 
@@ -129,11 +124,11 @@ namespace Tool.Export
             Comment(field.Desc, MEM_LEVEL);
             builder.IntervalLevel(MEM_LEVEL);
             if (field.IsRaw || field.IsEnum || field.IsClass)
-                builder.AppendLine($"{FEILD_MODIFIERS} {CorrectFullType(field.FullType)} {field.Name};");
+                builder.AppendLine($"{FEILD_MODIFIERS} {Util.CorrectFullType(field.FullType)} {field.Name};");
             else if (field.OriginalType == Setting.LIST)
-                builder.AppendLine($"{FEILD_MODIFIERS} List<{CorrectFullType(field.Types[1])}> {field.Name};");
+                builder.AppendLine($"{FEILD_MODIFIERS} List<{Util.CorrectFullType(field.Types[1])}> {field.Name} = new List<{Util.CorrectFullType(field.Types[1])}>();");
             else if (field.OriginalType == Setting.DICT)
-                builder.AppendLine($"{FEILD_MODIFIERS} Dictionary<{field.Types[1]}, {CorrectFullType(field.Types[2])}> {field.Name};");
+                builder.AppendLine($"{FEILD_MODIFIERS} Dictionary<{field.Types[1]}, {Util.CorrectFullType(field.Types[2])}> {field.Name} = new Dictionary<{field.Types[1]}, {Util.CorrectFullType(field.Types[2])}>();");
         }
         static void WriteFunc(StringBuilder writer, FieldWrap field)
         {
@@ -142,7 +137,7 @@ namespace Tool.Export
         static void ReadFunc(StringBuilder reader, FieldWrap field)
         {
             int level = SEM_LEVEL + 1;
-            string type = CorrectFullType(field.FullType);
+            string type = Util.CorrectFullType(field.FullType);
             if (field.IsRaw)
                 reader.IntervalLevel(level).AppendLine($"case \"{field.Name}\": {field.Name} = Read{type.FirstCharUpper()}(_2); break;");
             else if (field.IsEnum)
@@ -182,7 +177,7 @@ namespace Tool.Export
         }
         static string ReadList(FieldWrap field)
         {
-            var type = CorrectFullType(field.FullType);
+            var type = Util.CorrectFullType(field.FullType);
             if (field.IsRaw)
                 return $"Read{type.FirstCharUpper()}(_3)";
             else if (field.IsEnum)
@@ -197,7 +192,7 @@ namespace Tool.Export
         }
         static string ReadDict(FieldWrap field, string node)
         {
-            var type = CorrectFullType(field.FullType);
+            var type = Util.CorrectFullType(field.FullType);
             if (field.IsRaw)
                 return $"Read{type.FirstCharUpper()}(GetOnlyChild(_3, \"{node}\"))";
             else if (field.IsEnum)
@@ -222,7 +217,7 @@ namespace Tool.Export
 
                 //命名空间
                 builder.AppendLine(string.Join("\r\n", namespaces));
-                builder.AppendLine($"namespace {Setting.EditorName}.{en.Namespace}");
+                builder.AppendLine($"namespace {Setting.ModuleName}.{en.Namespace}");
                 Start(0);
                 {
                     //枚举

@@ -1,0 +1,4 @@
+<Module Name="Editor" Groups="All:Client:Editor:Server">
+  <Import>Namespaces\CustomTypes.xml</Import>
+  <Import>Namespaces\SetTypes.xml</Import>
+</Module>
