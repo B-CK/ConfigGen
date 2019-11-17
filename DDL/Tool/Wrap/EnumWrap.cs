@@ -40,13 +40,13 @@ namespace Wrap
         {
             if (_values.ContainsKey(name))
                 return _values[name].ToString();
-            return Setting.Null;
+            return name;
         }
         public string GetEnumName(string alias)
         {
             if (_aliases.ContainsKey(alias))
                 return _aliases[alias];
-            return "";
+            return null;
         }
 
         private EnumXml _des;

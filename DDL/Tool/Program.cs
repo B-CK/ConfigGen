@@ -131,10 +131,9 @@ namespace Description
 
         static void LoadData()
         {
-            var cit = ConfigWrap.Configs.GetEnumerator();
-            while (cit.MoveNext())
+            foreach (var item in ConfigWrap.Configs)
             {
-                ConfigWrap cfg = cit.Current.Value;
+                ConfigWrap cfg = item.Value;
                 long start = DateTime.Now.Ticks;
                 cfg.LoadData();
                 long end = DateTime.Now.Ticks;

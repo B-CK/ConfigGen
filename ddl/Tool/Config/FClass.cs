@@ -38,27 +38,14 @@ namespace Description.Wrap
         }
         void Load(ClassWrap info, XmlElement data)
         {
-            if (info.IsDynamic())
-            {
-                if (!info.Inherit.IsEmpty())
-                {
-                    ClassWrap parent = ClassWrap.Get(info.Inherit);
-                    Load(parent, data);
-                }
-
-                string type = data.GetAttribute("Type");
-                ClassWrap dynamic = ClassWrap.Get(type);
-                if (dynamic == null)
-                    Util.Error("多态类型{0}未知", type);
-                if (!info.HasChild(type))
-                    Util.Error("数据类型{0}非{2}子类", type, info.FullType);
-                SetCurrentType(type);
-                info = dynamic;
-            }
+            ClassWrap parent = ClassWrap.Get(info.Inherit);
+            if (parent != null)
+                Load(parent, data);
 
             var fields = info.Fields;
+            int offset = parent == null ? 0 : parent.Fields.Count;
             for (int i = 0; i < fields.Count; i++)
-                Values.Add(Data.Create(this, fields[i], data));
+                Values.Add(Data.Create(this, fields[i], data.ChildNodes[i + offset] as XmlElement));
         }
 
         public override string ExportData()

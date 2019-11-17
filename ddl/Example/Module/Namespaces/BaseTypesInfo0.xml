@@ -1,9 +1,9 @@
 <Namespace Name="BaseTypesInfo0" Desc="基础类型">
   <Class Name="BaseType" Group="All" Desc="基础类型" Inherit="" Index="int_var" DataPath="..\Excel\BaseTypes_基础类型.xlsx">
-    <Field Name="int_var" Desc="int类型" Group="" Type="int" Checker="" />
-    <Field Name="long_var" Desc="long类型" Group="" Type="long" Checker="" />
-    <Field Name="float_var" Desc="float类型" Group="" Type="float" Checker="" />
-    <Field Name="bool_var" Desc="bool类型" Group="" Type="bool" Checker="" />
-    <Field Name="string_var" Desc="string类型" Group="" Type="string" Checker="" />
+    <Field Name="int_var" Desc="int类型" Group="All" Type="int" Checker="" />
+    <Field Name="long_var" Desc="long类型" Group="All" Type="long" Checker="" />
+    <Field Name="float_var" Desc="float类型" Group="All" Type="float" Checker="" />
+    <Field Name="bool_var" Desc="bool类型" Group="All" Type="bool" Checker="" />
+    <Field Name="string_var" Desc="string类型" Group="All" Type="string" Checker="" />
   </Class>
 </Namespace>

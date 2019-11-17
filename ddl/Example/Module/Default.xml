@@ -7,4 +7,5 @@
   <Import>Namespaces\BaseTypesInfo0.xml</Import>
   <Import>Namespaces\CustomTypes.xml</Import>
   <Import>Namespaces\SetTypes.xml</Import>
+  <Import>Namespaces\XmlPaser.xml</Import>
 </Module>

@@ -29,9 +29,9 @@ namespace Wrap
         {
             var exports = new List<ConfigWrap>();
             var cit = _configs.GetEnumerator();
-            while (cit.MoveNext())
+            foreach (var item in _configs)
             {
-                var cfg = cit.Current.Value;
+                var cfg = item.Value;
                 if (Util.MatchGroups(cfg._groups))
                     exports.Add(cfg);
             }
@@ -118,10 +118,12 @@ namespace Wrap
                     string ext = Path.GetExtension(path);
                     string fullType = "list:" + _fullType;
                     FieldWrap field = new FieldWrap(null, Name, fullType, Util.Split(fullType), _groups);
-                    if (ext == "xml")
+                    if (ext == ".xml")
                     {
                         var xml = new ImportXml(path);
-                        _data = new FList(null, field, xml.Data);
+                        if (_data == null)
+                            _data = new FList(null, field);
+                        _data.LoadOneRecord(xml.Data);
                     }
                     else
                     {

@@ -131,7 +131,8 @@ namespace Description.Wrap
             {
                 if (define.OriginalType == "list")
                 {
-                    FList data = new FList(host, define, xml);
+                    FList data = new FList(host, define);
+                    data.LoadMultiRecord(xml);
                 }
                 else if (define.OriginalType == "dict")
                 {

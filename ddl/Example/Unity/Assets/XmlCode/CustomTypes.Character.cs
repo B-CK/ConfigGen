@@ -29,6 +29,7 @@ namespace Editor.CustomTypes
 			switch (_2.Name)
 			{
 				case "ID": ID = ReadInt(_2); break;
+				case "Custom": Custom = ReadDynamicObject<Editor.CustomTypes.Custom>(_2, "Editor.CustomTypes"); break;
 			}
 		}
 	}

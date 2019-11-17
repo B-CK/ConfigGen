@@ -19,8 +19,7 @@ namespace Description.Wrap
         }
         public FEnum(FClass host, FieldWrap define, XmlElement xml) : base(host, define)
         {
-            EnumName = xml.InnerText;
-            Value = EnumWrap.Enums[define.OriginalType].GetEnumValue(EnumName);
+            Value = xml.InnerText;//Xml中枚举以int表示
         }
 
         public override string ExportData()

@@ -1,0 +1,25 @@
+<Namespace Name="XmlPaser" Desc="解析Xml数据">
+  <Class Name="Character" Group="Editor" Desc="" Inherit="" Index="ID" DataPath="..\Excel\Xml">
+    <Field Name="ID" Desc="" Group="All" Type="int" Checker="" />
+    <Field Name="Custom" Desc="" Group="All" Type="XmlPaser.Custom" Checker="" />
+  </Class>
+  <Class Name="Custom" Group="All" Desc="" Inherit="" Index="" DataPath="">
+    <Field Name="Name" Desc="" Group="All" Type="string" Checker="" />
+    <Field Name="Level" Desc="" Group="All" Type="int" Checker="" />
+  </Class>
+  <Class Name="NPC" Group="All" Desc="" Inherit="XmlPaser.Custom" Index="" DataPath="">
+    <Field Name="Alias" Desc="" Group="All" Type="string" Checker="" />
+  </Class>
+  <Class Name="Partner" Group="All" Desc="" Inherit="XmlPaser.Custom" Index="" DataPath="">
+    <Field Name="Alias" Desc="" Group="All" Type="string" Checker="" />
+    <Field Name="Buff" Desc="" Group="All" Type="XmlPaser.BuffType" Checker="" />
+  </Class>
+  <Class Name="Monster" Group="All" Desc="" Inherit="XmlPaser.Custom" Index="" DataPath="">
+    <Field Name="Attack" Desc="" Group="All" Type="int" Checker="" />
+  </Class>
+  <Enum Name="BuffType" Group="All" Desc="">
+    <Item Name="Attack" Desc="" Group="All:Client:Editor" Value="1" Alias="攻击" />
+    <Item Name="Defense" Desc="" Group="All" Value="2" Alias="防御" />
+    <Item Name="Speed" Desc="" Group="All" Value="3" Alias="速度" />
+  </Enum>
+</Namespace>

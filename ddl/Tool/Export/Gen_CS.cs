@@ -256,16 +256,18 @@ namespace Tool.Export
                 Start(TYPE_LEVEL);
                 {
                     StringBuilder load = new StringBuilder();
-                    foreach (var cfg in ConfigWrap.Configs)
+                    var configs = ConfigWrap.GetExports();
+                    for (int i = 0; i < configs.Count; i++)
                     {
-                        var key = cfg.Value.Index.FullType;
-                        var value = cfg.Value.FullType;
-                        var property = $"{Util.FirstCharUpper(cfg.Value.Name)}s";
-                        var field = $"_{cfg.Value.Name.ToLower()}s";
+                        var cfg = configs[i];
+                        var key = cfg.Index.FullType;
+                        var value = cfg.FullType;
+                        var property = $"{Util.FirstCharUpper(cfg.Name)}s";
+                        var field = $"_{cfg.Name.ToLower()}s";
                         builder.IntervalLevel(MEM_LEVEL).AppendLine($"public Dictionary<{key}, {value}> {property} => {field};");
                         builder.IntervalLevel(MEM_LEVEL).AppendLine($"private Dictionary<{key}, {value}> {field} = new Dictionary<{key}, {value}>();");
 
-                        load.IntervalLevel(SEM_LEVEL).AppendLine($"{field} = {cfg.Value.FullType}.Load();");
+                        load.IntervalLevel(SEM_LEVEL).AppendLine($"{field} = {cfg.FullType}.Load();");
                     }
 
                     builder.IntervalLevel(MEM_LEVEL).AppendLine("public void Load()");

@@ -12,10 +12,10 @@ namespace Tool.Export
             Util.TryDeleteDirectory(Setting.DataDir);
 
             StringBuilder builder = new StringBuilder();
-            var cit = ConfigWrap.Configs.GetEnumerator();
-            while (cit.MoveNext())
+            var configs = ConfigWrap.GetExports();
+            for (int i = 0; i < configs.Count; i++)
             {
-                var cfg = cit.Current.Value;
+                var cfg = configs[i];
                 builder.AppendLine(cfg.Data.ExportData());
                 string filePath = Path.Combine(Setting.DataDir, cfg.OutputFile + Setting.DataFileExt);
                 Util.SaveFile(filePath.ToLower(), builder.ToString());

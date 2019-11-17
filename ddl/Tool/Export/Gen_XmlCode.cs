@@ -141,9 +141,17 @@ namespace Tool.Export
             if (field.IsRaw)
                 reader.IntervalLevel(level).AppendLine($"case \"{field.Name}\": {field.Name} = Read{type.FirstCharUpper()}(_2); break;");
             else if (field.IsEnum)
-                reader.IntervalLevel(level).AppendLine($"case \"{field.Name}\": {field.Name} = ({type})ReadInt(_2); break;");
-            else if (field.IsEnum)
-                reader.IntervalLevel(level).AppendLine($"case \"{field.Name}\": {field.Name} = ReadObject<{type}>(_2, \"{type}\"); break;");
+                reader.IntervalLevel(level).AppendLine($"case \"{field.Name}\": {field.Name} = ({type})ReadString(_2); break;");
+            else if (field.IsClass)
+            {
+                if (field.IsDynamic)
+                {
+                    string ns = type.Substring(0, type.LastIndexOf('.'));
+                    reader.IntervalLevel(level).AppendLine($"case \"{field.Name}\": {field.Name} = ReadDynamicObject<{type}>(_2, \"{ns}\"); break;");
+                }
+                else
+                    reader.IntervalLevel(level).AppendLine($"case \"{field.Name}\": {field.Name} = ReadObject<{type}>(_2, \"{type}\"); break;");
+            }
             else if (field.IsContainer)
             {
                 var level0 = level + 1;

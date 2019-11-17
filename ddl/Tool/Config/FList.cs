@@ -32,7 +32,7 @@ namespace Description.Wrap
         private List<Data> _values = new List<Data>();
         private FieldWrap _item;
 
-        private FList(FClass host, FieldWrap define) : base(host, define)
+        public FList(FClass host, FieldWrap define) : base(host, define)
         {
             _item = define.GetItemDefine();
         }
@@ -40,7 +40,7 @@ namespace Description.Wrap
         {
             excel.GetList(this, define);
         }
-        public FList(FClass host, FieldWrap define, XmlElement data) : this(host, define)
+        public void LoadMultiRecord(XmlElement data)
         {
             XmlNodeList list = data.ChildNodes;
             for (int i = 0; i < list.Count; i++)
@@ -48,6 +48,10 @@ namespace Description.Wrap
                 var item = list[i] as XmlElement;
                 Values.Add(Data.Create(Host, _item, item));
             }
+        }
+        public void LoadOneRecord(XmlElement data)
+        {
+            Values.Add(Data.Create(_host, _item, data));
         }
         public override string ExportData()
         {

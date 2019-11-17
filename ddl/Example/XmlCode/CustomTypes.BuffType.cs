@@ -13,14 +13,14 @@ namespace Editor.CustomTypes
 		/// <summary>
 		/// 攻击
 		/// <summary>
-		Attack = 1,
+		Attack = 0,
 		/// <summary>
 		/// 防御
 		/// <summary>
-		Defense = 2,
+		Defense = 0,
 		/// <summary>
 		/// 速度
 		/// <summary>
-		Speed = 3,
+		Speed = 0,
 	}
 }

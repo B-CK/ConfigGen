@@ -1,0 +1,9 @@
+<Root Type ="Character">
+<ID>7</ID>
+<Custom Type ="Partner">
+<Name>张飞</Name>
+<Level>20</Level>
+<Alias>小飞</Alias>
+<Buff>1</Buff>
+</Custom>
+</Root>
