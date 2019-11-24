@@ -9,47 +9,6 @@ namespace Desc.Wrap
 {
     public class ModuleWrap : BaseWrap
     {
-        public static ModuleWrap Default { get { return _default; } }
-        public static ModuleWrap Current { get { return _current; } }
-        static ModuleWrap _default;
-        static ModuleWrap _current;
-        static int _noSaveNum = 0;
-
-        static Dictionary<string, ModuleXml> _dict = new Dictionary<string, ModuleXml>();
-        public static void InitModule()
-        {
-            _dict.Clear();
-            var ms = Directory.GetFiles(Util.ModuleDir, "*.xml");
-            for (int i = 0; i < ms.Length; i++)
-            {
-                string path = ms[i];
-                if (!_dict.ContainsKey(path))
-                {
-                    var module = Util.Deserialize<ModuleXml>(path);
-                    _dict.Add(path, module);
-                }
-            }
-
-            ModuleXml xml = _dict[Util.DefaultModule];
-            _default = new ModuleWrap();
-            _default.Init(xml);
-            MainWindow.Ins.Text = Util.Format("结构描述 - {0}", _default.FullName);
-            var allNsw = NamespaceWrap.Dict;
-            foreach (var item in allNsw)
-                _default.AddImport(item.Value, true);
-            _default.Save(false);
-            ResetAllState();
-
-            if (Util.LastRecord.IsEmpty() || !File.Exists(Util.LastRecord))
-                Open(Util.DefaultModule);
-            else
-                Open(Util.LastRecord);
-        }
-
-        public static void CloseCurrent()
-        {
-            _current = null;
-        }
         public static ModuleWrap Create(string path)
         {
             ModuleXml xml = null;
@@ -57,108 +16,17 @@ namespace Desc.Wrap
             {
                 xml = new ModuleXml() { Name = Path.GetFileNameWithoutExtension(path) };
                 Util.Serialize(path, xml);
-                _dict.Add(path, xml);
+                WrapManager.Ins.AddModuleXml(path, xml);
             }
             else
-                xml = _dict[path];
+                xml = WrapManager.Ins.GetModuleXml(path);
             Debug.LogFormat("[Module]创建模块{0}", path);
             ModuleWrap wrap = PoolManager.Ins.Pop<ModuleWrap>();
             if (wrap == null) wrap = new ModuleWrap();
             wrap.Init(xml);
             return wrap;
         }
-        public static ModuleWrap Open(string path)
-        {
-            if (_current != null && path == _current.FullName)
-                return _current;
 
-            Util.LastRecord = path;
-            if (File.Exists(path))
-            {
-                ModuleWrap wrap = PoolManager.Ins.Pop<ModuleWrap>();
-                if (path == Util.DefaultModule && _default != null)
-                    wrap = _default;
-                else if (wrap == null)
-                    wrap = new ModuleWrap();
-
-                if (_current != null)
-                {
-                    TrSave();
-                    _current.Close();
-                }
-                _current = wrap;
-            }
-            else
-            {
-                Debug.LogWarningFormat("[Module]模块{0}不存在,开启默认模块.", path);
-                _current = _default;
-            }
-
-            _noSaveNum = 0;
-            ResetAllState();
-            _current.Init(_dict[path]);
-            MainWindow.Ins.Text = Util.Format("结构描述 - {0}", _current.FullName);
-            Debug.LogFormat("[Module]打开模板{0}", path);
-            GC.Collect();
-            return _current;
-        }
-        /// <summary>
-        /// 重置模块中各节点的状态
-        /// </summary>
-        private static void ResetAllState()
-        {
-            var state = NodeState.Exclude;
-            foreach (var item in NamespaceWrap.Dict)
-            {
-                var wrap = item.Value;
-                wrap.SetNodeState(state, false);
-                foreach (var cls in wrap.Classes)
-                    cls.SetNodeState(state, false);
-                foreach (var enm in wrap.Enums)
-                    enm.SetNodeState(state, false);
-            }
-        }
-        public static void AddDirty() { ++_noSaveNum; }
-        public static void RemoveDirty() { --_noSaveNum; }
-        public static void SilientSave(bool saveNamespace = false)
-        {
-            Default.Save(saveNamespace);
-            Current.Save(saveNamespace);
-            EditorDock.CloseAll();
-        }
-        public static DialogResult TrSave()
-        {
-            if (EditorDock.CheckOpenDock() || _noSaveNum != 0)
-            {
-                var result = MessageBox.Show("当前模块未保存,是否保存?", "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-                switch (result)
-                {
-                    case DialogResult.Cancel://取消操作,对数据不做任何处理
-                        return DialogResult.Cancel;
-                    case DialogResult.Yes://保存所有修改,且关闭模块
-                        EditorDock.SaveAll();
-                        Default.Save();
-                        Current.Save();
-                        EditorDock.CloseAll();
-                        return DialogResult.Yes;
-                    case DialogResult.No://放弃所有修改,且关闭模块
-                        EditorDock.CloseAll();
-                        return DialogResult.No;
-                }
-            }
-            else
-            {
-                SilientSave();
-            }
-            return DialogResult.None;
-        }
-        /// <summary>
-        /// 清理无效命名空间
-        /// </summary>
-        public static void ClearDump()
-        {
-
-        }
         /// <summary>
         /// 模块路径
         /// </summary>
@@ -170,16 +38,17 @@ namespace Desc.Wrap
         public Dictionary<string, NamespaceWrap> Namespaces { get { return _namespaces; } }
         public Dictionary<string, ClassWrap> Classes { get { return _classes; } }
         public Dictionary<string, EnumWrap> Enums { get { return _enums; } }
+        public int NeedSaveNum { get => _needSaveNum; set => _needSaveNum = value; }
 
         public override string DisplayName => FullName;
-        public Action<NamespaceWrap> OnAddNamespace;
-        public Action<NamespaceWrap> OnRemoveNamespace;
-        /// <summary>
-        /// 类型添加移除事件与NamespaceWrap中的添加移除注册一个即可
-        /// </summary>
-        public Action<TypeWrap> OnAddAnyType;
-        public Action<TypeWrap> OnRemoveAnyType;
+        public Action<NamespaceWrap> AddNamespaceEvent;
+        public Action<NamespaceWrap> RemoveNamespaceEvent;
         public Action<NamespaceWrap, string> OnNamespaceNameChange;
+        /// <summary>
+        /// 模块中任意一个类型被修改
+        /// </summary>
+        public Action<TypeWrap> AddAnyTypeEvent;
+        public Action<TypeWrap> RemoveAnyTypeEvent;
         public Action<BaseWrap, string> OnTypeNameChange;
 
         private Dictionary<string, NamespaceWrap> _namespaces;
@@ -191,10 +60,13 @@ namespace Desc.Wrap
         private List<string> _groups;
         private ModuleXml _xml;
         private string _path;
-        protected ModuleWrap() { }
-        protected void Init(ModuleXml xml)
+        private int _needSaveNum = 0;
+        protected internal ModuleWrap() { }
+        public void Init(ModuleXml xml)
         {
             base.Init(xml.Name);
+
+            _needSaveNum = 0;
 
             _xml = xml;
             _path = Util.GetModuleAbsPath(_name + ".xml");
@@ -259,7 +131,7 @@ namespace Desc.Wrap
             string name = wrap.FullName;
             if (Contains(name)) return;
             if (!isInit)
-                AddDirty();
+                _needSaveNum++;
 
             Add(name);
             _imports.Add(name);
@@ -271,7 +143,7 @@ namespace Desc.Wrap
         public void RemoveImport(NamespaceWrap wrap)
         {
             string name = wrap.FullName;
-            AddDirty();
+            _needSaveNum++;
 
             Remove(name);
             _imports.Remove(name);
@@ -285,7 +157,7 @@ namespace Desc.Wrap
             var fullName = wrap.FullName;
             Remove(fullName);
             Imports.Remove(fullName);
-            AddDirty();
+            _needSaveNum++;
 
             var state = NodeState.Exclude;
             wrap.SetNodeState(state);
@@ -305,7 +177,7 @@ namespace Desc.Wrap
         {
             var fullName = wrap.FullName;
             if (Contains(fullName)) return;
-            AddDirty();
+            _needSaveNum++;
             Add(fullName);
             _imports.Add(fullName);
 
@@ -323,6 +195,8 @@ namespace Desc.Wrap
                 _enums.Add(item.FullName, item);
             }
         }
+
+
         public void Save(bool saveNsw = true)
         {
             _xml.Name = _name;
@@ -364,30 +238,34 @@ namespace Desc.Wrap
             }
         }
 
-        public override void ClearEvent()
+        public void Close()
         {
-            base.ClearEvent();
-            OnAddNamespace = null;
-            OnRemoveNamespace = null;
-            OnAddAnyType = null;
-            OnRemoveAnyType = null;
+            AddNamespaceEvent = null;
+            RemoveNamespaceEvent = null;
+            RemoveAnyTypeEvent = null;
             OnNamespaceNameChange = null;
             OnTypeNameChange = null;
-            foreach (var item in _namespaces)
-                item.Value.ClearEvent();
-        }
 
-        private void Close()
-        {
+            var state = NodeState.Exclude;
+            foreach (var item in _namespaces)
+            {
+                item.Value.SetStateWithType(state, false);
+                item.Value.ClearEvent();
+            }
+            foreach (var item in _classes)
+                item.Value.ClearEvent();
+            foreach (var item in _enums)
+                item.Value.ClearEvent();
             _namespaces.Clear();
+            _classes.Clear();
+            _enums.Clear();
             Dispose();
-            if (this != _default)
-                PoolManager.Ins.Push(this);
+            PoolManager.Ins.Push(this);
         }
         private void AddNamespace(NamespaceWrap wrap)
         {
-            wrap.OnAddType += AddTypeWrap;
-            wrap.OnRemoveType += RemoveTypeWrap;
+            wrap.AddTypeEvent += AddTypeWrap;
+            wrap.RemoveTypeEvent += RemoveTypeWrap;
             wrap.OnNameChange += NamespaceNameChange;
             wrap.OnTypeNameChange += TypeNameChange;
             _namespaces.Add(wrap.FullName, wrap);
@@ -397,7 +275,7 @@ namespace Desc.Wrap
                 AddTypeWrap(item);
             var state = NodeState.Include;
             wrap.SetNodeState(wrap.NodeState & ~NodeState.Exclude | state);
-            OnAddNamespace?.Invoke(wrap);
+            AddNamespaceEvent?.Invoke(wrap);
         }
         private void RemoveNamespace(NamespaceWrap wrap)
         {
@@ -409,7 +287,7 @@ namespace Desc.Wrap
             array.AddRange(wrap.Enums);
             foreach (var item in array)
                 wrap.RemoveTypeWrap(item);
-            OnRemoveNamespace?.Invoke(wrap);
+            RemoveNamespaceEvent?.Invoke(wrap);
             wrap.Dispose();
         }
         private void AddTypeWrap(TypeWrap wrap)
@@ -421,7 +299,7 @@ namespace Desc.Wrap
                 _classes.Add(wrap.FullName, wrap as ClassWrap);
             else if (wrap is EnumWrap)
                 _enums.Add(wrap.FullName, wrap as EnumWrap);
-            OnAddAnyType?.Invoke(wrap);
+            AddAnyTypeEvent?.Invoke(wrap);
         }
         private void RemoveTypeWrap(TypeWrap wrap)
         {
@@ -429,7 +307,7 @@ namespace Desc.Wrap
                 _classes.Remove(wrap.FullName);
             else if (wrap is EnumWrap)
                 _enums.Remove(wrap.FullName);
-            OnRemoveAnyType?.Invoke(wrap);
+            RemoveAnyTypeEvent?.Invoke(wrap);
         }
         private void NamespaceNameChange(BaseWrap wrap, string src)
         {
@@ -452,7 +330,7 @@ namespace Desc.Wrap
                 _enums.Remove(srcFullName);
                 _enums.Add(enm.FullName, enm);
             }
-            OnNamespaceNameChange?.Invoke(wrap as NamespaceWrap, src);
+            OnNamespaceNameChange?.Invoke(nsw, src);
         }
         private void TypeNameChange(BaseWrap wrap, string src)
         {
@@ -498,3 +376,70 @@ namespace Desc.Wrap
 
     }
 }
+//public static ModuleWrap Open(string path)
+//{
+//    if (_current != null && path == _current.FullName)
+//        return _current;
+
+//    Util.LastRecord = path;
+//    if (File.Exists(path))
+//    {
+//        ModuleWrap wrap = PoolManager.Ins.Pop<ModuleWrap>();
+//        if (path == Util.DefaultModule && _default != null)
+//            wrap = _default;
+//        else if (wrap == null)
+//            wrap = new ModuleWrap();
+
+//        if (_current != null)
+//        {
+//            TrSave();
+//            _current.Close();
+//        }
+//        _current = wrap;
+//    }
+//    else
+//    {
+//        Debug.LogWarningFormat("[Module]模块{0}不存在,开启默认模块.", path);
+//        _current = _default;
+//    }
+
+//    _noSaveNum = 0;
+//    ResetAllState();
+//    _current.Init(_dict[path]);
+//    MainWindow.Ins.Text = Util.Format("结构描述 - {0}", _current.FullName);
+//    Debug.LogFormat("[Module]打开模板{0}", path);
+//    GC.Collect();
+//    return _current;
+//}
+//public static void SilientSave(bool saveNamespace = false)
+//{
+//    Default.Save(saveNamespace);
+//    Current.Save(saveNamespace);
+//    EditorDock.CloseAll();
+//}
+//public static DialogResult TrSave()
+//{
+//    if (EditorDock.CheckOpenDock() || _noSaveNum != 0)
+//    {
+//        var result = MessageBox.Show("当前模块未保存,是否保存?", "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+//        switch (result)
+//        {
+//            case DialogResult.Cancel://取消操作,对数据不做任何处理
+//                return DialogResult.Cancel;
+//            case DialogResult.Yes://保存所有修改,且关闭模块
+//                EditorDock.SaveAll();
+//                Default.Save();
+//                Current.Save();
+//                EditorDock.CloseAll();
+//                return DialogResult.Yes;
+//            case DialogResult.No://放弃所有修改,且关闭模块
+//                EditorDock.CloseAll();
+//                return DialogResult.No;
+//        }
+//    }
+//    else
+//    {
+//        SilientSave();
+//    }
+//    return DialogResult.None;
+//}

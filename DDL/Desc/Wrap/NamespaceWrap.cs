@@ -47,8 +47,6 @@ namespace Desc.Wrap
             foreach (var item in _dict)
                 item.Value.Dispose();
             _dict.Clear();
-            ClassWrap.ClearAll();
-            EnumWrap.ClearAll();
         }
         /// <summary>
         /// 移除命名空间以及类型等
@@ -117,10 +115,10 @@ namespace Desc.Wrap
             }
         }
 
-        public Action<TypeWrap> OnAddType;
-        public Action<TypeWrap> OnRemoveType;
+        public Action<TypeWrap> AddTypeEvent;
+        public Action<TypeWrap> RemoveTypeEvent;
         public Action<BaseWrap, string> OnDescChange;
-        public Action<BaseWrap, string > OnTypeNameChange;
+        public Action<BaseWrap, string> OnTypeNameChange;
 
         /// <summary>
         /// 是否有被修改
@@ -205,7 +203,7 @@ namespace Desc.Wrap
             else if (wrap is EnumWrap)
                 _enums.Add(wrap as EnumWrap);
             Add(wrap.Name);
-            OnAddType?.Invoke(wrap);
+            AddTypeEvent?.Invoke(wrap);
         }
         public void RemoveTypeWrap(TypeWrap wrap)
         {
@@ -216,21 +214,21 @@ namespace Desc.Wrap
                 _classes.Remove(wrap as ClassWrap);
             else if (wrap is EnumWrap)
                 _enums.Remove(wrap as EnumWrap);
-            OnRemoveType?.Invoke(wrap);
+            RemoveTypeEvent?.Invoke(wrap);
             wrap.Dispose();
         }
         public void SetDirty()
         {
             _isDirty = true;
             SetNodeState(NodeState | NodeState.Modify);
-            ModuleWrap.AddDirty();
+            WrapManager.Ins.Current.NeedSaveNum++;
         }
         public void Save()
         {
             _xml.Name = _name;
             try
             {
-                ModuleWrap.RemoveDirty();
+                WrapManager.Ins.Current.NeedSaveNum--;
                 _xml.Classes.Clear();
                 _xml.Enums.Clear();
                 for (int i = 0; i < _classes.Count; i++)
@@ -258,13 +256,13 @@ namespace Desc.Wrap
                    _name, e.Message, e.StackTrace);
             }
         }
-        public void SetStateWithType(NodeState state)
+        public void SetStateWithType(NodeState state, bool isTrigger = true)
         {
-            SetNodeState(state);
+            SetNodeState(state, isTrigger);
             foreach (var item in Classes)
-                item.SetNodeState(state);
+                item.SetNodeState(state, isTrigger);
             foreach (var item in Enums)
-                item.SetNodeState(state);
+                item.SetNodeState(state, isTrigger);
         }
         public void Cancle()
         {
@@ -311,20 +309,6 @@ namespace Desc.Wrap
         public override void Dispose()
         {
             base.Dispose();
-            if (ModuleWrap.Default == ModuleWrap.Current)
-            {
-                try
-                {
-                    string path = Util.GetNamespaceAbsPath(FullName + ".xml");
-                    File.Delete(path);
-                    _dict.Remove(FullName);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogErrorFormat("[Module]删除命名空间{0}失败!\n{1}\n{2}\n",
-                       FullName, e.Message, e.StackTrace);
-                }
-            }
             for (int i = 0; i < _classes.Count; i++)
                 _classes[i].Dispose();
             for (int i = 0; i < _enums.Count; i++)
@@ -336,11 +320,12 @@ namespace Desc.Wrap
         public override void ClearEvent()
         {
             base.ClearEvent();
-            OnAddType = null;
-            OnRemoveType = null;
+            AddTypeEvent = null;
+            RemoveTypeEvent = null;
             OnNameChange = null;
             OnTypeNameChange = null;
         }
+
         private void TypeNameChange(BaseWrap wrap, string src)
         {
             var typeWrap = wrap as TypeWrap;

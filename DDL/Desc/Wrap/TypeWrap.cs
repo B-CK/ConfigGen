@@ -65,10 +65,16 @@ namespace Desc.Wrap
             _xml = xml;
             _namespace = ns;
         }
-
         public void OnSave()
         {
             OnWrapChange?.Invoke(this);
+        }
+
+        public override void ClearEvent()
+        {
+            base.ClearEvent();
+            OnDescChange = null;
+            OnWrapChange = null;
         }
 
     }

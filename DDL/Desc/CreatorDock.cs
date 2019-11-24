@@ -13,7 +13,7 @@ namespace Desc
         {
             InitializeComponent();
 
-            _modules = new string[1] { ModuleWrap.Current.Name };
+            _modules = new string[1] { WrapManager.Ins.Current.Name };
             _createListBox.SelectedIndex = 0;
         }
         /// <summary>
@@ -23,7 +23,7 @@ namespace Desc
         {
             _2Label.Text = "命名空间:";
             _2ComboBox.Items.Clear();
-            _2ComboBox.Items.AddRange(ModuleWrap.Current.GetNamespaces());
+            _2ComboBox.Items.AddRange(WrapManager.Ins.Current.GetNamespaces());
             _2ComboBox.Text = Util.EmptyNamespace;
             _2ComboBox.Enabled = true;
         }
@@ -104,8 +104,7 @@ namespace Desc
                         {
                             NamespaceWrap wrap = NamespaceWrap.Create(name);
                             wrap.SetDirty();
-                            ModuleWrap.Default.AddImport(wrap);
-                            ModuleWrap.Current.AddImport(wrap);
+                            WrapManager.Ins.Current.AddImport(wrap);
                             Close();
                         }
                         else

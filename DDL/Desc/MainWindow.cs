@@ -6,7 +6,7 @@ using Desc.Wrap;
 using System.Windows.Forms;
 
 namespace Desc
-{   
+{
     public partial class MainWindow : Form
     {
         static MainWindow _ins;
@@ -23,7 +23,7 @@ namespace Desc
         }
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            var result = ModuleWrap.TrSave();
+            var result = WrapManager.Ins.TrySave();
             if (result == DialogResult.Cancel)
                 e.Cancel = true;
         }
@@ -47,7 +47,7 @@ namespace Desc
                 Directory.CreateDirectory(Util.NamespaceDir);
 
             NamespaceWrap.InitNamespaces();
-            ModuleWrap.InitModule();
+            WrapManager.Ins.Init();
             NamespaceDock.Inspect();
             ClassWrap.RecordChildren();
 
@@ -87,7 +87,7 @@ namespace Desc
                 {
                     string fileName = _saveFileDialog.FileName;
                     ModuleWrap.Create(fileName);
-                    ModuleWrap.Open(fileName);
+                    WrapManager.Ins.Open(fileName);
                     NamespaceDock.Inspect();
                 }
                 catch (Exception ex)
@@ -108,7 +108,7 @@ namespace Desc
                 try
                 {
                     string fileName = _openFileDialog.FileName;
-                    ModuleWrap.Open(fileName);
+                    WrapManager.Ins.Open(fileName);
                     NamespaceDock.Inspect();
                 }
                 catch (Exception ex)
@@ -122,8 +122,8 @@ namespace Desc
         /// </summary>
         private void SaveModuleItem_Click(object sender, EventArgs e)
         {
-            ModuleWrap.SilientSave();
-            var imps = ModuleWrap.Current.Imports;
+            WrapManager.Ins.SilientSave();
+            var imps = WrapManager.Ins.Current.Imports;
             for (int i = 0; i < imps.Count; i++)
             {
                 var wrap = NamespaceWrap.Dict[imps[i]];
@@ -140,7 +140,7 @@ namespace Desc
                 try
                 {
                     string fileName = _saveFileDialog.FileName;
-                    ModuleWrap.Current.SaveAnother(fileName);
+                    WrapManager.Ins.Current.SaveAnother(fileName);
                 }
                 catch (Exception ex)
                 {
@@ -157,15 +157,17 @@ namespace Desc
         }
         private void EditModuleMenuItem_Click(object sender, EventArgs e)
         {
-            ModuleInfoDock.Ins.Show(ModuleWrap.Current);
+            ModuleInfoDock.Ins.Show(WrapManager.Ins.Current);
         }
         private void RefreshItem_Click(object sender, EventArgs e)
         {
-            var result = ModuleWrap.TrSave();
+            var result = WrapManager.Ins.TrySave();
             if (result != DialogResult.Cancel)
             {
-                ModuleWrap.CloseCurrent();
+                WrapManager.Ins.Current.Close();
                 NamespaceWrap.ClearAll();
+                ClassWrap.ClearAll();
+                EnumWrap.ClearAll();
                 EditorDock.CloseAll();
 
                 MainSetup();
@@ -173,7 +175,7 @@ namespace Desc
         }
         private void CheckError_Click(object sender, EventArgs e)
         {
-            ModuleWrap.Current.Check();
+            WrapManager.Ins.Current.Check();
         }
         #endregion
 
@@ -189,6 +191,6 @@ namespace Desc
 
         #endregion
 
-     
+
     }
 }

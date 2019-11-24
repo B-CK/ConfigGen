@@ -63,7 +63,7 @@ namespace Desc
 
             _nodeTreeView.BeginUpdate();
             ClearNodes(_nodeTreeView.Nodes);
-            var namespaces = ModuleWrap.Current.Namespaces;
+            var namespaces = WrapManager.Ins.Current.Namespaces;
             foreach (var item in namespaces)
             {
                 var root = item.Value;
@@ -71,11 +71,11 @@ namespace Desc
                     AddRootNode(root);
             }
             _nodeTreeView.EndUpdate();
-            ModuleWrap.Current.OnAddNamespace += AddRootNode;
-            ModuleWrap.Current.OnRemoveNamespace += RemoveRootNode;
-            ModuleWrap.Current.OnAddAnyType += AddChildNode;
-            ModuleWrap.Current.OnRemoveAnyType += RemoveChildNode;
-            ModuleWrap.Current.Check();
+            WrapManager.Ins.Current.AddNamespaceEvent += AddRootNode;
+            WrapManager.Ins.Current.RemoveNamespaceEvent += RemoveRootNode;
+            WrapManager.Ins.Current.AddAnyTypeEvent += AddChildNode;
+            WrapManager.Ins.Current.RemoveAnyTypeEvent += RemoveChildNode;
+            WrapManager.Ins.Current.Check();
         }
 
         private void AddRootNode(NamespaceWrap wrap)
@@ -268,12 +268,11 @@ namespace Desc
             var selected = _nodeTreeView.SelectedNode;
             var nsw = selected.Tag as NamespaceWrap;
             bool isNsw = selected != null && nsw != null;                  //是命名空间节点
-            bool isDefault = ModuleWrap.Default == ModuleWrap.Current;         //是默认模块
 
             _modifyRootMenuItem.Visible = isNsw && !selected.Name.Equals(Util.EmptyNamespace);
             _saveRootMenuItem.Visible = isNsw;
-            _includeMenuItem.Visible = isNsw && !isDefault;
-            _excludeMenuItem.Visible = isNsw && !isDefault;
+            _includeMenuItem.Visible = isNsw;
+            _excludeMenuItem.Visible = isNsw;
             //在排除情况下的命名空间,直接删除,会影响其他模块
             if (isNsw)
                 _deleteMenuItem.Visible = (nsw.NodeState & NodeState.Exclude) != 0;
@@ -305,14 +304,13 @@ namespace Desc
                     var result = MessageBox.Show("删除文件可能造成其他丢失数据!请保证数据仅在该模块使用.", "删除命名空间", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
                     if (result == DialogResult.OK)
                     {
-                        ModuleWrap.Default.RemoveImport(nsw);
-                        ModuleWrap.Current.RemoveImport(nsw);
+                        WrapManager.Ins.Current.RemoveImport(nsw);
                         PoolManager.Ins.Push(nsw);
 
                         //移除命名空间相关数据
                         NamespaceWrap.Remove(nsw);
                         Util.Delete(nsw.FilePath);
-                        ModuleWrap.Default.Check();
+                        WrapManager.Ins.Current.Check();
                     }
                     break;
                 case TypeWrap tw:
@@ -322,7 +320,7 @@ namespace Desc
                     break;
             }
             PoolManager.Ins.Push(node);
-            ModuleWrap.Current.Check();
+            WrapManager.Ins.Current.Check();
         }
         private void NodeTreeView_Modify(object sender, EventArgs e)
         {
@@ -342,8 +340,8 @@ namespace Desc
             if (wrap is NamespaceWrap)
             {
                 var nsw = wrap as NamespaceWrap;
-                ModuleWrap.Current.AddImportNoEvent(nsw);
-                ModuleWrap.Current.Check();
+                WrapManager.Ins.Current.AddImportNoEvent(nsw);
+                WrapManager.Ins.Current.Check();
             }
         }
         private void NodeTreeView_Exclude(object sender, EventArgs e)
@@ -353,9 +351,9 @@ namespace Desc
             if (wrap is NamespaceWrap)
             {
                 var nsw = wrap as NamespaceWrap;
-                ModuleWrap.Current.RemoveImportNoEvent(nsw);
+                WrapManager.Ins.Current.RemoveImportNoEvent(nsw);
                 RemoveRootNode(nsw);
-                ModuleWrap.Current.Check();
+                WrapManager.Ins.Current.Check();
             }
         }
         private void CommitToLib(object sender, EventArgs e)
@@ -371,53 +369,42 @@ namespace Desc
         /// </summary>
         private void ShowAllBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (ModuleWrap.Default == ModuleWrap.Current) return;
-
             var state = sender as CheckBox;
             var nodes = _nodeTreeView.Nodes;
             if (state.Checked)
             {
-                var imps = ModuleWrap.Default.Imports;
-                for (int i = 0; i < imps.Count; i++)
+                foreach (var item in NamespaceWrap.Dict)
                 {
-                    string key = imps[i];
-                    if (NamespaceWrap.Dict.ContainsKey(key))
-                    {
-                        var root = NamespaceWrap.Dict[key];
-                        if ((root.NodeState & NodeState.Exclude) == 0) continue;
+                    var root = item.Value;
+                    if ((root.NodeState & NodeState.Exclude) == 0) continue;
 
-                        if (root.FullName.IndexOf(_nodeFilterBox.Text, StringComparison.OrdinalIgnoreCase) != -1)
-                        {
-                            AddRootNode(root);
-                            root.SetStateWithType(NodeState.Exclude);
-                            //OnNodeStateChange(root, NodeState.Exclude);
-                            //foreach (var cls in root.Classes)
-                            //    OnNodeStateChange(cls, NodeState.Exclude);
-                            //foreach (var enm in root.Enums)
-                            //    OnNodeStateChange(enm, NodeState.Exclude);
-                        }
+                    if (root.FullName.IndexOf(_nodeFilterBox.Text, StringComparison.OrdinalIgnoreCase) != -1)
+                    {
+                        AddRootNode(root);
+                        root.SetStateWithType(NodeState.Exclude);
+                        //OnNodeStateChange(root, NodeState.Exclude);
+                        //foreach (var cls in root.Classes)
+                        //    OnNodeStateChange(cls, NodeState.Exclude);
+                        //foreach (var enm in root.Enums)
+                        //    OnNodeStateChange(enm, NodeState.Exclude);
                     }
                     else
                     {
                         Debug.LogErrorFormat("[NamespaceDock]{0}模块中的命名空间{1}居然会不在字典中!?\n改了命名空间库,却没修改模块?",
-                            ModuleWrap.Default.Name, key);
+                            WrapManager.Ins.Current.Name, item.Key);
                     }
                 }
             }
             else
             {
-                var imps = ModuleWrap.Default.Imports;
-                for (int i = 0; i < imps.Count; i++)
+                foreach (var item in NamespaceWrap.Dict)
                 {
-                    string key = imps[i];
-                    if (NamespaceWrap.Dict.ContainsKey(key))
-                    {
-                        var root = NamespaceWrap.Dict[key];
-                        if ((root.NodeState & NodeState.Exclude) == 0) continue;
+                    var root = item.Value;
+                    if ((root.NodeState & NodeState.Exclude) == 0) continue;
 
-                        RemoveRootNode(root);
-                    }
+                    RemoveRootNode(root);
                 }
+
             }
         }
         /// <summary>

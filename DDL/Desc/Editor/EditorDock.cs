@@ -205,7 +205,7 @@ namespace Desc.Editor
                 _wrap.SetNodeState(_wrap.NodeState | NodeState.Modify);
                 _wrap.Namespace.SetDirty();
             }
-            ModuleWrap.Current.Check();
+            WrapManager.Ins.Current.Check();
             Text = _wrap.Name;
             _isDirty = false;
         }

@@ -46,9 +46,9 @@ namespace Desc.Editor
                 rows.Add(itemRow);
             }
 
-            ModuleWrap.Current.OnAddNamespace += OnAddNamespace;
-            ModuleWrap.Current.OnRemoveNamespace += OnRemoveNamespace;
-            ModuleWrap.Current.OnNamespaceNameChange += OnNamespaceNameChange;
+            WrapManager.Ins.Current.AddNamespaceEvent += OnAddNamespace;
+            WrapManager.Ins.Current.RemoveNamespaceEvent += OnRemoveNamespace;
+            WrapManager.Ins.Current.OnNamespaceNameChange += OnNamespaceNameChange;
 
             wrap.OnNameChange += OnTypeNameChange;
         }
@@ -89,9 +89,9 @@ namespace Desc.Editor
             base.Clear();
             _memberList.Rows.Clear();
 
-            ModuleWrap.Current.OnAddNamespace -= OnAddNamespace;
-            ModuleWrap.Current.OnRemoveNamespace -= OnRemoveNamespace;
-            ModuleWrap.Current.OnNamespaceNameChange -= OnNamespaceNameChange;
+            WrapManager.Ins.Current.AddNamespaceEvent -= OnAddNamespace;
+            WrapManager.Ins.Current.RemoveNamespaceEvent -= OnRemoveNamespace;
+            WrapManager.Ins.Current.OnNamespaceNameChange -= OnNamespaceNameChange;
         }
         private void OnAddNamespace(NamespaceWrap wrap)
         {

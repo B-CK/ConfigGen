@@ -202,17 +202,17 @@ namespace Desc
         public static object[] GetKeyTypes()
         {
             List<object> all = new List<object>(KeyTypes);
-            all.AddRange(ModuleWrap.Current.Enums.Values);
+            all.AddRange(WrapManager.Ins.Current.Enums.Values);
             return all.ToArray();
         }
         public static object[] GetAllTypes(bool excludeSet = false)
         {
             List<object> all = new List<object>(BaseTypes);
-            //all.AddRange(ModuleWrap.Current.Classes.Values);
-            //all.AddRange(ModuleWrap.Current.Enums.Values);
+            //all.AddRange(WrapManager.Ins.Current.Classes.Values);
+            //all.AddRange(WrapManager.Ins.Current.Enums.Values);
             var ls = new List<TypeWrap>();
-            ls.AddRange(ModuleWrap.Current.Classes.Values);
-            ls.AddRange(ModuleWrap.Current.Enums.Values);
+            ls.AddRange(WrapManager.Ins.Current.Classes.Values);
+            ls.AddRange(WrapManager.Ins.Current.Enums.Values);
             for (int i = 0; i < ls.Count; i++)
                 all.Add(ls[i].FullName);
 
@@ -226,8 +226,8 @@ namespace Desc
         {
             List<object> all = new List<object>() { BOOL, INT, LONG, FLOAT, STRING };
             var ls = new List<TypeWrap>();
-            ls.AddRange(ModuleWrap.Current.Classes.Values);
-            ls.AddRange(ModuleWrap.Current.Enums.Values);
+            ls.AddRange(WrapManager.Ins.Current.Classes.Values);
+            ls.AddRange(WrapManager.Ins.Current.Enums.Values);
             for (int i = 0; i < ls.Count; i++)
                 all.Add(ls[i].FullName);
 
@@ -235,8 +235,8 @@ namespace Desc
         }
         public static bool HasType(string fullName)
         {
-            return BaseHash.Contains(fullName) || ModuleWrap.Current.Classes.ContainsKey(fullName)
-                || ModuleWrap.Current.Enums.ContainsKey(fullName);
+            return BaseHash.Contains(fullName) || WrapManager.Ins.Current.Classes.ContainsKey(fullName)
+                || WrapManager.Ins.Current.Enums.ContainsKey(fullName);
         }
         public static object FindTypeItem(string fullName, object[] types)
         {

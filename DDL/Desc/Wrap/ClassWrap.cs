@@ -16,23 +16,8 @@ namespace Desc.Wrap
     {
         public static Dictionary<string, ClassWrap> Dict { get { return _dict; } }
         static Dictionary<string, ClassWrap> _dict = new Dictionary<string, ClassWrap>();
-        public static ClassWrap[] Array
-        {
-            get
-            {
-                if (_array.Length != _dict.Count)
-                {
-                    var ls = new List<ClassWrap>(_dict.Values);
-                    ls.Sort((a, b) => Comparer<string>.Default.Compare(a.DisplayName, b.DisplayName));
-                    _array = ls.ToArray();
-                }
-                return _array;
-            }
-        }
-        static ClassWrap[] _array = new ClassWrap[0];
         public static void ClearAll()
         {
-            _array = new ClassWrap[0];
             _dict.Clear();
         }
         /// <summary>
@@ -247,11 +232,11 @@ namespace Desc.Wrap
                 isOk &= c;
                 if (c == false)
                     Debug.LogErrorFormat("[Class]类型{0}的父类[{1}]不存在!", FullName, Inherit);
-                c = ModuleWrap.Current.Classes.ContainsKey(Inherit);
+                c = WrapManager.Ins.Current.Classes.ContainsKey(Inherit);
                 isOk &= c;
                 if (c == false)
                     Debug.LogErrorFormat("[Class]{0}模块中不包含类型{1}的父类[{2}]!",
-                        ModuleWrap.Current.Name, FullName, Inherit);
+                        WrapManager.Ins.Current.Name, FullName, Inherit);
             }
             if (isOk == false)
                 SetNodeState(NodeState | NodeState.Error);

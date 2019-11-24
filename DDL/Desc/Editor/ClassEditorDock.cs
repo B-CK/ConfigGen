@@ -35,16 +35,16 @@ namespace Desc.Editor
             base.OnInit(arg);
 
             var wrap = GetWrap<ClassWrap>();
-            var namespaces = ModuleWrap.Current.GetNamespaces();
-            var classes = ModuleWrap.Current.GetClasses();
+            var namespaces = WrapManager.Ins.Current.GetNamespaces();
+            var classes = WrapManager.Ins.Current.GetClasses();
             //命名空间
-            if (ModuleWrap.Current.Namespaces.Count != _namespaceComboBox.Items.Count)
+            if (WrapManager.Ins.Current.Namespaces.Count != _namespaceComboBox.Items.Count)
             {
                 _namespaceComboBox.Items.Clear();
                 _namespaceComboBox.Items.AddRange(namespaces);
             }
             //继承类型
-            if (ModuleWrap.Current.Classes.Count != _inheritComboBox.Items.Count)
+            if (WrapManager.Ins.Current.Classes.Count != _inheritComboBox.Items.Count)
             {
                 _inheritComboBox.Items.Clear();
                 _inheritComboBox.Items.Add(string.Empty);
@@ -54,9 +54,9 @@ namespace Desc.Editor
             //设置字段
             _fieldTypeLib.Items.AddRange(Util.GetAllTypes());
             var rows = _memberList.Rows;
-            if (!wrap.Inherit.IsEmpty() && ModuleWrap.Current.Classes.ContainsKey(wrap.Inherit))
+            if (!wrap.Inherit.IsEmpty() && WrapManager.Ins.Current.Classes.ContainsKey(wrap.Inherit))
             {
-                _inherit = ModuleWrap.Current.Classes[wrap.Inherit];
+                _inherit = WrapManager.Ins.Current.Classes[wrap.Inherit];
                 _inherit.OnWrapChange += OnParentChange;
                 var pfields = _inherit.Fields;
                 for (int i = 0; i < pfields.Count; i++)
@@ -98,23 +98,23 @@ namespace Desc.Editor
             string absPath = Util.GetModuleAbsPath(wrap.DataPath);
             _dataPathTextBox.Text = Util.GetDataDirRelPath(absPath) ;
 
-            ModuleWrap.Current.OnAddNamespace += OnAddNamespace;
-            ModuleWrap.Current.OnRemoveNamespace += OnRemoveNamespace;
-            ModuleWrap.Current.OnAddAnyType += OnAddAnyType;
-            ModuleWrap.Current.OnRemoveAnyType += OnRemoveAnyType;
-            ModuleWrap.Current.OnNamespaceNameChange += OnNamespaceNameChange;
-            ModuleWrap.Current.OnTypeNameChange += OnTypeNameChange;
+            WrapManager.Ins.Current.AddNamespaceEvent += OnAddNamespace;
+            WrapManager.Ins.Current.RemoveNamespaceEvent += OnRemoveNamespace;
+            WrapManager.Ins.Current.AddAnyTypeEvent += OnAddAnyType;
+            WrapManager.Ins.Current.RemoveAnyTypeEvent += OnRemoveAnyType;
+            WrapManager.Ins.Current.OnNamespaceNameChange += OnNamespaceNameChange;
+            WrapManager.Ins.Current.OnTypeNameChange += OnTypeNameChange;
         }
         protected override void Clear()
         {
             base.Clear();
 
-            ModuleWrap.Current.OnAddNamespace -= OnAddNamespace;
-            ModuleWrap.Current.OnRemoveNamespace -= OnRemoveNamespace;
-            ModuleWrap.Current.OnAddAnyType -= OnAddAnyType;
-            ModuleWrap.Current.OnRemoveAnyType -= OnRemoveAnyType;
-            ModuleWrap.Current.OnNamespaceNameChange -= OnNamespaceNameChange;
-            ModuleWrap.Current.OnTypeNameChange -= OnTypeNameChange;
+            WrapManager.Ins.Current.AddNamespaceEvent -= OnAddNamespace;
+            WrapManager.Ins.Current.RemoveNamespaceEvent -= OnRemoveNamespace;
+            WrapManager.Ins.Current.AddAnyTypeEvent -= OnAddAnyType;
+            WrapManager.Ins.Current.RemoveAnyTypeEvent -= OnRemoveAnyType;
+            WrapManager.Ins.Current.OnNamespaceNameChange -= OnNamespaceNameChange;
+            WrapManager.Ins.Current.OnTypeNameChange -= OnTypeNameChange;
             if (_inherit != null)
                 _inherit.OnWrapChange -= OnParentChange;
             _inherit = null;

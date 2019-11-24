@@ -6,26 +6,10 @@ namespace Desc.Wrap
 {
     public class EnumWrap : TypeWrap
     {
-        public static EnumWrap[] Array
-        {
-            get
-            {
-                if (_array.Length != _dict.Count)
-                {
-                    var ls = new List<EnumWrap>(_dict.Values);
-                    ls.Sort((a, b) => Comparer<string>.Default.Compare(a.DisplayName, b.DisplayName));
-                    _array = ls.ToArray();
-                }
-                return _array;
-            }
-        }
         public static Dictionary<string, EnumWrap> Dict { get { return _dict; } }
         static Dictionary<string, EnumWrap> _dict = new Dictionary<string, EnumWrap>();
-        static EnumWrap[] _array = new EnumWrap[0];
-
         public static void ClearAll()
         {
-            _array = new EnumWrap[0];
             _dict.Clear();
         }
 
@@ -61,9 +45,6 @@ namespace Desc.Wrap
         {
             return wrap.Xml;
         }
-
-        public Action<EnumItemWrap> OnAddItem;
-        public Action<EnumItemWrap> OnRemoveItem;
 
         public override string Name
         {
@@ -168,12 +149,6 @@ namespace Desc.Wrap
             _items.Clear();
             Namespace = null;
             PoolManager.Ins.Push(this);
-        }
-        public override void ClearEvent()
-        {
-            base.ClearEvent();
-            OnAddItem = null;
-            OnRemoveItem = null;
         }
     }
 }

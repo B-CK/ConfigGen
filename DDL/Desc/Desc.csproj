@@ -88,7 +88,7 @@
     <Compile Include="ModuleInfoDock.Designer.cs">
       <DependentUpon>ModuleInfoDock.cs</DependentUpon>
     </Compile>
-    <Compile Include="ModuleMgr.cs" />
+    <Compile Include="WrapManager.cs" />
     <Compile Include="NamespaceInfoDock.cs">
       <SubType>Form</SubType>
     </Compile>
