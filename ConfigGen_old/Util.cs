@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Data;
 using System.Data.OleDb;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Wrap;
 
 namespace Description
 {
@@ -200,11 +200,11 @@ namespace Description
         }
         public static string GetRelPath(string path)
         {
-            return path.Replace(Setting.ExcelDir, "");
+            return path.Replace(Setting.ConfigDir, "");
         }
         public static string GetAbsPath(string relPath)
         {
-            return Path.Combine(Setting.ExcelDir, relPath);
+            return Path.Combine(Setting.ConfigDir, relPath);
         }
         public static void TryDeleteDirectory(string path)
         {
@@ -218,18 +218,6 @@ namespace Description
                 TryDeleteDirectory(ds[i]);
 
             Directory.Delete(path, true);
-        }
-        public static StringBuilder IntervalLevel(this StringBuilder builder, int n = 1)
-        {
-            for (int i = 0; i < n; i++)
-                builder.Append("\t");
-            return builder;
-        }
-        public static string CorrectFullType(string fullType)
-        {
-            if (ClassWrap.Classes.ContainsKey(fullType) || EnumWrap.Enums.ContainsKey(fullType))
-                return $"{Setting.ModuleName}.{fullType}";
-            return fullType;
         }
 
 
@@ -286,21 +274,6 @@ namespace Description
         public static string ToString(List<string> list, string split = ",")
         {
             return ToString(list.ToArray(), split);
-        }
-        public static string GetRelativePath(string filePath, string folder)
-        {
-            if (!File.Exists(filePath) || !Directory.Exists(folder))
-                return null;
-
-            const string directorySeparatorChar = "\\";
-            Uri pathUri = new Uri(filePath);
-
-            if (!folder.EndsWith(directorySeparatorChar))
-            {
-                folder += directorySeparatorChar;
-            }
-            Uri folderUri = new Uri(folder);
-            return Uri.UnescapeDataString(folderUri.MakeRelativeUri(pathUri).ToString().Replace("/", directorySeparatorChar));
         }
     }
 }

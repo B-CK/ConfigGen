@@ -252,7 +252,7 @@ namespace Tool.Export
             builder.AppendLine($"namespace {Setting.ModuleName}");
             Start(0);
             {
-                builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public partial class ConfigComponent");
+                builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public partial class ConfigHelper");
                 Start(TYPE_LEVEL);
                 {
                     StringBuilder load = new StringBuilder();
@@ -286,64 +286,3 @@ namespace Tool.Export
         #endregion
     }
 }
-
-//#region 配置加载类
-//static void CfgLoader()
-//{
-//    builder.AppendLine(string.Join("\r\n", namespaces));
-//    builder.AppendLine($"namespace {Setting.ModuleName}");
-//    Start(0);
-//    {
-//        int level1 = SEM_LEVEL + 1;
-//        int level2 = SEM_LEVEL + 2;
-//        var configs = ConfigWrap.GetExports();
-//        for (int i = 0; i < configs.Count; i++)
-//        {
-//            var cfg = configs[i];
-//            builder.AppendLine($"public partial class {cfg.Name}Category");
-//            Start(TYPE_LEVEL);
-//            {
-//                var keyType = Util.CorrectFullType(cfg.Index.FullType);
-//                var varType = Util.CorrectFullType(cfg.FullType);
-//                builder.IntervalLevel(MEM_LEVEL).AppendLine($"public static Dictionry<{cfg.Index.FullType}, {varType}> Load()");
-//                builder.IntervalLevel(MEM_LEVEL).AppendLine("{");
-//                {
-//                    builder.IntervalLevel(SEM_LEVEL).AppendLine($"var dict = new Dictionry<{cfg.Index.FullType}, {varType}>();");
-//                    builder.IntervalLevel(SEM_LEVEL).AppendLine($"try");
-//                    builder.IntervalLevel(SEM_LEVEL).AppendLine($"{{");
-//                    {
-//                        builder.IntervalLevel(level1).AppendLine($"var path = \"{cfg.FullType.Replace(Setting.DotSplit[0], '/')}{Setting.DataFileExt}\";");
-//                        builder.IntervalLevel(level1).AppendLine($"var data = new DataStream(path, Encoding.UTF8);");
-//                        builder.IntervalLevel(level1).AppendLine($"int length = data.GetInt();");
-//                        builder.IntervalLevel(level1).AppendLine($"for (int i = 0; i < length; i++)");
-//                        builder.IntervalLevel(level1).AppendLine($"{{");
-//                        {
-//                            builder.IntervalLevel(level2).AppendLine($"var v = new {varType}(data);");
-//                            builder.IntervalLevel(level2).AppendLine($"dict.Add(v.{cfg.Index.Name}, v);");
-//                        }
-//                        builder.IntervalLevel(level1).AppendLine($"}}");
-//                    }
-//                    builder.IntervalLevel(SEM_LEVEL).AppendLine($"}}");
-//                    builder.IntervalLevel(SEM_LEVEL).AppendLine($"catch (Exception e)");
-//                    builder.IntervalLevel(SEM_LEVEL).AppendLine($"{{");
-//                    {
-//                        builder.IntervalLevel(level1).AppendLine($"UnityEngine.Debug.LogError($\"{{path}}解析异常~\\n{{e.Message}}\");");
-//                        builder.AppendLine($"#if UNITY_EDITOR");
-//                        builder.IntervalLevel(level1).AppendLine($"UnityEngine.Debug.LogError($\"最后一条数据Key:{{dict.Last().Key}}.\");");
-//                        builder.AppendLine($"#endif");
-//                    }
-//                    builder.IntervalLevel(SEM_LEVEL).AppendLine($"}}");
-//                    builder.IntervalLevel(SEM_LEVEL).AppendLine($"return dict;");
-//                }
-//                builder.IntervalLevel(MEM_LEVEL).AppendLine("}");
-//            }
-//            End(TYPE_LEVEL);
-//        }
-//    }
-//    End(0);
-
-//    string path = Path.Combine(Setting.CSDir, "CfgLoader.cs");
-//    Util.SaveFile(path, builder.ToString());
-//    builder.Clear();
-//}
-//#endregion

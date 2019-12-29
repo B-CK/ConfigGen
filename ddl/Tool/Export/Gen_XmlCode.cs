@@ -9,6 +9,7 @@ using Wrap;
 
 namespace Tool.Export
 {
+    //可以考虑使用反射完成Cfg数据导出到Xml[序列化类]
     //编辑器模块名称
     public class Gen_XmlCode
     {

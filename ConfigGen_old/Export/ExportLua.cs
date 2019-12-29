@@ -1,12 +1,11 @@
-﻿using Xml;
-using Wrap;
+﻿using Description.Xml;
+using Description.TypeInfo;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Description;
 
-namespace Export
+namespace Description.Export
 {
     public class ExportLua
     {
@@ -34,13 +33,13 @@ namespace Export
         {
             StringBuilder builder = new StringBuilder();
             builder.AppendLine("return {");
-            var cit = ConfigWrap.Configs.GetEnumerator();
+            var cit = ConfigInfo.Configs.GetEnumerator();
             while (cit.MoveNext())
             {
-                ConfigWrap cfg = cit.Current.Value;
+                ConfigInfo cfg = cit.Current.Value;
                 string method = string.Format("Get{0}", cfg.FullType.Replace(new string(Setting.DotSplit), ""));
                 string index = cfg.Index.Name;
-                string relPath = cfg.OutputFile + Setting.DataFileExt;
+                string relPath = cfg.OutputFile + Setting.CsvFileExt;
                 builder.AppendFormat("\t{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
                     cfg.Name, method, index, relPath.ToLower());
             }
@@ -165,13 +164,40 @@ namespace Export
             builder.AppendLine();
             builder.AppendLine("local meta");
 
-            var cit = ClassWrap.Classes.GetEnumerator();
+            var cit = ClassInfo.Classes.GetEnumerator();
             while (cit.MoveNext())
             {
                 var cls = cit.Current.Value;
                 builder.AppendLine("meta= {}");
                 builder.AppendLine("meta.__index = meta");
                 builder.AppendFormat("meta.class = '{0}'\n", cls.FullType);
+                //常量字段
+                for (int j = 0; j < cls.Consts.Count; j++)
+                {
+                    ConstInfo cst = cls.Consts[j];
+                    string value = CheckConst(cst.OriginalType, cst.Value);
+                    switch (cst.OriginalType)
+                    {
+                        case Setting.LIST:
+                            string[] list = cst.Value.Split(Setting.SplitFlag);
+                            for (int k = 0; k < list.Length; k++)
+                                list[k] = CheckConst(cst.Types[1], list[k]);
+                            value = string.Format("{{ {0} }}", Util.ToString(list));
+                            break;
+                        case Setting.DICT:
+                            string[] dict = cst.Value.Split(Setting.SplitFlag);
+                            for (int k = 0; k < dict.Length; k++)
+                            {
+                                string[] nodes = dict[k].Split(Setting.ArgsSplitFlag);
+                                nodes[0] = CheckConst(cst.Types[1], nodes[0]);
+                                nodes[1] = CheckConst(cst.Types[2], nodes[1]);
+                                dict[k] = string.Format("{0} = {1},", nodes[0], nodes[1]);
+                            }
+                            value = string.Format("{{ {0} }}", Util.ToString(dict));
+                            break;
+                    }
+                    builder.AppendFormat("meta.{0} = {1}\n", cst.Name, value);
+                }
 
                 builder.AppendFormat("GetOrCreate('{0}')['{1}'] = meta\n", cls.Namespace, cls.Name);
                 string funcName = cls.FullType.Replace(".", "");
@@ -190,7 +216,7 @@ namespace Export
                 //--普通变量
                 for (int j = 0; j < cls.Fields.Count; j++)
                 {
-                    FieldWrap field = cls.Fields[j];
+                    FieldInfo field = cls.Fields[j];
                     if (!Util.MatchGroups(field.Group)) continue;
 
                     if (field.IsRaw)
@@ -225,14 +251,19 @@ namespace Export
                 builder.AppendFormat("end\n");
             }
 
-            var eit = EnumWrap.Enums.GetEnumerator();
+            var eit = EnumInfo.Enums.GetEnumerator();
             while (eit.MoveNext())
             {
-                EnumWrap en = eit.Current.Value;
+                EnumInfo en = eit.Current.Value;
                 builder.AppendFormat("GetOrCreate('{0}')['{1}'] = {{\n", en.Namespace, en.Name);
                 builder.AppendFormat("\tNULL = {0},\n", LUA_ENUM_NULL);
-                foreach (var item in en.Values)
-                    builder.AppendFormat("\t{0} = {1},\n", item.Key, item.Value);
+                var vit = en.Values.GetEnumerator();
+                while (vit.MoveNext())
+                {
+                    string key = vit.Current.Key;
+                    string value = vit.Current.Value;
+                    builder.AppendFormat("\t{0} = {1},\n", key, value);
+                }
                 builder.AppendLine("}");
             }
             builder.AppendLine("return Stream");
