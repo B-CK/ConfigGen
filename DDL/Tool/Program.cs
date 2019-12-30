@@ -14,13 +14,8 @@ namespace Description
 {
     /// 所有的路径均以应用为相对路径生成
     /// 尽可能少配置Excel文件,文件读取非常耗时
-    /// 注:单独导出XmlCode,避免命名空间错误!根节点相同
     class Program
     {
-        //未完成内容
-        //1.说明文档按功能来整理
-        
-
         static Data lastData;
 
         public static void AddLastData(Data data)
@@ -47,7 +42,7 @@ namespace Description
             Export("CS", Setting.CSDir);
             Export("Java", Setting.JavaDir);
             Export("Lua", Setting.LuaDir);
-            Export("XmlCode", Setting.XmlCodeDir);
+            //Export("XmlCode", Setting.XmlCodeDir);
 
             if (!Setting.DataDir.IsEmpty() || Setting.Check)
             {
@@ -78,7 +73,7 @@ namespace Description
         {
             //解析类型定义
             Dictionary<string, NamespaceXml> allNs = new Dictionary<string, NamespaceXml>();
-            string path = "无法解析Xml.NamespaceXml";
+            string namespacePath = "无法解析Xml.NamespaceXml";
             try
             {
                 var moduleXml = Util.Deserialize(Setting.Module, typeof(ModuleXml)) as ModuleXml;
@@ -91,8 +86,8 @@ namespace Description
                 for (int i = 0; i < imports.Count; i++)
                 {
                     ///命名空间目录与模块目录并列
-                    path = Path.Combine(moduleDir, imports[i]);
-                    var nsx = Util.Deserialize(path, typeof(NamespaceXml)) as NamespaceXml;
+                    namespacePath = Path.Combine(moduleDir, imports[i]);
+                    var nsx = Util.Deserialize(namespacePath, typeof(NamespaceXml)) as NamespaceXml;
                     allNs.Add(nsx.Name, nsx);
 
                     string space = nsx.Name;
@@ -102,7 +97,7 @@ namespace Description
                         ClassXml xml = cls[k];
                         var info = new ClassWrap(xml, space);
                         if (info.IsConfig())
-                            new ConfigWrap(xml, space, moduleDir);
+                            new ConfigWrap(xml, space, Path.GetDirectoryName(namespacePath));
                     }
                     var ens = nsx.Enums;
                     for (int k = 0; k < ens.Count; k++)
@@ -111,18 +106,14 @@ namespace Description
             }
             catch (Exception e)
             {
-                Util.LogErrorFormat("路径:{0} 错误:{1}\n{2}", path, e.Message, e.StackTrace);
+                Util.LogErrorFormat("路径:{0} 错误:{1}\n{2}", namespacePath, e.Message, e.StackTrace);
                 return;
             }
-
-            //foreach (var item in ClassWrap.Classes)
-            //    Console.WriteLine(item.Value);
-            //foreach (var item in EnumWrap.Enums)
-            //    Console.WriteLine(item.Value);
         }
 
         static void VerifyDefine()
         {
+            var es = EnumWrap.Enums;
             foreach (var item in ClassWrap.Classes)
                 item.Value.VerifyDefine();
             foreach (var item in ConfigWrap.Configs)

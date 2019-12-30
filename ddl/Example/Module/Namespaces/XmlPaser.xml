@@ -1,5 +1,5 @@
 <Namespace Name="XmlPaser" Desc="解析Xml数据">
-  <Class Name="Character" Group="Editor" Desc="" Inherit="" Index="ID" DataPath="..\Excel\Xml">
+  <Class Name="Character" Group="Editor" Desc="" Inherit="" Index="ID" DataPath="..\..\Excel\Xml">
     <Field Name="ID" Desc="" Group="All" Type="int" Checker="" />
     <Field Name="Custom" Desc="" Group="All" Type="XmlPaser.Custom" Checker="" />
   </Class>

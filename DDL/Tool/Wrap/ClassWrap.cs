@@ -11,7 +11,7 @@ namespace Wrap
         private static Dictionary<string, ClassWrap> _classes = new Dictionary<string, ClassWrap>();
         public static Dictionary<string, ClassWrap> Classes { get { return _classes; } }
         public static ClassWrap Get(string fullName)
-        {
+        {            
             return IsClass(fullName) ? _classes[fullName] : null;
         }
         public static bool IsClass(string fullName)
@@ -93,7 +93,7 @@ namespace Wrap
             _fullType = string.Format("{0}.{1}", namespace0, des.Name);
             _inherit = des.Inherit;
             _inherit = CorrectType(this, _inherit);
-            _groups = new HashSet<string>(Util.Split(des.Group));
+            _groups = new HashSet<string>(Util.Split(des.Group == null ? "" : des.Group.ToLower()));
             if (_groups.Count == 0)
                 _groups.Add(Setting.DefualtGroup);
 
@@ -157,7 +157,7 @@ namespace Wrap
             var git = _groups.GetEnumerator();
             while (git.MoveNext())
                 if (!GroupWrap.IsGroup(git.Current))
-                    Error("未知 Group:" + git.Current);
+                    Error("未定义 Group:" + git.Current);
         }
         public override string ToString()
         {

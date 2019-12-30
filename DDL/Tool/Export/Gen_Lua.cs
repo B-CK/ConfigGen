@@ -6,19 +6,18 @@ using System.IO;
 using System.Text;
 using Description;
 
-namespace Export
+namespace Tool.Export
 {
-    public class ExportLua
+    public class Gen_Lua
     {
         //--lua中的枚举默认   NULL = -1
         private const string DATA_STRUCT = "DataStruct";
-        private const string DATA_STREAM = "DataStream";
         private const string DATA_CONFIG = "Config";
         private const string LUA_ENUM_NULL = "-9";
         private const string LOCAL = "local";
 
 
-        public static void Export()
+        public static void Gen()
         {
             GenConfigTable();
             GenDataStruct();
@@ -46,7 +45,7 @@ namespace Export
         private static void GenDataStruct()
         {
             StringBuilder builder = new StringBuilder();
-            builder.AppendLine("local Stream = require(\"Cfg.DataStream\")");
+            builder.AppendLine("local Stream = require(\"Common.DataStream\")");
             builder.AppendLine("local GetOrCreate = Util.GetOrCreate");
             builder.AppendLine();
             builder.AppendLine("local meta");

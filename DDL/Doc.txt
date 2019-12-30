@@ -1,0 +1,65 @@
+工具命令行说明
+语法:ConfigGen.exe [option]
+        -module [path] 模块配置文件路径
+        -data [path] 导出数据到指定目录路径
+        -csharp [path] 导出结构到指定目录路径
+        -lua [path] 导出结构到指定目录路径
+  [废弃]-xmlCode [path] 导出xml类到指定目录路径
+        -group [client|editor|server] 按分组导出数据,分组可自定义
+        -check 检查数据及结构
+        -help 打印指令说明
+		
+例:-module .\Module\Editor.xml -xmlCode XmlCode/ -group all
+
+
+数据结构解析:2类描述文件,模块描述文件,命名空间描述文件.
+描述文件路径规划:
+	.模块描述文件放在配置文件根目录下
+	.命名空间按相对根路径放置,正好形成命名空间名称与路径相对应
+	
+
+模块描述文件:
+	.引用一组命名空间,使用相对于模块描述文件的路径表示对命名空间文件的引用
+	.模块描述文件常用于功能划分,按需导出指定类型
+	.文件格式
+		<Module Name="TestDefault" Groups="">
+		  <Import>@</Import>
+		  <Import>SDK</Import>
+		  <Import>XSDK</Import>
+		  <Import>Test_X</Import>
+		  <Import>BX</Import>
+		</Module>
+	Name:模块名称
+	Groups:模块中所包含的组名,组名使用|符号分割
+	Import:导出命名空间名称,使用相对当前文件路径,便于读取文件
+
+命名空间描述文件:包含了具体的数据描述结构类型:类,枚举
+	.枚举格式
+		<Enum Name="TestEnum" Group="All" Desc="">
+			<Item Name="Item1" Desc="" Value="3" Alias="2号" />
+			<Item Name="Item2" Desc="" Value="6" Alias="3号" />
+			<Item Name="Item0" Desc="" Value="0" Alias="1号" />
+		</Enum>
+	Name:表示字段/枚举名称	
+	Desc:字段/枚举描述
+	Value:表示枚举值
+	Alias:枚举别名,可用更通俗易懂的字符表示数据.生成后的数据仍使用Value
+	
+	
+	.类格式
+		<Class Name="BaseType" Group="All" Desc="基础类型" Inherit="" Index="int_var" DataPath="..\Excel\BaseTypes_基础类型.xlsx">
+			<Field Name="int_var" Desc="int类型" Group="All" Type="int" Checker="" />
+			<Field Name="long_var" Desc="long类型" Group="All" Type="long" Checker="" />
+			<Field Name="float_var" Desc="float类型" Group="All" Type="float" Checker="" />
+			<Field Name="bool_var" Desc="bool类型" Group="All" Type="bool" Checker="" />
+			<Field Name="string_var" Desc="string类型" Group="All" Type="string" Checker="" />
+			<Field Name="Custom_var" Desc="Custom类型" Group="All" Type="CustomTypes.BuffType" Checker="" />
+		</Class>
+	Name:表示字段/类名称	
+	Desc:字段/类描述
+	Inherit:数据类型继承,同编程语言中的继承
+	Index:索引(主键),在数据表中唯一
+	Type:字段类型,基础类型或者自定义类型均可.自定义类型使用相对路径
+	DataPath:数据文件路径,Excel文件路径或者Xml数据目录,路径相对于命名空间文件路径
+	Group:组,用于数据分组导出,组名使用|符号分割,例:Client/Server组,分别导出需要的字段类容.如果类已经定义组了,则忽略字段定义组		
+	Checker:数据检查功能,目前暂未完成

@@ -38,9 +38,12 @@ namespace Description.Wrap
         }
         void Load(ClassWrap info, XmlElement data)
         {
-            ClassWrap parent = ClassWrap.Get(info.Inherit);
-            if (parent != null)
+            ClassWrap parent = null;
+            if (!info.Inherit.IsEmpty())
+            {
+                parent = ClassWrap.Get(info.Inherit);
                 Load(parent, data);
+            }
 
             var fields = info.Fields;
             int offset = parent == null ? 0 : parent.Fields.Count;

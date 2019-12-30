@@ -1,5 +1,5 @@
 <Namespace Name="BX" Desc="你是谁?">
-  <Class Name="gfhgfjA" Group="All:Server" Desc="" Inherit="" Index="" DataPath="" />
+  <Class Name="gfhgfjA" Group="All" Desc="" Inherit="" Index="" DataPath="" />
   <Class Name="bbbbOK" Group="All:Client" Desc="描述Ok" Inherit="@.At_B" Index="z" DataPath="">
     <Field Name="IDs" Desc="" Group="All:Client:Editor" Type="dict:int:BX.TestEnum" IsConst="false" Value="" Checker="" />
     <Field Name="Name" Desc="" Group="All" Type="bool" IsConst="false" Value="False" Checker="" />

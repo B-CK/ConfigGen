@@ -75,10 +75,10 @@ namespace Wrap
         public FieldWrap(ClassWrap host, string name, string type, string group, string desc, HashSet<string> gs)
             : this(host, name, type, Util.Split(type), gs)
         {
-            _group = group;
+            _group = group == null ? "" : group.ToLower();
             if (_groups == null)
             {
-                _groups = new HashSet<string>(Util.Split(group));
+                _groups = new HashSet<string>(Util.Split(_group));
                 if (_groups.Count == 0)
                     _groups.Add(Setting.DefualtGroup);
             }

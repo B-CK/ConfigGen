@@ -160,8 +160,10 @@ namespace Description
         /// </summary>
         public static bool MatchGroups(HashSet<string> gs)
         {
+            //主动导出All类型
             if (Setting.ExportGroup.Contains(Setting.DefualtGroup))
                 return true;
+            //未指明导出组类别,默认导出所有
             if (gs.Contains(Setting.DefualtGroup))
                 return true;
             return Setting.ExportGroup.Overlaps(gs);
@@ -241,9 +243,9 @@ namespace Description
         {
             return Regex.IsMatch(name, @"^[a-zA-Z_]\w*$");
         }
-        public static string[] Split(this string type)
+        public static string[] Split(this string str)
         {
-            return type.IsEmpty() ? new string[0] : type.Split(Setting.ArgsSplitFlag);
+            return str.IsEmpty() ? new string[0] : str.Split(Setting.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
         }
 
         /// <summary>

@@ -13,7 +13,7 @@
     <Field Name="Name" Desc="名称" Group="All" Type="string" Checker="" />
     <Field Name="Level" Desc="等级" Group="All" Type="int" Checker="" />
   </Class>
-  <Class Name="Character" Group="All" Desc="" Inherit="" Index="ID" DataPath="..\Excel\CustomTypes_自定义类型.xlsx">
+  <Class Name="Character" Group="All" Desc="" Inherit="" Index="ID" DataPath="..\..\Excel\CustomTypes_自定义类型.xlsx">
     <Field Name="ID" Desc="id" Group="All" Type="int" Checker="" />
     <Field Name="Custom" Desc="角色信息" Group="All" Type="CustomTypes.Custom" Checker="" />
   </Class>

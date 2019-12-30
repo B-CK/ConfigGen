@@ -1,7 +1,3 @@
-<Module Name="TestDefault" Groups="">
-  <Import>@</Import>
-  <Import>SDK</Import>
-  <Import>XSDK</Import>
-  <Import>Test_X</Import>
-  <Import>BX</Import>
+<Module Name="TestDefault" Groups="All:Client:Editor:Server">
+  <Import>Namespaces/BaseTypesInfo0.xml</Import>
 </Module>

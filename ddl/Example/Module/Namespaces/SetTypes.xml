@@ -1,5 +1,5 @@
 <Namespace Name="SetTypes" Desc="集合类型">
-  <Class Name="ListSet" Group="All" Desc="" Inherit="" Index="ID" DataPath="..\Excel\ListTypes_集合类型.xlsx">
+  <Class Name="ListSet" Group="All" Desc="" Inherit="" Index="ID" DataPath="..\..\Excel\ListTypes_集合类型.xlsx">
     <Field Name="ID" Desc="id" Group="All" Type="int" Checker="" />
     <Field Name="list_bool" Desc="布尔列表" Group="All" Type="list:bool" Checker="" />
     <Field Name="list_int" Desc="整形列表" Group="All" Type="list:int" Checker="" />
@@ -8,7 +8,7 @@
     <Field Name="list_string" Desc="字符串列表" Group="All" Type="list:string" Checker="" />
     <Field Name="list_enum" Desc="" Group="All" Type="list:CustomTypes.BuffType" Checker="" />
   </Class>
-  <Class Name="DictSet" Group="All" Desc="" Inherit="" Index="ID" DataPath="..\Excel\DictType_字典类型.xlsx">
+  <Class Name="DictSet" Group="All" Desc="" Inherit="" Index="ID" DataPath="..\..\Excel\DictType_字典类型.xlsx">
     <Field Name="ID" Desc="id" Group="All" Type="int" Checker="" />
     <Field Name="dict_int" Desc="整形字典" Group="All" Type="dict:int:bool" Checker="" />
     <Field Name="dict_long" Desc="长整形字典" Group="All" Type="dict:long:bool" Checker="" />

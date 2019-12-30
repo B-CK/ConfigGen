@@ -10,17 +10,17 @@ namespace Description
     {
         #region 基础配置
         /// <summary>
-        /// 工具所在目录
+        /// 工具所在目录[命令行文件路径]
         /// </summary>
-        public static string ApplicationDir
-        {
-            get
-            {
-                var asm = Assembly.GetExecutingAssembly();
-                var uri = new Uri(asm.CodeBase);
-                return Path.GetDirectoryName(uri.AbsolutePath);
-            }
-        }
+        public static string ApplicationDir => Directory.GetCurrentDirectory();
+        //{//这里路径是以Application开始的路径设计
+        //    get
+        //    {
+        //        var asm = Assembly.GetExecutingAssembly();
+        //        var uri = new Uri(asm.CodeBase);
+        //        return Path.GetDirectoryName(uri.AbsolutePath);
+        //    }
+        //}
 
         /// <summary>
         /// 数据表数据占位符,仅用于基础类型;不填写数据时,使用null占位.

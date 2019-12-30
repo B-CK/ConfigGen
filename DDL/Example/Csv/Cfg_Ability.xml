@@ -1,0 +1,7 @@
+<Module Name = "Cfg">
+	<!-- <Import></Import> -->
+	<!-- <NoStruct></NoStruct> -->
+	<Import>Ability\Ability.xml</Import>	
+	<Import>Ability\Modifier.xml</Import>	
+	<Import>Ability\Action.xml</Import>	
+</Module>

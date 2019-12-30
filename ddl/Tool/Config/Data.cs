@@ -133,10 +133,12 @@ namespace Description.Wrap
                 {
                     FList data = new FList(host, define);
                     data.LoadMultiRecord(xml);
+                    return data;
                 }
                 else if (define.OriginalType == "dict")
                 {
                     FDict data = new FDict(host, define, xml);
+                    return data;
                 }
             }
 
