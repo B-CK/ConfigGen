@@ -50,46 +50,46 @@
     </Class>
     
     <Enum Name="TargetType">
-        <Const Name = "CASTER " Value = "0" Des = "施法者" />
-        <Const Name = "TARGET " Value = "1" Des = "目标" />
-        <Const Name = "POINT " Value = "2" Des = "点" />
-        <Const Name = "ATTACKER " Value = "3" Des = "攻击者" />
-        <Const Name = "UNIT " Value = "4" Des = "单位 " />
-        <Const Name = "PROJECTILE " Value = "5" Des = "抛射物 " />
+        <Item Name = "CASTER " Value = "0" Des = "施法者" />
+        <Item Name = "TARGET " Value = "1" Des = "目标" />
+        <Item Name = "POINT " Value = "2" Des = "点" />
+        <Item Name = "ATTACKER " Value = "3" Des = "攻击者" />
+        <Item Name = "UNIT " Value = "4" Des = "单位 " />
+        <Item Name = "PROJECTILE " Value = "5" Des = "抛射物 " />
     </Enum>
     <Enum Name="UnitTeam">
-        <Const Name = "UNIT_TEAM_NONE " Value = "1" Des = "无 " />
-        <Const Name = "UNIT_TEAM_BOTH " Value = "2" Des = "双方队伍" />
-        <Const Name = "UNIT_TEAM_CUSTOM " Value = "4" Des = "普通队伍" />
-        <Const Name = "UNIT_TEAM_ENEMY " Value = "8" Des = "敌方队伍" />
-        <Const Name = "UNIT_TEAM_FRIENDLY " Value = "16" Des = "友方队伍" />
+        <Item Name = "UNIT_TEAM_NONE " Value = "1" Des = "无 " />
+        <Item Name = "UNIT_TEAM_BOTH " Value = "2" Des = "双方队伍" />
+        <Item Name = "UNIT_TEAM_CUSTOM " Value = "4" Des = "普通队伍" />
+        <Item Name = "UNIT_TEAM_ENEMY " Value = "8" Des = "敌方队伍" />
+        <Item Name = "UNIT_TEAM_FRIENDLY " Value = "16" Des = "友方队伍" />
     </Enum>
     <Enum Name="UnitType">
-        <Const Name = "UNIT_TYPE_NONE " Value = "1" Des = "无" />
-        <Const Name = "UNIT_TYPE_BUILDING " Value = "2" Des = "建筑" />
-        <Const Name = "UNIT_TYPE_CREEP " Value = "4" Des = "野怪" />
-        <Const Name = "UNIT_TYPE_HERO " Value = "8" Des = "英雄" />
-        <Const Name = "UNIT_TYPE_OTHER " Value = "16" Des = "其他" />
-        <Const Name = "UNIT_TYPE_ALL " Value = "32" Des = "所有" />
+        <Item Name = "UNIT_TYPE_NONE " Value = "1" Des = "无" />
+        <Item Name = "UNIT_TYPE_BUILDING " Value = "2" Des = "建筑" />
+        <Item Name = "UNIT_TYPE_CREEP " Value = "4" Des = "野怪" />
+        <Item Name = "UNIT_TYPE_HERO " Value = "8" Des = "英雄" />
+        <Item Name = "UNIT_TYPE_OTHER " Value = "16" Des = "其他" />
+        <Item Name = "UNIT_TYPE_ALL " Value = "32" Des = "所有" />
     </Enum>
     <Enum Name = "UnitFlag">
-        <Const Name = "UNIT_FLAG_NONE " Value = "1" Des = "无" />
-        <Const Name = "UNIT_FLAG_DEAD " Value = "2" Des = "已死亡" />
-        <Const Name = "UNIT_FLAG_INVULNERABLE " Value = "4" Des = "无敌" />
-        <Const Name = "UNIT_FLAG_NO_INVIS " Value = "8" Des = "不是隐形的" />
-        <Const Name = "UNIT_FLAG_NOT_ATTACK_IMMUNE " Value = "16" Des = "不是攻击免疫" />
-        <Const Name = "UNIT_FLAG_NOT_CREEP_HERO " Value = "32" Des = "不是野怪" />
-        <Const Name = "UNIT_FLAG_NOT_DOMINATED " Value = "64" Des = "不可控制的" />
-        <Const Name = "UNIT_FLAG_NOT_SUMMONED " Value = "128" Des = "非召唤的" />
-        <Const Name = "UNIT_FLAG_PLAYER_CONTROLLED " Value = "256" Des = "玩家控制的" />
+        <Item Name = "UNIT_FLAG_NONE " Value = "1" Des = "无" />
+        <Item Name = "UNIT_FLAG_DEAD " Value = "2" Des = "已死亡" />
+        <Item Name = "UNIT_FLAG_INVULNERABLE " Value = "4" Des = "无敌" />
+        <Item Name = "UNIT_FLAG_NO_INVIS " Value = "8" Des = "不是隐形的" />
+        <Item Name = "UNIT_FLAG_NOT_ATTACK_IMMUNE " Value = "16" Des = "不是攻击免疫" />
+        <Item Name = "UNIT_FLAG_NOT_CREEP_HERO " Value = "32" Des = "不是野怪" />
+        <Item Name = "UNIT_FLAG_NOT_DOMINATED " Value = "64" Des = "不可控制的" />
+        <Item Name = "UNIT_FLAG_NOT_SUMMONED " Value = "128" Des = "非召唤的" />
+        <Item Name = "UNIT_FLAG_PLAYER_CONTROLLED " Value = "256" Des = "玩家控制的" />
     </Enum>
 
     <Enum Name="BehaviorType">
-        <Const Name = "ABILITY_BEHAVIOR_PASSIVE" Value = "0" Des = "被动技能，不能被使用，但是会在HUD上显示" />
-        <Const Name = "ABILITY_BEHAVIOR_UNIT_TARGET" Value = "1" Des = "需要指定一个目标来释放" />
-        <Const Name = "ABILITY_BEHAVIOR_NO_TARGET" Value = "2" Des = "不需要指定目标就能释放的技能，当按下技能按钮的时候，这个技能就会被释放" />
-        <Const Name = "ABILITY_BEHAVIOR_CHANNELLED" Value = "3" Des = "持续性施法技能" />
-        <Const Name = "ABILITY_BEHAVIOR_POINT" Value = "4" Des = "技能将会在鼠标指定的位置释放" />
-        <Const Name = "ABILITY_BEHAVIOR_AOE" Value = "5" Des = "范围型技能,将会显示技能释放的范围" />
+        <Item Name = "ABILITY_BEHAVIOR_PASSIVE" Value = "0" Des = "被动技能，不能被使用，但是会在HUD上显示" />
+        <Item Name = "ABILITY_BEHAVIOR_UNIT_TARGET" Value = "1" Des = "需要指定一个目标来释放" />
+        <Item Name = "ABILITY_BEHAVIOR_NO_TARGET" Value = "2" Des = "不需要指定目标就能释放的技能，当按下技能按钮的时候，这个技能就会被释放" />
+        <Item Name = "ABILITY_BEHAVIOR_CHANNELLED" Value = "3" Des = "持续性施法技能" />
+        <Item Name = "ABILITY_BEHAVIOR_POINT" Value = "4" Des = "技能将会在鼠标指定的位置释放" />
+        <Item Name = "ABILITY_BEHAVIOR_AOE" Value = "5" Des = "范围型技能,将会显示技能释放的范围" />
     </Enum>
 </Namespace>

@@ -31,7 +31,7 @@ namespace Tool.Export
         {
             GenClass();
             GenEnum();
-            ConfigComponent();
+            ConfigHelper();
         }
 
         static void Start(int n)
@@ -246,7 +246,7 @@ namespace Tool.Export
         #endregion
 
         #region 配置管理类
-        static void ConfigComponent()
+        static void ConfigHelper()
         {
             builder.AppendLine(string.Join("\r\n", namespaces));
             builder.AppendLine($"namespace {Setting.ModuleName}");
@@ -279,7 +279,7 @@ namespace Tool.Export
             }
             End(0);
 
-            string path = Path.Combine(Setting.CSDir, "ConfigComponent.cs");
+            string path = Path.Combine(Setting.CSDir, "ConfigHelper.cs");
             Util.SaveFile(path, builder.ToString());
             builder.Clear();
         }

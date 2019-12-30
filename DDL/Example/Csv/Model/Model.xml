@@ -1,10 +1,10 @@
-<Namespace Name = "Cfg.Character">
+<Namespace Name = "Character">
 	<Enum Name="GroupType">
-        <Const Name = "None" Value ="0" Alias = "临时组" Des="临时组"/>
-        <Const Name = "Base" Value ="1" Alias = "基础类型" Des="基础类型"/>
-        <Const Name = "Player" Value ="2" Alias = "玩家" Des="玩家"/>
-        <Const Name = "Monster" Value ="3" Alias = "怪物" Des="怪物"/>
-        <Const Name = "NPC" Value ="4" Alias = "NPC" Des="NPC"/>
+        <Item Name = "None" Value ="0" Alias = "临时组" Des="临时组"/>
+        <Item Name = "Base" Value ="1" Alias = "基础类型" Des="基础类型"/>
+        <Item Name = "Player" Value ="2" Alias = "玩家" Des="玩家"/>
+        <Item Name = "Monster" Value ="3" Alias = "怪物" Des="怪物"/>
+        <Item Name = "NPC" Value ="4" Alias = "NPC" Des="NPC"/>
 	</Enum>
 	
 	<Class Name="Model" Index="Name" DataPath="Model.xlsx">

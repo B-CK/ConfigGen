@@ -1,4 +1,4 @@
-﻿<Namespace Name = "Cfg">
+﻿<Namespace Name = "Common">
 	<Class Name = "Vector2">
 		<Field Name = "X" Type = "float"/>
 		<Field Name = "Y" Type = "float"/>		

@@ -1,4 +1,4 @@
-<Namespace Name = "Cfg.Skill">
+<Namespace Name = "Skill">
     <!-- 动作配置 -->
     <Class Name = "ActorConfig"  Index = "ModelName" DataPath="ActorCfg">
         <Field Name = "ModelName" Type = "string" Des = "模型名称" />        
@@ -20,7 +20,7 @@
     </Class>
 
     <Class Name = "SkillAction" Inherit="GeneralAction">
-        <Const Name = "EXPIRE_TIME" Type = "float" Value = "1" Des = "默认后续技能使用期限,用于单个技能多段输出" />       
+        <Item Name = "EXPIRE_TIME" Type = "float" Value = "1" Des = "默认后续技能使用期限,用于单个技能多段输出" />       
 		<Field Name = "SkillExpireTime" Type = "float" Des = "后续技能使用期限,用于单个技能多段输出" />
         <Field Name = "SkillEndTime" Type = "float" Des = "技能结束时间" />       
         <Field Name = "CanInterrupt" Type = "bool" Des = "是否可被打断" />
@@ -45,11 +45,11 @@
 	<Class Name = "HitZone">
         <Field Name = "Id" Type = "int" Des = "打击区域id" />
         <Field Name = "Sharp" Type = "HitSharpType" Des = "打击范围的形态，0：方盒，1:圆柱,2:球" />
-		<Field Name = "Offset" Type = "Cfg.Vector3" Des = "坐标偏移量"/>								        
+		<Field Name = "Offset" Type = "Common.Vector3" Des = "坐标偏移量"/>								        
         <Field Name = "MaxNum" Type = "int" Des = "最大数量" />
     </Class>
 	<Class Name = "CubeZone" Inherit = "HitZone">
-		<Field Name = "Scale" Type = "Cfg.Vector3" Des = "方盒缩放大小"/>
+		<Field Name = "Scale" Type = "Common.Vector3" Des = "方盒缩放大小"/>
 	</Class>
 	<Class Name = "SphereZone" Inherit = "HitZone">
 		<Field Name = "Radius" Type = "float" Des = "球半径"/>
@@ -85,13 +85,13 @@
 	</Class>
 	<Class Name = "ReplaceObject" Inherit = "Controller">单帧触发
 		<Field Name = "NewObject" Type = "string" Des = "新对象"/>
-		<Field Name = "Offset" Type = "Cfg.Vector3" Des = "相对位置"/>
-		<Field Name = "EulerAngles" Type = "Cfg.Vector3" Des = "相对旋转"/>
+		<Field Name = "Offset" Type = "Common.Vector3" Des = "相对位置"/>
+		<Field Name = "EulerAngles" Type = "Common.Vector3" Des = "相对旋转"/>
 	</Class>
 	<Class Name = "Move" Inherit = "Controller">	
 		<Field Name = "Type" Type = "MoveType" Des = "移动方式:0向目标移动 1按指定方向移动"/>		
 		<Field Name = "IsRelateSelf" Type = "bool" Des = "是否相对于自己移动"/>
-		<Field Name = "Offset" Type = "Cfg.Vector3" Des = "起始位置相对目标偏移" />
+		<Field Name = "Offset" Type = "Common.Vector3" Des = "起始位置相对目标偏移" />
 		<Field Name = "Angle" Type = "float" Des = "Y轴顺时针旋转角度"/>
 		<Field Name = "Speed" Type = "float" Des = "位移速度m/s"/>	
 	</Class>	
@@ -99,8 +99,8 @@
 	    <Field Name = "IsTraceTarget" Type = "bool" Des = "是否追踪目标" />
         <Field Name = "CurveId" Type = "int" Des = "飞行参数ID,数据有配置表" />
         <Field Name = "PassBody" Type = "bool" Des = "是否穿透" />
-        <Field Name = "Position" Type = "Cfg.Vector3" Des = "投射起始偏移" />
-		<Field Name = "EulerAngles" Type = "Cfg.Vector3" Des = "投射起始旋转角度" />
+        <Field Name = "Position" Type = "Common.Vector3" Des = "投射起始偏移" />
+		<Field Name = "EulerAngles" Type = "Common.Vector3" Des = "投射起始旋转角度" />
         <!-- <Field Name = "CasterBindType" Type = "BindType" Des = "释放者释放绑定位置" /> -->
         <!-- <Field Name = "TargetBindType" Type = "BindType" Des = "被击者受击绑定位置" /> -->
 	</Class>
@@ -110,9 +110,9 @@
 		<Field Name = "IsRelateSelf" Type = "bool" Des = "是否相对于自己移动"/>
         <Field Name = "FollowDir" Type = "bool" Des = "特效是否始终跟随目标对象方向变化" />
 		<Field Name = "NodeName" Type = "string" Des = "节点名称,如果有配置则绑定到节点局部空间;反之绑定世界空间" /> 		
-        <Field Name = "Position" Type = "Cfg.Vector3" Des = "特效结点偏移;特效世界偏移" />
-        <Field Name = "EulerAngles" Type = "Cfg.Vector3" Des = "特效结点旋转;特效世界旋转" />
-        <Field Name = "Scale" Type = "Cfg.Vector3" Des = "整体缩放大小" />               
+        <Field Name = "Position" Type = "Common.Vector3" Des = "特效结点偏移;特效世界偏移" />
+        <Field Name = "EulerAngles" Type = "Common.Vector3" Des = "特效结点旋转;特效世界旋转" />
+        <Field Name = "Scale" Type = "Common.Vector3" Des = "整体缩放大小" />               
         <Field Name = "AlignType" Type = "EffectAlignType" Des = "屏幕对齐类型" />相机屏幕位置绑定        
     </Class>
 	<Class Name = "Buff" Inherit = "PlayParticle">
@@ -140,51 +140,51 @@
 		
 	<!-- 枚举配置 -->
     <Enum Name="ActionSourceType">
-        <Const Name = "SelfModel" Value = "0" Des="自己模型"/>
-        <Const Name = "OtherModel" Value = "1" Des="其他模型"/>
+        <Item Name = "SelfModel" Value = "0" Des="自己模型"/>
+        <Item Name = "OtherModel" Value = "1" Des="其他模型"/>
     </Enum>
 
     <Enum Name="LockObjectType">
-		<Const Name = "None" Value = "0" Des="不需要目标"/>
-        <Const Name = "Enemy" Value = "1" Des="敌方目标"/>
-        <Const Name = "Teammate" Value = "2" Des="己方目标"/>
-        <Const Name = "Self" Value ="3" Des="自己"/>
-		<Const Name = "Other" Value ="4" Des="中立方"/>
+		<Item Name = "None" Value = "0" Des="不需要目标"/>
+        <Item Name = "Enemy" Value = "1" Des="敌方目标"/>
+        <Item Name = "Teammate" Value = "2" Des="己方目标"/>
+        <Item Name = "Self" Value ="3" Des="自己"/>
+		<Item Name = "Other" Value ="4" Des="中立方"/>
     </Enum>
     <Enum Name="HitSharpType">
-        <Const Name = "Cube" Value = "0" Des="立方体"/>
-		<Const Name = "Sphere" Value = "1" Des="球"/>
-        <Const Name = "Cylinder" Value = "2" Des="圆柱形"/>        
+        <Item Name = "Cube" Value = "0" Des="立方体"/>
+		<Item Name = "Sphere" Value = "1" Des="球"/>
+        <Item Name = "Cylinder" Value = "2" Des="圆柱形"/>        
     </Enum>
 	<!-- <Enum Name="SpawnType"> -->
-        <!-- <Const Name = "LoadObject" Value ="0" Des="需要加载的资源对象"/>  -->
-        <!-- <Const Name = "InstanceObj" Value ="1" Des="已存在的游戏对象"/> -->
+        <!-- <Item Name = "LoadObject" Value ="0" Des="需要加载的资源对象"/>  -->
+        <!-- <Item Name = "InstanceObj" Value ="1" Des="已存在的游戏对象"/> -->
     <!-- </Enum> -->
 	<Enum Name="MoveType">
-        <Const Name = "MoveToTarget" Value = "0" Des="向目标移动"/>
-        <Const Name = "MoveInDirection" Value ="1" Des="按当前方向移动"/>
+        <Item Name = "MoveToTarget" Value = "0" Des="向目标移动"/>
+        <Item Name = "MoveInDirection" Value ="1" Des="按当前方向移动"/>
     </Enum>
 	<Enum Name="BindType">	
-		<Const Name = "None" Value ="0" Des="无"/>
-        <Const Name = "Body" Value ="1" Des="身体"/>
-        <Const Name = "Head" Value ="2" Des="头"/>
-        <Const Name = "Foot" Value ="3" Des="脚"/>
+		<Item Name = "None" Value ="0" Des="无"/>
+        <Item Name = "Body" Value ="1" Des="身体"/>
+        <Item Name = "Head" Value ="2" Des="头"/>
+        <Item Name = "Foot" Value ="3" Des="脚"/>
     </Enum>
 	<Enum Name="EffectAlignType">
-        <Const Name = "None" Value ="0"/>
-        <Const Name = "LeftTop" Value ="1"/>
-        <Const Name = "Left" Value ="2"/>
-        <Const Name = "LeftBottom" Value ="3"/>
-        <Const Name = "Top" Value ="4"/>
-        <Const Name = "Center" Value ="5"/>
-        <Const Name = "Bottom" Value ="6"/>
-        <Const Name = "RightTop" Value = "7" />
-        <Const Name = "Right" Value = "8" />
-        <Const Name = "RightBottom" Value = "9" />
+        <Item Name = "None" Value ="0"/>
+        <Item Name = "LeftTop" Value ="1"/>
+        <Item Name = "Left" Value ="2"/>
+        <Item Name = "LeftBottom" Value ="3"/>
+        <Item Name = "Top" Value ="4"/>
+        <Item Name = "Center" Value ="5"/>
+        <Item Name = "Bottom" Value ="6"/>
+        <Item Name = "RightTop" Value = "7" />
+        <Item Name = "Right" Value = "8" />
+        <Item Name = "RightBottom" Value = "9" />
     </Enum>
 	<Enum Name="ShakeType">
-        <Const Name = "Horizontal" Value = "0" Des="水平"/>
-        <Const Name = "Vertical" Value = "1" Des="垂直"/>
-        <Const Name = "Mix" Value = "2" Des="混合"/>
+        <Item Name = "Horizontal" Value = "0" Des="水平"/>
+        <Item Name = "Vertical" Value = "1" Des="垂直"/>
+        <Item Name = "Mix" Value = "2" Des="混合"/>
     </Enum>	
 </Namespace>

@@ -4,11 +4,11 @@ local GetOrCreate = Util.GetOrCreate
 local meta
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Character.Model'
-GetOrCreate('Cfg.Character')['Model'] = meta
-function Stream:GetCfgCharacterModel()
+meta.class = 'Character.Model'
+GetOrCreate('Character')['Model'] = meta
+function Stream:GetCharacterModel()
 	local o = {}
-	setmetatable(o, Cfg.Character.Model)
+	setmetatable(o, Character.Model)
 	o.Name = self:GetString()
 	o.GroupType = self:GetInt()
 	o.ModelPath = self:GetString()
@@ -20,27 +20,27 @@ function Stream:GetCfgCharacterModel()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.ActorConfig'
-GetOrCreate('Cfg.Skill')['ActorConfig'] = meta
-function Stream:GetCfgSkillActorConfig()
+meta.class = 'Skill.ActorConfig'
+GetOrCreate('Skill')['ActorConfig'] = meta
+function Stream:GetSkillActorConfig()
 	local o = {}
-	setmetatable(o, Cfg.Skill.ActorConfig)
+	setmetatable(o, Skill.ActorConfig)
 	o.ModelName = self:GetString()
 	o.BaseModelName = self:GetString()
-	o.GeneralActions = self:GetDict('String', 'CfgSkillGeneralActionMaker')
-	o.SkillActions = self:GetDict('String', 'CfgSkillSkillActionMaker')
+	o.GeneralActions = self:GetDict('String', 'SkillGeneralActionMaker')
+	o.SkillActions = self:GetDict('String', 'SkillSkillActionMaker')
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.GeneralAction'
-GetOrCreate('Cfg.Skill')['GeneralAction'] = meta
-function Stream:GetCfgSkillGeneralActionMaker()
+meta.class = 'Skill.GeneralAction'
+GetOrCreate('Skill')['GeneralAction'] = meta
+function Stream:GetSkillGeneralActionMaker()
 	return self['Get' .. self:GetString():gsub('%.', '')](self)
 end
-function Stream:GetCfgSkillGeneralAction()
+function Stream:GetSkillGeneralAction()
 	local o = {}
-	setmetatable(o, Cfg.Skill.GeneralAction)
+	setmetatable(o, Skill.GeneralAction)
 	o.ActionName = self:GetString()
 	o.OtherModelName = self:GetString()
 	o.ActionClip = self:GetString()
@@ -48,16 +48,16 @@ function Stream:GetCfgSkillGeneralAction()
 	o.PostActionFile = self:GetString()
 	o.ActionSpeed = self:GetFloat()
 	o.LoopTimes = self:GetInt()
-	o.Timelines = self:GetList('CfgSkillTimelineMaker')
+	o.Timelines = self:GetList('SkillTimelineMaker')
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.SkillAction'
-GetOrCreate('Cfg.Skill')['SkillAction'] = meta
-function Stream:GetCfgSkillSkillAction()
-	local o = self:GetCfgSkillGeneralAction()
-	setmetatable(o, Cfg.Skill.SkillAction)
+meta.class = 'Skill.SkillAction'
+GetOrCreate('Skill')['SkillAction'] = meta
+function Stream:GetSkillSkillAction()
+	local o = self:GetSkillGeneralAction()
+	setmetatable(o, Skill.SkillAction)
 	o.SkillExpireTime = self:GetFloat()
 	o.SkillEndTime = self:GetFloat()
 	o.CanInterrupt = self:GetBool()
@@ -66,64 +66,64 @@ function Stream:GetCfgSkillSkillAction()
 	o.CanShowSkillRange = self:GetBool()
 	o.CanRotate = self:GetBool()
 	o.CanMove = self:GetBool()
-	o.SequenceDict = self:GetDict('Int', 'CfgSkillSequenceMaker')
+	o.SequenceDict = self:GetDict('Int', 'SkillSequenceMaker')
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.Sequence'
-GetOrCreate('Cfg.Skill')['Sequence'] = meta
-function Stream:GetCfgSkillSequence()
+meta.class = 'Skill.Sequence'
+GetOrCreate('Skill')['Sequence'] = meta
+function Stream:GetSkillSequence()
 	local o = {}
-	setmetatable(o, Cfg.Skill.Sequence)
+	setmetatable(o, Skill.Sequence)
 	o.Id = self:GetString()
-	o.HitZones = self:GetList('CfgSkillHitZoneMaker')
-	o.Timelines = self:GetList('CfgSkillTimelineMaker')
+	o.HitZones = self:GetList('SkillHitZoneMaker')
+	o.Timelines = self:GetList('SkillTimelineMaker')
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.HitZone'
-GetOrCreate('Cfg.Skill')['HitZone'] = meta
-function Stream:GetCfgSkillHitZoneMaker()
+meta.class = 'Skill.HitZone'
+GetOrCreate('Skill')['HitZone'] = meta
+function Stream:GetSkillHitZoneMaker()
 	return self['Get' .. self:GetString():gsub('%.', '')](self)
 end
-function Stream:GetCfgSkillHitZone()
+function Stream:GetSkillHitZone()
 	local o = {}
-	setmetatable(o, Cfg.Skill.HitZone)
+	setmetatable(o, Skill.HitZone)
 	o.Id = self:GetInt()
 	o.Sharp = self:GetInt()
-	o.Offset = self:GetCfgVector3Maker()
+	o.Offset = self:GetCommonVector3Maker()
 	o.MaxNum = self:GetInt()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.CubeZone'
-GetOrCreate('Cfg.Skill')['CubeZone'] = meta
-function Stream:GetCfgSkillCubeZone()
-	local o = self:GetCfgSkillHitZone()
-	setmetatable(o, Cfg.Skill.CubeZone)
-	o.Scale = self:GetCfgVector3Maker()
+meta.class = 'Skill.CubeZone'
+GetOrCreate('Skill')['CubeZone'] = meta
+function Stream:GetSkillCubeZone()
+	local o = self:GetSkillHitZone()
+	setmetatable(o, Skill.CubeZone)
+	o.Scale = self:GetCommonVector3Maker()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.SphereZone'
-GetOrCreate('Cfg.Skill')['SphereZone'] = meta
-function Stream:GetCfgSkillSphereZone()
-	local o = self:GetCfgSkillHitZone()
-	setmetatable(o, Cfg.Skill.SphereZone)
+meta.class = 'Skill.SphereZone'
+GetOrCreate('Skill')['SphereZone'] = meta
+function Stream:GetSkillSphereZone()
+	local o = self:GetSkillHitZone()
+	setmetatable(o, Skill.SphereZone)
 	o.Radius = self:GetFloat()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.CylinderZone'
-GetOrCreate('Cfg.Skill')['CylinderZone'] = meta
-function Stream:GetCfgSkillCylinderZone()
-	local o = self:GetCfgSkillHitZone()
-	setmetatable(o, Cfg.Skill.CylinderZone)
+meta.class = 'Skill.CylinderZone'
+GetOrCreate('Skill')['CylinderZone'] = meta
+function Stream:GetSkillCylinderZone()
+	local o = self:GetSkillHitZone()
+	setmetatable(o, Skill.CylinderZone)
 	o.Radius = self:GetFloat()
 	o.Height = self:GetFloat()
 	o.Angle = self:GetFloat()
@@ -131,153 +131,153 @@ function Stream:GetCfgSkillCylinderZone()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.Timeline'
-GetOrCreate('Cfg.Skill')['Timeline'] = meta
-function Stream:GetCfgSkillTimelineMaker()
+meta.class = 'Skill.Timeline'
+GetOrCreate('Skill')['Timeline'] = meta
+function Stream:GetSkillTimelineMaker()
 	return self['Get' .. self:GetString():gsub('%.', '')](self)
 end
-function Stream:GetCfgSkillTimeline()
+function Stream:GetSkillTimeline()
 	local o = {}
-	setmetatable(o, Cfg.Skill.Timeline)
+	setmetatable(o, Skill.Timeline)
 	o.Start = self:GetInt()
 	o.End = self:GetInt()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.StaticHit'
-GetOrCreate('Cfg.Skill')['StaticHit'] = meta
-function Stream:GetCfgSkillStaticHitMaker()
+meta.class = 'Skill.StaticHit'
+GetOrCreate('Skill')['StaticHit'] = meta
+function Stream:GetSkillStaticHitMaker()
 	return self['Get' .. self:GetString():gsub('%.', '')](self)
 end
-function Stream:GetCfgSkillStaticHit()
-	local o = self:GetCfgSkillTimeline()
-	setmetatable(o, Cfg.Skill.StaticHit)
-	o.Zone = self:GetCfgSkillHitZoneMaker()
+function Stream:GetSkillStaticHit()
+	local o = self:GetSkillTimeline()
+	setmetatable(o, Skill.StaticHit)
+	o.Zone = self:GetSkillHitZoneMaker()
 	o.SequeueID = self:GetInt()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.DynamicHit'
-GetOrCreate('Cfg.Skill')['DynamicHit'] = meta
-function Stream:GetCfgSkillDynamicHit()
-	local o = self:GetCfgSkillStaticHit()
-	setmetatable(o, Cfg.Skill.DynamicHit)
+meta.class = 'Skill.DynamicHit'
+GetOrCreate('Skill')['DynamicHit'] = meta
+function Stream:GetSkillDynamicHit()
+	local o = self:GetSkillStaticHit()
+	setmetatable(o, Skill.DynamicHit)
 	o.Target = self:GetString()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.Controller'
-GetOrCreate('Cfg.Skill')['Controller'] = meta
-function Stream:GetCfgSkillControllerMaker()
+meta.class = 'Skill.Controller'
+GetOrCreate('Skill')['Controller'] = meta
+function Stream:GetSkillControllerMaker()
 	return self['Get' .. self:GetString():gsub('%.', '')](self)
 end
-function Stream:GetCfgSkillController()
-	local o = self:GetCfgSkillTimeline()
-	setmetatable(o, Cfg.Skill.Controller)
+function Stream:GetSkillController()
+	local o = self:GetSkillTimeline()
+	setmetatable(o, Skill.Controller)
 	o.Path = self:GetString()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.Active'
-GetOrCreate('Cfg.Skill')['Active'] = meta
-function Stream:GetCfgSkillActive()
-	local o = self:GetCfgSkillController()
-	setmetatable(o, Cfg.Skill.Active)
+meta.class = 'Skill.Active'
+GetOrCreate('Skill')['Active'] = meta
+function Stream:GetSkillActive()
+	local o = self:GetSkillController()
+	setmetatable(o, Skill.Active)
 	o.Enable = self:GetBool()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.ReplaceObject'
-GetOrCreate('Cfg.Skill')['ReplaceObject'] = meta
-function Stream:GetCfgSkillReplaceObject()
-	local o = self:GetCfgSkillController()
-	setmetatable(o, Cfg.Skill.ReplaceObject)
+meta.class = 'Skill.ReplaceObject'
+GetOrCreate('Skill')['ReplaceObject'] = meta
+function Stream:GetSkillReplaceObject()
+	local o = self:GetSkillController()
+	setmetatable(o, Skill.ReplaceObject)
 	o.NewObject = self:GetString()
-	o.Offset = self:GetCfgVector3Maker()
-	o.EulerAngles = self:GetCfgVector3Maker()
+	o.Offset = self:GetCommonVector3Maker()
+	o.EulerAngles = self:GetCommonVector3Maker()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.Move'
-GetOrCreate('Cfg.Skill')['Move'] = meta
-function Stream:GetCfgSkillMove()
-	local o = self:GetCfgSkillController()
-	setmetatable(o, Cfg.Skill.Move)
+meta.class = 'Skill.Move'
+GetOrCreate('Skill')['Move'] = meta
+function Stream:GetSkillMove()
+	local o = self:GetSkillController()
+	setmetatable(o, Skill.Move)
 	o.Type = self:GetInt()
 	o.IsRelateSelf = self:GetBool()
-	o.Offset = self:GetCfgVector3Maker()
+	o.Offset = self:GetCommonVector3Maker()
 	o.Angle = self:GetFloat()
 	o.Speed = self:GetFloat()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.CastObject'
-GetOrCreate('Cfg.Skill')['CastObject'] = meta
-function Stream:GetCfgSkillCastObject()
-	local o = self:GetCfgSkillController()
-	setmetatable(o, Cfg.Skill.CastObject)
+meta.class = 'Skill.CastObject'
+GetOrCreate('Skill')['CastObject'] = meta
+function Stream:GetSkillCastObject()
+	local o = self:GetSkillController()
+	setmetatable(o, Skill.CastObject)
 	o.IsTraceTarget = self:GetBool()
 	o.CurveId = self:GetInt()
 	o.PassBody = self:GetBool()
-	o.Position = self:GetCfgVector3Maker()
-	o.EulerAngles = self:GetCfgVector3Maker()
+	o.Position = self:GetCommonVector3Maker()
+	o.EulerAngles = self:GetCommonVector3Maker()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.PlayParticle'
-GetOrCreate('Cfg.Skill')['PlayParticle'] = meta
-function Stream:GetCfgSkillPlayParticleMaker()
+meta.class = 'Skill.PlayParticle'
+GetOrCreate('Skill')['PlayParticle'] = meta
+function Stream:GetSkillPlayParticleMaker()
 	return self['Get' .. self:GetString():gsub('%.', '')](self)
 end
-function Stream:GetCfgSkillPlayParticle()
-	local o = self:GetCfgSkillTimeline()
-	setmetatable(o, Cfg.Skill.PlayParticle)
+function Stream:GetSkillPlayParticle()
+	local o = self:GetSkillTimeline()
+	setmetatable(o, Skill.PlayParticle)
 	o.Path = self:GetString()
 	o.IsRelateSelf = self:GetBool()
 	o.FollowDir = self:GetBool()
 	o.NodeName = self:GetString()
-	o.Position = self:GetCfgVector3Maker()
-	o.EulerAngles = self:GetCfgVector3Maker()
-	o.Scale = self:GetCfgVector3Maker()
+	o.Position = self:GetCommonVector3Maker()
+	o.EulerAngles = self:GetCommonVector3Maker()
+	o.Scale = self:GetCommonVector3Maker()
 	o.AlignType = self:GetInt()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.Buff'
-GetOrCreate('Cfg.Skill')['Buff'] = meta
-function Stream:GetCfgSkillBuff()
-	local o = self:GetCfgSkillPlayParticle()
-	setmetatable(o, Cfg.Skill.Buff)
+meta.class = 'Skill.Buff'
+GetOrCreate('Skill')['Buff'] = meta
+function Stream:GetSkillBuff()
+	local o = self:GetSkillPlayParticle()
+	setmetatable(o, Skill.Buff)
 	o.Id = self:GetInt()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.PlaySound'
-GetOrCreate('Cfg.Skill')['PlaySound'] = meta
-function Stream:GetCfgSkillPlaySound()
-	local o = self:GetCfgSkillTimeline()
-	setmetatable(o, Cfg.Skill.PlaySound)
+meta.class = 'Skill.PlaySound'
+GetOrCreate('Skill')['PlaySound'] = meta
+function Stream:GetSkillPlaySound()
+	local o = self:GetSkillTimeline()
+	setmetatable(o, Skill.PlaySound)
 	o.Path = self:GetString()
 	o.Volume = self:GetFloat()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.ShakeScreen'
-GetOrCreate('Cfg.Skill')['ShakeScreen'] = meta
-function Stream:GetCfgSkillShakeScreen()
-	local o = self:GetCfgSkillTimeline()
-	setmetatable(o, Cfg.Skill.ShakeScreen)
+meta.class = 'Skill.ShakeScreen'
+GetOrCreate('Skill')['ShakeScreen'] = meta
+function Stream:GetSkillShakeScreen()
+	local o = self:GetSkillTimeline()
+	setmetatable(o, Skill.ShakeScreen)
 	o.Type = self:GetInt()
 	o.Frequency = self:GetInt()
 	o.FrequencyDuration = self:GetFloat()
@@ -290,49 +290,83 @@ function Stream:GetCfgSkillShakeScreen()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Vector2'
-GetOrCreate('Cfg')['Vector2'] = meta
-function Stream:GetCfgVector2()
+meta.class = 'Common.Vector2'
+GetOrCreate('Common')['Vector2'] = meta
+function Stream:GetCommonVector2()
 	local o = {}
-	setmetatable(o, Cfg.Vector2)
+	setmetatable(o, Common.Vector2)
 	o.X = self:GetFloat()
 	o.Y = self:GetFloat()
 	return o
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Vector3'
-GetOrCreate('Cfg')['Vector3'] = meta
-function Stream:GetCfgVector3()
+meta.class = 'Common.Vector3'
+GetOrCreate('Common')['Vector3'] = meta
+function Stream:GetCommonVector3()
 	local o = {}
-	setmetatable(o, Cfg.Vector3)
+	setmetatable(o, Common.Vector3)
 	o.X = self:GetFloat()
 	o.Y = self:GetFloat()
 	o.Z = self:GetFloat()
 	return o
 end
-GetOrCreate('Cfg.Character')['GroupType'] = {
+GetOrCreate('Character')['GroupType'] = {
 	NULL = -9,
+	None = 0,
+	Base = 1,
+	Player = 2,
+	Monster = 3,
+	NPC = 4,
 }
-GetOrCreate('Cfg.Skill')['ActionSourceType'] = {
+GetOrCreate('Skill')['ActionSourceType'] = {
 	NULL = -9,
+	SelfModel = 0,
+	OtherModel = 1,
 }
-GetOrCreate('Cfg.Skill')['LockObjectType'] = {
+GetOrCreate('Skill')['LockObjectType'] = {
 	NULL = -9,
+	None = 0,
+	Enemy = 1,
+	Teammate = 2,
+	Self = 3,
+	Other = 4,
 }
-GetOrCreate('Cfg.Skill')['HitSharpType'] = {
+GetOrCreate('Skill')['HitSharpType'] = {
 	NULL = -9,
+	Cube = 0,
+	Sphere = 1,
+	Cylinder = 2,
 }
-GetOrCreate('Cfg.Skill')['MoveType'] = {
+GetOrCreate('Skill')['MoveType'] = {
 	NULL = -9,
+	MoveToTarget = 0,
+	MoveInDirection = 1,
 }
-GetOrCreate('Cfg.Skill')['BindType'] = {
+GetOrCreate('Skill')['BindType'] = {
 	NULL = -9,
+	None = 0,
+	Body = 1,
+	Head = 2,
+	Foot = 3,
 }
-GetOrCreate('Cfg.Skill')['EffectAlignType'] = {
+GetOrCreate('Skill')['EffectAlignType'] = {
 	NULL = -9,
+	None = 0,
+	LeftTop = 1,
+	Left = 2,
+	LeftBottom = 3,
+	Top = 4,
+	Center = 5,
+	Bottom = 6,
+	RightTop = 7,
+	Right = 8,
+	RightBottom = 9,
 }
-GetOrCreate('Cfg.Skill')['ShakeType'] = {
+GetOrCreate('Skill')['ShakeType'] = {
 	NULL = -9,
+	Horizontal = 0,
+	Vertical = 1,
+	Mix = 2,
 }
 return Stream

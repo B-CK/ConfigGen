@@ -1,4 +1,4 @@
 return {
-	{ name = 'Model', method = 'GetCfgCharacterModel', index = 'Name', output = 'cfg\character\model.data' },
-	{ name = 'ActorConfig', method = 'GetCfgSkillActorConfig', index = 'ModelName', output = 'cfg\skill\actorconfig.data' },
+	{ name = 'Model', method = 'GetCharacterModel', index = 'Name', output = 'character\model.data' },
+	{ name = 'ActorConfig', method = 'GetSkillActorConfig', index = 'ModelName', output = 'skill\actorconfig.data' },
 }

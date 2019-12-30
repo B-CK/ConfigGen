@@ -1,4 +1,4 @@
-<Namespace Name = "Cfg.Ability">
+<Namespace Name = "Ability">
     <Class Name = "Event">
         <Field Name = "Name" Value = "string" Des = "事件名称" />
         <Field Name = "Actions" Value = "list:Action" Des = "操作列表" />

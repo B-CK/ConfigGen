@@ -1,8 +1,10 @@
 @set tool="../Tool.exe"
-@set module="Csv\Cfg.xml"
-@set data="GamePlayer\Data\config\csv"
-@set lua="Code\Scripts\Cfg"
 
-%tool% -module %module% -data %data% -lua %lua%
+@set module="Cfg.xml"
+@set data="..\data\csv"
+@set lua="..\Lua"
+@set csharp="..\CSharp"
+
+%tool% -module %module% -data %data% -lua %lua% -csharp %csharp%
 
 pause

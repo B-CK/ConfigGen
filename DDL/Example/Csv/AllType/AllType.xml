@@ -1,7 +1,7 @@
-<Namespace Name = "Cfg.AllType">
+<Namespace Name = "AllType">
     <Class Name = "AllClass"  Index = "ID" DataPath="Data所有Class类型.xlsx" Desc = "所有类型">
-        <Const Name = "ConstString" Type = "string" Value = "Hello World" Desc = "常量字符串" />
-        <Const Name = "ConstFloat" Type = "float" Value = "3.141527" Desc = "常量浮点值" />
+        <Item Name = "ItemString" Type = "string" Value = "Hello World" Desc = "常量字符串" />
+        <Item Name = "ItemFloat" Type = "float" Value = "3.141527" Desc = "常量浮点值" />
         <Field Name = "ID" Type = "int" Desc = "ID" Group = "Client" />
         <Field Name = "Index" Type = "int" Desc = "Test.TID"  Group = "Client"/><!--Ref="Test"-->
         <Field Name = "VarLong" Type = "long" Desc = "长整型" Group = "Client"/>
@@ -36,16 +36,16 @@
 	</Class>
 	
     <Enum Name="CardElement" Desc="卡牌枚举">
-        <Const Name = "Attack" Value = "0" Alias="攻击"/>
-        <Const Name = "Extract" Value = "1" Alias="抽牌"/>
-        <Const Name = "Renounce" Value = "2" Alias="弃牌"/>
-        <Const Name = "Armor" Value = "3" Alias="护甲"/>
-        <Const Name = "Control" Value = "4" Alias="控制"/>
-        <Const Name = "Cure" Value = "5" Alias="治疗"/>
-        <Const Name = "Oneself" Value = "6" Alias="自残"/>
-        <Const Name = "Hand" Value = "7" Alias="手牌"/>
-        <Const Name = "Brary" Value = "8" Alias="牌库"/>
-        <Const Name = "Handack" Value = "9" Alias="手牌攻击"/>
+        <Item Name = "Attack" Value = "0" Alias="攻击"/>
+        <Item Name = "Extract" Value = "1" Alias="抽牌"/>
+        <Item Name = "Renounce" Value = "2" Alias="弃牌"/>
+        <Item Name = "Armor" Value = "3" Alias="护甲"/>
+        <Item Name = "Control" Value = "4" Alias="控制"/>
+        <Item Name = "Cure" Value = "5" Alias="治疗"/>
+        <Item Name = "Oneself" Value = "6" Alias="自残"/>
+        <Item Name = "Hand" Value = "7" Alias="手牌"/>
+        <Item Name = "Brary" Value = "8" Alias="牌库"/>
+        <Item Name = "Handack" Value = "9" Alias="手牌攻击"/>
     </Enum>
 </Namespace>
 
