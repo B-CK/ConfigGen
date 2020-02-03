@@ -1,9 +1,8 @@
-﻿using Description.Import;
-using Wrap;
-using System;
+﻿using Tool.Import;
+using Tool.Wrap;
 using System.Xml;
 
-namespace Description.Wrap
+namespace Tool.Config
 {
     public class FFloat : Data
     {
@@ -39,6 +38,12 @@ namespace Description.Wrap
         public override int GetHashCode()
         {
             return Value.GetHashCode();
+        }
+
+        public override int ExportBinary(ref byte[] bytes, int offset)
+        {
+            int length = MessagePackBinary.WriteSingle(ref bytes, offset, Value);
+            return length;
         }
     }
 }

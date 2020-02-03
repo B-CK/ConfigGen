@@ -72,6 +72,8 @@
     <Compile Include="Export\Gen_CS.cs" />
     <Compile Include="Export\Gen_Data.cs" />
     <Compile Include="Export\Gen_XmlCode.cs" />
+    <Compile Include="Message\MessagePackBinary.cs" />
+    <Compile Include="Message\MessagePackCode.cs" />
     <Compile Include="Xml\ClassXml.cs" />
     <Compile Include="Xml\ConfigXml.cs" />
     <Compile Include="Xml\EnumXml.cs" />

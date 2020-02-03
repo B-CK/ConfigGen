@@ -8,9 +8,9 @@ using System.Data;
 using System.Data.OleDb;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Wrap;
+using Tool.Wrap;
 
-namespace Description
+namespace Tool
 {
     public enum FileState
     {

@@ -1,11 +1,11 @@
-﻿using Description;
+﻿using Tool;
 using Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Wrap
+namespace Tool.Wrap
 {
     public class EnumWrap
     {

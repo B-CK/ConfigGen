@@ -1,10 +1,10 @@
-﻿using Description.Import;
-using Wrap;
+﻿using Tool.Import;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using Tool.Wrap;
 
-namespace Description.Wrap
+namespace Tool.Config
 {
     public class FList : Data
     {
@@ -65,6 +65,13 @@ namespace Description.Wrap
         {
             for (int i = 0; i < Values.Count; i++)
                 Values[i].VerifyData();
+        }
+        public override int ExportBinary(ref byte[] bytes, int offset)
+        {
+            int length = MessagePackBinary.WriteArrayHeader(ref bytes, offset, Values.Count);
+            for (int i = 0; i < Values.Count; i++)
+                length += ExportBinary(ref bytes, offset + length);
+            return length;
         }
     }
 }

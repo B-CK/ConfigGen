@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using Description.Wrap;
-using Wrap;
 
-namespace Description.Import
+namespace Tool.Import
 {
     public class ImportXml
     {

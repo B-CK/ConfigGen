@@ -1,8 +1,8 @@
-﻿using Description.Import;
-using Wrap;
+﻿using Tool.Import;
 using System.Xml;
+using Tool.Wrap;
 
-namespace Description.Wrap
+namespace Tool.Config
 {
     /// <summary>
     /// 数据导出控制类
@@ -24,6 +24,7 @@ namespace Description.Wrap
         public virtual void ImportData(XmlElement xml) { }
         public virtual void ImportData(ImportExcel excel) { }
         public abstract string ExportData();
+        public abstract int ExportBinary(ref byte[] bytes, int offset);
         public virtual void VerifyData()
         {
             if (_define.Refs == null) return;

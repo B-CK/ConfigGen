@@ -1,11 +1,7 @@
-﻿using Description.Wrap;
-using Wrap;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Tool.Config;
+using Tool.Wrap;
 
-namespace Description.Import
+namespace Tool.Import
 {
     public abstract class Import
     {

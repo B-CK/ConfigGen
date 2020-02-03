@@ -1,10 +1,10 @@
 ﻿using Xml;
 using System;
-using Description;
+using Tool;
 using System.Text;
 using System.Collections.Generic;
 
-namespace Wrap
+namespace Tool.Wrap
 {
     public class ClassWrap
     {

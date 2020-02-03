@@ -1,9 +1,8 @@
-﻿using Description.Import;
-using Wrap;
-using System;
+﻿using Tool.Import;
 using System.Xml;
+using Tool.Wrap;
 
-namespace Description.Wrap
+namespace Tool.Config
 {
     public class FLong : Data
     {
@@ -34,6 +33,11 @@ namespace Description.Wrap
         public override string ExportData()
         {
             return Value.ToString();
+        }
+        public override int ExportBinary(ref byte[] bytes, int offset)
+        {
+            int length = MessagePackBinary.WriteInt64(ref bytes, offset, Value);
+            return length;
         }
     }
 }

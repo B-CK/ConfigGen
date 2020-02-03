@@ -1,13 +1,9 @@
-﻿using Description.Import;
-using Wrap;
-using System;
-using System.Collections.Generic;
+﻿using Tool.Import;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Xml;
+using Tool.Wrap;
 
-namespace Description.Wrap
+namespace Tool.Config
 {
     public class FString : Data
     {
@@ -25,6 +21,11 @@ namespace Description.Wrap
         {
             return Value;
         }
+        public override int ExportBinary(ref byte[] bytes, int offset)
+        {
+            int length = MessagePackBinary.WriteString(ref bytes, offset, Value);
+            return length;
+        }
         public override void VerifyData()
         {
             base.VerifyData();
@@ -38,6 +39,7 @@ namespace Description.Wrap
                     Util.LogWarningFormat("Class:{0} {1} {2}文件不存在", _host.FullType, _define, Util.GetRelPath(path));
             }
         }
+        
         public override bool Equals(object obj)
         {
             if (obj == null)
@@ -48,6 +50,6 @@ namespace Description.Wrap
         public override int GetHashCode()
         {
             return Value.GetHashCode();
-        }
+        }      
     }
 }

@@ -1,7 +1,6 @@
-﻿using Description;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Wrap
+namespace Tool.Wrap
 {
     public class FieldWrap
     {

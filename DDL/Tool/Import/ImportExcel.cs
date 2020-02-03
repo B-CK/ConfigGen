@@ -1,10 +1,9 @@
-﻿using System;
-using Description.Wrap;
-using Wrap;
+﻿using Tool.Wrap;
+using System;
 using System.Collections.Generic;
-using System.Data;
+using Tool.Config;
 
-namespace Description.Import
+namespace Tool.Import
 {
     /// <summary>
     /// Excel 行列读取器

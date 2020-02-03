@@ -1,16 +1,16 @@
-﻿using System;
+﻿using Xml;
+using System;
 using System.IO;
+using Tool.Wrap;
+using Tool.Config;
 using System.Collections.Generic;
 using System.Reflection;
-using Xml;
-using Wrap;
-using Description.Wrap;
 
 //-module .\Module\Editor.xml -xmlCode XmlCode/ -group all
 //-module .\Module\Example.xml -data ./Data  -csharp CSharp/ -group all
 
 
-namespace Description
+namespace Tool
 {
     /// 所有的路径均以应用为相对路径生成
     /// 尽可能少配置Excel文件,文件读取非常耗时

@@ -1,8 +1,8 @@
-﻿using Description.Import;
-using Wrap;
+﻿using Tool.Import;
 using System.Xml;
+using Tool.Wrap;
 
-namespace Description.Wrap
+namespace Tool.Config
 {
     public class FEnum : Data
     {
@@ -26,7 +26,19 @@ namespace Description.Wrap
         {
             return Value;
         }
-
+        public override int ExportBinary(ref byte[] bytes, int offset)
+        {
+            try
+            {
+                int v = System.Convert.ToInt32(Value);
+                int length = MessagePackBinary.WriteInt32(ref bytes, offset, v);
+                return length;
+            }
+            catch (System.Exception e)
+            {
+                throw new System.Exception($"无法解析枚举值:{Value}");
+            }
+        }
         public override bool Equals(object obj)
         {
             if (obj == null)

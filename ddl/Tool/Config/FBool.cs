@@ -1,9 +1,9 @@
-﻿using Description.Import;
-using Wrap;
+﻿using Tool.Import;
 using System;
 using System.Xml;
+using Tool.Wrap;
 
-namespace Description.Wrap
+namespace Tool.Config
 {
     public class FBool : Data
     {
@@ -41,6 +41,12 @@ namespace Description.Wrap
         public override int GetHashCode()
         {
             return Value.GetHashCode();
+        }
+
+        public override int ExportBinary(ref byte[] bytes, int offset)
+        {
+            bytes[offset] = Value ? MessagePackCode.True : MessagePackCode.False;
+            return 1;
         }
     }
 }

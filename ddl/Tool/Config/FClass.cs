@@ -1,10 +1,10 @@
-﻿using Description.Import;
-using Wrap;
+﻿using Tool.Import;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using Tool.Wrap;
 
-namespace Description.Wrap
+namespace Tool.Config
 {
     public class FClass : Data
     {
@@ -54,8 +54,7 @@ namespace Description.Wrap
         public override string ExportData()
         {
             StringBuilder builder = new StringBuilder();
-            bool isDynamic = _define.IsDynamic;
-            if (isDynamic)
+            if (_define.IsDynamic)
                 builder.Append(Util.CorrectFullType(_fullType) + Setting.CsvSplitFlag);
             for (int i = 0; i < _values.Count; i++)
                 builder.AppendFormat("{0}{1}", i > 0 ? Setting.CsvSplitFlag : "", _values[i].ExportData());
@@ -65,6 +64,18 @@ namespace Description.Wrap
         {
             for (int i = 0; i < Values.Count; i++)
                 Values[i].VerifyData();
+        }
+        public override int ExportBinary(ref byte[] bytes, int offset)
+        {
+            int length = 0;
+            if (_define.IsDynamic)
+            {
+                string dynamicName = Util.CorrectFullType(_fullType);
+                length += MessagePackBinary.WriteString(ref bytes, offset, dynamicName);
+            }
+            for (int i = 0; i < _values.Count; i++)
+                length += ExportBinary(ref bytes, offset + length);
+            return length;
         }
     }
 }

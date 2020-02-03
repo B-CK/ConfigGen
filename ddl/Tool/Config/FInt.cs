@@ -1,9 +1,8 @@
-﻿using Description.Import;
-using Wrap;
-using System;
+﻿using Tool.Import;
 using System.Xml;
+using Tool.Wrap;
 
-namespace Description.Wrap
+namespace Tool.Config
 {
     public class FInt : Data
     {
@@ -39,6 +38,12 @@ namespace Description.Wrap
         public override int GetHashCode()
         {
             return Value;
+        }
+
+        public override int ExportBinary(ref byte[] bytes, int offset)
+        {
+            int length = MessagePackBinary.WriteInt32(ref bytes, offset, Value);
+            return length;
         }
     }
 }

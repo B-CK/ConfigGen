@@ -1,14 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using Description.Wrap;
-using Description.Import;
+using Tool.Config;
+using Tool.Import;
 using Xml;
 using System.Collections.Generic;
 using System.Xml;
-using Description;
+using Tool;
 
-namespace Wrap
+namespace Tool.Wrap
 {
     /// <summary>
     /// 与数据关联的结构

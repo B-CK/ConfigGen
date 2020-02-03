@@ -1,7 +1,7 @@
-﻿using Description;
+﻿using Tool;
 using System.Collections.Generic;
 
-namespace Wrap
+namespace Tool.Wrap
 {
     public class GroupWrap
     {

@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace Description
+namespace Tool
 {
     public class Setting
     {
