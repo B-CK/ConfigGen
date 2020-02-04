@@ -8,8 +8,6 @@ namespace Tool.Export
     {
         public static void Gen()
         {
-            Util.TryDeleteDirectory(Setting.DataDir);
-
             StringBuilder builder = new StringBuilder();
             var configs = ConfigWrap.GetExports();
             for (int i = 0; i < configs.Count; i++)

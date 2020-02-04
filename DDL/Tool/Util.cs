@@ -274,6 +274,17 @@ namespace Tool
 
             File.WriteAllText(filePath, content, UTF8);
         }
+        /// <summary>
+        /// 创建二进制文件
+        /// </summary>
+        public static void SaveFile(string filePath, byte[] content)
+        {
+            string dirPath = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(dirPath))
+                Directory.CreateDirectory(dirPath);
+
+            File.WriteAllBytes(filePath, content);
+        }
         public static string FirstCharUpper(this string name)
         {
             return Char.ToUpper(name[0]) + name.Substring(1);

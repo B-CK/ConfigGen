@@ -5,7 +5,7 @@
     <Field Name="float_var" Desc="float类型" Group="" Type="float" Checker="" />
     <Field Name="bool_var" Desc="bool类型" Group="" Type="bool" Checker="" />
     <Field Name="string_var" Desc="string类型" Group="" Type="string" Checker="" />
-	<Field Name = "VarEnum" Type = "CardElement" Desc = "枚举类型" Group = "Client"/>
+	<!-- <Field Name = "VarEnum" Type = "CardElement" Desc = "枚举类型" Group = "Client"/> -->
   </Class>
   
   <Enum Name="CardElement" Desc="卡牌枚举">

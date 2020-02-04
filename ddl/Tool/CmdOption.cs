@@ -9,6 +9,7 @@ namespace Tool
     {
         public const string CONFIG_XML = "-module";
         public const string DATA_DIR = "-data";
+        public const string BINARY_DIR = "-binary";
         public const string CS_DIR = "-csharp";
         //public const string JAVA_DIR = "-java";
         public const string LUA_DIR = "-lua";
@@ -22,6 +23,7 @@ namespace Tool
             Console.WriteLine("语法:ConfigGen.exe [option]");
             Console.WriteLine("     -module [path] 模块配置文件路径");
             Console.WriteLine("     -data [path] 导出数据到指定目录路径");
+            Console.WriteLine("     -binary [path] 导出数据到指定目录路径");
             Console.WriteLine("     -csharp [path] 导出结构到指定目录路径");
             Console.WriteLine("     -lua [path] 导出结构到指定目录路径");
             Console.WriteLine("     -xmlCode [path] 导出xml类到指定目录路径");
@@ -93,6 +95,9 @@ namespace Tool
                         break;
                     case DATA_DIR:
                         Setting.DataDir = CheckDirArg(DATA_DIR, args[++i]);
+                        break; 
+                    case BINARY_DIR:
+                        Setting.BinaryDir = CheckDirArg(BINARY_DIR, args[++i]);
                         break;
                     case CS_DIR:
                         Setting.CSDir = CheckDirArg(CS_DIR, args[++i]);

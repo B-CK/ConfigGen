@@ -67,8 +67,11 @@ namespace Tool.Config
         public override int ExportBinary(ref byte[] bytes, int offset)
         {
             int length = MessagePackBinary.WriteMapHeader(ref bytes, offset, Values.Count);
-            for (int i = 0; i < Values.Count; i++)
-                length += ExportBinary(ref bytes, offset + length);
+            foreach (var item in _values)
+            {
+                length += item.Key.ExportBinary(ref bytes, offset + length);
+                length += item.Value.ExportBinary(ref bytes, offset + length);
+            }                
             return length;
         }
     }

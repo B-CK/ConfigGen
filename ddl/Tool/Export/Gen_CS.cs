@@ -146,7 +146,7 @@ namespace Tool.Export
             }
             else if (field.OriginalType == Setting.LIST)
             {
-                initer.IntervalLevel(SEM_LEVEL).AppendLine($"for (int n = {ARG_DATASTREAM}.GetInt(); n-- > 0;)");
+                initer.IntervalLevel(SEM_LEVEL).AppendLine($"for (int n = {ARG_DATASTREAM}.GetArrayLength(); n-- > 0;)");
                 initer.IntervalLevel(SEM_LEVEL).AppendLine("{");
                 {
                     FieldWrap item = field.GetItemDefine();
@@ -157,7 +157,7 @@ namespace Tool.Export
             }
             else if (field.OriginalType == Setting.DICT)
             {
-                initer.IntervalLevel(SEM_LEVEL).AppendLine($"for (int n = {ARG_DATASTREAM}.GetInt(); n-- > 0;)");
+                initer.IntervalLevel(SEM_LEVEL).AppendLine($"for (int n = {ARG_DATASTREAM}.GetMapLength(); n-- > 0;)");
                 initer.IntervalLevel(SEM_LEVEL).AppendLine("{");
                 {
                     FieldWrap key = field.GetKeyDefine();
@@ -183,7 +183,7 @@ namespace Tool.Export
                 builder.IntervalLevel(SEM_LEVEL).AppendLine($"{{");
                 {
                     builder.IntervalLevel(level1).AppendLine($"var data = new DataStream(path, Encoding.UTF8);");
-                    builder.IntervalLevel(level1).AppendLine($"int length = data.GetInt();");
+                    builder.IntervalLevel(level1).AppendLine($"int length = data.GetArrayLength();");
                     builder.IntervalLevel(level1).AppendLine($"for (int i = 0; i < length; i++)");
                     builder.IntervalLevel(level1).AppendLine($"{{");
                     {
@@ -196,7 +196,7 @@ namespace Tool.Export
                 builder.IntervalLevel(SEM_LEVEL).AppendLine($"catch (Exception e)");
                 builder.IntervalLevel(SEM_LEVEL).AppendLine($"{{");
                 {
-                    builder.IntervalLevel(level1).AppendLine($"UnityEngine.Debug.LogError($\"{{path}}解析异常~\\n{{e.Message}}\");");
+                    builder.IntervalLevel(level1).AppendLine($"UnityEngine.Debug.LogError($\"{{path}}解析异常~\\n{{e.Message}}\\n{{e.StackTrace}}\");");
                     builder.AppendLine($"#if UNITY_EDITOR");
                     builder.IntervalLevel(level1).AppendLine($"UnityEngine.Debug.LogError($\"最后一条数据Key:{{dict.Last().Key}}.\");");
                     builder.AppendLine($"#endif");

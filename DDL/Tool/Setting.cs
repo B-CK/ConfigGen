@@ -94,6 +94,10 @@ namespace Tool
         /// </summary>
         public static string DataDir { get; set; }
         /// <summary>
+        /// 导出二进制存储路径
+        /// </summary>
+        public static string BinaryDir { get; set; }
+        /// <summary>
         /// 数据导出分组
         /// </summary>
         public static HashSet<string> ExportGroup = new HashSet<string>();

@@ -44,13 +44,16 @@ namespace Tool
             Export("Lua", Setting.LuaDir);
             //Export("XmlCode", Setting.XmlCodeDir);
 
-            if (!Setting.DataDir.IsEmpty() || Setting.Check)
+            if (!Setting.DataDir.IsEmpty()
+               || !Setting.BinaryDir.IsEmpty()
+               || Setting.Check)
             {
                 try
                 {
                     LoadData();
                     VerifyData();
-                    Export("Data", Setting.ModuleName);
+                    Export("Data", Setting.DataDir);
+                    Export("Binary", Setting.BinaryDir);
                 }
                 catch (Exception e)
                 {

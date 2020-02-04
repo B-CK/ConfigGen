@@ -74,7 +74,7 @@ namespace Tool.Config
                 length += MessagePackBinary.WriteString(ref bytes, offset, dynamicName);
             }
             for (int i = 0; i < _values.Count; i++)
-                length += ExportBinary(ref bytes, offset + length);
+                length += _values[i].ExportBinary(ref bytes, offset + length);
             return length;
         }
     }
