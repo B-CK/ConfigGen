@@ -10,9 +10,7 @@ namespace Tool.Export
         //--lua中的枚举默认   NULL = -1
         private const string DATA_STRUCT = "DataStruct";
         private const string DATA_CONFIG = "Config";
-        private const string LUA_ENUM_NULL = "-9";
         private const string LOCAL = "local";
-
 
         public static void Gen()
         {
@@ -20,6 +18,9 @@ namespace Tool.Export
             GenDataStruct();
         }
 
+        /// <summary>
+        /// 数据结构配置表
+        /// </summary>
         private static void GenConfigTable()
         {
             StringBuilder builder = new StringBuilder();
@@ -39,6 +40,9 @@ namespace Tool.Export
             string path = Path.Combine(Setting.LuaDir, DATA_CONFIG + ".lua");
             Util.SaveFile(path, builder.ToString());
         }
+        /// <summary>
+        /// 数据结构定义
+        /// </summary>
         private static void GenDataStruct()
         {
             StringBuilder builder = new StringBuilder();
@@ -56,6 +60,29 @@ namespace Tool.Export
                 builder.AppendLine("meta.__index = meta");
                 builder.AppendFormat("meta.class = '{0}'\n", fullType);
 
+                //--常量字段
+                for (int j = 0; j < cls.Consts.Count; j++)
+                {
+                    ConstWrap constant = cls.Consts[j];
+                    if (!Util.MatchGroups(constant.Group)) continue;
+
+                    string value = constant.Value;
+                    switch (constant.FullType)
+                    {
+                        case Setting.BOOL:
+                            value = value.ToLower();
+                            break;
+                        case Setting.STRING:
+                            value = string.Format("'{0}'", value);
+                            break;
+                        default:
+                            if (EnumWrap.IsEnum(constant.FullType))
+                                value = EnumWrap.Enums[constant.FullType].GetValue(constant.Value);
+                            break;
+                    }
+                    builder.AppendFormat("meta.{0} = {1}\n", constant.Name, value);
+                }
+
                 builder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = meta\n", Setting.ModuleName, cls.Namespace, cls.Name);
                 string funcName = fullType.Replace(".", "");
                 if (cls.IsDynamic())
@@ -70,7 +97,8 @@ namespace Tool.Export
                 else
                     builder.IntervalLevel().AppendFormat("local o = {{}}\n");
                 builder.IntervalLevel().AppendFormat("setmetatable(o, {0})\n", fullType);
-                //--普通变量
+
+                //--普通字段
                 for (int j = 0; j < cls.Fields.Count; j++)
                 {
                     FieldWrap field = cls.Fields[j];
@@ -113,7 +141,6 @@ namespace Tool.Export
             {
                 EnumWrap en = eit.Current.Value;
                 builder.AppendFormat("GetOrCreate('{0}')['{1}'] = {{\n", en.Namespace, en.Name);
-                builder.IntervalLevel().AppendFormat("NULL = {0},\n", LUA_ENUM_NULL);
                 foreach (var item in en.Values)
                     builder.IntervalLevel().AppendFormat("{0} = {1},\n", item.Key, item.Value);
                 builder.AppendLine("}");

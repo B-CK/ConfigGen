@@ -71,8 +71,8 @@ namespace Tool.Wrap
         /// <summary>
         /// Class 字段
         /// </summary>
-        public FieldWrap(ClassWrap host, string name, string type, string group, string desc, HashSet<string> gs)
-            : this(host, name, type, Util.Split(type), gs)
+        public FieldWrap(ClassWrap host, string name, string type, string group, string desc, HashSet<string> parentGroups)
+            : this(host, name, type, Util.Split(type), parentGroups)
         {
             _group = group == null ? "" : group.ToLower();
             if (_groups == null)
@@ -180,7 +180,7 @@ namespace Tool.Wrap
         }
         void Error(string msg)
         {
-            string error = string.Format("字段信息异常!\n{0}Field:{1} {2}", _host, Name, msg);
+            string error = string.Format("字段信息异常!\n{0}Field:{1}({2}) {3}", _host, Name, FullType, msg);
             throw new System.Exception(error);
         }
         public override string ToString()

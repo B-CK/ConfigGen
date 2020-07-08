@@ -35,6 +35,7 @@ namespace Tool
         public const string LIST = "list";
         public const string DICT = "dict";
 
+        public static readonly HashSet<string> ConstTypes = new HashSet<string>() { BOOL, INT, FLOAT, LONG, STRING };
         public static readonly HashSet<string> RawTypes = new HashSet<string>() { BOOL, INT, FLOAT, LONG, STRING };
         public static readonly HashSet<string> ContainerTypes = new HashSet<string>() { LIST, DICT };
         /// <summary>

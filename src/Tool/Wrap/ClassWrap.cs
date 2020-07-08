@@ -11,7 +11,7 @@ namespace Tool.Wrap
         private static Dictionary<string, ClassWrap> _classes = new Dictionary<string, ClassWrap>();
         public static Dictionary<string, ClassWrap> Classes { get { return _classes; } }
         public static ClassWrap Get(string fullName)
-        {            
+        {
             return IsClass(fullName) ? _classes[fullName] : null;
         }
         public static bool IsClass(string fullName)
@@ -68,6 +68,7 @@ namespace Tool.Wrap
         public string Inherit { get { return _inherit; } }
         public string Desc { get { return _des.Desc; } }
         public List<FieldWrap> Fields { get { return _fields; } }
+        public List<ConstWrap> Consts { get { return _consts; } }
         public HashSet<string> Groups { get { return _groups; } }
 
         private ClassXml _des;
@@ -76,6 +77,7 @@ namespace Tool.Wrap
         private string _inherit;
 
         private readonly List<FieldWrap> _fields;
+        private readonly List<ConstWrap> _consts;
         private readonly HashSet<string> _children;
         private readonly HashSet<string> _groups;
 
@@ -105,6 +107,13 @@ namespace Tool.Wrap
                 var info = new FieldWrap(this, fieldDes.Name, fieldDes.Type, fieldDes.Group, fieldDes.Desc, _groups);
                 info.InitCheck(fieldDes.Ref, fieldDes.RefPath);
                 Fields.Add(info);
+            }
+            _consts = new List<ConstWrap>();
+            for (int i = 0; i < des.Consts.Count; i++)
+            {
+                var constDes = des.Consts[i];
+                var info = new ConstWrap(this, constDes.Name, constDes.Type, constDes.Value, constDes.Group, constDes.Desc, _groups);
+                Consts.Add(info);
             }
         }
 
@@ -143,13 +152,22 @@ namespace Tool.Wrap
             else
             {
                 HashSet<string> hash = new HashSet<string>();
+                for (int i = 0; i < _consts.Count; i++)
+                {
+                    string name = _consts[i].Name;
+                    if (!hash.Contains(name))
+                        hash.Add(name);
+                    else
+                        Error("Const命名重复:" + name);
+                    _consts[i].VerifyDefine();
+                }
                 for (int i = 0; i < _fields.Count; i++)
                 {
                     string name = _fields[i].Name;
                     if (!hash.Contains(name))
                         hash.Add(name);
                     else
-                        Error("Field名重复:" + name);
+                        Error("Field命名重复:" + name);
                     _fields[i].VerifyDefine();
                 }
             }
@@ -163,6 +181,8 @@ namespace Tool.Wrap
         {
             StringBuilder builder = new StringBuilder();
             builder.AppendFormat("Class - FullName:{0}\tInherit:{1}\tGroup:{2}\n", FullType, Inherit, _des.Group);
+            for (int i = 0; i < _consts.Count; i++)
+                builder.AppendFormat("\t{0}\n", _consts[i]);
             for (int i = 0; i < _fields.Count; i++)
                 builder.AppendFormat("\t{0}\n", _fields[i]);
             return builder.ToString();

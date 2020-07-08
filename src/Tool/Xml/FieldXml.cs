@@ -31,4 +31,12 @@ namespace Xml
         [XmlAttribute]
         public string Alias;
     }
+    [XmlInclude(typeof(ConstXml))]
+    public class ConstXml : MemberXml
+    {
+        [XmlAttribute]
+        public string Type;//支持int,float,string,bool,long
+        [XmlAttribute]
+        public string Value;
+    }
 }

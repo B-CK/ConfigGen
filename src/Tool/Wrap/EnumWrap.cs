@@ -36,6 +36,18 @@ namespace Tool.Wrap
         public Dictionary<string, string> Aliases { get { return _aliases; } }
         public Dictionary<string, EnumItemXml> Items => _items;
 
+
+        /// <summary>
+        /// 直接获取值
+        /// </summary>
+        /// <param name="name">枚举名称或者枚举别名</param>
+        /// <returns></returns>
+        public string GetValue(string name)
+        {
+            var enumName = GetEnumName(name);
+            enumName = enumName.IsEmpty() ? name : enumName;
+            return GetEnumValue(enumName);
+        }
         public string GetEnumValue(string name)
         {
             if (_values.ContainsKey(name))
@@ -47,6 +59,15 @@ namespace Tool.Wrap
             if (_aliases.ContainsKey(alias))
                 return _aliases[alias];
             return null;
+        }
+        /// <summary>
+        /// 是否定义该枚举项
+        /// </summary>
+        /// <param name="name">枚举名称或者枚举别名</param>
+        /// <returns></returns>
+        public bool ContainItem(string name)
+        {
+            return _aliases.ContainsKey(name) || _values.ContainsKey(name);
         }
 
         private EnumXml _des;
@@ -74,11 +95,20 @@ namespace Tool.Wrap
                 Error("命名不合法:" + Name);
 
             var items = des.Items;
+            int lastValue = 0;
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i];
+                int value = lastValue;
+                if (item.Value == 0)
+                    lastValue++;
+                else
+                {
+                    value = item.Value;
+                    lastValue = value + 1;
+                }
                 if (!_values.ContainsKey(item.Name))
-                    _values.Add(item.Name, item.Value);
+                    _values.Add(item.Name, value);
                 else
                     Error("Name重复定义:" + item.Name);
                 if (!item.Alias.IsEmpty())

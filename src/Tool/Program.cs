@@ -30,7 +30,7 @@ namespace Tool
             //解析命令
             if (!CmdOption.Ins.CheckResult())
             {
-                Util.LogError("命令参数解析失败!");
+                Util.LogError(">命令参数解析失败!");
 #if DEBUG
                 Console.ReadKey();
 #endif
@@ -125,15 +125,27 @@ namespace Tool
 
         static void LoadData()
         {
+            Util.LogFormat("# 共需加载配置文件 {0} 个", ConfigWrap.Configs.Count);
+            List<string> warnings = new List<string>();
             foreach (var item in ConfigWrap.Configs)
             {
                 ConfigWrap cfg = item.Value;
                 long start = DateTime.Now.Ticks;
                 cfg.LoadData();
                 long end = DateTime.Now.Ticks;
+                float second = (end - start) * 1f / TimeSpan.TicksPerSecond;
+                string output = string.Format("\t>{0,-40} 耗时 {1:F3}s", cfg.FullType, second);
+                Util.Log(output);
+
                 if ((end - start) >= TimeSpan.TicksPerSecond)
-                    Util.LogFormat("{0} 耗时 {1:F3}s\n", cfg.FullType, (end - start) * 1f / TimeSpan.TicksPerSecond);
+                    warnings.Add(output);
             }
+            Util.Log("\n");
+
+            Util.LogWarningFormat("# 加载耗时严重的配置文件 {0} 个", warnings.Count);
+            for (int i = 0; i < warnings.Count; i++)
+                Util.LogWarning(warnings[i]);
+            Util.Log("\n");
         }
 
         static void VerifyData()
@@ -147,10 +159,13 @@ namespace Tool
         {
             if (path.IsEmpty()) return;
 
+            long start = DateTime.Now.Ticks;
             Util.TryDeleteDirectory(path);
             Type type = Type.GetType($"Tool.Export.Gen_{code}");
             var export = type.GetMethod("Gen", BindingFlags.Public | BindingFlags.Static);
             export.Invoke(null, null);
+            long end = DateTime.Now.Ticks;
+            Util.LogFormat("# 导出{0}总共耗时 {1:F3}s\n", code, (end - start) * 1f / TimeSpan.TicksPerSecond);
         }
     }
 }

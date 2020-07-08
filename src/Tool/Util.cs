@@ -233,6 +233,34 @@ namespace Tool
                 return $"{Setting.ModuleName}.{fullType}";
             return fullType;
         }
+        /// <summary>
+        /// 仅用于静态语言
+        /// </summary>
+        public static string CorrectConst(string type, string value)
+        {
+            switch (type)
+            {
+                case Setting.BOOL:
+                    value = value.ToLower();
+                    break;
+                case Setting.FLOAT:
+                    value = string.Format("{0}f", value);
+                    break;
+                case Setting.STRING:
+                    value = string.Format("@\"{0}\"", value);
+                    break;
+                default:
+                    if (EnumWrap.IsEnum(type))
+                    {
+                        string fullType = CorrectFullType(type);
+                        string enumName = EnumWrap.Enums[type].GetEnumName(value);
+                        enumName = enumName.IsEmpty() ? value : enumName;
+                        value = string.Format("{0}.{1}", fullType, enumName);
+                    }
+                    break;
+            }
+            return value;
+        }
 
 
         #region 扩展及操作

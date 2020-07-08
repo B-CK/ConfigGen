@@ -240,12 +240,23 @@ namespace Export
                 string inherit = cls.Inherit.IsEmpty() ? CLASS_CFG_OBJECT : cls.Inherit;
                 builder.DefineClass(CodeWriter.Public, cls.Name, inherit);
 
+                //常量字段
+                for (int j = 0; j < cls.Consts.Count; j++)
+                {
+                    ConstWrap constant = cls.Consts[j];
+                    if (!Util.MatchGroups(constant.Group)) continue;
+                    builder.Comments(constant.Desc);
+                    string modifier = string.Format("{0} {1}", CodeWriter.Public, CodeWriter.Const);
+                    string value = CheckConst(constant.FullType, constant.Value);
+                    builder.DefineField(modifier, constant.FullType, constant.Name, value);
+                }
+
+                //普通字段
                 for (int j = 0; j < cls.Fields.Count; j++)
                 {
                     FieldWrap field = cls.Fields[j];
                     if (!Util.MatchGroups(field.Group)) continue;
 
-                    //普通字段
                     builder.Comments(field.Desc);
                     string modifier = string.Format("{0} {1}", CodeWriter.Public, CodeWriter.Readonly);
                     if (field.IsRaw || field.IsEnum || field.IsClass)

@@ -21,5 +21,7 @@ namespace Xml
 
         [XmlElement("Field")]
         public List<FieldXml> Fields;
+        [XmlElement("Const")]
+        public List<ConstXml> Consts;
     }
 }

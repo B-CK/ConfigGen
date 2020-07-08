@@ -12,6 +12,7 @@ namespace Tool.Export
         const string CLASS_DATA_STREAM = "DataStream";
         const string ARG_DATASTREAM = "data";
         const string FEILD_MODIFIERS = "public readonly";
+        const string CONST_MODIFIERS = "public const";
 
         const int TYPE_LEVEL = 1;
         const int MEM_LEVEL = 2;
@@ -75,6 +76,12 @@ namespace Tool.Export
                     Start(TYPE_LEVEL);
                     {
                         StringBuilder initer = new StringBuilder();
+                        for (int j = 0; j < cls.Consts.Count; j++)
+                        {
+                            ConstWrap constant = cls.Consts[j];
+                            if (!Util.MatchGroups(constant.Group)) continue;
+                            Const(constant);//常量成员
+                        }
                         for (int j = 0; j < cls.Fields.Count; j++)
                         {
                             FieldWrap field = cls.Fields[j];
@@ -124,6 +131,12 @@ namespace Tool.Export
             else
                 Util.Error("不支持集合嵌套类型:" + field.FullType);
             return null;
+        }
+        static void Const(ConstWrap constant)
+        {
+            Comment(constant.Desc, MEM_LEVEL);
+            builder.IntervalLevel(MEM_LEVEL);
+            builder.AppendLine($"{CONST_MODIFIERS} {Util.CorrectFullType(constant.FullType)} {constant.Name} = {Util.CorrectConst(constant.FullType, constant.Value)};");
         }
         static void Field(FieldWrap field)
         {
