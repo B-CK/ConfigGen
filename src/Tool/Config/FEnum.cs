@@ -15,7 +15,10 @@ namespace Tool.Config
             string name = excel.GetEnum();
             EnumName = info.GetEnumName(name);
             EnumName = EnumName.IsEmpty() ? name : EnumName;
-            Value = EnumWrap.Enums[define.OriginalType].GetEnumValue(EnumName);
+            Value = info.GetEnumValue(EnumName);
+
+            if (!info.ContainItem(name))
+                excel.Error($"未定义枚举(名称/别名){define.FullType}.{name}   !");
         }
         public FEnum(FClass host, FieldWrap define, XmlElement xml) : base(host, define)
         {

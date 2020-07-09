@@ -118,7 +118,7 @@ namespace Tool.Import
                         ++_ri;
                         _ci = -1;
                     }
-                    else if (!column.IsEmpty())
+                    else if (column != null)
                     {
                         return column;
                     }
@@ -126,10 +126,10 @@ namespace Tool.Import
             }
             return null;
         }
-        private string GetNextAndCheckNotEmpty()
+        private string GetNextAndCheckNotEmpty(bool needCheck = true)
         {
             string value = GetNext();
-            if (value.IsEmpty())
+            if (needCheck && value.IsEmpty())
                 Error("数据无法正常读取(漏填,集合读一半等)");
             return value;
         }
@@ -155,7 +155,7 @@ namespace Tool.Import
             if (!int.TryParse(v, out r))
             {
                 Error(v + "非int类型");
-                return -1;
+                return 0;
             }
             return r;
         }
@@ -166,7 +166,7 @@ namespace Tool.Import
             if (!long.TryParse(v, out r))
             {
                 Error(v + "非long类型");
-                return -1L;
+                return 0;
             }
             return r;
         }
@@ -183,7 +183,7 @@ namespace Tool.Import
         }
         public override string GetString()
         {
-            return GetNextAndCheckNotEmpty();
+            return GetNextAndCheckNotEmpty(false);
         }
         public override string GetEnum()
         {
