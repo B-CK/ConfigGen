@@ -118,7 +118,7 @@ namespace Tool.Export
                     End(TYPE_LEVEL);
                 }
                 End(0);
-                string path = Path.Combine(Setting.XmlCodeDir, cls.FullType + ".cs");
+                string path = Path.Combine(Setting.XmlCodeDir, cls.FullName + ".cs");
                 Util.SaveFile(path, builder.ToString());
                 builder.Clear();
             }
@@ -134,7 +134,7 @@ namespace Tool.Export
             Comment(field.Desc, MEM_LEVEL);
             builder.IntervalLevel(MEM_LEVEL);
             if (field.IsRaw || field.IsEnum || field.IsClass)
-                builder.AppendLine($"{FEILD_MODIFIERS} {Util.CorrectFullType(field.FullType)} {field.Name};");
+                builder.AppendLine($"{FEILD_MODIFIERS} {Util.CorrectFullType(field.FullName)} {field.Name};");
             else if (field.OriginalType == Setting.LIST)
                 builder.AppendLine($"{FEILD_MODIFIERS} List<{Util.CorrectFullType(field.Types[1])}> {field.Name} = new List<{Util.CorrectFullType(field.Types[1])}>();");
             else if (field.OriginalType == Setting.DICT)
@@ -147,7 +147,7 @@ namespace Tool.Export
         static void ReadFunc(StringBuilder reader, FieldWrap field)
         {
             int level = SEM_LEVEL + 1;
-            string type = Util.CorrectFullType(field.FullType);
+            string type = Util.CorrectFullType(field.FullName);
             if (field.IsRaw)
                 reader.IntervalLevel(level).AppendLine($"case \"{field.Name}\": {field.Name} = Read{type.FirstCharUpper()}(_2); break;");
             else if (field.IsEnum)
@@ -195,7 +195,7 @@ namespace Tool.Export
         }
         static string ReadList(FieldWrap field)
         {
-            var type = Util.CorrectFullType(field.FullType);
+            var type = Util.CorrectFullType(field.FullName);
             if (field.IsRaw)
                 return $"Read{type.FirstCharUpper()}(_3)";
             else if (field.IsEnum)
@@ -210,7 +210,7 @@ namespace Tool.Export
         }
         static string ReadDict(FieldWrap field, string node)
         {
-            var type = Util.CorrectFullType(field.FullType);
+            var type = Util.CorrectFullType(field.FullName);
             if (field.IsRaw)
                 return $"Read{type.FirstCharUpper()}(GetOnlyChild(_3, \"{node}\"))";
             else if (field.IsEnum)

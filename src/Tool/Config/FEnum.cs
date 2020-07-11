@@ -1,6 +1,7 @@
 ﻿using Tool.Import;
 using System.Xml;
 using Tool.Wrap;
+using System.Collections.Generic;
 
 namespace Tool.Config
 {
@@ -18,7 +19,7 @@ namespace Tool.Config
             Value = info.GetEnumValue(EnumName);
 
             if (!info.ContainItem(name))
-                excel.Error($"未定义枚举(名称/别名){define.FullType}.{name}   !");
+                excel.Error($"未定义枚举(名称/别名){define.FullName}.{name}   !");
         }
         public FEnum(FClass host, FieldWrap define, XmlElement xml) : base(host, define)
         {
@@ -42,16 +43,23 @@ namespace Tool.Config
                 throw new System.Exception($"无法解析枚举值:{Value}");
             }
         }
+
         public override bool Equals(object obj)
         {
             if (obj == null)
                 return false;
+            else if (obj is FEnum)
+                return (obj as FEnum).Value == Value && (obj as FEnum).EnumName == EnumName;
             else
-                return obj is FEnum ? (obj as FEnum).Value == Value : false;
+                return false;
         }
+     
         public override int GetHashCode()
         {
-            return EnumName.GetHashCode();
+            var hashCode = 1724789867;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(EnumName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Value);
+            return hashCode;
         }
     }
 

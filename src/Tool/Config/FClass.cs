@@ -19,14 +19,14 @@ namespace Tool.Config
 
         public FClass(FClass host, FieldWrap define, ImportExcel excel) : base(host, define)
         {
-            _fullType = define.FullType;
-            excel.GetClass(this, ClassWrap.Get(define.FullType));
+            _fullType = define.FullName;
+            excel.GetClass(this, ClassWrap.Get(define.FullName));
         }
         public FClass(FClass host, FieldWrap define, XmlElement value) : base(host, define)
         {
-            _fullType = define.FullType;
+            _fullType = define.FullName;
 
-            ClassWrap info = ClassWrap.Get(define.FullType);
+            ClassWrap info = ClassWrap.Get(define.FullName);
             Load(info, value);
         }
         /// <summary>
@@ -76,6 +76,22 @@ namespace Tool.Config
             for (int i = 0; i < _values.Count; i++)
                 length += _values[i].ExportBinary(ref bytes, offset + length);
             return length;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is FClass @class &&
+                   base.Equals(obj) &&
+                   _fullType == @class._fullType &&
+                   EqualityComparer<List<Data>>.Default.Equals(_values, @class._values);
+        }
+        public override int GetHashCode()
+        {
+            var hashCode = 509527360;
+            hashCode = hashCode * -1521134295 + base.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_fullType);
+            hashCode = hashCode * -1521134295 + EqualityComparer<List<Data>>.Default.GetHashCode(_values);
+            return hashCode;
         }
     }
 }

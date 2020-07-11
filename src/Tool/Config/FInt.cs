@@ -28,22 +28,28 @@ namespace Tool.Config
         {
             return Value.ToString();
         }
-        public override bool Equals(object obj)
-        {
-            if (obj == null)
-                return false;
-            else
-                return obj is FInt ? (obj as FInt).Value == Value : false;
-        }
-        public override int GetHashCode()
-        {
-            return Value;
-        }
 
         public override int ExportBinary(ref byte[] bytes, int offset)
         {
             int length = MessagePackBinary.WriteInt32(ref bytes, offset, Value);
             return length;
+        }
+
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+            else if (obj is FInt)
+                return (obj as FInt).Value == Value;
+            else if (obj is int)
+                return (int)obj == Value;
+            else
+                return false;
+        }
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
         }
     }
 }

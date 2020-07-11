@@ -103,7 +103,7 @@ namespace Tool.Export
 
                         //配置加载函数
                         if (cls.IsConfig())
-                            LoadFunc(ConfigWrap.Configs[cls.FullType]);
+                            LoadFunc(ConfigWrap.Configs[cls.FullName]);
                     }
                     End(TYPE_LEVEL);
                 }
@@ -116,20 +116,20 @@ namespace Tool.Export
         static string ReadValue(FieldWrap field)
         {
             if (field.IsRaw)
-                return $"{ARG_DATASTREAM}.Get{field.FullType.FirstCharUpper()}()";
+                return $"{ARG_DATASTREAM}.Get{field.FullName.FirstCharUpper()}()";
             else if (field.IsEnum)
-                return $"({Util.CorrectFullType(field.FullType)}){ARG_DATASTREAM}.GetInt()";
+                return $"({Util.CorrectFullType(field.FullName)}){ARG_DATASTREAM}.GetInt()";
             else if (field.IsClass)
             {
-                ClassWrap info = ClassWrap.Get(field.FullType);
-                string fullType = Util.CorrectFullType(field.FullType);
+                ClassWrap info = ClassWrap.Get(field.FullName);
+                string fullType = Util.CorrectFullType(field.FullName);
                 if (info.IsDynamic())
                     return $"({fullType}){ARG_DATASTREAM}.GetObject({ARG_DATASTREAM}.GetString())";
                 else
                     return $"new {fullType}({ARG_DATASTREAM})";
             }
             else
-                Util.Error("不支持集合嵌套类型:" + field.FullType);
+                Util.Error("不支持集合嵌套类型:" + field.FullName);
             return null;
         }
         static void Const(ConstWrap constant)
@@ -143,7 +143,7 @@ namespace Tool.Export
             Comment(field.Desc, MEM_LEVEL);
             builder.IntervalLevel(MEM_LEVEL);
             if (field.IsRaw || field.IsEnum || field.IsClass)
-                builder.AppendLine($"{FEILD_MODIFIERS} {Util.CorrectFullType(field.FullType)} {field.Name};");
+                builder.AppendLine($"{FEILD_MODIFIERS} {Util.CorrectFullType(field.FullName)} {field.Name};");
             else if (field.OriginalType == Setting.LIST)
                 builder.AppendLine($"{FEILD_MODIFIERS} List<{Util.CorrectFullType(field.Types[1])}> {field.Name} = new List<{Util.CorrectFullType(field.Types[1])}>();");
             else if (field.OriginalType == Setting.DICT)
@@ -185,13 +185,13 @@ namespace Tool.Export
         {
             int level1 = SEM_LEVEL + 1;
             int level2 = SEM_LEVEL + 2;
-            var keyType = Util.CorrectFullType(cfg.Index.FullType);
-            var varType = Util.CorrectFullType(cfg.FullType);
-            builder.IntervalLevel(MEM_LEVEL).AppendLine($"public static Dictionary<{cfg.Index.FullType}, {varType}> Load()");
+            var keyType = Util.CorrectFullType(cfg.Index.FullName);
+            var varType = Util.CorrectFullType(cfg.FullName);
+            builder.IntervalLevel(MEM_LEVEL).AppendLine($"public static Dictionary<{cfg.Index.FullName}, {varType}> Load()");
             builder.IntervalLevel(MEM_LEVEL).AppendLine("{");
             {
-                builder.IntervalLevel(SEM_LEVEL).AppendLine($"var dict = new Dictionary<{cfg.Index.FullType}, {varType}>();");
-                builder.IntervalLevel(SEM_LEVEL).AppendLine($"var path = \"{cfg.FullType.Replace(Setting.DotSplit[0], '/')}{Setting.DataFileExt}\";");
+                builder.IntervalLevel(SEM_LEVEL).AppendLine($"var dict = new Dictionary<{cfg.Index.FullName}, {varType}>();");
+                builder.IntervalLevel(SEM_LEVEL).AppendLine($"var path = \"{cfg.FullName.Replace(Setting.DotSplit[0], '/')}{Setting.DataFileExt}\";");
                 builder.IntervalLevel(SEM_LEVEL).AppendLine($"try");
                 builder.IntervalLevel(SEM_LEVEL).AppendLine($"{{");
                 {
@@ -273,14 +273,14 @@ namespace Tool.Export
                     for (int i = 0; i < configs.Count; i++)
                     {
                         var cfg = configs[i];
-                        var key = cfg.Index.FullType;
-                        var value = cfg.FullType;
+                        var key = cfg.Index.FullName;
+                        var value = cfg.FullName;
                         var property = $"{Util.FirstCharUpper(cfg.Name)}s";
                         var field = $"_{cfg.Name.ToLower()}s";
                         builder.IntervalLevel(MEM_LEVEL).AppendLine($"public Dictionary<{key}, {value}> {property} => {field};");
                         builder.IntervalLevel(MEM_LEVEL).AppendLine($"private Dictionary<{key}, {value}> {field} = new Dictionary<{key}, {value}>();");
 
-                        load.IntervalLevel(SEM_LEVEL).AppendLine($"{field} = {cfg.FullType}.Load();");
+                        load.IntervalLevel(SEM_LEVEL).AppendLine($"{field} = {cfg.FullName}.Load();");
                     }
 
                     builder.IntervalLevel(MEM_LEVEL).AppendLine("public void Load()");

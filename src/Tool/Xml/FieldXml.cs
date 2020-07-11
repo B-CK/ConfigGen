@@ -18,10 +18,18 @@ namespace Xml
     {
         [XmlAttribute]
         public string Type;
-        [XmlAttribute]
+        
+        //---检查规则---
+        [XmlAttribute(DataType = "string")]
         public string Ref;//引用字段
         [XmlAttribute]
-        public string RefPath;//引用资源相对路径
+        public string File;//引用资源相对路径
+        [XmlAttribute]
+        public string Unique;//数据唯一性
+        [XmlAttribute]
+        public string NotEmpty;//字符串非空检查
+        [XmlAttribute]
+        public string Range;//数值范围检查
     }
     [XmlInclude(typeof(EnumItemXml))]
     public class EnumItemXml : MemberXml

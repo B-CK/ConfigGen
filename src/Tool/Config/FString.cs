@@ -2,6 +2,7 @@
 using System.IO;
 using System.Xml;
 using Tool.Wrap;
+using System.Collections.Generic;
 
 namespace Tool.Config
 {
@@ -26,30 +27,20 @@ namespace Tool.Config
             int length = MessagePackBinary.WriteString(ref bytes, offset, Value);
             return length;
         }
-        public override void VerifyData()
-        {
-            base.VerifyData();
-            if (_define.RefPaths == null) return;
-
-            for (int i = 0; i < _define.RefPaths.Length; i++)
-            {
-                string path = Util.GetAbsPath(_define.RefPaths[i]);
-                path = path.Replace("*", Value);
-                if (!File.Exists(path))
-                    Util.LogWarningFormat("Class:{0} {1} {2}文件不存在", _host.FullType, _define, Util.GetRelPath(path));
-            }
-        }
-        
         public override bool Equals(object obj)
         {
             if (obj == null)
                 return false;
+            else if (obj is FString)
+                return (obj as FString).Value == Value;
+            else if (obj is string)
+                return (string)obj == Value;
             else
-                return obj is FString ? (obj as FString).Value == Value : false;
+                return false;
         }
         public override int GetHashCode()
         {
             return Value.GetHashCode();
-        }      
+        }
     }
 }

@@ -7,6 +7,7 @@ using Xml;
 using System.Collections.Generic;
 using System.Xml;
 using Tool;
+using Tool.Check;
 
 namespace Tool.Wrap
 {
@@ -39,14 +40,14 @@ namespace Tool.Wrap
         }
         static void Add(ConfigWrap info)
         {
-            if (_configs.ContainsKey(info._fullType))
-                Util.LogWarningFormat("{0} 重复定义!", info._fullType);
+            if (_configs.ContainsKey(info._fullName))
+                Util.LogWarningFormat("{0} 重复定义!", info._fullName);
             else
-                _configs.Add(info._fullType, info);
+                _configs.Add(info._fullName, info);
         }
 
 
-        public string FullType { get { return _fullType; } }
+        public string FullName { get { return _fullName; } }
         public string Namespace { get { return _namespace; } }
         public string Name { get { return _des.Name; } }
         public FieldWrap Index { get { return _index; } }
@@ -57,7 +58,7 @@ namespace Tool.Wrap
 
 
         private ClassXml _des;
-        private string _fullType;
+        private string _fullName;
         private string _namespace;
         private string[] _inputFiles;
         private string _outputFile;
@@ -69,15 +70,16 @@ namespace Tool.Wrap
         {
             _des = des;
             _namespace = namespace0;
-            _fullType = string.Format("{0}.{1}", namespace0, des.Name);
+            _fullName = string.Format("{0}.{1}", namespace0, des.Name);
             _groups = new HashSet<string>(Util.Split(des.Group));
             if (_groups.Count == 0)
                 _groups.Add(Setting.DefualtGroup);
 
             if (des.Index.IsEmpty())
                 Error("索引(Index)未填写");
-            ClassWrap cls = ClassWrap.Get(_fullType);
+            ClassWrap cls = ClassWrap.Get(_fullName);
             _index = cls.Fields.Find(f => f.Name == des.Index);
+            _index.CreateKeyChecker();
 
             string path = Path.Combine(moduleDir, _des.DataPath);
             if (File.Exists(path))
@@ -86,17 +88,17 @@ namespace Tool.Wrap
                 _inputFiles = Directory.GetFiles(path);
             else
                 Error("数据路径不存在:" + path);
-            _outputFile = _fullType.Replace('.', '\\').ToLower();
+            _outputFile = _fullName.Replace('.', '\\').ToLower();
 
             Add(this);
         }
 
         public void VerifyDefine()
         {
-            if (!_fullType.IsEmpty())
+            if (!_fullName.IsEmpty())
             {
                 if (_index == null)
-                    Error(string.Format("Index:{0} 不是Class:{1}的字段", _des.Index, _fullType));
+                    Error(string.Format("Index:{0} 不是Class:{1}的字段", _des.Index, _fullName));
                 if (_index.IsContainer && _index.IsClass)
                     Error("Index 不能是集合类型或者类类型");
 
@@ -116,7 +118,7 @@ namespace Tool.Wrap
                 try
                 {
                     string ext = Path.GetExtension(path);
-                    string fullType = "list:" + _fullType;
+                    string fullType = "list:" + _fullName;
                     FieldWrap field = new FieldWrap(null, Name, fullType, Util.Split(fullType), _groups);
                     if (ext == ".xml")
                     {
@@ -141,18 +143,29 @@ namespace Tool.Wrap
         }
         public void VerifyData()
         {
+            //数据表整列数据检查
+            var cls = ClassWrap.Get(_fullName);
+            var fields = cls.Fields;
+            for (int i = 0; i < fields.Count; i++)
+            {
+                var checkers = fields[i].Checkers;
+                for (int k = 0; k < checkers.Count; k++)
+                {
+                    checkers[k].CheckColumn();
+                }
+            }
             _data.VerifyData();
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.AppendFormat("Config - FullName:{0}\tGroup:{1}\tDataPath:{2}\n", FullType, _des.Group, _des.DataPath);
+            builder.AppendFormat("Config - FullName:{0}\tGroup:{1}\tDataPath:{2}\n", FullName, _des.Group, _des.DataPath);
             return builder.ToString();
         }
         private void Error(string msg)
         {
-            string error = string.Format("Config:{0} 错误:{1}", FullType, msg);
+            string error = string.Format("Config:{0} 错误:{1}", FullName, msg);
             throw new Exception(error);
         }
     }

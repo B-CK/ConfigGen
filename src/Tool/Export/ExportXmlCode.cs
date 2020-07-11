@@ -388,7 +388,7 @@ namespace Export
 
                     builder.Comments(field.Desc);
                     if (field.IsRaw || field.IsEnum || field.IsClass)
-                        builder.DefineField(CodeWriter.Public, ToXmlType(field.FullType), field.Name);
+                        builder.DefineField(CodeWriter.Public, ToXmlType(field.FullName), field.Name);
                     else if (field.IsContainer)
                     {
                         string modifier = string.Format("{0} {1}", CodeWriter.Public, CodeWriter.Readonly);
@@ -427,7 +427,7 @@ namespace Export
                 builder.End();
                 builder.EndAll();
 
-                string file = string.Format("{0}{1}.cs", Setting.ModuleName, cls.FullType);
+                string file = string.Format("{0}{1}.cs", Setting.ModuleName, cls.FullName);
                 string path = Path.Combine(Setting.XmlCodeDir, file);
                 Util.SaveFile(path, builder.ToString());
 
@@ -456,11 +456,11 @@ namespace Export
         private static string ReadField(FieldWrap field, int arg)
         {
             if (field.IsRaw)
-                return string.Format("Read{0}(_{1})", field.FullType.FirstCharUpper(), arg);
+                return string.Format("Read{0}(_{1})", field.FullName.FirstCharUpper(), arg);
             else if (field.IsEnum)
-                return string.Format("({0})ReadInt(_{1})", ToXmlType(field.FullType), arg);
+                return string.Format("({0})ReadInt(_{1})", ToXmlType(field.FullName), arg);
             else if (field.IsClass)
-                return string.Format("ReadObject<{0}>(_{1}, \"{0}\")", ToXmlType(field.FullType), arg);
+                return string.Format("ReadObject<{0}>(_{1}, \"{0}\")", ToXmlType(field.FullName), arg);
             else if (field.IsContainer)
             {
                 if (field.OriginalType == Setting.LIST)
@@ -480,7 +480,7 @@ namespace Export
                 }
             }
 
-            Util.Error("未知类型:" + field.FullType);
+            Util.Error("未知类型:" + field.FullName);
             return null;
         }
         public static string ToXmlType(string fullType)

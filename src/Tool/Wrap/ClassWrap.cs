@@ -42,6 +42,9 @@ namespace Tool.Wrap
             }
             return exports;
         }
+        /// <summary>
+        /// 仅做局部修正矫正,不包含Module模块名
+        /// </summary>
         public static string CorrectType(ClassWrap host, string type)
         {
             if (host == null) return type;
@@ -52,14 +55,14 @@ namespace Tool.Wrap
         }
         static void Add(ClassWrap info)
         {
-            if (_classes.ContainsKey(info._fullType))
-                Util.LogWarningFormat("{1} 重复定义!", info._fullType);
+            if (_classes.ContainsKey(info._fullName))
+                Util.LogWarningFormat("{1} 重复定义!", info._fullName);
             else
-                _classes.Add(info._fullType, info);
+                _classes.Add(info._fullName, info);
         }
 
 
-        public string FullType { get { return _fullType; } }
+        public string FullName { get { return _fullName; } }
         public string Namespace { get { return _namespace; } }
         public string Name { get { return _des.Name; } }
         /// <summary>
@@ -73,7 +76,7 @@ namespace Tool.Wrap
 
         private ClassXml _des;
         private string _namespace;
-        private string _fullType;
+        private string _fullName;
         private string _inherit;
 
         private readonly List<FieldWrap> _fields;
@@ -92,7 +95,7 @@ namespace Tool.Wrap
                 Error("命名不合法:" + Name);
 
             _namespace = namespace0;
-            _fullType = string.Format("{0}.{1}", namespace0, des.Name);
+            _fullName = string.Format("{0}.{1}", namespace0, des.Name);
             _inherit = des.Inherit;
             _inherit = CorrectType(this, _inherit);
             _groups = new HashSet<string>(Util.Split(des.Group == null ? "" : des.Group.ToLower()));
@@ -105,7 +108,7 @@ namespace Tool.Wrap
             {
                 var fieldDes = des.Fields[i];
                 var info = new FieldWrap(this, fieldDes.Name, fieldDes.Type, fieldDes.Group, fieldDes.Desc, _groups);
-                info.InitCheck(fieldDes.Ref, fieldDes.RefPath);
+                info.CreateChecker(fieldDes);
                 Fields.Add(info);
             }
             _consts = new List<ConstWrap>();
@@ -124,6 +127,9 @@ namespace Tool.Wrap
         {
             return _children.Count > 0;
         }
+        /// <summary>
+        /// 是否为配置表结构
+        /// </summary>
         public bool IsConfig()
         {
             return !_des.DataPath.IsEmpty();
@@ -141,8 +147,8 @@ namespace Tool.Wrap
             while (!inhert.IsEmpty())
             {
                 var cls = Get(inhert);
-                if (!cls.HasChild(_fullType))
-                    cls._children.Add(_fullType);
+                if (!cls.HasChild(_fullName))
+                    cls._children.Add(_fullName);
 
                 inhert = cls.Inherit;
             }
@@ -180,7 +186,7 @@ namespace Tool.Wrap
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.AppendFormat("Class - FullName:{0}\tInherit:{1}\tGroup:{2}\n", FullType, Inherit, _des.Group);
+            builder.AppendFormat("Class - FullName:{0}\tInherit:{1}\tGroup:{2}\n", FullName, Inherit, _des.Group);
             for (int i = 0; i < _consts.Count; i++)
                 builder.AppendFormat("\t{0}\n", _consts[i]);
             for (int i = 0; i < _fields.Count; i++)
@@ -189,7 +195,7 @@ namespace Tool.Wrap
         }
         private void Error(string msg)
         {
-            string error = string.Format("Class:{0} 错误:{1}", FullType, msg);
+            string error = string.Format("Class:{0} 错误:{1}", FullName, msg);
             throw new Exception(error);
         }
 

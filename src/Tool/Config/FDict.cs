@@ -31,8 +31,8 @@ namespace Tool.Config
                 XmlNode pair = dict[i];
                 XmlElement key = pair[Setting.KEY];
                 XmlElement value = pair[Setting.VALUE];
-                var dk = Data.Create(Host, _key, key);
-                var dv = Data.Create(Host, _value, value);
+                var dk = Data.Create(host, _key, key);
+                var dv = Data.Create(host, _value, value);
                 if (!Values.ContainsKey(dk))
                     Values.Add(dk, dv);
                 else
@@ -63,7 +63,6 @@ namespace Tool.Config
                 dit.Current.Value.VerifyData();
             }
         }
-
         public override int ExportBinary(ref byte[] bytes, int offset)
         {
             int length = MessagePackBinary.WriteMapHeader(ref bytes, offset, Values.Count);
@@ -73,6 +72,24 @@ namespace Tool.Config
                 length += item.Value.ExportBinary(ref bytes, offset + length);
             }                
             return length;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is FDict dict &&
+                   base.Equals(obj) &&
+                   EqualityComparer<Dictionary<Data, Data>>.Default.Equals(_values, dict._values) &&
+                   EqualityComparer<FieldWrap>.Default.Equals(_key, dict._key) &&
+                   EqualityComparer<FieldWrap>.Default.Equals(_value, dict._value);
+        }
+        public override int GetHashCode()
+        {
+            var hashCode = -827054455;
+            hashCode = hashCode * -1521134295 + base.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<Dictionary<Data, Data>>.Default.GetHashCode(_values);
+            hashCode = hashCode * -1521134295 + EqualityComparer<FieldWrap>.Default.GetHashCode(_key);
+            hashCode = hashCode * -1521134295 + EqualityComparer<FieldWrap>.Default.GetHashCode(_value);
+            return hashCode;
         }
     }
 }

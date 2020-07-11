@@ -198,13 +198,10 @@ namespace Tool.Import
             }
 
             var fields = info.Fields;
-            ConfigWrap cfg = ConfigWrap.Get(info.FullType);
             for (int i = 0; i < fields.Count; i++)
             {
                 var d = Data.Create(data, fields[i], this);
                 data.Values.Add(d);
-                if (data.Host == null && fields[i] == cfg.Index)
-                    FList.AddIndex(cfg.Index, d);
             }
         }
         public override void GetList(FList data, FieldWrap define)
@@ -213,7 +210,7 @@ namespace Tool.Import
             while (!IsSectionEnd())
             {
                 var d = Data.Create(data.Host, item, this);
-                if (data.Host == null)
+                if (data.IsRoot)//数据表List
                     Program.AddLastData(d);
                 data.Values.Add(d);
             }

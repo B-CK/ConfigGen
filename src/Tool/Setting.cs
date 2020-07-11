@@ -51,6 +51,10 @@ namespace Tool
         /// </summary>
         public static readonly char[] DotSplit = new char[] { '.' };
         /// <summary>
+        /// 多条检查规则分隔符
+        /// </summary>
+        public static readonly char[] CheckSplit = new char[] { '|' };
+        /// <summary>
         /// Csv数据存储分隔符
         /// </summary>
         public const string CsvSplitFlag = "\n";

@@ -8,6 +8,10 @@ namespace Tool.Config
 {
     public class FList : Data
     {
+        /// <summary>
+        /// key:数据表的index字段
+        /// value:数据表的每一条数据
+        /// </summary>
         private static Dictionary<FieldWrap, HashSet<Data>> _indexs = new Dictionary<FieldWrap, HashSet<Data>>();
         /// <summary>
         /// 检查数据索引
@@ -46,7 +50,7 @@ namespace Tool.Config
             for (int i = 0; i < list.Count; i++)
             {
                 var item = list[i] as XmlElement;
-                Values.Add(Data.Create(Host, _item, item));
+                Values.Add(Data.Create(_host, _item, item));
             }
         }
         public void LoadOneRecord(XmlElement data)
@@ -63,8 +67,15 @@ namespace Tool.Config
         }
         public override void VerifyData()
         {
-            for (int i = 0; i < Values.Count; i++)
-                Values[i].VerifyData();
+            if (_host != null)
+            {
+                
+            }
+            else
+            {
+                for (int i = 0; i < Values.Count; i++)
+                    Values[i].VerifyData();
+            }
         }
         public override int ExportBinary(ref byte[] bytes, int offset)
         {
@@ -72,6 +83,22 @@ namespace Tool.Config
             for (int i = 0; i < _values.Count; i++)
                 length += _values[i].ExportBinary(ref bytes, offset + length);
             return length;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is FList list &&
+                   base.Equals(obj) &&
+                   EqualityComparer<List<Data>>.Default.Equals(_values, list._values) &&
+                   EqualityComparer<FieldWrap>.Default.Equals(_item, list._item);
+        }
+        public override int GetHashCode()
+        {
+            var hashCode = 1294733218;
+            hashCode = hashCode * -1521134295 + base.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<List<Data>>.Default.GetHashCode(_values);
+            hashCode = hashCode * -1521134295 + EqualityComparer<FieldWrap>.Default.GetHashCode(_item);
+            return hashCode;
         }
     }
 }

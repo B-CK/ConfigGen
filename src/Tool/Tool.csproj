@@ -58,6 +58,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Check\Checker.cs" />
+    <Compile Include="Check\FileChecker.cs" />
+    <Compile Include="Check\MacroChecker.cs" />
+    <Compile Include="Check\NotEmptyChecker.cs" />
+    <Compile Include="Check\RangeChecker.cs" />
+    <Compile Include="Check\RefChecker.cs" />
+    <Compile Include="Check\UniqueChecker.cs" />
     <Compile Include="CmdOption.cs" />
     <Compile Include="Config\Data.cs" />
     <Compile Include="Config\FBool.cs" />
@@ -73,6 +80,7 @@
     <Compile Include="Export\Gen_Binary.cs" />
     <Compile Include="Export\Gen_Data.cs" />
     <Compile Include="Export\Gen_XmlCode.cs" />
+    <Compile Include="EnumerableExt.cs" />
     <Compile Include="Message\MessagePackBinary.cs" />
     <Compile Include="Message\MessagePackCode.cs" />
     <Compile Include="Wrap\ConstWrap.cs" />

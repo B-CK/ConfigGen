@@ -153,13 +153,13 @@ namespace Export
             for (int i = 0; i < exports.Count; i++)
             {
                 ConfigWrap cfg = exports[i];
-                ClassWrap cls = ClassWrap.Get(cfg.FullType);
-                builder.AppendFormat("public static readonly Dictionary<{0}, {1}> {2} = new Dictionary<{0}, {1}>();\n", cfg.Index.FullType, cls.FullType, cls.Name);
+                ClassWrap cls = ClassWrap.Get(cfg.FullName);
+                builder.AppendFormat("public static readonly Dictionary<{0}, {1}> {2} = new Dictionary<{0}, {1}>();\n", cfg.Index.FullName, cls.FullName, cls.Name);
 
                 //加载所有配置-块内语句
                 string rel = cfg.OutputFile + Setting.DataFileExt;
                 loadAll.Add(string.Format("path = {0} + @\"{1}\";\n", FIELD_CONFIG_DIR, rel));
-                loadAll.Add(string.Format("var {0}s = Load(path, (d) => new {1}(d));\n", cls.Name.ToLower(), cls.FullType));
+                loadAll.Add(string.Format("var {0}s = Load(path, (d) => new {1}(d));\n", cls.Name.ToLower(), cls.FullName));
                 loadAll.Add(string.Format("{0}s.ForEach(v => {1}.Add(v.{2}, v));\n", cls.Name.ToLower(), cls.Name, cfg.Index.Name));
 
                 //清除所有配置-块内语句
@@ -260,7 +260,7 @@ namespace Export
                     builder.Comments(field.Desc);
                     string modifier = string.Format("{0} {1}", CodeWriter.Public, CodeWriter.Readonly);
                     if (field.IsRaw || field.IsEnum || field.IsClass)
-                        builder.DefineField(modifier, field.FullType, field.Name);
+                        builder.DefineField(modifier, field.FullName, field.Name);
                     else if (field.IsContainer)
                     {
                         if (field.OriginalType == Setting.LIST)
@@ -287,7 +287,7 @@ namespace Export
                             sb.AppendFormat("for (int n = {0}.GetInt(); n-- > 0;)", ARG_DATASTREAM);
                             sb.Start();
                             FieldWrap item = field.GetItemDefine();
-                            sb.DefineField(null, item.FullType, "v", ReadType(item));
+                            sb.DefineField(null, item.FullName, "v", ReadType(item));
                             sb.AppendFormat("{0}.Add(v);\n", field.Name);
                             sb.End();
                         }
@@ -297,7 +297,7 @@ namespace Export
                             sb.Start();
                             FieldWrap key = field.GetKeyDefine();
                             FieldWrap value = field.GetValueDefine();
-                            sb.DefineField(null, key.FullType, "k", ReadType(key));
+                            sb.DefineField(null, key.FullName, "k", ReadType(key));
                             sb.AppendFormat("{0}[k] = {1};\n", field.Name, ReadType(value));
                             sb.End();
                         }
@@ -333,16 +333,16 @@ namespace Export
         private static string ReadType(FieldWrap field)
         {
             if (field.IsRaw)
-                return string.Format("{0}.Get{1}()", ARG_DATASTREAM, field.FullType.FirstCharUpper());
+                return string.Format("{0}.Get{1}()", ARG_DATASTREAM, field.FullName.FirstCharUpper());
             else if (field.IsEnum)
-                return string.Format("({1}){0}.GetInt()", ARG_DATASTREAM, field.FullType);
+                return string.Format("({1}){0}.GetInt()", ARG_DATASTREAM, field.FullName);
             else if (field.IsClass)
             {
-                ClassWrap info = ClassWrap.Get(field.FullType);
+                ClassWrap info = ClassWrap.Get(field.FullName);
                 string fmt = info.IsDynamic() ? "({0}){1}.GetObject({1}.GetString())" : "new {0}({1})";
-                return string.Format(fmt, field.FullType, ARG_DATASTREAM);
+                return string.Format(fmt, field.FullName, ARG_DATASTREAM);
             }
-            Util.Error("不支持集合嵌套类型:" + field.FullType);
+            Util.Error("不支持集合嵌套类型:" + field.FullName);
             return null;
         }
         /// <summary>

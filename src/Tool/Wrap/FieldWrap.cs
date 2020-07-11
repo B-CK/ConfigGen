@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using Xml;
+using Tool.Check;
 
 namespace Tool.Wrap
 {
@@ -10,7 +12,6 @@ namespace Tool.Wrap
                 || EnumWrap.IsEnum(type) || ClassWrap.IsClass(type);
         }
 
-
         public ClassWrap Host { get { return _host; } }
         /// <summary>
         /// 字段名称
@@ -19,7 +20,7 @@ namespace Tool.Wrap
         /// <summary>
         /// 完整类型,实际类型;当为动态类型时,_fullType != _types[0]
         /// </summary>
-        public string FullType { get { return _fullType; } }
+        public string FullName { get { return _fullName; } }
         public string Desc { get { return _desc; } }
         /// <summary>
         /// 原始类型,例泛型list:int返回list,其他直接返回类型
@@ -27,6 +28,7 @@ namespace Tool.Wrap
         public string OriginalType { get { return _types[0]; } }
         public string[] Types { get { return _types; } }
         public HashSet<string> Group { get { return _groups; } }
+        public List<Checker> Checkers { get { return _checkers; } }
         public bool IsRaw { get { return Setting.RawTypes.Contains(OriginalType); } }
         public bool IsContainer { get { return Setting.ContainerTypes.Contains(OriginalType); } }
         public bool IsClass { get { return ClassWrap.IsClass(OriginalType); } }
@@ -37,15 +39,13 @@ namespace Tool.Wrap
             get
             {
                 ClassWrap parent = ClassWrap.Get(OriginalType);
-                return parent.HasChild(_fullType);
+                return parent.HasChild(_fullName);
             }
         }
-        public string[] Refs { get { return _refs; } }
-        public string[] RefPaths { get { return _refPaths; } }
 
         private ClassWrap _host;
         private string _name;
-        private string _fullType;
+        private string _fullName;
         private string _desc;
         private string _group;
         /// <summary>
@@ -60,19 +60,13 @@ namespace Tool.Wrap
         /// 优先Class.Group,其次才是Field.Group
         /// </summary>
         private HashSet<string> _groups;
-        private string[] _refs;
-        private string[] _refPaths;
+        private List<Checker> _checkers;
 
-        public void InitCheck(string refs, string refPaths)
-        {
-            _refs = Util.Split(refs);
-            _refPaths = Util.Split(refPaths);
-        }
         /// <summary>
         /// Class 字段
         /// </summary>
-        public FieldWrap(ClassWrap host, string name, string type, string group, string desc, HashSet<string> parentGroups)
-            : this(host, name, type, Util.Split(type), parentGroups)
+        public FieldWrap(ClassWrap host, string name, string fullName, string group, string desc, HashSet<string> parentGroups)
+            : this(host, name, fullName, Util.Split(fullName), parentGroups)
         {
             _group = group == null ? "" : group.ToLower();
             if (_groups == null)
@@ -86,11 +80,11 @@ namespace Tool.Wrap
         /// <summary>
         /// config作为字段定义
         /// </summary>
-        public FieldWrap(ClassWrap host, string name, string type, string[] types, HashSet<string> gs)
+        public FieldWrap(ClassWrap host, string name, string fullName, string[] types, HashSet<string> gs)
         {
             _host = host;
             _name = name;
-            _fullType = type;
+            _fullName = fullName;
             _types = types;
             _groups = gs;
 
@@ -103,12 +97,12 @@ namespace Tool.Wrap
                 else if (OriginalType == Setting.DICT && _types[2].IndexOfAny(Setting.DotSplit) < 0
                     && !Setting.RawTypes.Contains(_types[2]))
                     _types[2] = string.Format("{0}.{1}", _host.Namespace, _types[2]);
-                _fullType = Util.ToString(_types, ":");
+                _fullName = Util.ToString(_types, ":");
             }
-            else if (_fullType.IndexOfAny(Setting.DotSplit) < 0)
+            else if (_fullName.IndexOfAny(Setting.DotSplit) < 0)
             {
-                _fullType = string.Format("{0}.{1}", _host.Namespace, _fullType);
-                _types[0] = _fullType;
+                _fullName = string.Format("{0}.{1}", _host.Namespace, _fullName);
+                _types[0] = _fullName;
             }
         }
 
@@ -132,6 +126,42 @@ namespace Tool.Wrap
         public FieldWrap GetValueDefine()
         {
             return new FieldWrap(_host, _name, _types[2], new string[] { _types[2] }, _groups);
+        }
+        public void CreateChecker(FieldXml field)
+        {
+            if (OriginalType == Setting.BOOL) return;
+
+            _checkers = new List<Checker>();
+            if (!field.Ref.IsEmpty())
+            {
+                string[] nodes = field.Ref.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < nodes.Length; i++)
+                    _checkers.Add(new RefChecker(this));
+            }
+            if (!field.File.IsEmpty() && (OriginalType == Setting.STRING || OriginalType == Setting.LIST || OriginalType == Setting.DICT))
+            {
+                string[] nodes = field.File.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < nodes.Length; i++)
+                    _checkers.Add(new FileChecker(this));
+            }
+            if (field.Unique != null)
+            {
+                _checkers.Add(new UniqueChecker(this));
+            }
+            if (field.NotEmpty != null && (OriginalType == Setting.STRING || OriginalType == Setting.LIST || OriginalType == Setting.DICT))
+            {
+                _checkers.Add(new NotEmptyChecker(this));
+            }
+            if (!field.Range.IsEmpty() && OriginalType != Setting.STRING)
+            {
+                string[] nodes = field.Range.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < nodes.Length; i++)
+                    _checkers.Add(new RangeChecker(this));
+            }
+        }
+        public void CreateKeyChecker()
+        {
+            _checkers.Add(new UniqueChecker(this));
         }
 
         public void VerifyDefine()
@@ -172,20 +202,30 @@ namespace Tool.Wrap
             while (git.MoveNext())
                 if (!GroupWrap.IsGroup(git.Current))
                     Error("未知 Group:" + git.Current);
+
+            //验证检查规则
+            var errorCheckers = new List<int>();
+            var checkers = _checkers;
+            for (int k = 0; k < checkers.Count; k++)
+            {
+                if (!checkers[k].VerifyRule())
+                    errorCheckers.Add(k);
+            }
+            for (int i = 0; i < errorCheckers.Count; i++)
+                _checkers.RemoveAt(i);
         }
         void CheckType(int size)
         {
             if (_types.Length < size)
                 Error("定义非法Type");
         }
-        void Error(string msg)
+        public void Error(string msg)
         {
-            string error = string.Format("字段信息异常!\n{0}Field:{1}({2}) {3}", _host, Name, FullType, msg);
-            throw new System.Exception(error);
+            throw new System.Exception($"字段信息异常!\n{_host}Field:{Name}({FullName}) {msg}");
         }
         public override string ToString()
         {
-            return string.Format("Field - Name:{0}\tType:{1}\tGroup:{2}", Name, FullType, _group);
+            return string.Format("Field - Name:{0}\tType:{1}\tGroup:{2}", Name, FullName, _group);
         }
 
     }

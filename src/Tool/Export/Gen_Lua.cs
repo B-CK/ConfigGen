@@ -29,7 +29,7 @@ namespace Tool.Export
             while (cit.MoveNext())
             {
                 ConfigWrap cfg = cit.Current.Value;
-                string method = string.Format("Get{0}", Util.CorrectFullType(cfg.FullType).Replace(new string(Setting.DotSplit), ""));
+                string method = string.Format("Get{0}", Util.CorrectFullType(cfg.FullName).Replace(new string(Setting.DotSplit), ""));
                 string index = cfg.Index.Name;
                 string relPath = cfg.OutputFile + Setting.DataFileExt;
                 builder.IntervalLevel().AppendFormat("{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
@@ -55,7 +55,7 @@ namespace Tool.Export
             while (cit.MoveNext())
             {
                 var cls = cit.Current.Value;
-                var fullType = Util.CorrectFullType(cls.FullType);
+                var fullType = Util.CorrectFullType(cls.FullName);
                 builder.AppendLine("meta= {}");
                 builder.AppendLine("meta.__index = meta");
                 builder.AppendFormat("meta.class = '{0}'\n", fullType);

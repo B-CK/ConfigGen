@@ -134,7 +134,7 @@ namespace Tool
                 cfg.LoadData();
                 long end = DateTime.Now.Ticks;
                 float second = (end - start) * 1f / TimeSpan.TicksPerSecond;
-                string output = string.Format("\t>{0,-40} 耗时 {1:F3}s", cfg.FullType, second);
+                string output = string.Format("\t>{0,-40} 耗时 {1:F3}s", cfg.FullName, second);
                 Util.Log(output);
 
                 if ((end - start) >= TimeSpan.TicksPerSecond)

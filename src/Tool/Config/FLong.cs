@@ -23,13 +23,7 @@ namespace Tool.Config
             }
             Value = r;
         }
-        public override bool Equals(object obj)
-        {
-            if (obj == null)
-                return false;
-            else
-                return obj is FLong ? (obj as FLong).Value == Value : false;
-        }
+
         public override string ExportData()
         {
             return Value.ToString();
@@ -38,6 +32,22 @@ namespace Tool.Config
         {
             int length = MessagePackBinary.WriteInt64(ref bytes, offset, Value);
             return length;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+            else if (obj is FLong)
+                return (obj as FLong).Value == Value;
+            else if (obj is long)
+                return (long)obj == Value;
+            else
+                return false;
+        }
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
         }
     }
 }
