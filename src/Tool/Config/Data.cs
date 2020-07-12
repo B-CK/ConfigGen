@@ -42,10 +42,14 @@ namespace Tool.Config
         /// </summary>
         public virtual void VerifyData()
         {
+            if (_define.Checkers == null) return;
+
             var checkers = _define.Checkers;
             for (int k = 0; k < checkers.Count; k++)
             {
-                checkers[k].VerifyData(this);
+                var checker = checkers[k];
+                if (!checker.VerifyData(this))
+                    checker.OutputError();
             }
         }
 

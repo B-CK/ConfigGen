@@ -13,7 +13,7 @@ namespace Tool.Check
         private ConfigWrap _target;
         private string _targetField;
         private HashSet<Data> _hash;
-        public RefChecker(FieldWrap define) : base(define)
+        public RefChecker(FieldWrap define, string rule) : base(define, rule)
         {
         }
 
@@ -152,6 +152,9 @@ namespace Tool.Check
             return isOk;
         }
 
-
+        public override void OutputError()
+        {
+            Error($"Ref检查规则:当前数据在引用字段数据列不存在!\n最后一条数据:\n{Program.LastData.ExportData()}\n");
+        }    
     }
 }

@@ -18,7 +18,7 @@ namespace Tool.Config
             int r;
             if (!int.TryParse(v, out r))
             {
-                Util.Error("{0}非int类型", v);
+                Util.Error("{0}非int类型或者数值溢出", v);
                 Value = -1;
             }
             Value = r;

@@ -13,9 +13,10 @@ namespace Tool.Check
         protected bool _isValue;
         protected static readonly string KEY = Setting.KEY;
         protected static readonly string VALUE = Setting.VALUE;
-        public Checker(FieldWrap define)
+        public Checker(FieldWrap define, string rule)
         {
-
+            _define = define;
+            _rule = rule;
         }
         /// <summary>
         /// 部分检查规则需要整列数据
@@ -38,16 +39,21 @@ namespace Tool.Check
             {
                 _isKey = _rule.StartsWith(KEY, StringComparison.OrdinalIgnoreCase);
                 _isValue = _rule.StartsWith(VALUE, StringComparison.OrdinalIgnoreCase);
-                isOk = _define.IsContainer && _define.OriginalType == Setting.DICT;
-                if (!isOk && IsDict)
+                bool isDict = _define.IsContainer && _define.OriginalType == Setting.DICT;
+                if (!isDict && IsDict)
                 {
-                    _isKey = _isValue = false;
+                    isOk = _isKey = _isValue = false;
                     Warning("基本规则:非dict类型数据,使用key|value无法正常检查");
                 }
             }
             return isOk;
         }
         public abstract bool VerifyData(Data data);
+        /// <summary>
+        /// 输出不符合规则的字段数据
+        /// </summary>
+        public abstract void OutputError();
+
         /// <summary>
         /// 移除dict类修饰符
         /// </summary>
@@ -65,11 +71,11 @@ namespace Tool.Check
         }
         protected void Warning(string msg)
         {
-            Util.LogWarning($"{_define.Host}Field:{_define.Name}({_define.FullName}) {msg}");
+            Util.LogWarning($"{_define.Host.FullName}Field:{_define.Name}({_define.FullName}) {msg}");
         }
         protected void Error(string msg)
         {
-            Util.LogError($"{_define.Host}Field:{_define.Name}({_define.FullName}) {msg}");
+            Util.LogError($"{_define.Host.FullName} Field:{_define.Name}({_define.FullName}) {msg}");
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Tool.Check
         private string _dir;
         private string _ext;
 
-        public FileChecker(FieldWrap define) : base(define)
+        public FileChecker(FieldWrap define, string rule) : base(define, rule)
         {
         }
 
@@ -27,26 +27,27 @@ namespace Tool.Check
             string rule = GetRuleNoModify();
             if (rule.IsEmpty())
             {
-                Warning($"file检查规则:表达式为空");
+                Warning($"File检查规则:表达式为空");
                 isOk = false;
             }
             if (_isKey && _define.GetKeyDefine().FullName != Setting.STRING)
             {
-                Warning($"file检查规则:dict.key数据类型仅支持string类型");
+                Warning($"File检查规则:dict.key数据类型仅支持string类型");
                 isOk = false;
             }
             if (_isValue && _define.GetValueDefine().FullName != Setting.STRING)
             {
-                Warning($"file检查规则:dict.value数据类型仅支持string类型");
+                Warning($"File检查规则:dict.value数据类型仅支持string类型");
                 isOk = false;
             }
             string[] nodes = rule.Split(Setting.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
-            _dir = nodes[0];
+            Uri uri = new Uri($"{Setting.ApplicationDir}\\{nodes[0]}");
+            _dir = uri.AbsolutePath;
             if (nodes.Length >= 2)
                 _ext = nodes[1];
             if (!Directory.Exists(_dir))
             {
-                Warning($"file检查规则:{_dir}目录不存在");
+                Warning($"File检查规则:{_dir}目录不存在");
                 isOk = false;
             }
 
@@ -85,7 +86,7 @@ namespace Tool.Check
         private bool Check(Data data)
         {
             string relPath = (data as FString).Value;
-            string path = $"{_dir}.{relPath}";
+            string path = $"{_dir}{relPath}";
             if (!_ext.IsEmpty())
             {
                 _ext.TrimStart('.');
@@ -94,8 +95,13 @@ namespace Tool.Check
             if (File.Exists(path))
                 return true;
 
-            Warning($"file检查规则:{path} 文件不存在");
+            Warning($"File检查规则:{path} 文件不存在");
             return false;
+        }
+
+        public override void OutputError()
+        {
+            Error($"File检查规则:文件不存在!\n最后一条数据:\n{Program.LastData.ExportData()}\n");
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Tool.Check
     /// </summary>
     public class UniqueChecker : Checker
     {
-        public UniqueChecker(FieldWrap define) : base(define)
+        public UniqueChecker(FieldWrap define, string rule) : base(define, rule)
         {
         }
 
@@ -63,7 +63,11 @@ namespace Tool.Check
             }
             return isOk;
         }
-        
+        public override void OutputError()
+        {
+            Error($"Unique检查规则:数据不唯一\n最后一条数据:\n{Program.LastData.ExportData()}\n");
+        }
+
         public override bool CheckColumn()
         {
             base.CheckColumn();
@@ -100,6 +104,6 @@ namespace Tool.Check
             return hash.Count == data.Values.Count;
         }
 
-
+       
     }
 }

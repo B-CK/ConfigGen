@@ -18,7 +18,7 @@ namespace Tool.Config
             long r;
             if (!long.TryParse(v, out r))
             {
-                Util.Error("{0}非long类型", v);
+                Util.Error("{0}非long类型或者数值溢出", v);
                 Value = -1;
             }
             Value = r;

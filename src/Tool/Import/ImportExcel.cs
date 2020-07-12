@@ -154,7 +154,7 @@ namespace Tool.Import
             int r;
             if (!int.TryParse(v, out r))
             {
-                Error(v + "非int类型");
+                Error(v + "非int类型或者数值溢出");
                 return 0;
             }
             return r;
@@ -165,7 +165,7 @@ namespace Tool.Import
             long r;
             if (!long.TryParse(v, out r))
             {
-                Error(v + "非long类型");
+                Error(v + "非long类型或者数值溢出");
                 return 0;
             }
             return r;
@@ -176,7 +176,7 @@ namespace Tool.Import
             float r;
             if (!float.TryParse(v, out r))
             {
-                Error(v + "非float类型");
+                Error(v + "非float类型或者数值溢出");
                 return 0f;
             }
             return r;

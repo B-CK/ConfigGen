@@ -12,7 +12,7 @@ namespace Tool.Check
         const char RIGHT_HALF = ')';
         const char POSITIVE = '+';
         const char NEGATIVE = '-';
-        static readonly char[] array = new char[] { LEFT_FULL, LEFT_HALF, RIGHT_FULL, RIGHT_HALF, POSITIVE, NEGATIVE };
+        static readonly char[] array = new char[] { LEFT_FULL, LEFT_HALF, RIGHT_FULL, RIGHT_HALF };
         static readonly HashSet<string> hash = new HashSet<string>() { Setting.INT, Setting.LONG, Setting.FLOAT };
 
 
@@ -31,7 +31,7 @@ namespace Tool.Check
         private long _rightInt;
         private long _leftInt;
 
-        public RangeChecker(FieldWrap define) : base(define)
+        public RangeChecker(FieldWrap define, string rule) : base(define, rule)
         {
         }
         public override bool VerifyRule()
@@ -88,35 +88,59 @@ namespace Tool.Check
                 isOk = false;
             }
 
-            switch (_define.OriginalType)
+            if (!IsDict)
             {
-                case Setting.INT:
-                case Setting.LONG:
-                    if (nodes[0].Length == 1 && nodes[0] == NEGATIVE.ToString())
-                        _leftInt = _define.OriginalType == Setting.INT ? int.MinValue : long.MinValue;
-                    else if (!long.TryParse(nodes[0], out _leftInt))
-                        isOk = false;
+                string leftv = nodes[0].Trim();
+                string rightv = nodes[1].Trim();
+                string type = _define.OriginalType;
+                switch (type)
+                {
+                    case Setting.INT:
+                    case Setting.LONG:
+                        if (leftv.Length == 1 && leftv[0] == NEGATIVE)
+                            _leftInt = _define.OriginalType == Setting.INT ? int.MinValue : long.MinValue;
+                        else if (!long.TryParse(leftv, out _leftInt))
+                            isOk = false;
 
-                    if (nodes[1].Length == 1 && nodes[1] == POSITIVE.ToString())
-                        _rightInt = _define.OriginalType == Setting.INT ? int.MaxValue : long.MaxValue;
-                    else if (!long.TryParse(nodes[1], out _rightInt))
-                        isOk = false;
-                    break;
-                case Setting.FLOAT:
-                    if (nodes[0].Length == 1 && nodes[0] == NEGATIVE.ToString())
-                        _leftFloat = float.MinValue;
-                    else if (!float.TryParse(nodes[0], out _leftFloat))
-                        isOk = false;
+                        if (rightv.Length == 1 && rightv[0] == POSITIVE)
+                            _rightInt = _define.OriginalType == Setting.INT ? int.MaxValue : long.MaxValue;
+                        else if (!long.TryParse(rightv, out _rightInt))
+                            isOk = false;
+                        break;
+                    case Setting.FLOAT:
+                        if (leftv.Length == 1 && leftv[0] == NEGATIVE)
+                            _leftFloat = float.MinValue;
+                        else if (!float.TryParse(leftv, out _leftFloat))
+                            isOk = false;
 
-                    if (nodes[1].Length == 1 && nodes[1] == POSITIVE.ToString())
-                        _rightFloat = float.MaxValue;
-                    else if (!float.TryParse(nodes[1], out _rightFloat))
+                        if (rightv.Length == 1 && rightv[0] == POSITIVE)
+                            _rightFloat = float.MaxValue;
+                        else if (!float.TryParse(rightv, out _rightFloat))
+                            isOk = false;
+                        break;
+                    default:
+                        Warning($"Range检查规则:仅支持int,long,float类型!当前类型:{type}.");
                         isOk = false;
-                    break;
-                default:
-                    Warning("Range检查规则:仅支持int,long,float类型!");
-                    isOk = false;
-                    break;
+                        break;
+                }
+
+
+                if (type == Setting.INT || type == Setting.LONG)
+                {
+                    if (_leftInt >= _rightInt)
+                    {
+                        Warning("Range检查规则:左值必须小于右值!");
+                        isOk = false;
+                    }
+                }
+                else if (type == Setting.FLOAT)
+                {
+                    if (_leftFloat >= _rightFloat)
+                    {
+                        Warning("Range检查规则:左值必须小于右值!");
+                        isOk = false;
+                    }
+                }
             }
             return isOk;
         }
@@ -147,23 +171,19 @@ namespace Tool.Check
 
         private bool Check(float data)
         {
-            if (_leftState && data >= _leftFloat || !_leftState && data > _leftFloat)
+            if ((_leftState && data >= _leftFloat || !_leftState && data > _leftFloat)
+                && (_rightState && data <= _rightFloat || !_rightState && data < _rightFloat))
                 return true;
-
-            if (_rightState && data <= _rightFloat || !_rightState && data < _rightFloat)
-                return true;
-
-            return false;
+            else
+                return false;
         }
         private bool Check(long data)
         {
-            if (_leftState && data >= _leftInt || !_leftState && data > _leftInt)
+            if ((_leftState && data >= _leftInt || !_leftState && data > _leftInt)
+                && (_rightState && data <= _rightInt || !_rightState && data < _rightInt))
                 return true;
-
-            if (_rightState && data <= _rightInt || !_rightState && data < _rightInt)
-                return true;
-
-            return false;
+            else
+                return false;
         }
         private bool Check(FList data)
         {
@@ -205,6 +225,11 @@ namespace Tool.Check
                     break;
             }
             return isOk;
+        }
+
+        public override void OutputError()
+        {
+            Error($"Range检查规则:数据超出范围!\n最后一条数据:\n{Program.LastData.ExportData()}\n");
         }
     }
 }

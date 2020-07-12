@@ -136,32 +136,52 @@ namespace Tool.Wrap
             {
                 string[] nodes = field.Ref.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0; i < nodes.Length; i++)
-                    _checkers.Add(new RefChecker(this));
+                    _checkers.Add(new RefChecker(this, nodes[i]));
             }
             if (!field.File.IsEmpty() && (OriginalType == Setting.STRING || OriginalType == Setting.LIST || OriginalType == Setting.DICT))
             {
                 string[] nodes = field.File.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0; i < nodes.Length; i++)
-                    _checkers.Add(new FileChecker(this));
+                    _checkers.Add(new FileChecker(this, nodes[i]));
             }
             if (field.Unique != null)
             {
-                _checkers.Add(new UniqueChecker(this));
+                if (field.Unique.Length == 0)
+                {
+                    _checkers.Add(new UniqueChecker(this, ""));
+                }
+                else
+                {
+                    string[] nodes = field.Unique.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
+                    for (int i = 0; i < nodes.Length; i++)
+                        _checkers.Add(new UniqueChecker(this, nodes[i]));
+                }
+
             }
             if (field.NotEmpty != null && (OriginalType == Setting.STRING || OriginalType == Setting.LIST || OriginalType == Setting.DICT))
             {
-                _checkers.Add(new NotEmptyChecker(this));
+                if (field.NotEmpty.Length == 0)
+                {
+                    _checkers.Add(new NotEmptyChecker(this, ""));
+                }
+                else
+                {
+                    string[] nodes = field.NotEmpty.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
+                    for (int i = 0; i < nodes.Length; i++)
+                        _checkers.Add(new NotEmptyChecker(this, nodes[i]));
+                }
+
             }
             if (!field.Range.IsEmpty() && OriginalType != Setting.STRING)
             {
                 string[] nodes = field.Range.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0; i < nodes.Length; i++)
-                    _checkers.Add(new RangeChecker(this));
+                    _checkers.Add(new RangeChecker(this, nodes[i]));
             }
         }
         public void CreateKeyChecker()
         {
-            _checkers.Add(new UniqueChecker(this));
+            _checkers.Add(new UniqueChecker(this, ""));
         }
 
         public void VerifyDefine()
@@ -204,15 +224,18 @@ namespace Tool.Wrap
                     Error("未知 Group:" + git.Current);
 
             //验证检查规则
-            var errorCheckers = new List<int>();
-            var checkers = _checkers;
-            for (int k = 0; k < checkers.Count; k++)
+            if (_checkers != null)
             {
-                if (!checkers[k].VerifyRule())
-                    errorCheckers.Add(k);
+                var errorCheckers = new List<Checker>();
+                var checkers = _checkers;
+                for (int k = 0; k < checkers.Count; k++)
+                {
+                    if (!checkers[k].VerifyRule())
+                        errorCheckers.Add(checkers[k]);
+                }
+                for (int i = 0; i < errorCheckers.Count; i++)
+                    _checkers.Remove(errorCheckers[i]);
             }
-            for (int i = 0; i < errorCheckers.Count; i++)
-                _checkers.RemoveAt(i);
         }
         void CheckType(int size)
         {

@@ -148,7 +148,10 @@ namespace Tool.Wrap
             var fields = cls.Fields;
             for (int i = 0; i < fields.Count; i++)
             {
-                var checkers = fields[i].Checkers;
+                var field = fields[i];
+                var checkers = field.Checkers;
+                if (checkers == null) 
+                    continue;
                 for (int k = 0; k < checkers.Count; k++)
                 {
                     checkers[k].CheckColumn();

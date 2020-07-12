@@ -16,6 +16,7 @@ namespace Tool
     /// 尽可能少配置Excel文件,文件读取非常耗时
     class Program
     {
+        public static Data LastData => lastData;
         static Data lastData;
 
         public static void AddLastData(Data data)
@@ -37,11 +38,19 @@ namespace Tool
                 return;
             }
 
-            LoadDefine();
-            VerifyDefine();
-            Export("CS", Setting.CSDir);
-            Export("Java", Setting.JavaDir);
-            Export("Lua", Setting.LuaDir);
+            try
+            {
+                LoadDefine();
+                VerifyDefine();
+                Export("CS", Setting.CSDir);
+                Export("Java", Setting.JavaDir);
+                Export("Lua", Setting.LuaDir);
+            }
+            catch (Exception e)
+            {
+                Util.LogErrorFormat("加载定义/导出多语言定义异常!\n{0}\n{1}\n", e.Message, e.StackTrace);
+            }
+           
             //Export("XmlCode", Setting.XmlCodeDir);
 
             if (!Setting.DataDir.IsEmpty()
@@ -134,7 +143,7 @@ namespace Tool
                 cfg.LoadData();
                 long end = DateTime.Now.Ticks;
                 float second = (end - start) * 1f / TimeSpan.TicksPerSecond;
-                string output = string.Format("\t>{0,-40} 耗时 {1:F3}s", cfg.FullName, second);
+                string output = string.Format("{0,-40} 耗时 {1:F3}s", $"\t>{cfg.FullName}", second);
                 Util.Log(output);
 
                 if ((end - start) >= TimeSpan.TicksPerSecond)
@@ -150,9 +159,14 @@ namespace Tool
 
         static void VerifyData()
         {
+            Util.LogFormat("#{0,-38}\n", " 开始检查配置表");
+            long start = DateTime.Now.Ticks;
             var cit = ConfigWrap.Configs.GetEnumerator();
             while (cit.MoveNext())
                 cit.Current.Value.VerifyData();
+            long end = DateTime.Now.Ticks;
+            float second = (end - start) * 1f / TimeSpan.TicksPerSecond;
+            Util.LogFormat("#{0,-39} 耗时 {1:F3}s\n", " 检查配置表", second);
         }
 
         static void Export(string code, string path)
@@ -165,7 +179,7 @@ namespace Tool
             var export = type.GetMethod("Gen", BindingFlags.Public | BindingFlags.Static);
             export.Invoke(null, null);
             long end = DateTime.Now.Ticks;
-            Util.LogFormat("# 导出{0}总共耗时 {1:F3}s\n", code, (end - start) * 1f / TimeSpan.TicksPerSecond);
+            Util.LogFormat("#{0,-40} 耗时 {1:F3}s\n", $" 导出{code}总共", (end - start) * 1f / TimeSpan.TicksPerSecond);
         }
     }
 }

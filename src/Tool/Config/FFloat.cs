@@ -18,7 +18,7 @@ namespace Tool.Config
             float r;
             if (!float.TryParse(v, out r))
             {
-                Util.Error("{0}非float类型", v);
+                Util.Error("{0}非float类型或者数值溢出", v);
                 Value = -1;
             }
             Value = r;

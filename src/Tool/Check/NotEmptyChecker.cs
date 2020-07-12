@@ -8,7 +8,7 @@ namespace Tool.Check
     /// </summary>
     public class NotEmptyChecker : Checker
     {
-        public NotEmptyChecker(FieldWrap define) : base(define)
+        public NotEmptyChecker(FieldWrap define, string rule) : base(define, rule)
         {
         }
         public override bool VerifyRule()
@@ -16,12 +16,12 @@ namespace Tool.Check
             bool isOk = base.VerifyRule();
             if (_isKey && _define.GetKeyDefine().FullName != Setting.STRING)
             {
-                Warning($"notEmpty检查规则:dict.key数据类型仅支持string类型");
+                Warning($"NotEmpty检查规则:dict.key数据类型仅支持string类型");
                 isOk = false;
             }
             if (_isValue && _define.GetValueDefine().FullName != Setting.STRING)
             {
-                Warning($"notEmpty检查规则:dict.value数据类型仅支持string类型");
+                Warning($"NotEmpty检查规则:dict.value数据类型仅支持string类型");
                 isOk = false;
             }
             return isOk;
@@ -61,6 +61,11 @@ namespace Tool.Check
         private bool Check(Data data)
         {
             return (data as FString).Value.IsEmpty();
+        }
+
+        public override void OutputError()
+        {
+            Error($"NotEmpty检查规则:字符串为空白字符!\n最后一条数据:\n{Program.LastData.ExportData()}\n");
         }
     }
 }
