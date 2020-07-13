@@ -93,5 +93,18 @@ namespace Tool.Config
             hashCode = hashCode * -1521134295 + EqualityComparer<List<Data>>.Default.GetHashCode(_values);
             return hashCode;
         }
+
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < Values.Count; i++)
+            {
+                if (i == 0)
+                    builder.Append($"{Values[i]}");
+                else
+                    builder.Append($", {Values[i]}");
+            }
+            return builder.ToString();
+        }
     }
 }

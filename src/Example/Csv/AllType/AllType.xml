@@ -5,9 +5,9 @@
 		<Const Name = "ItemBool" Type = "bool" Value = "False" Desc = "常量布尔值" />
 		<Const Name = "ItemEnum" Type = "AllType.CardElement" Value = "Renounce" Desc = "常量枚举值" />
         <Field Name = "ID" Type = "int" Desc = "ID" Group = "Client" />
-        <Field Name = "Index" Type = "int" Desc = "Test.TID"  Group = "Client" Unique="" Range="(-, +)"/><!--Ref="Test"-->
-        <Field Name = "VarLong" Type = "long" Desc = "长整型" Group = "Client" Range="(-, +)" Ref="AllType.AllClass.Index"/>
-        <Field Name = "VarFloat" Type = "float" Desc = "浮点型" Group = "Client" Range="(0, 3)|[5, 10)|[1.3, 10.25]"/>
+        <Field Name = "Index" Type = "int" Desc = "Test.TID"  Group = "Client" Unique="" />Ref="Test" Range="(-, +)"
+        <Field Name = "VarLong" Type = "long" Desc = "长整型" Group = "Client" Ref="AllType.AllClass.Index"/>
+        <Field Name = "VarFloat" Type = "float" Desc = "浮点型" Group = "Client" /> <!--Range="(0, 7)|[5, 10)|[1.3, 10.25]"-->
         <Field Name = "VarString" Type = "string" Desc = "字符串" Group = "Client" NotEmpty="" File="./Csv/AllType/:xlsx|./Csv/AllType/:xml" /><!--  File = "../../Resources/*.txt"/> -->
         <Field Name = "VarBool" Type = "bool" Desc = "布尔型" Group = "Client"/>
         <Field Name = "VarEnum" Type = "CardElement" Desc = "枚举类型" Group = "Client"/>

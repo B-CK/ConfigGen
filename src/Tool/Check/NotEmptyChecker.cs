@@ -63,9 +63,9 @@ namespace Tool.Check
             return (data as FString).Value.IsEmpty();
         }
 
-        public override void OutputError()
+        public override void OutputError(Data data)
         {
-            Error($"NotEmpty检查规则:字符串为空白字符!\n最后一条数据:\n{Program.LastData.ExportData()}\n");
+            DataError(data, $"NotEmpty检查规则:字符串为空白字符!\n");
         }
     }
 }

@@ -51,5 +51,9 @@ namespace Tool.Config
         {
             return Value.GetHashCode();
         }
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }

@@ -7,7 +7,7 @@ using Tool.Wrap;
 namespace Tool.Check
 {
     /// <summary>
-    /// 支持多条检查规则
+    /// 支持多条检查规则,以或的方式检查
     /// </summary>
     public class FileChecker : Checker
     {
@@ -16,6 +16,7 @@ namespace Tool.Check
         /// </summary>
         private string _dir;
         private string _ext;
+        private string _path;
 
         public FileChecker(FieldWrap define, string rule) : base(define, rule)
         {
@@ -86,22 +87,20 @@ namespace Tool.Check
         private bool Check(Data data)
         {
             string relPath = (data as FString).Value;
-            string path = $"{_dir}{relPath}";
+            _path = $"{_dir}{relPath}";
             if (!_ext.IsEmpty())
             {
                 _ext.TrimStart('.');
-                path = $"{path}.{_ext}";
+                _path = $"{_path}.{_ext}";
             }
-            if (File.Exists(path))
+            if (File.Exists(_path))
                 return true;
-
-            Warning($"File检查规则:{path} 文件不存在");
             return false;
         }
 
-        public override void OutputError()
+        public override void OutputError(Data data)
         {
-            Error($"File检查规则:文件不存在!\n最后一条数据:\n{Program.LastData.ExportData()}\n");
+            DataError(data, $"File检查规则:{_path}文件不存在!\n");
         }
     }
 }

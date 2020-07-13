@@ -63,9 +63,9 @@ namespace Tool.Check
             }
             return isOk;
         }
-        public override void OutputError()
+        public override void OutputError(Data data)
         {
-            Error($"Unique检查规则:数据不唯一\n最后一条数据:\n{Program.LastData.ExportData()}\n");
+            DataError(data, $"Unique检查规则:{data}数据不唯一!\n");
         }
 
         public override bool CheckColumn()

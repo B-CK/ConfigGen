@@ -52,7 +52,7 @@ namespace Tool.Check
         /// <summary>
         /// 输出不符合规则的字段数据
         /// </summary>
-        public abstract void OutputError();
+        public abstract void OutputError(Data data);
 
         /// <summary>
         /// 移除dict类修饰符
@@ -76,6 +76,17 @@ namespace Tool.Check
         protected void Error(string msg)
         {
             Util.LogError($"{_define.Host.FullName} Field:{_define.Name}({_define.FullName}) {msg}");
+        }
+        protected void DataError(Data data, string error)
+        {
+            FClass root = data.Host;
+            while (!root.IsRoot)
+                root = root.Host;
+            string fullName = root.Define.FullName;
+            var config = ConfigWrap.Get(fullName);
+            var cls = ClassWrap.Get(fullName);
+            int index = cls.Fields.IndexOf(config.Index);
+            Util.LogError($"【{root.Values[index]}】{_define.Host.FullName} Field:{_define.Name}({_define.FullName}) {error}");
         }
     }
 }

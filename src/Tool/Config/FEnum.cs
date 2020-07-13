@@ -61,6 +61,10 @@ namespace Tool.Config
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Value);
             return hashCode;
         }
+        public override string ToString()
+        {
+            return $"{_define.FullName}.{EnumName}=({Value})";
+        }
     }
 
 }

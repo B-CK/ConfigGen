@@ -147,8 +147,7 @@ namespace Tool.Check
         public override bool VerifyData(Data data)
         {
             bool isOk = true;
-            var define = data.Define;
-            switch (define.OriginalType)
+            switch (_define.OriginalType)
             {
                 case Setting.INT:
                     isOk &= Check((data as FInt).Value);
@@ -227,9 +226,9 @@ namespace Tool.Check
             return isOk;
         }
 
-        public override void OutputError()
+        public override void OutputError(Data data)
         {
-            Error($"Range检查规则:数据超出范围!\n最后一条数据:\n{Program.LastData.ExportData()}\n");
+            DataError(data, $"Range检查规则:{data}数据超出{_rule}范围!\n");
         }
     }
 }

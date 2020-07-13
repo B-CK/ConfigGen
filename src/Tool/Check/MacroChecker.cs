@@ -9,7 +9,7 @@ namespace Tool.Check
         {
         }
 
-        public override void OutputError()
+        public override void OutputError(Data data)
         {
             throw new System.NotImplementedException("暂时不支持该功能");
         }

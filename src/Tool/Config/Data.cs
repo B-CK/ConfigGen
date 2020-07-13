@@ -49,8 +49,19 @@ namespace Tool.Config
             {
                 var checker = checkers[k];
                 if (!checker.VerifyData(this))
-                    checker.OutputError();
+                    checker.OutputError(this);
             }
+        }
+        void DataError(string error)
+        {
+            FClass root = Host;
+            while (!root.IsRoot)
+                root = root.Host;
+            string fullName = root.Define.FullName;
+            var config = ConfigWrap.Get(fullName);
+            var cls = ClassWrap.Get(fullName);
+            int index = cls.Fields.IndexOf(config.Index);
+            Util.LogError($"【{root.Values[index]}】{_define.Host.FullName} Field:{_define.Name}({_define.FullName}) {error}");
         }
 
         #region 创建数据

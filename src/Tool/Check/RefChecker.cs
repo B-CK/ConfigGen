@@ -152,9 +152,9 @@ namespace Tool.Check
             return isOk;
         }
 
-        public override void OutputError()
+        public override void OutputError(Data data)
         {
-            Error($"Ref检查规则:当前数据在引用字段数据列不存在!\n最后一条数据:\n{Program.LastData.ExportData()}\n");
-        }    
+            DataError(data, $"Ref检查规则:{data}数据在{_rule}数据列不存在!\n");
+        }
     }
 }
