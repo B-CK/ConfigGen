@@ -133,52 +133,26 @@ namespace Tool.Wrap
 
             _checkers = new List<Checker>();
             if (!field.Ref.IsEmpty())
-            {
-                string[] nodes = field.Ref.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
-                for (int i = 0; i < nodes.Length; i++)
-                    _checkers.Add(new RefChecker(this, nodes[i]));
-            }
+                _checkers.Add(new RefChecker(this, field.Ref));
             if (!field.File.IsEmpty() && (OriginalType == Setting.STRING || OriginalType == Setting.LIST || OriginalType == Setting.DICT))
-            {
-                string[] nodes = field.File.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
-                for (int i = 0; i < nodes.Length; i++)
-                    _checkers.Add(new FileChecker(this, nodes[i]));
-            }
+                _checkers.Add(new FileChecker(this, field.File));
             if (field.Unique != null)
-            {
-                if (field.Unique.Length == 0)
-                {
-                    _checkers.Add(new UniqueChecker(this, ""));
-                }
-                else
-                {
-                    string[] nodes = field.Unique.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
-                    for (int i = 0; i < nodes.Length; i++)
-                        _checkers.Add(new UniqueChecker(this, nodes[i]));
-                }
-
-            }
+                _checkers.Add(new UniqueChecker(this, field.Unique));
             if (field.NotEmpty != null && (OriginalType == Setting.STRING || OriginalType == Setting.LIST || OriginalType == Setting.DICT))
-            {
-                if (field.NotEmpty.Length == 0)
-                {
-                    _checkers.Add(new NotEmptyChecker(this, ""));
-                }
-                else
-                {
-                    string[] nodes = field.NotEmpty.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
-                    for (int i = 0; i < nodes.Length; i++)
-                        _checkers.Add(new NotEmptyChecker(this, nodes[i]));
-                }
-
-            }
+                _checkers.Add(new NotEmptyChecker(this, field.NotEmpty));
             if (!field.Range.IsEmpty() && OriginalType != Setting.STRING)
-            {
-                string[] nodes = field.Range.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
-                for (int i = 0; i < nodes.Length; i++)
-                    _checkers.Add(new RangeChecker(this, nodes[i]));
-            }
+                _checkers.Add(new RangeChecker(this, field.NotEmpty));
         }
+        //if (field.Unique.Length == 0)
+        //{
+        //    _checkers.Add(new UniqueChecker(this, ""));
+        //}
+        //else
+        //{
+        //    string[] nodes = field.Unique.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
+        //    for (int i = 0; i < nodes.Length; i++)
+        //        _checkers.Add(new UniqueChecker(this, nodes[i]));
+        //}
         public void CreateKeyChecker()
         {
             _checkers.Add(new UniqueChecker(this, ""));

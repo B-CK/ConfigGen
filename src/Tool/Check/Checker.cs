@@ -4,19 +4,28 @@ using System;
 
 namespace Tool.Check
 {
+    public struct RuleInfo
+    {
+        public string _rule;
+        public bool _isKey;
+        public bool _isValue;
+        public bool IsDict => _isKey || _isValue;
+    }
     public abstract class Checker
     {
         protected FieldWrap _define;
-        protected string _rule;
-        protected bool IsDict => _isKey || _isValue;
-        protected bool _isKey;
-        protected bool _isValue;
+        protected RuleInfo[] _ruleTable;
+        protected string _rules;
         protected static readonly string KEY = Setting.KEY;
         protected static readonly string VALUE = Setting.VALUE;
-        public Checker(FieldWrap define, string rule)
+        public Checker(FieldWrap define, string rules)
         {
             _define = define;
-            _rule = rule;
+            _rules = rules;
+            string[] nodes = rules.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
+            _ruleTable = new RuleInfo[nodes.Length];
+            for (int i = 0; i < nodes.Length; i++)
+                _ruleTable[i] = new RuleInfo() { _rule = nodes[i] };
         }
         /// <summary>
         /// 部分检查规则需要整列数据
@@ -35,16 +44,31 @@ namespace Tool.Check
             }
 
             bool isOk = true;
-            if (!_rule.IsEmpty())
+            for (int i = 0; i < _rules.Length; i++)
+                isOk &= CheckIsDictRule(ref _ruleTable[i]);
+            return isOk;
+        }
+        private bool CheckIsDictRule(ref RuleInfo info)
+        {
+            bool isOk = true;
+            string rule = info._rule;
+            info._isKey = rule.StartsWith(KEY, StringComparison.OrdinalIgnoreCase);
+            info._isValue = rule.StartsWith(VALUE, StringComparison.OrdinalIgnoreCase);
+            bool isDict = _define.IsContainer && _define.OriginalType == Setting.DICT;
+            if (!isDict && info.IsDict)
             {
-                _isKey = _rule.StartsWith(KEY, StringComparison.OrdinalIgnoreCase);
-                _isValue = _rule.StartsWith(VALUE, StringComparison.OrdinalIgnoreCase);
-                bool isDict = _define.IsContainer && _define.OriginalType == Setting.DICT;
-                if (!isDict && IsDict)
-                {
-                    isOk = _isKey = _isValue = false;
-                    Warning("基本规则:非dict类型数据,使用key|value无法正常检查");
-                }
+                isOk = info._isKey = info._isValue = false;
+                Warning("基本规则:非dict类型数据,使用key|value无法正常检查");
+            }
+            else
+            {
+                if (info._isKey)
+                    rule = rule.Substring(KEY.Length);
+                if (info._isValue)
+                    rule = rule.Substring(VALUE.Length);
+                if (rule.StartsWith(":"))
+                    rule = rule.Substring(1);
+                info._rule = rule;
             }
             return isOk;
         }
@@ -53,22 +77,6 @@ namespace Tool.Check
         /// 输出不符合规则的字段数据
         /// </summary>
         public abstract void OutputError(Data data);
-
-        /// <summary>
-        /// 移除dict类修饰符
-        /// </summary>
-        /// <returns></returns>
-        protected string GetRuleNoModify()
-        {
-            string rule = _rule;
-            if (_isKey)
-                rule = rule.Substring(KEY.Length);
-            if (_isValue)
-                rule = rule.Substring(VALUE.Length);
-            if (rule.StartsWith(":"))
-                rule = rule.Substring(1);
-            return rule;
-        }
         protected void Warning(string msg)
         {
             Util.LogWarning($"{_define.Host.FullName}Field:{_define.Name}({_define.FullName}) {msg}");

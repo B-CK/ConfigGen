@@ -11,13 +11,6 @@ namespace Tool.Check
     /// </summary>
     public class FileChecker : Checker
     {
-        /// <summary>
-        /// 目录路径相对于工具调用环境
-        /// </summary>
-        private string _dir;
-        private string _ext;
-        private string _path;
-
         public FileChecker(FieldWrap define, string rule) : base(define, rule)
         {
         }
@@ -25,82 +18,87 @@ namespace Tool.Check
         public override bool VerifyRule()
         {
             bool isOk = base.VerifyRule();
-            string rule = GetRuleNoModify();
-            if (rule.IsEmpty())
+            for (int i = 0; i < _ruleTable.Length; i++)
             {
-                Warning($"File检查规则:表达式为空");
-                isOk = false;
+                RuleInfo info = _ruleTable[i];
+                string rule = info._rule;
+                if (rule.IsEmpty())
+                {
+                    Warning($"File检查规则:表达式为空");
+                    isOk = false;
+                }
+                switch (_define.OriginalType)
+                {
+                    case Setting.LIST:
+                        if (_define.GetItemDefine().FullName != Setting.STRING)
+                        {
+                            Warning($"File检查规则:list中数据类型仅支持string类型");
+                            isOk = false;
+                        }
+                        break;
+                    case Setting.DICT:
+                        if (info._isKey && _define.GetKeyDefine().FullName != Setting.STRING)
+                        {
+                            Warning($"File检查规则:dict.key数据类型仅支持string类型");
+                            isOk = false;
+                        }
+                        else if (info._isValue && _define.GetValueDefine().FullName != Setting.STRING)
+                        {
+                            Warning($"File检查规则:dict.value数据类型仅支持string类型");
+                            isOk = false;
+                        }
+                        break;
+                }
             }
-            if (_isKey && _define.GetKeyDefine().FullName != Setting.STRING)
-            {
-                Warning($"File检查规则:dict.key数据类型仅支持string类型");
-                isOk = false;
-            }
-            if (_isValue && _define.GetValueDefine().FullName != Setting.STRING)
-            {
-                Warning($"File检查规则:dict.value数据类型仅支持string类型");
-                isOk = false;
-            }
-            string[] nodes = rule.Split(Setting.ArgsSplitFlag, StringSplitOptions.RemoveEmptyEntries);
-            Uri uri = new Uri($"{Setting.ApplicationDir}\\{nodes[0]}");
-            _dir = uri.AbsolutePath;
-            if (nodes.Length >= 2)
-                _ext = nodes[1];
-            if (!Directory.Exists(_dir))
-            {
-                Warning($"File检查规则:{_dir}目录不存在");
-                isOk = false;
-            }
-
             return isOk;
         }
         public override bool VerifyData(Data data)
         {
             bool isOk = true;
             var define = data.Define;
-            switch (define.OriginalType)
+            for (int i = 0; i < _ruleTable.Length; i++)
             {
-                case Setting.STRING:
-                    isOk &= Check(data);
-                    break;
-                case Setting.LIST:
-                    // 检查集合中文件路径是否存在
-                    var list = (data as FList).Values;
-                    for (int i = 0; i < list.Count; i++)
-                        isOk &= Check(list[i]);
-                    break;
-                case Setting.DICT:
-                    // 检查集合中文件路径是否存在
-                    // key|Value均可作该检查
-                    var dict = (data as FDict).Values;
-                    foreach (var item in dict)
-                    {
-                        if (_isKey)
-                            isOk &= Check(item.Key);
-                        if (_isValue)
-                            isOk &= Check(item.Value);
-                    }
-                    break;
+                RuleInfo info = _ruleTable[i];
+                switch (define.OriginalType)
+                {
+                    case Setting.STRING:
+                        isOk |= Check(data, info);
+                        break;
+                    case Setting.LIST:
+                        // 检查集合中文件路径是否存在
+                        var list = (data as FList).Values;
+                        for (int k = 0; k < list.Count; k++)
+                            isOk |= Check(list[k], info);
+                        break;
+                    case Setting.DICT:
+                        // 检查集合中文件路径是否存在
+                        // key|Value均可作该检查
+                        var dict = (data as FDict).Values;
+                        foreach (var item in dict)
+                        {
+                            if (info._isKey)
+                                isOk |= Check(item.Key, info);
+                            else if (info._isValue)
+                                isOk |= Check(item.Value, info);
+                        }
+                        break;
+                }
             }
             return isOk;
         }
-        private bool Check(Data data)
+        private bool Check(Data data, RuleInfo file)
         {
-            string relPath = (data as FString).Value;
-            _path = $"{_dir}{relPath}";
-            if (!_ext.IsEmpty())
-            {
-                _ext.TrimStart('.');
-                _path = $"{_path}.{_ext}";
-            }
-            if (File.Exists(_path))
+            string relativePath = file._rule.Replace("*", data.ToString());
+            Uri uri = new Uri($"{Setting.ApplicationDir}\\{relativePath}");
+            string path = uri.AbsolutePath;
+            if (File.Exists(path))
                 return true;
             return false;
         }
 
         public override void OutputError(Data data)
         {
-            DataError(data, $"File检查规则:{_path}文件不存在!\n");
+            DataError(data, $"File检查规则:{data}文件不存在!\n");
         }
     }
 }

@@ -104,6 +104,6 @@ namespace Tool.Check
             return hash.Count == data.Values.Count;
         }
 
-       
+
     }
 }
