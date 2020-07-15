@@ -71,13 +71,17 @@ namespace Cfg.AllType
 		/// <summary>
 		public readonly List<string> VarListCardElem = new List<string>();
 		/// <summary>
+		/// 浮点数列表
+		/// <summary>
+		public readonly List<float> VarListFloat = new List<float>();
+		/// <summary>
 		/// 基础类型字典
 		/// <summary>
 		public readonly Dictionary<int, float> VarDictBase = new Dictionary<int, float>();
 		/// <summary>
 		/// 枚举类型字典
 		/// <summary>
-		public readonly Dictionary<long, Cfg.AllType.CardElement> VarDictEnum = new Dictionary<long, Cfg.AllType.CardElement>();
+		public readonly Dictionary<long, string> VarDictEnum = new Dictionary<long, string>();
 		/// <summary>
 		/// 类类型字典
 		/// <summary>
@@ -107,6 +111,11 @@ namespace Cfg.AllType
 				var v = data.GetString();
 				VarListCardElem.Add(v);
 			}
+			for (int n = data.GetArrayLength(); n-- > 0;)
+			{
+				var v = data.GetFloat();
+				VarListFloat.Add(v);
+			}
 			for (int n = data.GetMapLength(); n-- > 0;)
 			{
 				var k = data.GetInt();
@@ -115,7 +124,7 @@ namespace Cfg.AllType
 			for (int n = data.GetMapLength(); n-- > 0;)
 			{
 				var k = data.GetLong();
-				VarDictEnum[k] = (Cfg.AllType.CardElement)data.GetInt();
+				VarDictEnum[k] = data.GetString();
 			}
 			for (int n = data.GetMapLength(); n-- > 0;)
 			{

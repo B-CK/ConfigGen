@@ -67,7 +67,7 @@ namespace Tool
                 catch (Exception e)
                 {
                     Util.Log("\n-------------最后一条数据-------------\n");
-                    Util.Log(lastData.ExportData());
+                    Util.Log(lastData?.ExportData());
                     Util.Log("\n--------------------------------------\n");
                     Util.LogErrorFormat("{0}\n{1}\n", e.Message, e.StackTrace);
                 }
@@ -83,6 +83,7 @@ namespace Tool
 
         static void LoadDefine()
         {
+            long start = DateTime.Now.Ticks;
             //解析类型定义
             Dictionary<string, NamespaceXml> allNs = new Dictionary<string, NamespaceXml>();
             string namespacePath = "无法解析Xml.NamespaceXml";
@@ -121,6 +122,9 @@ namespace Tool
                 Util.LogErrorFormat("路径:{0} 错误:{1}\n{2}", namespacePath, e.Message, e.StackTrace);
                 return;
             }
+            long end = DateTime.Now.Ticks;
+            float second = (end - start) * 1f / TimeSpan.TicksPerSecond;
+            Util.LogFormat("#{0,-40} 耗时 {1:F3}s", "加载数据结构定义", second);
         }
 
         static void VerifyDefine()

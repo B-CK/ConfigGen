@@ -9,6 +9,8 @@ namespace Cfg
 	{
 		public Dictionary<int, AllType.AllClass> AllClasss => _allclasss;
 		private Dictionary<int, AllType.AllClass> _allclasss = new Dictionary<int, AllType.AllClass>();
+		public Dictionary<int, AllType.CheckAll> CheckAlls => _checkalls;
+		private Dictionary<int, AllType.CheckAll> _checkalls = new Dictionary<int, AllType.CheckAll>();
 		public Dictionary<int, AllType.Test> Tests => _tests;
 		private Dictionary<int, AllType.Test> _tests = new Dictionary<int, AllType.Test>();
 		public Dictionary<int, AllType.ClientConst> ClientConsts => _clientconsts;
@@ -20,6 +22,7 @@ namespace Cfg
 		public void Load()
 		{
 			_allclasss = AllType.AllClass.Load();
+			_checkalls = AllType.CheckAll.Load();
 			_tests = AllType.Test.Load();
 			_clientconsts = AllType.ClientConst.Load();
 			_models = Character.Model.Load();

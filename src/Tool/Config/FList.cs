@@ -65,18 +65,6 @@ namespace Tool.Config
                 builder.AppendFormat("{0}{1}", Setting.CsvSplitFlag, _values[i].ExportData());
             return builder.ToString();
         }
-        public override void VerifyData()
-        {
-            if (_host != null)
-            {
-                
-            }
-            else
-            {
-                for (int i = 0; i < Values.Count; i++)
-                    Values[i].VerifyData();
-            }
-        }
         public override int ExportBinary(ref byte[] bytes, int offset)
         {
             int length = MessagePackBinary.WriteArrayHeader(ref bytes, offset, Values.Count);
@@ -84,7 +72,14 @@ namespace Tool.Config
                 length += _values[i].ExportBinary(ref bytes, offset + length);
             return length;
         }
-
+        public override void VerifyData()
+        {
+            if (!IsRoot) 
+                base.VerifyData();
+            else
+                for (int i = 0; i < Values.Count; i++)
+                    Values[i].VerifyData();
+        }
         public override bool Equals(object obj)
         {
             return obj is FList list &&

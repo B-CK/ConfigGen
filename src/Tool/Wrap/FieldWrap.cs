@@ -141,18 +141,8 @@ namespace Tool.Wrap
             if (field.NotEmpty != null && (OriginalType == Setting.STRING || OriginalType == Setting.LIST || OriginalType == Setting.DICT))
                 _checkers.Add(new NotEmptyChecker(this, field.NotEmpty));
             if (!field.Range.IsEmpty() && OriginalType != Setting.STRING)
-                _checkers.Add(new RangeChecker(this, field.NotEmpty));
+                _checkers.Add(new RangeChecker(this, field.Range));
         }
-        //if (field.Unique.Length == 0)
-        //{
-        //    _checkers.Add(new UniqueChecker(this, ""));
-        //}
-        //else
-        //{
-        //    string[] nodes = field.Unique.Split(Setting.CheckSplit, System.StringSplitOptions.RemoveEmptyEntries);
-        //    for (int i = 0; i < nodes.Length; i++)
-        //        _checkers.Add(new UniqueChecker(this, nodes[i]));
-        //}
         public void CreateKeyChecker()
         {
             _checkers.Add(new UniqueChecker(this, ""));

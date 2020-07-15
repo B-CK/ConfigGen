@@ -54,15 +54,6 @@ namespace Tool.Config
             }
             return builder.ToString();
         }
-        public override void VerifyData()
-        {
-            var dit = Values.GetEnumerator();
-            while (dit.MoveNext())
-            {
-                dit.Current.Key.VerifyData();
-                dit.Current.Value.VerifyData();
-            }
-        }
         public override int ExportBinary(ref byte[] bytes, int offset)
         {
             int length = MessagePackBinary.WriteMapHeader(ref bytes, offset, Values.Count);
@@ -97,10 +88,10 @@ namespace Tool.Config
             int i = 0;
             foreach (var item in Values)
             {
-                if (i == 0)
+                if (i++ == 0)
                     builder.Append($"{item.Key}={item.Value}");
                 else
-                    builder.Append($", {item.Key}={item.Value}");
+                    builder.Append($"; {item.Key}={item.Value}");
             }
             return builder.ToString();
         }

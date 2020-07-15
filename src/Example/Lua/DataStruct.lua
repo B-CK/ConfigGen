@@ -24,9 +24,30 @@ function Stream:GetCfgAllTypeAllClass()
 	o.VarListBase = self:GetList('String')
 	o.VarListClass = self:GetList('CfgAllTypeSingleClassMaker')
 	o.VarListCardElem = self:GetList('String')
+	o.VarListFloat = self:GetList('Float')
 	o.VarDictBase = self:GetDict('Int', 'Float')
-	o.VarDictEnum = self:GetDict('Long', 'Int')
+	o.VarDictEnum = self:GetDict('Long', 'String')
 	o.VarDictClass = self:GetDict('String', 'CfgAllTypeSingleClassMaker')
+	return o
+end
+meta= {}
+meta.__index = meta
+meta.class = 'Cfg.AllType.CheckAll'
+GetOrCreate('Cfg.AllType')['CheckAll'] = meta
+function Stream:GetCfgAllTypeCheckAll()
+	local o = {}
+	setmetatable(o, Cfg.AllType.CheckAll)
+	o.ID = self:GetInt()
+	o.Index = self:GetInt()
+	o.VarLong = self:GetLong()
+	o.VarFloat = self:GetFloat()
+	o.VarString = self:GetString()
+	o.VarListString = self:GetList('String')
+	o.VarListStrEmpty = self:GetList('String')
+	o.VarListFloat = self:GetList('Float')
+	o.VarDictIntFloat = self:GetDict('Int', 'Float')
+	o.VarDictLongString = self:GetDict('Long', 'String')
+	o.VarDictStringClass = self:GetDict('String', 'CfgAllTypeSingleClassMaker')
 	return o
 end
 meta= {}

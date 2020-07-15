@@ -68,9 +68,9 @@ namespace Tool.Check
             DataError(data, $"Unique检查规则:{data}数据不唯一!\n");
         }
 
-        public override bool CheckColumn()
+        public override bool CheckColumn(bool remove)
         {
-            base.CheckColumn();
+            base.CheckColumn(true);
             var config = ConfigWrap.Get(_define.Host.FullName);
             var cls = _define.Host;
             int index = cls.Fields.IndexOf(_define);

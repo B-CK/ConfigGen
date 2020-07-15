@@ -54,46 +54,85 @@ namespace Tool.Check
         }
         public override bool VerifyData(Data data)
         {
-            bool isOk = true;
+            bool isOk = false;
             var define = data.Define;
-            for (int i = 0; i < _ruleTable.Length; i++)
+            if (define.OriginalType == Setting.DICT)
+                isOk |= Check(data as FDict);
+            else if (define.OriginalType == Setting.LIST)
+                isOk |= Check(data as FList);
+            else
             {
-                RuleInfo info = _ruleTable[i];
-                switch (define.OriginalType)
+                for (int i = 0; i < _ruleTable.Length; i++)
                 {
-                    case Setting.STRING:
-                        isOk |= Check(data, info);
-                        break;
-                    case Setting.LIST:
-                        // 检查集合中文件路径是否存在
-                        var list = (data as FList).Values;
-                        for (int k = 0; k < list.Count; k++)
-                            isOk |= Check(list[k], info);
-                        break;
-                    case Setting.DICT:
-                        // 检查集合中文件路径是否存在
-                        // key|Value均可作该检查
-                        var dict = (data as FDict).Values;
-                        foreach (var item in dict)
-                        {
-                            if (info._isKey)
-                                isOk |= Check(item.Key, info);
-                            else if (info._isValue)
-                                isOk |= Check(item.Value, info);
-                        }
-                        break;
+                    RuleInfo info = _ruleTable[i];
+                    isOk |= Check(data, info);
                 }
             }
             return isOk;
         }
+
         private bool Check(Data data, RuleInfo file)
         {
             string relativePath = file._rule.Replace("*", data.ToString());
             Uri uri = new Uri($"{Setting.ApplicationDir}\\{relativePath}");
-            string path = uri.AbsolutePath;
+            string path = uri.LocalPath;
             if (File.Exists(path))
                 return true;
             return false;
+        }
+        // 检查集合中文件路径是否存在
+        private bool Check(FList data)
+        {
+            bool isOk = true;
+            var list = (data as FList).Values;
+            for (int k = 0; k < list.Count; k++)
+            {
+                bool flag = false;
+                for (int i = 0; i < _ruleTable.Length; i++)
+                {
+                    RuleInfo info = _ruleTable[i];
+                    flag |= Check(list[k], info);
+                }
+                isOk &= flag;
+            }
+            return isOk;
+        }
+        // 检查集合中文件路径是否存在
+        // key|Value均可作该检查
+        private bool Check(FDict data)
+        {
+            bool isOk = true;
+            var dict = (data as FDict).Values;
+            foreach (var item in dict)
+            {
+                bool flagk = false;
+                bool flagv = false;
+                bool hasKey = false;
+                bool hasValue = false;
+                for (int i = 0; i < _ruleTable.Length; i++)
+                {
+                    RuleInfo info = _ruleTable[i];
+                    if (info._isKey)
+                    {
+                        flagk |= Check(item.Key, info);
+                        hasKey |= true;
+                    }
+                    else if (info._isValue)
+                    {
+                        flagv |= Check(item.Value, info);
+                        hasValue |= true;
+                    }
+                }
+                if (hasKey && hasValue)
+                    isOk &= flagk && flagv;
+                else if (hasKey && !hasValue)
+                    isOk &= flagk;
+                else if (!hasKey && hasValue)
+                    isOk &= flagv;
+                else
+                    Error("File检查规则:程序Bug,未检查出规则配置错误!");
+            }
+            return isOk;
         }
 
         public override void OutputError(Data data)

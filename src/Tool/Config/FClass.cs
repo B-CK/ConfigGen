@@ -50,7 +50,6 @@ namespace Tool.Config
             for (int i = 0; i < fields.Count; i++)
                 Values.Add(Data.Create(this, fields[i], data.ChildNodes[i + offset] as XmlElement));
         }
-
         public override string ExportData()
         {
             StringBuilder builder = new StringBuilder();
@@ -59,11 +58,6 @@ namespace Tool.Config
             for (int i = 0; i < _values.Count; i++)
                 builder.AppendFormat("{0}{1}", i > 0 ? Setting.CsvSplitFlag : "", _values[i].ExportData());
             return builder.ToString();
-        }
-        public override void VerifyData()
-        {
-            for (int i = 0; i < Values.Count; i++)
-                Values[i].VerifyData();
         }
         public override int ExportBinary(ref byte[] bytes, int offset)
         {
@@ -76,6 +70,14 @@ namespace Tool.Config
             for (int i = 0; i < _values.Count; i++)
                 length += _values[i].ExportBinary(ref bytes, offset + length);
             return length;
+        }
+        public override void VerifyData()
+        {
+            if(!IsRoot)
+                base.VerifyData();
+            else
+                for (int i = 0; i < Values.Count; i++)
+                    Values[i].VerifyData();
         }
 
         public override bool Equals(object obj)
@@ -93,7 +95,6 @@ namespace Tool.Config
             hashCode = hashCode * -1521134295 + EqualityComparer<List<Data>>.Default.GetHashCode(_values);
             return hashCode;
         }
-
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();

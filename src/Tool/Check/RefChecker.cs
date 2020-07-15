@@ -96,7 +96,7 @@ namespace Tool.Check
         }
         public override bool VerifyData(Data data)
         {
-            bool isOk = true;
+            bool isOk = false;
             var define = data.Define;
             for (int i = 0; i < _refs.Length; i++)
             {
@@ -121,13 +121,11 @@ namespace Tool.Check
                         isOk |= false;
                         break;
                 }
-
             }
             return isOk;
         }
-        public override bool CheckColumn()
+        public override bool CheckColumn(bool remove)
         {
-            base.CheckColumn();
             //引用表字段数据列表
             for (int i = 0; i < _refs.Length; i++)
             {
@@ -139,6 +137,7 @@ namespace Tool.Check
                     var line = d as FClass;
                     return line.Values[index];
                 }));
+                _refs[i] = refr;
             }
             return true;
         }

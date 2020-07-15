@@ -42,6 +42,8 @@ namespace Tool.Config
                 return false;
             else if (obj is FInt)
                 return (obj as FInt).Value == Value;
+            else if (obj is FLong)
+                return (obj as FLong).Value == Value;
             else if (obj is int)
                 return (int)obj == Value;
             else

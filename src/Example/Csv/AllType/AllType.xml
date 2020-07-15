@@ -5,19 +5,38 @@
 		<Const Name = "ItemBool" Type = "bool" Value = "False" Desc = "常量布尔值" />
 		<Const Name = "ItemEnum" Type = "AllType.CardElement" Value = "Renounce" Desc = "常量枚举值" />
         <Field Name = "ID" Type = "int" Desc = "ID" Group = "Client" />
-        <Field Name = "Index" Type = "int" Desc = "Test.TID"  Group = "Client" Unique="" />Ref="Test" Range="(-, +)"
-        <Field Name = "VarLong" Type = "long" Desc = "长整型" Group = "Client" Ref="AllType.AllClass.Index"/>
-        <Field Name = "VarFloat" Type = "float" Desc = "浮点型" Group = "Client" /> <!--Range="(0, 7)|[5, 10)|[1.3, 10.25]"-->
-        <Field Name = "VarString" Type = "string" Desc = "字符串" Group = "Client" NotEmpty="" File="./Csv/AllType/:xlsx|./Csv/AllType/:xml" /><!--  File = "../../Resources/*.txt"/> -->
+        <Field Name = "Index" Type = "int" Desc = "Test.TID"  Group = "Client" />
+        <Field Name = "VarLong" Type = "long" Desc = "长整型" Group = "Client"/>
+        <Field Name = "VarFloat" Type = "float" Desc = "浮点型" Group = "Client"/>
+        <Field Name = "VarString" Type = "string" Desc = "字符串" Group = "Client" /><!--  File = "../../Resources/*.txt"/> -->
         <Field Name = "VarBool" Type = "bool" Desc = "布尔型" Group = "Client"/>
         <Field Name = "VarEnum" Type = "CardElement" Desc = "枚举类型" Group = "Client"/>
         <Field Name = "VarClass" Type = "SingleClass" Desc = "类类型" Group = "Client"/>
-        <Field Name = "VarListBase" Type = "list:string" Desc = "字符串列表" Group = "Client" NotEmpty="" File="./Csv/AllType/:xlsx" Ref="AllType.AllClass.VarString"/>
+
+        <Field Name = "VarListBase" Type = "list:string" Desc = "字符串列表" Group = "Client"/>
         <Field Name = "VarListClass" Type = "list:SingleClass" Desc = "Class列表" Group = "Client"/>
-        <Field Name = "VarListCardElem" Type = "list:string" Desc = "字符串列表" Group = "Client" Unique=""/>
-        <Field Name = "VarDictBase" Type = "dict:int:float" Desc = "基础类型字典" Group = "Client" Range="key:(1,5)|value:[10, 49.5)"/>
-        <Field Name = "VarDictEnum" Type = "dict:long:CardElement" Desc = "枚举类型字典" Group = "Client" Ref="key:AllType.AllClass.VarLong" Unique="value"/>
-        <Field Name = "VarDictClass" Type = "dict:string:SingleClass" Desc = "类类型字典" Group = "Client" NotEmpty="key"/>
+        <Field Name = "VarListCardElem" Type = "list:string" Desc = "字符串列表" Group = "Client"/>
+		<Field Name = "VarListFloat" Type = "list:float" Desc = "浮点数列表" Group = "Client" />
+		
+        <Field Name = "VarDictBase" Type = "dict:int:float" Desc = "基础类型字典" Group = "Client"/>
+        <Field Name = "VarDictEnum" Type = "dict:long:string" Desc = "枚举类型字典" Group = "Client" />
+        <Field Name = "VarDictClass" Type = "dict:string:SingleClass" Desc = "类类型字典" Group = "Client" />
+    </Class>
+	
+	 <Class Name = "CheckAll"  Index = "ID" DataPath="Check所有类型.xlsx" Desc = "所有类型"> 
+        <Field Name = "ID" Type = "int" Desc = "ID" Group = "Client" />
+        <Field Name = "Index" Type = "int" Desc = "Test.TID"  Group = "Client" Unique="" />
+        <Field Name = "VarLong" Type = "long" Desc = "长整型" Group = "Client" Ref="AllType.AllClass.Index"/>
+        <Field Name = "VarFloat" Type = "float" Desc = "浮点型" Group = "Client"  Range="(1, 5)|[6, 10)|[11.5, 15.5]" />
+        <Field Name = "VarString" Type = "string" Desc = "字符串" Group = "Client" NotEmpty="" File="./Csv/AllType/*.xlsx|./Csv/AllType/*.xml" />
+
+        <Field Name = "VarListString" Type = "list:string" Desc = "字符串列表" Group = "Client" File="./Csv/AllType/*.xlsx" Ref="AllType.AllClass.VarString" Unique=""/>
+		<Field Name = "VarListStrEmpty" Type = "list:string" Desc = "字符串列表" Group = "Client" NotEmpty="" />
+		<Field Name = "VarListFloat" Type = "list:float" Desc = "浮点数列表" Group = "Client" Range="(1.5, 3.5]"/>
+		
+        <Field Name = "VarDictIntFloat" Type = "dict:int:float" Desc = "基础类型字典" Group = "Client" Range="key:(1,5)|value:[10, 49.5)"/>
+        <Field Name = "VarDictLongString" Type = "dict:long:string" Desc = "枚举类型字典" Group = "Client" Ref="key:AllType.AllClass.VarLong" Unique="value" NotEmpty="value" />
+        <Field Name = "VarDictStringClass" Type = "dict:string:SingleClass" Desc = "类类型字典" Group = "Client" NotEmpty="key" File="key:./Csv/AllType/*.xlsx"/>
     </Class>
 
 	<Class Name = "SingleClass">

@@ -30,9 +30,10 @@ namespace Tool.Check
         /// <summary>
         /// 部分检查规则需要整列数据
         /// </summary>
-        public virtual bool CheckColumn()
+        public virtual bool CheckColumn(bool remove = false)
         {
-            _define.Checkers.Remove(this);
+            if (remove)
+                _define.Checkers.Remove(this);
             return true;
         }
         public virtual bool VerifyRule()
@@ -44,7 +45,7 @@ namespace Tool.Check
             }
 
             bool isOk = true;
-            for (int i = 0; i < _rules.Length; i++)
+            for (int i = 0; i < _ruleTable.Length; i++)
                 isOk &= CheckIsDictRule(ref _ruleTable[i]);
             return isOk;
         }
@@ -79,11 +80,11 @@ namespace Tool.Check
         public abstract void OutputError(Data data);
         protected void Warning(string msg)
         {
-            Util.LogWarning($"{_define.Host.FullName}Field:{_define.Name}({_define.FullName}) {msg}");
+            Util.LogWarning($"{_define.Host.FullName} 字段:{_define.Name}({_define.FullName}) {msg}");
         }
         protected void Error(string msg)
         {
-            Util.LogError($"{_define.Host.FullName} Field:{_define.Name}({_define.FullName}) {msg}");
+            Util.LogError($"{_define.Host.FullName} 字段:{_define.Name}({_define.FullName}) {msg}");
         }
         protected void DataError(Data data, string error)
         {
@@ -94,7 +95,7 @@ namespace Tool.Check
             var config = ConfigWrap.Get(fullName);
             var cls = ClassWrap.Get(fullName);
             int index = cls.Fields.IndexOf(config.Index);
-            Util.LogError($"【{root.Values[index]}】{_define.Host.FullName} Field:{_define.Name}({_define.FullName}) {error}");
+            Util.LogError($"【{root.Values[index]}】{_define.Host.FullName} 字段:{_define.Name}({_define.FullName}) {error}");
         }
     }
 }
