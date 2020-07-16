@@ -135,10 +135,8 @@ namespace Tool.Wrap
                 }
                 catch (Exception e)
                 {
-                    Util.LogErrorFormat("{0}\n{1}\n", e.Message, e.StackTrace);
-                    Error("[加载文件失败]:" + path);
+                    Util.LogErrorFormat("{0}\n[加载文件失败]:{1}\n{2}\n", e.Message, path, e.StackTrace);
                 }
-
             }
         }
         public void VerifyData()
@@ -150,7 +148,7 @@ namespace Tool.Wrap
             {
                 var field = fields[i];
                 var checkers = field.Checkers;
-                if (checkers == null) 
+                if (checkers == null)
                     continue;
                 for (int k = 0; k < checkers.Count; k++)
                 {

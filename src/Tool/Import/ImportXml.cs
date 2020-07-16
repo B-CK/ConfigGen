@@ -11,12 +11,10 @@ namespace Tool.Import
 
         private XmlElement _data;
         private string _path;
-        private int _index;
 
         public ImportXml(string path)
         {
             _path = path;
-            _index = -1;
 
             XmlDocument doc = new XmlDocument();
             doc.Load(path);

@@ -175,7 +175,7 @@ namespace Tool.Check
 
         public override void OutputError(Data data)
         {
-            DataError(data, $"Ref检查规则:{data}数据在{_rules}数据列不存在!\n");
+            DataError(data, $"Ref检查规则:{data} 数据在{_rules}数据列不存在!\n");
         }
     }
 }

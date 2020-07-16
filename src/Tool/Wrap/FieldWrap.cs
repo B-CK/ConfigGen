@@ -131,20 +131,23 @@ namespace Tool.Wrap
         {
             if (OriginalType == Setting.BOOL) return;
 
-            _checkers = new List<Checker>();
+            if (_checkers == null)
+                _checkers = new List<Checker>();
             if (!field.Ref.IsEmpty())
                 _checkers.Add(new RefChecker(this, field.Ref));
-            if (!field.File.IsEmpty() && (OriginalType == Setting.STRING || OriginalType == Setting.LIST || OriginalType == Setting.DICT))
+            if (!field.File.IsEmpty())
                 _checkers.Add(new FileChecker(this, field.File));
             if (field.Unique != null)
                 _checkers.Add(new UniqueChecker(this, field.Unique));
-            if (field.NotEmpty != null && (OriginalType == Setting.STRING || OriginalType == Setting.LIST || OriginalType == Setting.DICT))
+            if (field.NotEmpty != null)
                 _checkers.Add(new NotEmptyChecker(this, field.NotEmpty));
-            if (!field.Range.IsEmpty() && OriginalType != Setting.STRING)
+            if (!field.Range.IsEmpty())
                 _checkers.Add(new RangeChecker(this, field.Range));
         }
         public void CreateKeyChecker()
         {
+            if (_checkers == null)
+                _checkers = new List<Checker>();
             _checkers.Add(new UniqueChecker(this, ""));
         }
 

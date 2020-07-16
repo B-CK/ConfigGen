@@ -42,6 +42,11 @@ namespace Tool.Check
         public override bool VerifyRule()
         {
             bool isOk = base.VerifyRule();
+            if (_define.IsRaw && !HASH.Contains(_define.OriginalType))
+            {
+                Warning($"Range检查规则:基础类型数据类型仅支持int,long,float类型!当前类型:{_define.OriginalType}");
+                isOk = false;
+            }
             _ranges = new RangeRule[_ruleTable.Length];
             for (int i = 0; i < _ruleTable.Length; i++)
             {
@@ -129,10 +134,6 @@ namespace Tool.Check
                             else
                                 isOk = PaserLeftRight(nodes, value.FullName, ref range);
                         }
-                        break;
-                    default:
-                        Warning($"Range检查规则:仅支持int,long,float类型!当前类型:{_define.OriginalType}.");
-                        isOk = false;
                         break;
                 }
                 _ranges[i] = range;

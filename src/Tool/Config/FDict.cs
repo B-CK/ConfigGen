@@ -36,8 +36,7 @@ namespace Tool.Config
                 if (!Values.ContainsKey(dk))
                     Values.Add(dk, dv);
                 else
-                    Util.Error("字段:{0} Key:{1} 重复", define.Name, _key.Name);
-
+                    Util.Error("字段:{0} Key:{1} 重复", define.Name, dk);
             }
         }
 

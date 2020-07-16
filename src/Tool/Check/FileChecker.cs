@@ -18,6 +18,16 @@ namespace Tool.Check
         public override bool VerifyRule()
         {
             bool isOk = base.VerifyRule();
+            if (_rules.IsEmpty() || _ruleTable.Length == 0)
+            {
+                Warning($"File检查规则:未填写内容!");
+                isOk = false;
+            }
+            if (_define.IsRaw && _define.OriginalType != Setting.STRING)
+            {
+                Warning($"File检查规则:基础类型数据类型仅支持string类型");
+                isOk = false;
+            }
             for (int i = 0; i < _ruleTable.Length; i++)
             {
                 RuleInfo info = _ruleTable[i];

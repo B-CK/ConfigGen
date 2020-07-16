@@ -170,7 +170,7 @@ namespace Tool
         }
         public static void Error(string fmt, params object[] msg)
         {
-            new Exception(string.Format(fmt, msg));
+            throw new Exception(string.Format(fmt, msg));
         }
         public static void Log(object logString, ConsoleColor color = ConsoleColor.White)
         {

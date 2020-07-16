@@ -53,7 +53,7 @@ namespace Tool.Import
                         ++_ri;
                         _ci = -1;
                     }
-                    else if (!column.IsEmpty())
+                    else if (!column.IsEmpty())//null,""为空,空白字符(\b\n\t等)不过滤
                     {
                         if (column.StartsWith(Setting.SetEndFlag))
                         {
@@ -126,10 +126,10 @@ namespace Tool.Import
             }
             return null;
         }
-        private string GetNextAndCheckNotEmpty(bool needCheck = true)
+        private string GetNextAndCheckNotEmpty()
         {
             string value = GetNext();
-            if (needCheck && value.IsEmpty())
+            if (value.IsEmpty())
                 Error("数据无法正常读取(漏填,集合读一半等)");
             return value;
         }
@@ -183,7 +183,7 @@ namespace Tool.Import
         }
         public override string GetString()
         {
-            return GetNextAndCheckNotEmpty(false);
+            return GetNextAndCheckNotEmpty();
         }
         public override string GetEnum()
         {
@@ -223,7 +223,10 @@ namespace Tool.Import
             {
                 var dk = Data.Create(data.Host, key, this);
                 var dv = Data.Create(data.Host, value, this);
-                data.Values.Add(dk, dv);
+                if (!data.Values.ContainsKey(dk))
+                    data.Values.Add(dk, dv);
+                else
+                    Error($"字段:{define.Name} Key:{dk} 重复");
             }
         }
     }
