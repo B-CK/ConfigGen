@@ -108,6 +108,40 @@ function Stream:GetCfgAllTypeClientConst()
 end
 meta= {}
 meta.__index = meta
+meta.class = 'Cfg.Base.BaseClass'
+GetOrCreate('Cfg.Base')['BaseClass'] = meta
+function Stream:GetCfgBaseBaseClassMaker()
+	return self['Get' .. self:GetString():gsub('%.', '')](self)
+end
+function Stream:GetCfgBaseBaseClass()
+	local o = {}
+	setmetatable(o, Cfg.Base.BaseClass)
+	o.ID = self:GetInt()
+	o.Index = self:GetInt()
+	return o
+end
+meta= {}
+meta.__index = meta
+meta.class = 'Cfg.Base.AClass'
+GetOrCreate('Cfg.Base')['AClass'] = meta
+function Stream:GetCfgBaseAClass()
+	local o = self:GetCfgBaseBaseClass()
+	setmetatable(o, Cfg.Base.AClass)
+	o.AIndex = self:GetInt()
+	return o
+end
+meta= {}
+meta.__index = meta
+meta.class = 'Cfg.Base.BClass'
+GetOrCreate('Cfg.Base')['BClass'] = meta
+function Stream:GetCfgBaseBClass()
+	local o = self:GetCfgBaseBaseClass()
+	setmetatable(o, Cfg.Base.BClass)
+	o.BIndex = self:GetString()
+	return o
+end
+meta= {}
+meta.__index = meta
 meta.class = 'Cfg.Character.Model'
 GetOrCreate('Cfg.Character')['Model'] = meta
 function Stream:GetCfgCharacterModel()

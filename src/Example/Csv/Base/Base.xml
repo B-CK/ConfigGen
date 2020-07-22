@@ -1,0 +1,14 @@
+<Namespace Name = "Base">
+    <Class Name = "BaseClass"  Index = "ID" DataPath="Base.xlsx" Desc = "所有类型">
+		<Field Name = "ID" Type = "int" Desc = "ID" Group = "Client" />
+        <Field Name = "Index" Type = "int" Desc = "Test.TID"  Group = "Client" />
+	</Class>
+	
+	<Class Name = "AClass" Inherit = "BaseClass">
+		<Field Name = "AIndex" Type = "int" Desc = "Int"  Group = "Client" />
+	</Class>
+	<Class Name = "BClass" Inherit = "BaseClass">
+		<Field Name = "BIndex" Type = "string" Desc = "Int"  Group = "Client" />
+	</Class>
+</Namespace>
+
