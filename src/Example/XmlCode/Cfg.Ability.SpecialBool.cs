@@ -3,21 +3,21 @@ using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
-namespace Editor.CustomTypes
+namespace Cfg.Ability
 {
 	/// <summary>
-	/// 怪物
+	/// 
 	/// <summary>
-	public class Monster : Editor.CustomTypes.Custom
+	public partial class SpecialBool : Cfg.Ability.SpecialArg
 	{
 		/// <summary>
-		/// 攻击
+		/// 
 		/// <summary>
-		public int Attack;
+		public readonly bool value;
 		public override void Write(TextWriter _1)
 		{
 			base.Write(_1);
-			Write(_1, "Attack", Attack);
+			Write(_1, "value", value);
 		}
 		public override void Read(XmlNode _1)
 		{
@@ -25,7 +25,7 @@ namespace Editor.CustomTypes
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{
-				case "Attack": Attack = ReadInt(_2); break;
+				case "value": value = ReadBool(_2); break;
 			}
 		}
 	}

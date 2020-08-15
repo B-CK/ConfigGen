@@ -3,26 +3,26 @@ using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
-namespace Editor.CustomTypes
+namespace Cfg.Ability
 {
 	/// <summary>
-	/// 伙伴
+	/// 
 	/// <summary>
-	public class Partner : Editor.CustomTypes.Custom
+	public partial class PlaySound : Cfg.Ability.Action
 	{
 		/// <summary>
-		/// 别名
+		/// 
 		/// <summary>
-		public string Alias;
+		public readonly string Sound;
 		/// <summary>
-		/// 光环
+		/// 
 		/// <summary>
-		public Editor.CustomTypes.BuffType Buff;
+		public readonly Cfg.Ability.Target Target;
 		public override void Write(TextWriter _1)
 		{
 			base.Write(_1);
-			Write(_1, "Alias", Alias);
-			Write(_1, "Buff", Buff);
+			Write(_1, "Sound", Sound);
+			Write(_1, "Target", Target);
 		}
 		public override void Read(XmlNode _1)
 		{
@@ -30,8 +30,8 @@ namespace Editor.CustomTypes
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{
-				case "Alias": Alias = ReadString(_2); break;
-				case "Buff": Buff = (Editor.CustomTypes.BuffType)ReadInt(_2); break;
+				case "Sound": Sound = ReadString(_2); break;
+				case "Target": Target = ReadDynamicObject<Cfg.Ability.Target>(_2, "Cfg.Ability"); break;
 			}
 		}
 	}

@@ -21,7 +21,7 @@ namespace Tool.Export
         static List<string> namespaces = new List<string>()
         {
             "using System;",
-            $"using XmlEditor;",
+            "using XmlEditor;",
             "using System.IO;",
             "using System.Xml;",
             "using System.Collections.Generic;",
@@ -68,9 +68,9 @@ namespace Tool.Export
                     //类
                     Comment(cls.Desc, TYPE_LEVEL);
                     if (cls.Inherit.IsEmpty())
-                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public class {cls.Name} : {CLASS_XML_OBJECT}");
+                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public partial class {cls.Name} : {CLASS_XML_OBJECT}");
                     else
-                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public class {cls.Name} : {Util.CorrectFullType(cls.Inherit)}");
+                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public partial class {cls.Name} : {Util.CorrectFullType(cls.Inherit)}");
                     Start(TYPE_LEVEL);
                     {
 
@@ -118,7 +118,7 @@ namespace Tool.Export
                     End(TYPE_LEVEL);
                 }
                 End(0);
-                string path = Path.Combine(Setting.XmlCodeDir, cls.FullName + ".cs");
+                string path = Path.Combine(Setting.XmlCodeDir, $"{Setting.ModuleName}.{cls.FullName}.cs");
                 Util.SaveFile(path, builder.ToString());
                 builder.Clear();
             }
@@ -255,7 +255,7 @@ namespace Tool.Export
                     End(TYPE_LEVEL);
                 }
                 End(0);
-                string path = Path.Combine(Setting.XmlCodeDir, en.FullName + ".cs");
+                string path = Path.Combine(Setting.XmlCodeDir, $"{Setting.ModuleName}.{en.FullName}.cs");
                 Util.SaveFile(path, builder.ToString());
                 builder.Clear();
             }
