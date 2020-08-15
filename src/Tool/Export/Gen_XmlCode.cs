@@ -10,7 +10,7 @@ namespace Tool.Export
     public class Gen_XmlCode
     {
         const string CLASS_XML_OBJECT = "XmlObject";
-        const string FEILD_MODIFIERS = "public readonly";
+        const string FEILD_MODIFIERS = "public";
         const string CONST_MODIFIERS = "public const";
 
         const int TYPE_LEVEL = 1;
@@ -21,7 +21,6 @@ namespace Tool.Export
         static List<string> namespaces = new List<string>()
         {
             "using System;",
-            "using XmlEditor;",
             "using System.IO;",
             "using System.Xml;",
             "using System.Collections.Generic;",
@@ -151,7 +150,7 @@ namespace Tool.Export
             if (field.IsRaw)
                 reader.IntervalLevel(level).AppendLine($"case \"{field.Name}\": {field.Name} = Read{type.FirstCharUpper()}(_2); break;");
             else if (field.IsEnum)
-                reader.IntervalLevel(level).AppendLine($"case \"{field.Name}\": {field.Name} = ({type})ReadString(_2); break;");
+                reader.IntervalLevel(level).AppendLine($"case \"{field.Name}\": {field.Name} = ({type})ReadInt(_2); break;");
             else if (field.IsClass)
             {
                 if (field.IsDynamic)
