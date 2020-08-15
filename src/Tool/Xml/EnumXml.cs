@@ -9,6 +9,8 @@ namespace Xml
         [XmlAttribute]
         public string Name;
         [XmlAttribute]
+        public bool IsFlags;
+        [XmlAttribute]
         public string Group;
         [XmlAttribute]
         public string Desc;

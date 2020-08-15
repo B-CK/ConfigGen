@@ -10,7 +10,7 @@ namespace Cfg.Skill
 	/// <summary>
 	public enum MoveType
 	{
-		MoveToTarget = 0,
+		MoveToTarget = 1,
 		MoveInDirection = 1,
 	}
 }

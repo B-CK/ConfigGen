@@ -10,7 +10,7 @@ namespace Cfg.Skill
 	/// <summary>
 	public enum ActionSourceType
 	{
-		SelfModel = 0,
+		SelfModel = 1,
 		OtherModel = 1,
 	}
 }

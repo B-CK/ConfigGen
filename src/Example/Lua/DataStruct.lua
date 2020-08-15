@@ -4,11 +4,11 @@ local GetOrCreate = Util.GetOrCreate
 local meta
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.AllType.AllClass'
+meta.__cname = 'Cfg.AllType.AllClass'
 meta.ItemString = 'Hello World'
 meta.ItemFloat = 3.141527
 meta.ItemBool = false
-meta.ItemEnum = 2
+meta.ItemEnum = 3
 GetOrCreate('Cfg.AllType')['AllClass'] = meta
 function Stream:GetCfgAllTypeAllClass()
 	local o = {}
@@ -32,7 +32,7 @@ function Stream:GetCfgAllTypeAllClass()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.AllType.CheckAll'
+meta.__cname = 'Cfg.AllType.CheckAll'
 GetOrCreate('Cfg.AllType')['CheckAll'] = meta
 function Stream:GetCfgAllTypeCheckAll()
 	local o = {}
@@ -52,7 +52,7 @@ function Stream:GetCfgAllTypeCheckAll()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.AllType.SingleClass'
+meta.__cname = 'Cfg.AllType.SingleClass'
 GetOrCreate('Cfg.AllType')['SingleClass'] = meta
 function Stream:GetCfgAllTypeSingleClassMaker()
 	return self['Get' .. self:GetString():gsub('%.', '')](self)
@@ -66,7 +66,7 @@ function Stream:GetCfgAllTypeSingleClass()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.AllType.M1'
+meta.__cname = 'Cfg.AllType.M1'
 GetOrCreate('Cfg.AllType')['M1'] = meta
 function Stream:GetCfgAllTypeM1()
 	local o = self:GetCfgAllTypeSingleClass()
@@ -76,7 +76,7 @@ function Stream:GetCfgAllTypeM1()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.AllType.M2'
+meta.__cname = 'Cfg.AllType.M2'
 GetOrCreate('Cfg.AllType')['M2'] = meta
 function Stream:GetCfgAllTypeM2()
 	local o = self:GetCfgAllTypeSingleClass()
@@ -86,7 +86,7 @@ function Stream:GetCfgAllTypeM2()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.AllType.Test'
+meta.__cname = 'Cfg.AllType.Test'
 GetOrCreate('Cfg.AllType')['Test'] = meta
 function Stream:GetCfgAllTypeTest()
 	local o = {}
@@ -97,7 +97,7 @@ function Stream:GetCfgAllTypeTest()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.AllType.ClientConst'
+meta.__cname = 'Cfg.AllType.ClientConst'
 GetOrCreate('Cfg.AllType')['ClientConst'] = meta
 function Stream:GetCfgAllTypeClientConst()
 	local o = {}
@@ -108,7 +108,7 @@ function Stream:GetCfgAllTypeClientConst()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Base.BaseClass'
+meta.__cname = 'Cfg.Base.BaseClass'
 GetOrCreate('Cfg.Base')['BaseClass'] = meta
 function Stream:GetCfgBaseBaseClassMaker()
 	return self['Get' .. self:GetString():gsub('%.', '')](self)
@@ -122,7 +122,7 @@ function Stream:GetCfgBaseBaseClass()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Base.AClass'
+meta.__cname = 'Cfg.Base.AClass'
 GetOrCreate('Cfg.Base')['AClass'] = meta
 function Stream:GetCfgBaseAClass()
 	local o = self:GetCfgBaseBaseClass()
@@ -132,7 +132,7 @@ function Stream:GetCfgBaseAClass()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Base.BClass'
+meta.__cname = 'Cfg.Base.BClass'
 GetOrCreate('Cfg.Base')['BClass'] = meta
 function Stream:GetCfgBaseBClass()
 	local o = self:GetCfgBaseBaseClass()
@@ -142,7 +142,7 @@ function Stream:GetCfgBaseBClass()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Character.Model'
+meta.__cname = 'Cfg.Character.Model'
 GetOrCreate('Cfg.Character')['Model'] = meta
 function Stream:GetCfgCharacterModel()
 	local o = {}
@@ -158,7 +158,7 @@ function Stream:GetCfgCharacterModel()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.ActorConfig'
+meta.__cname = 'Cfg.Skill.ActorConfig'
 GetOrCreate('Cfg.Skill')['ActorConfig'] = meta
 function Stream:GetCfgSkillActorConfig()
 	local o = {}
@@ -171,7 +171,7 @@ function Stream:GetCfgSkillActorConfig()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.GeneralAction'
+meta.__cname = 'Cfg.Skill.GeneralAction'
 GetOrCreate('Cfg.Skill')['GeneralAction'] = meta
 function Stream:GetCfgSkillGeneralActionMaker()
 	return self['Get' .. self:GetString():gsub('%.', '')](self)
@@ -191,7 +191,7 @@ function Stream:GetCfgSkillGeneralAction()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.SkillAction'
+meta.__cname = 'Cfg.Skill.SkillAction'
 GetOrCreate('Cfg.Skill')['SkillAction'] = meta
 function Stream:GetCfgSkillSkillAction()
 	local o = self:GetCfgSkillGeneralAction()
@@ -209,7 +209,7 @@ function Stream:GetCfgSkillSkillAction()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.Sequence'
+meta.__cname = 'Cfg.Skill.Sequence'
 GetOrCreate('Cfg.Skill')['Sequence'] = meta
 function Stream:GetCfgSkillSequence()
 	local o = {}
@@ -221,7 +221,7 @@ function Stream:GetCfgSkillSequence()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.HitZone'
+meta.__cname = 'Cfg.Skill.HitZone'
 GetOrCreate('Cfg.Skill')['HitZone'] = meta
 function Stream:GetCfgSkillHitZoneMaker()
 	return self['Get' .. self:GetString():gsub('%.', '')](self)
@@ -237,7 +237,7 @@ function Stream:GetCfgSkillHitZone()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.CubeZone'
+meta.__cname = 'Cfg.Skill.CubeZone'
 GetOrCreate('Cfg.Skill')['CubeZone'] = meta
 function Stream:GetCfgSkillCubeZone()
 	local o = self:GetCfgSkillHitZone()
@@ -247,7 +247,7 @@ function Stream:GetCfgSkillCubeZone()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.SphereZone'
+meta.__cname = 'Cfg.Skill.SphereZone'
 GetOrCreate('Cfg.Skill')['SphereZone'] = meta
 function Stream:GetCfgSkillSphereZone()
 	local o = self:GetCfgSkillHitZone()
@@ -257,7 +257,7 @@ function Stream:GetCfgSkillSphereZone()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.CylinderZone'
+meta.__cname = 'Cfg.Skill.CylinderZone'
 GetOrCreate('Cfg.Skill')['CylinderZone'] = meta
 function Stream:GetCfgSkillCylinderZone()
 	local o = self:GetCfgSkillHitZone()
@@ -269,7 +269,7 @@ function Stream:GetCfgSkillCylinderZone()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.Timeline'
+meta.__cname = 'Cfg.Skill.Timeline'
 GetOrCreate('Cfg.Skill')['Timeline'] = meta
 function Stream:GetCfgSkillTimelineMaker()
 	return self['Get' .. self:GetString():gsub('%.', '')](self)
@@ -283,7 +283,7 @@ function Stream:GetCfgSkillTimeline()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.StaticHit'
+meta.__cname = 'Cfg.Skill.StaticHit'
 GetOrCreate('Cfg.Skill')['StaticHit'] = meta
 function Stream:GetCfgSkillStaticHitMaker()
 	return self['Get' .. self:GetString():gsub('%.', '')](self)
@@ -297,7 +297,7 @@ function Stream:GetCfgSkillStaticHit()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.DynamicHit'
+meta.__cname = 'Cfg.Skill.DynamicHit'
 GetOrCreate('Cfg.Skill')['DynamicHit'] = meta
 function Stream:GetCfgSkillDynamicHit()
 	local o = self:GetCfgSkillStaticHit()
@@ -307,7 +307,7 @@ function Stream:GetCfgSkillDynamicHit()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.Controller'
+meta.__cname = 'Cfg.Skill.Controller'
 GetOrCreate('Cfg.Skill')['Controller'] = meta
 function Stream:GetCfgSkillControllerMaker()
 	return self['Get' .. self:GetString():gsub('%.', '')](self)
@@ -320,7 +320,7 @@ function Stream:GetCfgSkillController()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.Active'
+meta.__cname = 'Cfg.Skill.Active'
 GetOrCreate('Cfg.Skill')['Active'] = meta
 function Stream:GetCfgSkillActive()
 	local o = self:GetCfgSkillController()
@@ -330,7 +330,7 @@ function Stream:GetCfgSkillActive()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.ReplaceObject'
+meta.__cname = 'Cfg.Skill.ReplaceObject'
 GetOrCreate('Cfg.Skill')['ReplaceObject'] = meta
 function Stream:GetCfgSkillReplaceObject()
 	local o = self:GetCfgSkillController()
@@ -342,7 +342,7 @@ function Stream:GetCfgSkillReplaceObject()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.Move'
+meta.__cname = 'Cfg.Skill.Move'
 GetOrCreate('Cfg.Skill')['Move'] = meta
 function Stream:GetCfgSkillMove()
 	local o = self:GetCfgSkillController()
@@ -356,7 +356,7 @@ function Stream:GetCfgSkillMove()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.CastObject'
+meta.__cname = 'Cfg.Skill.CastObject'
 GetOrCreate('Cfg.Skill')['CastObject'] = meta
 function Stream:GetCfgSkillCastObject()
 	local o = self:GetCfgSkillController()
@@ -370,7 +370,7 @@ function Stream:GetCfgSkillCastObject()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.PlayParticle'
+meta.__cname = 'Cfg.Skill.PlayParticle'
 GetOrCreate('Cfg.Skill')['PlayParticle'] = meta
 function Stream:GetCfgSkillPlayParticleMaker()
 	return self['Get' .. self:GetString():gsub('%.', '')](self)
@@ -390,7 +390,7 @@ function Stream:GetCfgSkillPlayParticle()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.Buff'
+meta.__cname = 'Cfg.Skill.Buff'
 GetOrCreate('Cfg.Skill')['Buff'] = meta
 function Stream:GetCfgSkillBuff()
 	local o = self:GetCfgSkillPlayParticle()
@@ -400,7 +400,7 @@ function Stream:GetCfgSkillBuff()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.PlaySound'
+meta.__cname = 'Cfg.Skill.PlaySound'
 GetOrCreate('Cfg.Skill')['PlaySound'] = meta
 function Stream:GetCfgSkillPlaySound()
 	local o = self:GetCfgSkillTimeline()
@@ -411,7 +411,7 @@ function Stream:GetCfgSkillPlaySound()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Skill.ShakeScreen'
+meta.__cname = 'Cfg.Skill.ShakeScreen'
 GetOrCreate('Cfg.Skill')['ShakeScreen'] = meta
 function Stream:GetCfgSkillShakeScreen()
 	local o = self:GetCfgSkillTimeline()
@@ -428,7 +428,7 @@ function Stream:GetCfgSkillShakeScreen()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Common.Vector2'
+meta.__cname = 'Cfg.Common.Vector2'
 GetOrCreate('Cfg.Common')['Vector2'] = meta
 function Stream:GetCfgCommonVector2()
 	local o = {}
@@ -439,7 +439,7 @@ function Stream:GetCfgCommonVector2()
 end
 meta= {}
 meta.__index = meta
-meta.class = 'Cfg.Common.Vector3'
+meta.__cname = 'Cfg.Common.Vector3'
 GetOrCreate('Cfg.Common')['Vector3'] = meta
 function Stream:GetCfgCommonVector3()
 	local o = {}
@@ -450,52 +450,52 @@ function Stream:GetCfgCommonVector3()
 	return o
 end
 GetOrCreate('AllType')['CardElement'] = {
-	Attack = 0,
-	Extract = 1,
-	Renounce = 2,
-	Armor = 3,
-	Control = 4,
-	Cure = 5,
-	Oneself = 6,
-	Hand = 7,
-	Brary = 8,
-	Handack = 9,
+	Attack = 1,
+	Extract = 2,
+	Renounce = 3,
+	Armor = 4,
+	Control = 5,
+	Cure = 6,
+	Oneself = 7,
+	Hand = 8,
+	Brary = 9,
+	Handack = 10,
 }
 GetOrCreate('Character')['GroupType'] = {
-	None = 0,
+	None = 1,
 	Base = 1,
 	Player = 2,
 	Monster = 3,
 	NPC = 4,
 }
 GetOrCreate('Skill')['ActionSourceType'] = {
-	SelfModel = 0,
+	SelfModel = 1,
 	OtherModel = 1,
 }
 GetOrCreate('Skill')['LockObjectType'] = {
-	None = 0,
+	None = 1,
 	Enemy = 1,
 	Teammate = 2,
 	Self = 3,
 	Other = 4,
 }
 GetOrCreate('Skill')['HitSharpType'] = {
-	Cube = 0,
+	Cube = 1,
 	Sphere = 1,
 	Cylinder = 2,
 }
 GetOrCreate('Skill')['MoveType'] = {
-	MoveToTarget = 0,
+	MoveToTarget = 1,
 	MoveInDirection = 1,
 }
 GetOrCreate('Skill')['BindType'] = {
-	None = 0,
+	None = 1,
 	Body = 1,
 	Head = 2,
 	Foot = 3,
 }
 GetOrCreate('Skill')['EffectAlignType'] = {
-	None = 0,
+	None = 1,
 	LeftTop = 1,
 	Left = 2,
 	LeftBottom = 3,
@@ -507,7 +507,7 @@ GetOrCreate('Skill')['EffectAlignType'] = {
 	RightBottom = 9,
 }
 GetOrCreate('Skill')['ShakeType'] = {
-	Horizontal = 0,
+	Horizontal = 1,
 	Vertical = 1,
 	Mix = 2,
 }

@@ -239,14 +239,14 @@ namespace Tool.Export
                 {
                     //枚举
                     Comment(en.Desc, TYPE_LEVEL);
+                    if (en.IsFlags)
+                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"[System.Flags]");
                     builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public enum {en.Name}");
                     Start(TYPE_LEVEL);
                     {
                         foreach (var item in en.Values)
                         {
-                            var alias = en.Items[item.Key].Alias;
-                            if (!alias.IsEmpty())
-                                Comment(alias, MEM_LEVEL);
+                            Comment(en.Items[item.Key].Desc, MEM_LEVEL);
                             builder.IntervalLevel(MEM_LEVEL);
                             builder.AppendLine($"{item.Key} = {item.Value},");
                         }

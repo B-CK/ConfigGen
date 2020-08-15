@@ -10,7 +10,7 @@ namespace Cfg.Skill
 	/// <summary>
 	public enum ShakeType
 	{
-		Horizontal = 0,
+		Horizontal = 1,
 		Vertical = 1,
 		Mix = 2,
 	}

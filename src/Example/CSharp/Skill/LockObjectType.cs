@@ -10,7 +10,7 @@ namespace Cfg.Skill
 	/// <summary>
 	public enum LockObjectType
 	{
-		None = 0,
+		None = 1,
 		Enemy = 1,
 		Teammate = 2,
 		Self = 3,

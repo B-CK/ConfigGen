@@ -10,7 +10,7 @@ namespace Cfg.Skill
 	/// <summary>
 	public enum HitSharpType
 	{
-		Cube = 0,
+		Cube = 1,
 		Sphere = 1,
 		Cylinder = 2,
 	}

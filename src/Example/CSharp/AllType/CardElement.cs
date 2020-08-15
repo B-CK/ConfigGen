@@ -8,47 +8,48 @@ namespace Cfg.AllType
 	/// <summary>
 	/// 卡牌枚举
 	/// <summary>
+	[System.Flags]
 	public enum CardElement
 	{
 		/// <summary>
 		/// 攻击
 		/// <summary>
-		Attack = 0,
+		Attack = 1,
 		/// <summary>
 		/// 抽牌
 		/// <summary>
-		Extract = 1,
+		Extract = 2,
 		/// <summary>
 		/// 弃牌
 		/// <summary>
-		Renounce = 2,
+		Renounce = 3,
 		/// <summary>
 		/// 护甲
 		/// <summary>
-		Armor = 3,
+		Armor = 4,
 		/// <summary>
 		/// 控制
 		/// <summary>
-		Control = 4,
+		Control = 5,
 		/// <summary>
 		/// 治疗
 		/// <summary>
-		Cure = 5,
+		Cure = 6,
 		/// <summary>
 		/// 自残
 		/// <summary>
-		Oneself = 6,
+		Oneself = 7,
 		/// <summary>
 		/// 手牌
 		/// <summary>
-		Hand = 7,
+		Hand = 8,
 		/// <summary>
 		/// 牌库
 		/// <summary>
-		Brary = 8,
+		Brary = 9,
 		/// <summary>
 		/// 手牌攻击
 		/// <summary>
-		Handack = 9,
+		Handack = 10,
 	}
 }

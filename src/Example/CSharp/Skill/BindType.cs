@@ -10,7 +10,7 @@ namespace Cfg.Skill
 	/// <summary>
 	public enum BindType
 	{
-		None = 0,
+		None = 1,
 		Body = 1,
 		Head = 2,
 		Foot = 3,

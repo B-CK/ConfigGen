@@ -236,6 +236,8 @@ namespace Tool.Export
                 {
                     //枚举
                     Comment(en.Desc, TYPE_LEVEL);
+                    if (en.IsFlags)
+                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"[System.Flags]");
                     builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public enum {en.Name}");
                     Start(TYPE_LEVEL);
                     {

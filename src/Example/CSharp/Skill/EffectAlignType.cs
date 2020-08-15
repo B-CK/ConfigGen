@@ -10,7 +10,7 @@ namespace Cfg.Skill
 	/// <summary>
 	public enum EffectAlignType
 	{
-		None = 0,
+		None = 1,
 		LeftTop = 1,
 		Left = 2,
 		LeftBottom = 3,

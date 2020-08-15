@@ -32,6 +32,7 @@ namespace Tool.Wrap
         public string Namespace { get { return _namespace; } }
         public string Name { get { return _des.Name; } }
         public string Desc { get { return _des.Desc; } }
+        public bool IsFlags { get { return _des.IsFlags; } }
         public Dictionary<string, int> Values { get { return _values; } }
         public Dictionary<string, string> Aliases { get { return _aliases; } }
         public Dictionary<string, EnumItemXml> Items => _items;
@@ -95,7 +96,7 @@ namespace Tool.Wrap
                 Error("命名不合法:" + Name);
 
             var items = des.Items;
-            int lastValue = 0;
+            int lastValue = 1;//枚举未定义值时,默认从1开始.
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i];

@@ -5,7 +5,7 @@
 6.5
 Test
 true
-9
+10
 Cfg.AllType.M2
 a
 1.2
@@ -38,7 +38,7 @@ d
 5.7
 Test
 false
-9
+10
 Cfg.AllType.M1
 b
 1.2
@@ -78,7 +78,7 @@ false
 5.7
 Check所有类型
 false
-9
+10
 Cfg.AllType.M1
 b
 1.2
@@ -113,7 +113,7 @@ d
 5
 Data所有Class类型
 true
-9
+10
 Cfg.AllType.M2
 a
 1.2

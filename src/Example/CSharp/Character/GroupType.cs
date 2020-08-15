@@ -13,7 +13,7 @@ namespace Cfg.Character
 		/// <summary>
 		/// 临时组
 		/// <summary>
-		None = 0,
+		None = 1,
 		/// <summary>
 		/// 基础类型
 		/// <summary>
