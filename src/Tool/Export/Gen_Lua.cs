@@ -58,7 +58,7 @@ namespace Tool.Export
                 var fullType = Util.CorrectFullType(cls.FullName);
                 builder.AppendLine("meta= {}");
                 builder.AppendLine("meta.__index = meta");
-                builder.AppendFormat("meta.class = '{0}'\n", fullType);
+                builder.AppendFormat("meta.__cname = '{0}'\n", fullType);
 
                 //--常量字段
                 for (int j = 0; j < cls.Consts.Count; j++)

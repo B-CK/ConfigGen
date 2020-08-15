@@ -79,6 +79,11 @@ namespace Tool.Wrap
                 Error("索引(Index)未填写");
             ClassWrap cls = ClassWrap.Get(_fullName);
             _index = cls.Fields.Find(f => f.Name == des.Index);
+            if (_index == null)
+            {
+                Error("配置主键字段不存在:" + des.Index);
+                return;
+            }
             _index.CreateKeyChecker();
 
             string path = Path.Combine(moduleDir, _des.DataPath);

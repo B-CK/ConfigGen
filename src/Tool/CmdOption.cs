@@ -133,11 +133,12 @@ namespace Tool
                 }
             }
 
-            if (!Setting.XmlCodeDir.IsEmpty() && Setting.ExportGroup.Count == 0)
-            {
-                Util.LogError("导出XmlCode编辑器代码时,必须指定Group参数");
-                _result &= false;
-            }
+            //不知道早期为嘛这么设计?
+            //if (!Setting.XmlCodeDir.IsEmpty() && Setting.ExportGroup.Count == 0)
+            //{
+            //    Util.LogError("导出XmlCode编辑器代码时,必须指定Group参数");
+            //    _result &= false;
+            //}
             if (Setting.CSDir.IsEmpty() && Setting.JavaDir.IsEmpty() && Setting.XmlCodeDir.IsEmpty()
                 && Setting.LuaDir.IsEmpty() && Setting.DataDir.IsEmpty() && !Setting.Check)
             {

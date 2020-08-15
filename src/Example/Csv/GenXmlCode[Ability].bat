@@ -1,7 +1,8 @@
-@cd %~dp0..\Tool\CfgGen\
-@set rootPath=..\..
+cd ..
+@set tool="Tool.exe"
 
-ConfigGen.exe -configXml %rootPath%\Csv\Cfg_Ability.xml -xmlCode %rootPath%\Unity\Assets\Source\Config\Ability
+@set module=".\Csv\Cfg_Ability.xml"
+@set xmlCode=".\XmlCode"
 
 
-
+%tool% -module %module% -xmlCode %xmlCode%

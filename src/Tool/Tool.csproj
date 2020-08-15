@@ -91,9 +91,6 @@
     <Compile Include="Xml\ModuleXml.cs" />
     <Compile Include="Xml\NamespaceXml.cs" />
     <Compile Include="Export\CodeWriter.cs" />
-    <Compile Include="Export\ExportCSharp.cs" />
-    <Compile Include="Export\ExportXmlCode.cs" />
-    <Compile Include="Export\ExportCsv.cs" />
     <Compile Include="Export\Gen_Lua.cs" />
     <Compile Include="Import\Import.cs" />
     <Compile Include="Import\ImportXml.cs" />

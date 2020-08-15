@@ -1,46 +1,59 @@
 <Namespace Name = "Ability">
+	<!-- 修饰器基类:可扩展各种类型 -->
     <Class Name = "Modifier">
-        <Field Name = "Attributes" Value = "ModifierAttribute" Des = "修饰器特性描述" />
-        <Field Name = "Duration" Value = "float" Des = "持续时间" />
-        <Field Name = "TimeInterval" Value = "float" Des = "计时器时间间隔,默认-1,无限期" />
-        <Field Name = "EffectAttach" Value = "AttachType" Des = "特效附着点类型" />
-        <Field Name = "Effect" Value = "string" Des = "特效名称" />
-        <Field Name = "IsBuff" Value = "bool" Des = "是否为增益魔法" />
-        <Field Name = "IsDebuff" Value = "bool" Des = "是否为减益魔法" />
-        <Field Name = "IsPassive" Value = "bool" Des = "是否被动,是否默认激活true,学习后自己动激活" />
-        <Field Name = "IsPurgable" Value = "bool" Des = "是否可以解除效果,针对buff/debuff" />
-        <Field Name = "Properties" Value = "list:Property" Des = "属性修改列表" />
-        <Field Name = "States" Value = "list:State" Des = "状态修改列表" />
-        <Field Name = "Events" Value = "list:string" Des = "基础事件列表" />
+		<Field Name = "name" Type = "string" Des = "修饰器名称" />
+		<Field Name = "events" Type = "list:ModifierEvent" Des = "事件列表" />
+		<Field Name = "properties" Type = "list:Property" Des = "属性修改列表" />
+        <Field Name = "states" Type = "list:State" Des = "状态修改列表" />        
+		
+		<!-- <Field Name = "attributes" Type = "ModifierAttribute" Des = "修饰器特性描述" /> -->
+        <!-- <Field Name = "duration" Type = "float" Des = "持续时间" /> -->
+        <!-- <Field Name = "timeInterval" Type = "float" Des = "计时器时间间隔,默认-1,无限期" /> -->
+        <!-- <Field Name = "effectAttach" Type = "AttachType" Des = "特效附着点类型" /> -->
+        <!-- <Field Name = "effect" Type = "string" Des = "特效名称" /> -->
+        <!-- <Field Name = "isBuff" Type = "bool" Des = "是否为增益魔法" /> -->
+        <!-- <Field Name = "isDebuff" Type = "bool" Des = "是否为减益魔法" /> -->
+        <!-- <Field Name = "isPassive" Type = "bool" Des = "是否被动,是否默认激活true,学习后自己动激活" /> -->
+        <!-- <Field Name = "isPurgable" Type = "bool" Des = "是否可以解除效果,针对buff/debuff" />         -->
     </Class>
 
+	<!-- 属性描述 -->
     <Class Name = "Property">
-        <Field Name = "Property" Value = "PropertyType" Des = "属性类型" />
-        <Field Name = "Value" Value = "int" Des = "修改量" />
+        <Field Name = "property" Type = "PropertyType" Des = "属性类型" />
+        <Field Name = "value" Type = "float" Des = "修改量" />
     </Class>
+	<!-- 状态描述 -->
     <Class Name = "State">
-        <Field Name = "State" Value = "StateType" Des = "状态类型" />
-        <Field Name = "Value" Value = "bool" Des = "是否激活" />
+        <Field Name = "state" Type = "StateType" Des = "状态类型" />
+        <Field Name = "value" Type = "StateType" Des = "状态值:三种值" />
     </Class>
-
-    <Enum Name="ModifierAttribute">
-        <Item Name = "MODIFIER_ATTRIBUTE_NONE" Value = "1" Des = "无" />
-        <Item Name = "MODIFIER_ATTRIBUTE_IGNORE_INVULNERABLE" Value = "2" Des = "忽视无敌" />
-        <Item Name = "MODIFIER_ATTRIBUTE_MULTIPLE" Value = "4" Des = "可叠加" />
-        <Item Name = "MODIFIER_ATTRIBUTE_PERMANENT" Value = "8" Des = "正常" />
-    </Enum>    
-
-    <Enum Name="AttachType">
-        <Item Name = "TargetPoint" Value = "0" Des = "目标位置点" />
-        <Item Name = "TargetChildNode" Value = "1" Des = "目标子节点,查找目标子节点,并挂载在此节点下" />
+	<!-- 状态值 -->
+	<Enum Name="StateValue">
+		<Item Name = "MODIFIER_STATE_VALUE_NONE" Value = "0" Des = "状态不存在" />
+		<Item Name = "MODIFIER_STATE_VALUE_ENABLE" Value = "1" Des = "激活状态" />
+		<Item Name = "MODIFIER_STATE_VALUE_DISABLE" Value = "2" Des = "禁用状态" />
+	</Enum>
+	<!-- 属性类别 -->
+	<Enum Name="PropertyType">
+        <Item Name = "MODIFIER_PROP_MANA_BONUS " Value = "0" Des = "修改目前魔量" />
+        <Item Name = "MODIFIER_PROP_HEALTH_BONUS" Value = "1" Des = "修改目前血量" />
     </Enum>
-
-    <Enum Name="PropertyType">
-        <Item Name = "MODIFIER_PROPMANA_BONUS " Value = "0" Des = "修改目前魔量 " />
-        <Item Name = "MODIFIER_PROPHEALTH_BONUS" Value = "1" Des = "修改目前血量" />
-    </Enum>
+	<!-- 状态类别 -->
     <Enum Name="StateType">
         <Item Name = "MODIFIER_STATE_INVISIBLE " Value = "0" Des = "隐身状态" />
-        <Item Name = "MODIFIER_STATE_INVULNERABLE " Value = "1" Des = "无敌状态 " />
+        <Item Name = "MODIFIER_STATE_INVULNERABLE " Value = "1" Des = "无敌状态" />
     </Enum>
+	
+
+
+    <!-- <Enum Name="ModifierAttribute"> -->
+        <!-- <Item Name = "MODIFIER_ATTRIBUTE_NONE" Value = "1" Des = "无" /> -->
+        <!-- <Item Name = "MODIFIER_ATTRIBUTE_IGNORE_INVULNERABLE" Value = "2" Des = "忽视无敌" /> -->
+        <!-- <Item Name = "MODIFIER_ATTRIBUTE_MULTIPLE" Value = "4" Des = "可叠加" /> -->
+        <!-- <Item Name = "MODIFIER_ATTRIBUTE_PERMANENT" Value = "8" Des = "正常" /> -->
+    <!-- </Enum>     -->
+    <!-- <Enum Name="AttachType"> -->
+        <!-- <Item Name = "TargetPoint" Value = "0" Des = "目标位置点" /> -->
+        <!-- <Item Name = "TargetChildNode" Value = "1" Des = "目标子节点,查找目标子节点,并挂载在此节点下" /> -->
+    <!-- </Enum> -->
 </Namespace>

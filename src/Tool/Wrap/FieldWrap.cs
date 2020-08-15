@@ -166,7 +166,7 @@ namespace Tool.Wrap
                         CheckType(2);
                         string itemType = _types[1];
                         if (!IsRawOrEnumOrClass(itemType))
-                            Error("非法的list item类型:" + itemType);
+                            Error("list的 item类型不存在或者不是raw,enum,class类型:" + itemType);
                     }
                     else if (type == "dict")
                     {

@@ -84,8 +84,6 @@ namespace Tool
         static void LoadDefine()
         {
             long start = DateTime.Now.Ticks;
-            //解析类型定义
-            Dictionary<string, NamespaceXml> allNs = new Dictionary<string, NamespaceXml>();
             string namespacePath = "无法解析Xml.NamespaceXml";
             try
             {
@@ -101,7 +99,6 @@ namespace Tool
                     ///命名空间目录与模块目录并列
                     namespacePath = Path.Combine(moduleDir, imports[i]);
                     var nsx = Util.Deserialize(namespacePath, typeof(NamespaceXml)) as NamespaceXml;
-                    allNs.Add(nsx.Name, nsx);
 
                     string space = nsx.Name;
                     var cls = nsx.Classes;
