@@ -1,0 +1,11 @@
+﻿<Namespace Name = "Common">
+	<Class Name = "Vector2">
+		<Field Name = "x" Type = "float"/>
+		<Field Name = "y" Type = "float"/>		
+	</Class>
+	<Class Name = "Vector3">
+		<Field Name = "x" Type = "float"/>
+		<Field Name = "y" Type = "float"/>		
+		<Field Name = "z" Type = "float"/>		
+	</Class>
+</Namespace>

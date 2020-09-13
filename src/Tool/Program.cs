@@ -42,6 +42,14 @@ namespace Tool
             {
                 LoadDefine();
                 VerifyDefine();
+            }
+            catch (Exception e)
+            {
+                Util.LogErrorFormat("加载定义异常!\n{0}\n{1}\n", e.Message, e.StackTrace);
+            }
+
+            try
+            {
                 Export("CS", Setting.CSDir);
                 Export("Java", Setting.JavaDir);
                 Export("Lua", Setting.LuaDir);
@@ -49,7 +57,7 @@ namespace Tool
             }
             catch (Exception e)
             {
-                Util.LogErrorFormat("加载定义/导出多语言定义异常!\n{0}\n{1}\n", e.Message, e.StackTrace);
+                Util.LogErrorFormat("导出多语言文件异常!\n{0}\n{1}\n", e.Message, e.StackTrace);
             }
            
             //Export("XmlCode", Setting.XmlCodeDir);

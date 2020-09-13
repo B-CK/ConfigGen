@@ -7,16 +7,16 @@ namespace Cfg.Ability
 	/// <summary>
 	/// 
 	/// <summary>
-	public partial class Damage : Cfg.Ability.ActionWithTarget
+	public partial class ActionWithTarget : Cfg.Ability.Action
 	{
 		/// <summary>
-		/// 伤害值
+		/// 目标
 		/// <summary>
-		public float Type;
+		public Cfg.Ability.Target target;
 		public override void Write(TextWriter _1)
 		{
 			base.Write(_1);
-			Write(_1, "Type", Type);
+			Write(_1, "target", target);
 		}
 		public override void Read(XmlNode _1)
 		{
@@ -24,7 +24,7 @@ namespace Cfg.Ability
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{
-				case "Type": Type = ReadFloat(_2); break;
+				case "target": target = ReadDynamicObject<Cfg.Ability.Target>(_2, "Cfg.Ability"); break;
 			}
 		}
 	}

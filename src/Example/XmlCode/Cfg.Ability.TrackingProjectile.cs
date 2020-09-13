@@ -1,5 +1,4 @@
 using System;
-using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
@@ -8,30 +7,25 @@ namespace Cfg.Ability
 	/// <summary>
 	/// 
 	/// <summary>
-	public partial class TrackingProjectile : Cfg.Ability.Action
+	public partial class TrackingProjectile : Cfg.Ability.ActionWithTarget
 	{
 		/// <summary>
-		/// 
+		/// 特效名称
 		/// <summary>
-		public readonly string Effect;
+		public string effectName;
 		/// <summary>
-		/// 
+		/// 移动速度
 		/// <summary>
-		public readonly float MoveSpeed;
+		public float MoveSpeed;
 		/// <summary>
-		/// 
+		/// 绑定点
 		/// <summary>
-		public readonly Cfg.Ability.Target Target;
-		/// <summary>
-		/// 
-		/// <summary>
-		public readonly string TrackNode;
+		public string TrackNode;
 		public override void Write(TextWriter _1)
 		{
 			base.Write(_1);
-			Write(_1, "Effect", Effect);
+			Write(_1, "effectName", effectName);
 			Write(_1, "MoveSpeed", MoveSpeed);
-			Write(_1, "Target", Target);
 			Write(_1, "TrackNode", TrackNode);
 		}
 		public override void Read(XmlNode _1)
@@ -40,9 +34,8 @@ namespace Cfg.Ability
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{
-				case "Effect": Effect = ReadString(_2); break;
+				case "effectName": effectName = ReadString(_2); break;
 				case "MoveSpeed": MoveSpeed = ReadFloat(_2); break;
-				case "Target": Target = ReadDynamicObject<Cfg.Ability.Target>(_2, "Cfg.Ability"); break;
 				case "TrackNode": TrackNode = ReadString(_2); break;
 			}
 		}

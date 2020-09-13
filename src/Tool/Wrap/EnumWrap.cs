@@ -96,7 +96,7 @@ namespace Tool.Wrap
                 Error("命名不合法:" + Name);
 
             var items = des.Items;
-            int lastValue = 1;//枚举未定义值时,默认从1开始.
+            int lastValue = 0;//枚举未定义值时,默认从1开始.
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i];

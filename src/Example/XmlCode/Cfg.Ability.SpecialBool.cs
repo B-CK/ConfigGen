@@ -1,5 +1,4 @@
 using System;
-using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
@@ -11,9 +10,9 @@ namespace Cfg.Ability
 	public partial class SpecialBool : Cfg.Ability.SpecialArg
 	{
 		/// <summary>
-		/// 
+		/// bool数据
 		/// <summary>
-		public readonly bool value;
+		public bool value;
 		public override void Write(TextWriter _1)
 		{
 			base.Write(_1);

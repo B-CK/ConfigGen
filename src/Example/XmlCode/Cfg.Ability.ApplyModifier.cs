@@ -1,5 +1,4 @@
 using System;
-using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
@@ -8,21 +7,16 @@ namespace Cfg.Ability
 	/// <summary>
 	/// 
 	/// <summary>
-	public partial class ApplyModifier : Cfg.Ability.Action
+	public partial class ApplyModifier : Cfg.Ability.ActionWithTarget
 	{
 		/// <summary>
-		/// 
+		/// 修饰器名称
 		/// <summary>
-		public readonly Cfg.Ability.Target Target;
-		/// <summary>
-		/// 
-		/// <summary>
-		public readonly string Modifier;
+		public string modifier;
 		public override void Write(TextWriter _1)
 		{
 			base.Write(_1);
-			Write(_1, "Target", Target);
-			Write(_1, "Modifier", Modifier);
+			Write(_1, "modifier", modifier);
 		}
 		public override void Read(XmlNode _1)
 		{
@@ -30,8 +24,7 @@ namespace Cfg.Ability
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{
-				case "Target": Target = ReadDynamicObject<Cfg.Ability.Target>(_2, "Cfg.Ability"); break;
-				case "Modifier": Modifier = ReadString(_2); break;
+				case "modifier": modifier = ReadString(_2); break;
 			}
 		}
 	}

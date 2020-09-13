@@ -1,5 +1,4 @@
 using System;
-using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
@@ -11,43 +10,43 @@ namespace Cfg.Ability
 	public partial class Ability : XmlObject
 	{
 		/// <summary>
-		/// 
+		/// 能力名称
 		/// <summary>
-		public readonly string name;
+		public string name;
 		/// <summary>
-		/// 
+		/// 继承类型,默认ability(基类)
 		/// <summary>
-		public readonly string baseClass;
+		public string baseClass;
 		/// <summary>
-		/// 
+		/// 能力行为类型,定义了能力的释放形式;可用|组合多个类型
 		/// <summary>
-		public readonly Cfg.Ability.BehaviorType behaviorType;
+		public Cfg.Ability.BehaviorType behaviorType;
 		/// <summary>
-		/// 
+		/// 持续时间,结束时回收所有相关资源和数据
 		/// <summary>
-		public readonly Cfg.Ability.Target target;
+		public float duration;
 		/// <summary>
-		/// 
+		/// 变量列表,可指定常量,也可指定变量引用Excel
 		/// <summary>
-		public readonly List<Cfg.Ability.SpecialArg> args = new List<Cfg.Ability.SpecialArg>();
+		public List<Cfg.Ability.SpecialArg> args = new List<Cfg.Ability.SpecialArg>();
 		/// <summary>
-		/// 
+		/// 资源列表,prefab,AnimationClip,AudioClip等
 		/// <summary>
-		public readonly List<Cfg.Ability.SpecialString> assets = new List<Cfg.Ability.SpecialString>();
+		public List<Cfg.Ability.SpecialString> assets = new List<Cfg.Ability.SpecialString>();
 		/// <summary>
-		/// 
+		/// 基础事件列表
 		/// <summary>
-		public readonly List<Cfg.Ability.AbilityEvent> events = new List<Cfg.Ability.AbilityEvent>();
+		public List<Cfg.Ability.AbilityEvent> events = new List<Cfg.Ability.AbilityEvent>();
 		/// <summary>
-		/// 
+		/// 修饰器列表,可定义多个修饰器
 		/// <summary>
-		public readonly List<Cfg.Ability.Modifier> modifiers = new List<Cfg.Ability.Modifier>();
+		public List<Cfg.Ability.Modifier> modifiers = new List<Cfg.Ability.Modifier>();
 		public override void Write(TextWriter _1)
 		{
 			Write(_1, "name", name);
 			Write(_1, "baseClass", baseClass);
 			Write(_1, "behaviorType", behaviorType);
-			Write(_1, "target", target);
+			Write(_1, "duration", duration);
 			Write(_1, "args", args);
 			Write(_1, "assets", assets);
 			Write(_1, "events", events);
@@ -60,8 +59,8 @@ namespace Cfg.Ability
 			{
 				case "name": name = ReadString(_2); break;
 				case "baseClass": baseClass = ReadString(_2); break;
-				case "behaviorType": behaviorType = (Cfg.Ability.BehaviorType)ReadString(_2); break;
-				case "target": target = ReadDynamicObject<Cfg.Ability.Target>(_2, "Cfg.Ability"); break;
+				case "behaviorType": behaviorType = (Cfg.Ability.BehaviorType)ReadInt(_2); break;
+				case "duration": duration = ReadFloat(_2); break;
 				case "args":
 					var argss = GetChilds(_2);
 					for (int i = 0; i < argss.Count; i++)

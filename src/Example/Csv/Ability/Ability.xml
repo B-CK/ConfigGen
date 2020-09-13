@@ -1,103 +1,104 @@
 <Namespace Name ="Ability">
-    <Class Name = "Ability"  Index = "name" >DataPath="config"
-        <Field Name = "name" Type = "string" Des = "能力名称" />
-        <Field Name = "baseClass" Type = "string" Des = "继承类型,默认ability(基类)" />
-        <Field Name = "behaviorType" Type = "BehaviorType" Des = "能力行为类型,定义了能力的释放形式;可用|组合多个类型" />
-		<Field Name = "target" Type = "Target" Des = "能力可作用目标单位" />
-		<Field Name = "args" Type = "list:SpecialArg" Des = "变量列表,可指定常量,也可指定变量引用Excel" />
-		<Field Name = "assets" Type = "list:SpecialString" Des = "资源列表,prefab,AnimationClip,AudioClip等" />
-        <Field Name = "events" Type = "list:AbilityEvent" Des = "基础事件列表" />
-        <Field Name = "modifiers" Type = "list:Modifier" Des = "修饰器列表,可定义多个修饰器" />   
+    <Class Name = "Ability" DataPath="XmlData" Index = "name" >
+        <Field Name = "name" Type = "string" Desc = "能力名称" />
+        <Field Name = "baseClass" Type = "string" Desc = "继承类型,默认ability(基类)" />
+        <Field Name = "behaviorType" Type = "BehaviorType" Desc = "能力行为类型,定义了能力的释放形式;可用|组合多个类型" />
+		<Field Name = "duration" Type = "float" Desc = "持续时间,结束时回收所有相关资源和数据" />
+		<Field Name = "args" Type = "list:SpecialArg" Desc = "变量列表,可指定常量,也可指定变量引用Excel" />
+		<Field Name = "assets" Type = "list:SpecialString" Desc = "资源列表,prefab,AnimationClip,AudioClip等" />
+        <Field Name = "events" Type = "list:AbilityEvent" Desc = "基础事件列表" />
+        <Field Name = "modifiers" Type = "list:Modifier" Desc = "修饰器列表,可定义多个修饰器" />   
     </Class>
 	
 	<!-- 事件基类 -->
 	<Class Name = "EventBase"> 
-        <Field Name = "name" Type = "string" Des = "事件名称" />
-		<Field Name = "actions" Type = "list:Action" Des = "操作列表" />
+        <Field Name = "name" Type = "string" Desc = "事件名称" />
+		<Field Name = "actions" Type = "list:Action" Desc = "操作列表" />
     </Class>
 	<!-- 能力事件 -->
-	<Class Name = "AbilityEvent"> </Class>
+	<Class Name = "AbilityEvent" Inherit = "EventBase"> </Class>
 	<!-- 修饰器事件 -->
-	<Class Name = "ModifierEvent"> </Class>
-	<!-- 行为基类 -->
-	<Class Name = "Action"> </Class>   
+	<Class Name = "ModifierEvent" Inherit = "EventBase"> </Class>	 
 	
 
 	<!-- 基础参数类型 -->
-    <Class Name = "SpecialArg" Des="参数类型基类,也可用于Excel数据(单表,如果是多表则需要扩展)引用">
-        <Field Name = "Name" Type = "string" Des = "变量名称" />
+    <Class Name = "SpecialArg" Desc="参数类型基类,也可用于Excel数据(单表,如果是多表则需要扩展)引用">
+        <Field Name = "name" Type = "string" Desc = "变量名称" />
     </Class>
     <Class Name = "SpecialInt" Inherit= "SpecialArg">
-        <Field Name = "value" Type = "int" Des = "int数据" />
+        <Field Name = "value" Type = "int" Desc = "int数据" />
+    </Class>
+	 <Class Name = "SpecialLong" Inherit= "SpecialArg">
+        <Field Name = "value" Type = "long" Desc = "long数据" />
     </Class>
     <Class Name = "SpecialFloat" Inherit= "SpecialArg">
-        <Field Name = "value" Type = "float" Des = "float数据" />
+        <Field Name = "value" Type = "float" Desc = "float数据" />
     </Class>
     <Class Name = "SpecialString" Inherit= "SpecialArg">
-        <Field Name = "value" Type = "string" Des = "string数据" />
+        <Field Name = "value" Type = "string" Desc = "string数据" />
     </Class>
     <Class Name = "SpecialBool" Inherit= "SpecialArg">
-        <Field Name = "value" Type = "bool" Des = "bool数据" />
+        <Field Name = "value" Type = "bool" Desc = "bool数据" />
     </Class>	
     
 	<!-- 单目标类型 -->
     <Class Name = "Target">
-        <Field Name = "target" Type = "TargetType" Des = "目标中心" />
-        <Field Name = "teams" Type = "UnitTeam" Des = "筛选队伍类型" />
-        <Field Name = "types" Type = "UnitType" Des = "筛选目标类型" />
-        <Field Name = "flags" Type = "UnitFlag" Des = "标签目标类型" />
+        <Field Name = "type" Type = "TargetType" Desc = "目标中心" />
+        <Field Name = "teams" Type = "UnitTeam" Desc = "筛选队伍类型" />
+        <!-- <Field Name = "types" Type = "UnitType" Desc = "筛选目标类型" /> -->
+        <Field Name = "flags" Type = "UnitFlag" Desc = "标签目标类型" />
     </Class>
 	<!-- 多目标:选择多个目标 -->
     <Class Name = "MultiTarget" Inherit= "Target">
-        <Field Name = "radius" Type = "float" Des = "半径" />
-        <Field Name = "maxTargets" Type = "int" Des = "最大目标数量" />
+        <Field Name = "radius" Type = "float" Desc = "半径" />
+        <Field Name = "maxTargets" Type = "int" Desc = "最大目标数量" />
     </Class>
 
-	<!-- 能力/行为类型:决定能力释放方式 -->
-	<Enum Name="BehaviorType">
-        <Item Name = "ABILITY_BEHAVIOR_PASSIVE" Value = "0" Des = "被动能力，不能被使用，但是会在HUD上显示" />
-        <Item Name = "ABILITY_BEHAVIOR_UNIT_TARGET" Value = "1" Des = "需要指定一个目标来释放" />
-        <Item Name = "ABILITY_BEHAVIOR_NO_TARGET" Value = "2" Des = "不需要指定目标就能释放的能力，当按下能力按钮的时候，这个能力就会被释放" />
-        <Item Name = "ABILITY_BEHAVIOR_CHANNELLED" Value = "3" Des = "持续性施法能力" />
-        <Item Name = "ABILITY_BEHAVIOR_POINT" Value = "4" Des = "能力将会在鼠标指定的位置释放" />
-        <Item Name = "ABILITY_BEHAVIOR_AOE" Value = "5" Des = "范围型能力,将会显示能力释放的范围" />
+	<!-- 能力/行为类型:决定能力释放方式(后续扩展) -->
+	<Enum Name="BehaviorType" IsFlags = "true" Desc = "能力/行为类型:决定能力释放方式">
+        <Item Name = "BEHAVIOR_PASSIVE" Value = "1" Desc = "被动能力，不能被使用，但是会在HUD上显示" />
+        <Item Name = "BEHAVIOR_TARGET" Value = "4" Desc = "需要指定一个目标来释放" />
+        <Item Name = "BEHAVIOR_NO_TARGET" Value = "8" Desc = "不需要指定目标就能释放的能力，当按下能力按钮的时候，这个能力就会被释放" />
+        <Item Name = "BEHAVIOR_CHANNELLED" Value = "16" Desc = "持续性施法能力" />
+        <Item Name = "BEHAVIOR_POINT" Value = "32" Desc = "能力将会在鼠标指定的位置释放" />
+        <Item Name = "BEHAVIOR_AOE" Value = "64" Desc = "范围型能力,将会显示能力释放的范围" />
     </Enum>
     
 	<!-- 目标类型 -->
     <Enum Name="TargetType">
-        <Item Name = "SEFL" Value = "0" Des = "自己" />
-        <Item Name = "TARGET" Value = "1" Des = "敌方" />
-        <Item Name = "POINT" Value = "2" Des = "点" />      
-        <Item Name = "UNIT" Value = "3" Des = "被选择的任意单位" />
-        <Item Name = "PROJECTILE" Value = "4" Des = "抛射物" />
+        <Item Name = "SEFL" Value = "0" Desc = "自己" />
+        <Item Name = "TARGET" Value = "1" Desc = "敌方" />
+        <Item Name = "POINT" Value = "2" Desc = "点" />      
+        <Item Name = "UNIT" Value = "3" Desc = "被选择的任意单位" />
+        <Item Name = "PROJECTILE" Value = "4" Desc = "抛射物" />
     </Enum>
 	<!-- 单位种类 -->
-    <Enum Name="UnitType">
-        <Item Name = "UNIT_TYPE_NONE" Value = "1" Des = "无" />
-        <Item Name = "UNIT_TYPE_BUILDING" Value = "2" Des = "建筑" />
-        <Item Name = "UNIT_TYPE_CREEP" Value = "4" Des = "野怪" />
-        <Item Name = "UNIT_TYPE_HERO" Value = "8" Des = "英雄" />
-        <Item Name = "UNIT_TYPE_OTHER" Value = "16" Des = "其他" />
-        <Item Name = "UNIT_TYPE_ALL" Value = "32" Des = "所有" />
-    </Enum>
+    <!-- <Enum Name="UnitType"> -->
+        <!-- <Item Name = "TYPE_NONE" Value = "1" Desc = "无" /> -->
+        <!-- <Item Name = "TYPE_BUILDING" Value = "2" Desc = "建筑" /> -->
+        <!-- <Item Name = "TYPE_CREEP" Value = "4" Desc = "野怪" /> -->
+        <!-- <Item Name = "TYPE_HERO" Value = "8" Desc = "英雄" /> -->
+        <!-- <Item Name = "TYPE_OTHER" Value = "16" Desc = "其他" /> -->
+        <!-- <Item Name = "TYPE_ALL" Value = "32" Desc = "所有" /> -->
+    <!-- </Enum> -->
 	<!-- 单位阵营 -->
-    <Enum Name="UnitTeam">
-	    <Item Name = "UNIT_TEAM_BOTH" Value = "-1" Des = "中立队伍(属于任意一方)" />    
-        <Item Name = "UNIT_TEAM_NONE" Value = "1" Des = "无(默认)" />    
-        <Item Name = "UNIT_TEAM_ENEMY" Value = "2" Des = "敌方队伍" />
-        <Item Name = "UNIT_TEAM_FRIENDLY" Value = "4" Des = "友方队伍" />
+    <Enum Name="UnitTeam" IsFlags="true">
+	    <Item Name = "TEAM_EVERYTHING" Value = "-1" Desc = "中立队伍(属于任意一方)" />    
+        <Item Name = "TEAM_NONE" Value = "0" Desc = "无(默认)" />    
+        <Item Name = "TEAM_ENEMY" Value = "1" Desc = "敌方队伍" />
+        <Item Name = "TEAM_FRIENDLY" Value = "2" Desc = "友方队伍" />
     </Enum>
 	<!-- 单位状态标签:后续可扩展多种 -->
-    <Enum Name = "UnitFlag">
-        <Item Name = "UNIT_FLAG_NONE" Value = "1" Des = "无" />
-        <Item Name = "UNIT_FLAG_DEAD" Value = "2" Des = "已死亡" />
-        <Item Name = "UNIT_FLAG_INVULNERABLE" Value = "4" Des = "无敌" />
-        <Item Name = "UNIT_FLAG_NO_INVIS" Value = "8" Des = "不是隐形的" />
-        <Item Name = "UNIT_FLAG_NOT_ATTACK_IMMUNE" Value = "16" Des = "不是攻击免疫" />
-        <Item Name = "UNIT_FLAG_NOT_CREEP_HERO" Value = "32" Des = "不是野怪" />
-        <Item Name = "UNIT_FLAG_NOT_DOMINATED" Value = "64" Des = "不可控制的" />
-        <Item Name = "UNIT_FLAG_NOT_SUMMONED" Value = "128" Des = "非召唤的" />
-        <Item Name = "UNIT_FLAG_PLAYER_CONTROLLED" Value = "256" Des = "玩家控制的" />
+    <Enum Name = "UnitFlag" IsFlags="true">
+        <Item Name = "FLAG_NONE" Value = "0" Desc = "无" />
+        <Item Name = "FLAG_DEAD" Value = "1" Desc = "已死亡" />
+        <Item Name = "FLAG_INVULNERABLE" Value = "2" Desc = "无敌" />
+        <Item Name = "FLAG_NO_INVIS" Value = "4" Desc = "不是隐形的" />
+        <Item Name = "FLAG_NOT_ATTACK_IMMUNE" Value = "8" Desc = "不是攻击免疫" />
+        <Item Name = "FLAG_NOT_CREEP_HERO" Value = "16" Desc = "不是野怪" />
+        <Item Name = "FLAG_NOT_DOMINATED" Value = "32" Desc = "不可控制的" />
+        <Item Name = "FLAG_NOT_SUMMONED" Value = "64" Desc = "非召唤的" />
+        <Item Name = "FLAG_PLAYER_CONTROLLED" Value = "128" Desc = "玩家控制的" />
     </Enum>
     
 </Namespace>

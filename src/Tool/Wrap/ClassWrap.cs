@@ -16,6 +16,8 @@ namespace Tool.Wrap
         }
         public static bool IsClass(string fullName)
         {
+            if (string.IsNullOrEmpty(fullName))
+                return false;
             return _classes.ContainsKey(fullName);
         }
         /// <summary>

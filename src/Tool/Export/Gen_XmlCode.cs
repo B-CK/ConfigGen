@@ -30,6 +30,7 @@ namespace Tool.Export
         {
             GenClass();
             GenEnum();
+            GenXmlObject();
         }
 
         static void Start(int n)
@@ -258,6 +259,279 @@ namespace Tool.Export
                 Util.SaveFile(path, builder.ToString());
                 builder.Clear();
             }
+        }
+        #endregion
+
+        #region XmlObject:基类
+        static void GenXmlObject()
+        {
+            int level1 = TYPE_LEVEL + 1;
+            int level2 = TYPE_LEVEL + 2;
+            int level3 = TYPE_LEVEL + 3;
+            int level4 = TYPE_LEVEL + 4;
+            int level5 = TYPE_LEVEL + 5;
+
+            //命名空间
+            builder.AppendLine(string.Join("\r\n", namespaces));
+            builder.AppendLine("using System.Linq;");
+            builder.AppendLine($"namespace {Setting.ModuleName}");
+            Start(0);
+            {
+                //注释
+                Comment("Xml序列化类", TYPE_LEVEL);
+                builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public abstract class {CLASS_XML_OBJECT}");
+                Start(TYPE_LEVEL);
+                {
+                    builder.IntervalLevel(level1).AppendLine("public abstract void Write(TextWriter os);");
+                    builder.IntervalLevel(level1).AppendLine("public abstract void Read(XmlNode os);");
+                    builder.AppendLine();
+
+                    //ReadAttribute
+                    builder.IntervalLevel(level1).AppendLine("public static string ReadAttribute(XmlNode node, string attribute)");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("try");
+                        Start(level2);
+                        {
+                            builder.IntervalLevel(level3).AppendLine("if (node != null && node.Attributes != null && node.Attributes[attribute] != null)");
+                            builder.IntervalLevel(level4).AppendLine("return node.Attributes[attribute].Value;");
+                        }
+                        End(level2);
+                        builder.IntervalLevel(level2).AppendLine("catch (Exception ex)");
+                        Start(level2);
+                        {
+                            builder.IntervalLevel(level3).AppendLine("throw new Exception(string.Format(\"attribute:{0} not exist\", attribute), ex);");
+                        }
+                        End(level2);
+                        builder.IntervalLevel(level2).AppendLine("return \"\";");
+                    }
+                    End(level1);
+
+                    //GetOnlyChild
+                    builder.IntervalLevel(level1).AppendLine("public static XmlNode GetOnlyChild(XmlNode parent, string name)");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("XmlNode child = null;");
+                        builder.IntervalLevel(level2).AppendLine("foreach (XmlNode sub in parent.ChildNodes)");
+                        Start(level2);
+                        {
+                            builder.IntervalLevel(level2).AppendLine("if (sub.NodeType == XmlNodeType.Element && sub.Name == name)");
+                            Start(level3);
+                            {
+                                builder.IntervalLevel(level4).AppendLine("if (child != null)");
+                                builder.IntervalLevel(level5).AppendLine("throw new Exception(string.Format(\"child:{0} duplicate\", name));");
+                                builder.IntervalLevel(level4).AppendLine("child = sub;");
+                            }
+                            End(level3);
+                        }
+                        End(level2);
+                        builder.IntervalLevel(level2).AppendLine("return child;");
+                    }
+                    End(level1);
+
+                    //GetChilds
+                    builder.IntervalLevel(level1).AppendLine("public static List<XmlNode> GetChilds(XmlNode parent)");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("var childs = new List<XmlNode>();");
+                        builder.IntervalLevel(level2).AppendLine("if (parent != null)");
+                        builder.IntervalLevel(level3).AppendLine("childs.AddRange(parent.ChildNodes.Cast<XmlNode>().Where(sub => sub.NodeType == XmlNodeType.Element));");
+                        builder.IntervalLevel(level2).AppendLine("return childs;");
+                    }
+                    End(level1);
+
+                    //ReadBool
+                    builder.IntervalLevel(level1).AppendLine("public static bool ReadBool(XmlNode node)");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("string str = node.InnerText.ToLower();");
+                        builder.IntervalLevel(level2).AppendLine("if (str == \"true\")");
+                        builder.IntervalLevel(level3).AppendLine("return true;");
+                        builder.IntervalLevel(level2).AppendLine("else if (str == \"false\")");
+                        builder.IntervalLevel(level3).AppendLine("return false;");
+                        builder.IntervalLevel(level2).AppendLine("throw new Exception(string.Format(\"\'{0}\' is not valid bool\", str));");
+                    }
+                    End(level1);
+
+                    //ReadInt/ReadLong/ReadFloat
+                    List<string> readNumList = new List<string>() { "Int", "Long", "Float" };
+                    for (int i = 0; i < readNumList.Count; i++)
+                    {
+                        string type = readNumList[i];
+                        builder.IntervalLevel(level1).AppendLine($"public static {type.ToLower()} Read{type}(XmlNode node)");
+                        Start(level1);
+                        {
+                            builder.IntervalLevel(level2).AppendLine($"return {type.ToLower()}.Parse(node.InnerText);");
+                        }
+                        End(level1);
+                    }
+
+                    //ReadString
+                    builder.IntervalLevel(level1).AppendLine("public static string ReadString(XmlNode node)");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("return node.InnerText;");
+                    }
+                    End(level1);
+
+                    //ReadObject
+                    builder.IntervalLevel(level1).AppendLine("public static T ReadObject<T>(XmlNode node, string fullTypeName) where T :XmlObject");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("var obj = (T)Create(node, fullTypeName);");
+                        builder.IntervalLevel(level2).AppendLine("obj.Read(node);");
+                        builder.IntervalLevel(level2).AppendLine("return obj;");
+                    }
+                    End(level1);
+
+                    //ReadDynamicObject
+                    builder.IntervalLevel(level1).AppendLine("public static T ReadDynamicObject<T>(XmlNode node, string ns) where T :XmlObject");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("var fullTypeName = ns + \".\" + ReadAttribute(node, \"Type\");");
+                        builder.IntervalLevel(level2).AppendLine("return ReadObject<T>(node, fullTypeName);");
+                    }
+                    End(level1);
+
+                    //Create
+                    builder.IntervalLevel(level1).AppendLine("public static object Create(XmlNode node, string type)");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("try");
+                        Start(level2);
+                        {
+                            builder.IntervalLevel(level3).AppendLine("var t = Type.GetType(type);");
+                            builder.IntervalLevel(level3).AppendLine("return Activator.CreateInstance(t);");
+                        }
+                        End(level2);
+                        builder.IntervalLevel(level2).AppendLine("catch (Exception e)");
+                        Start(level2);
+                        {
+                            builder.IntervalLevel(level3).AppendLine("throw new Exception(string.Format(\"type:{0} create fail!\", type), e);");
+                        }
+                        End(level2);
+                    }
+                    End(level1);
+
+                    //Write:int,long,string,bool,float
+                    List<string> writeBaseList = new List<string>() { "int", "long", "float", "string", "bool" };
+                    for (int i = 0; i < writeBaseList.Count; i++)
+                    {
+                        string type = writeBaseList[i];
+                        builder.IntervalLevel(level1).AppendLine($"public static void Write(TextWriter os, string name, {type} x)");
+                        Start(level1);
+                        {
+                            builder.IntervalLevel(level2).AppendLine("os.WriteLine(\"<{0}>{1}</{0}>\", name, x);");
+                        }
+                        End(level1);
+                    }
+
+                    //Write:XmlObject
+                    builder.IntervalLevel(level1).AppendLine("public static void Write(TextWriter os, string name, XmlObject x)");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("os.WriteLine(\"<{0} Type =\\\"{1}\\\">\", name, x.GetType().Name);");
+                        builder.IntervalLevel(level2).AppendLine("x.Write(os);");
+                        builder.IntervalLevel(level2).AppendLine("os.WriteLine(\"</{0}>\", name);");
+                    }
+                    End(level1);
+
+                    //Write<V>
+                    builder.IntervalLevel(level1).AppendLine("public static void Write<V>(TextWriter os, string name, List<V> x)");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("os.WriteLine(\"<{0}>\", name);");
+                        builder.IntervalLevel(level2).AppendLine("x.ForEach(v => Write(os, \"Item\", v));");
+                        builder.IntervalLevel(level2).AppendLine("os.WriteLine(\"</{0}>\", name);");
+                    }
+                    End(level1);
+
+                    //Write<K,V>
+                    builder.IntervalLevel(level1).AppendLine("public static void Write<K, V>(TextWriter os, string name, Dictionary<K, V> x)");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("os.WriteLine(\"<{0}>\", name);");
+                        builder.IntervalLevel(level2).AppendLine("foreach (var e in x)");
+                        Start(level2);
+                        {
+                            builder.IntervalLevel(level3).AppendLine("os.WriteLine(\"<Pair>\");");
+                            builder.IntervalLevel(level3).AppendLine("Write(os, \"Key\", e.Key);");
+                            builder.IntervalLevel(level3).AppendLine("Write(os, \"Value\", e.Value);");
+                            builder.IntervalLevel(level3).AppendLine("os.WriteLine(\"</Pair>\");");
+                        }
+                        End(level2);
+                        builder.IntervalLevel(level2).AppendLine("os.WriteLine(\"</{0}>\", name);");
+                    }
+                    End(level1);
+
+                    //Write:object
+                    builder.IntervalLevel(level1).AppendLine("public static void Write(TextWriter os, string name, object x)");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("if (x is bool)");
+                        builder.IntervalLevel(level3).AppendLine("Write(os, name, (bool)x);");
+                        builder.IntervalLevel(level2).AppendLine("else if (x is int || x is Enum)");
+                        builder.IntervalLevel(level3).AppendLine("Write(os, name, (int)x);");
+                        builder.IntervalLevel(level2).AppendLine("else if (x is long)");
+                        builder.IntervalLevel(level3).AppendLine("Write(os, name, (long)x);");
+                        builder.IntervalLevel(level2).AppendLine("else if (x is float)");
+                        builder.IntervalLevel(level3).AppendLine("Write(os, name, (float)x);");
+                        builder.IntervalLevel(level2).AppendLine("else if (x is string)");
+                        builder.IntervalLevel(level3).AppendLine("Write(os, name, (string)x);");
+                        builder.IntervalLevel(level2).AppendLine("else if (x is XmlObject)");
+                        builder.IntervalLevel(level3).AppendLine("Write(os, name, (XmlObject)x);");
+                        builder.IntervalLevel(level2).AppendLine("else");
+                        builder.IntervalLevel(level3).AppendLine("throw new Exception(\"unknown Lson type; \" + x.GetType());");
+                    }
+                    End(level1);
+
+                    //LoadAConfig
+                    builder.IntervalLevel(level1).AppendLine("public void LoadAConfig(string file)");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("var doc = new XmlDocument();");
+                        builder.IntervalLevel(level2).AppendLine("doc.Load(file);");
+                        builder.IntervalLevel(level2).AppendLine("Read(doc.DocumentElement);");
+                    }
+                    End(level1);
+
+                    //SaveAConfig
+                    builder.IntervalLevel(level1).AppendLine("public void SaveConfig(string file)");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("var os = new StringWriter();");
+                        builder.IntervalLevel(level2).AppendLine("Write(os, \"Root\", this);");
+                        builder.IntervalLevel(level2).AppendLine("File.WriteAllText(file, os.ToString());");
+                    }
+                    End(level1);
+
+                    //LoadConfig<T>
+                    builder.IntervalLevel(level1).AppendLine("public static void LoadConfig<T>(List<T> x, string file) where T : XmlObject");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("var doc = new XmlDocument();");
+                        builder.IntervalLevel(level2).AppendLine("doc.Load(file);");
+                        builder.IntervalLevel(level2).AppendLine("x.AddRange(GetChilds(doc.DocumentElement).Select(_ => ReadDynamicObject<T>(_, typeof(T).Namespace)));");
+                    }
+                    End(level1);
+
+                    //SaveConfig<T>
+                    builder.IntervalLevel(level1).AppendLine("public static void SaveConfig<T>(List<T> x, string file) where T : XmlObject");
+                    Start(level1);
+                    {
+                        builder.IntervalLevel(level2).AppendLine("var os = new StringWriter();");
+                        builder.IntervalLevel(level2).AppendLine("Write(os, \"Root\", x);");
+                        builder.IntervalLevel(level2).AppendLine("File.WriteAllText(file, os.ToString());");
+                    }
+                    End(level1);
+                }
+                End(TYPE_LEVEL);
+            }
+            End(0);
+
+            string path = Path.Combine(Setting.XmlCodeDir, $"{CLASS_XML_OBJECT}.cs");
+            Util.SaveFile(path, builder.ToString());
+            builder.Clear();
         }
         #endregion
     }

@@ -1,5 +1,4 @@
 using System;
-using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
@@ -10,7 +9,17 @@ namespace Cfg.Ability
 	/// <summary>
 	public enum StateType
 	{
-		MODIFIER_STATE_INVISIBLE  = 0,
-		MODIFIER_STATE_INVULNERABLE  = 1,
+		/// <summary>
+		/// 无状态
+		/// <summary>
+		MODIFIER_STATE_NONE  = 0,
+		/// <summary>
+		/// 隐身状态
+		/// <summary>
+		MODIFIER_STATE_INVISIBLE  = 1,
+		/// <summary>
+		/// 无敌状态
+		/// <summary>
+		MODIFIER_STATE_INVULNERABLE  = 2,
 	}
 }

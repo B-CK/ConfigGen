@@ -1,5 +1,4 @@
 using System;
-using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
@@ -8,11 +7,24 @@ namespace Cfg.Ability
 	/// <summary>
 	/// 
 	/// <summary>
+	[System.Flags]
 	public enum UnitTeam
 	{
-		UNIT_TEAM_BOTH = -1,
-		UNIT_TEAM_NONE = 1,
-		UNIT_TEAM_ENEMY = 2,
-		UNIT_TEAM_FRIENDLY = 4,
+		/// <summary>
+		/// 中立队伍(属于任意一方)
+		/// <summary>
+		TEAM_EVERYTHING = -1,
+		/// <summary>
+		/// 无(默认)
+		/// <summary>
+		TEAM_NONE = 0,
+		/// <summary>
+		/// 敌方队伍
+		/// <summary>
+		TEAM_ENEMY = 1,
+		/// <summary>
+		/// 友方队伍
+		/// <summary>
+		TEAM_FRIENDLY = 2,
 	}
 }

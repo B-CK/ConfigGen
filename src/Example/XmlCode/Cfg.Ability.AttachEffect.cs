@@ -1,5 +1,4 @@
 using System;
-using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
@@ -8,26 +7,26 @@ namespace Cfg.Ability
 	/// <summary>
 	/// 
 	/// <summary>
-	public partial class AttachEffect : Cfg.Ability.Action
+	public partial class AttachEffect : Cfg.Ability.ActionWithTarget
 	{
 		/// <summary>
-		/// 
+		/// 特效名称
 		/// <summary>
-		public readonly string Effect;
+		public string effectName;
 		/// <summary>
-		/// 
+		/// 绑定坐标系类型
 		/// <summary>
-		public readonly Cfg.Ability.Target Target;
+		public Cfg.Ability.AttachType attachType;
 		/// <summary>
-		/// 
+		/// 偏移量
 		/// <summary>
-		public readonly string AttackPath;
+		public Cfg.Common.Vector3 point;
 		public override void Write(TextWriter _1)
 		{
 			base.Write(_1);
-			Write(_1, "Effect", Effect);
-			Write(_1, "Target", Target);
-			Write(_1, "AttackPath", AttackPath);
+			Write(_1, "effectName", effectName);
+			Write(_1, "attachType", attachType);
+			Write(_1, "point", point);
 		}
 		public override void Read(XmlNode _1)
 		{
@@ -35,9 +34,9 @@ namespace Cfg.Ability
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{
-				case "Effect": Effect = ReadString(_2); break;
-				case "Target": Target = ReadDynamicObject<Cfg.Ability.Target>(_2, "Cfg.Ability"); break;
-				case "AttackPath": AttackPath = ReadString(_2); break;
+				case "effectName": effectName = ReadString(_2); break;
+				case "attachType": attachType = (Cfg.Ability.AttachType)ReadInt(_2); break;
+				case "point": point = ReadObject<Cfg.Common.Vector3>(_2, "Cfg.Common.Vector3"); break;
 			}
 		}
 	}

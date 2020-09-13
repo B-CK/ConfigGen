@@ -7,16 +7,16 @@ namespace Cfg.Ability
 	/// <summary>
 	/// 
 	/// <summary>
-	public partial class Damage : Cfg.Ability.ActionWithTarget
+	public partial class SpecialLong : Cfg.Ability.SpecialArg
 	{
 		/// <summary>
-		/// 伤害值
+		/// long数据
 		/// <summary>
-		public float Type;
+		public long value;
 		public override void Write(TextWriter _1)
 		{
 			base.Write(_1);
-			Write(_1, "Type", Type);
+			Write(_1, "value", value);
 		}
 		public override void Read(XmlNode _1)
 		{
@@ -24,7 +24,7 @@ namespace Cfg.Ability
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{
-				case "Type": Type = ReadFloat(_2); break;
+				case "value": value = ReadLong(_2); break;
 			}
 		}
 	}

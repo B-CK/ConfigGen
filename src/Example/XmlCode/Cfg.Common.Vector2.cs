@@ -2,29 +2,33 @@ using System;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
-namespace Cfg.Ability
+namespace Cfg.Common
 {
 	/// <summary>
 	/// 
 	/// <summary>
-	public partial class Damage : Cfg.Ability.ActionWithTarget
+	public partial class Vector2 : XmlObject
 	{
 		/// <summary>
-		/// 伤害值
+		/// 
 		/// <summary>
-		public float Type;
+		public float x;
+		/// <summary>
+		/// 
+		/// <summary>
+		public float y;
 		public override void Write(TextWriter _1)
 		{
-			base.Write(_1);
-			Write(_1, "Type", Type);
+			Write(_1, "x", x);
+			Write(_1, "y", y);
 		}
 		public override void Read(XmlNode _1)
 		{
-			base.Read(_1);
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{
-				case "Type": Type = ReadFloat(_2); break;
+				case "x": x = ReadFloat(_2); break;
+				case "y": y = ReadFloat(_2); break;
 			}
 		}
 	}

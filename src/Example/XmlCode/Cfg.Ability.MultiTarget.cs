@@ -1,5 +1,4 @@
 using System;
-using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
@@ -11,13 +10,13 @@ namespace Cfg.Ability
 	public partial class MultiTarget : Cfg.Ability.Target
 	{
 		/// <summary>
-		/// 
+		/// 半径
 		/// <summary>
-		public readonly float radius;
+		public float radius;
 		/// <summary>
-		/// 
+		/// 最大目标数量
 		/// <summary>
-		public readonly int maxTargets;
+		public int maxTargets;
 		public override void Write(TextWriter _1)
 		{
 			base.Write(_1);

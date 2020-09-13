@@ -1,5 +1,4 @@
 using System;
-using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
@@ -10,7 +9,17 @@ namespace Cfg.Ability
 	/// <summary>
 	public enum PropertyType
 	{
-		MODIFIER_PROP_MANA_BONUS  = 0,
-		MODIFIER_PROP_HEALTH_BONUS = 1,
+		/// <summary>
+		/// 无修改
+		/// <summary>
+		MODIFIER_PROP_NONE  = 0,
+		/// <summary>
+		/// 修改魔量
+		/// <summary>
+		MODIFIER_PROP_MANA_BONUS  = 1,
+		/// <summary>
+		/// 修改血量
+		/// <summary>
+		MODIFIER_PROP_HEALTH_BONUS = 2,
 	}
 }

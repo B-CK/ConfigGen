@@ -1,5 +1,4 @@
 using System;
-using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
@@ -11,28 +10,28 @@ namespace Cfg.Ability
 	public partial class LinearProjectile : Cfg.Ability.Action
 	{
 		/// <summary>
-		/// 
+		/// 特效名称
 		/// <summary>
-		public readonly string Effect;
+		public string effectName;
 		/// <summary>
-		/// 
+		/// 移动速度
 		/// <summary>
-		public readonly float MoveSpeed;
+		public float moveSpeed;
 		/// <summary>
-		/// 
+		/// 可移动距离:可转化成时间去做定时计算
 		/// <summary>
-		public readonly Cfg.Ability.Target StartPosition;
+		public float distance;
 		/// <summary>
-		/// 
+		/// 结束目标:抵达该类型目标则结束
 		/// <summary>
-		public readonly Cfg.Ability.Target EndPosition;
+		public Cfg.Ability.Target endTarget;
 		public override void Write(TextWriter _1)
 		{
 			base.Write(_1);
-			Write(_1, "Effect", Effect);
-			Write(_1, "MoveSpeed", MoveSpeed);
-			Write(_1, "StartPosition", StartPosition);
-			Write(_1, "EndPosition", EndPosition);
+			Write(_1, "effectName", effectName);
+			Write(_1, "moveSpeed", moveSpeed);
+			Write(_1, "distance", distance);
+			Write(_1, "endTarget", endTarget);
 		}
 		public override void Read(XmlNode _1)
 		{
@@ -40,10 +39,10 @@ namespace Cfg.Ability
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{
-				case "Effect": Effect = ReadString(_2); break;
-				case "MoveSpeed": MoveSpeed = ReadFloat(_2); break;
-				case "StartPosition": StartPosition = ReadDynamicObject<Cfg.Ability.Target>(_2, "Cfg.Ability"); break;
-				case "EndPosition": EndPosition = ReadDynamicObject<Cfg.Ability.Target>(_2, "Cfg.Ability"); break;
+				case "effectName": effectName = ReadString(_2); break;
+				case "moveSpeed": moveSpeed = ReadFloat(_2); break;
+				case "distance": distance = ReadFloat(_2); break;
+				case "endTarget": endTarget = ReadDynamicObject<Cfg.Ability.Target>(_2, "Cfg.Ability"); break;
 			}
 		}
 	}

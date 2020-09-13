@@ -1,0 +1,63 @@
+<Root Type ="Ability">
+<name>animation_delay_effect</name>
+<baseClass></baseClass>
+<behaviorType>0</behaviorType>
+<duration>5</duration>
+<args>
+<Item Type ="SpecialInt">
+<name>A</name>
+<value>1</value>
+</Item>
+<Item Type ="SpecialFloat">
+<name>B</name>
+<value>1.987</value>
+</Item>
+<Item Type ="SpecialString">
+<name>C</name>
+<value>namexxxxxxx</value>
+</Item>
+<Item Type ="SpecialBool">
+<name>D</name>
+<value>True</value>
+</Item>
+</args>
+<assets>
+</assets>
+<events>
+<Item Type ="AbilityEvent">
+<name>OnAbilityStart</name>
+<actions>
+<Item Type ="PlayAnimation">
+<name>PlayAnimation</name>
+<target Type ="Target">
+<type>0</type>
+<teams>0</teams>
+<flags>0</flags>
+</target>
+<clip>Assets/Character/qingyun/qingyun@CG_amazed.FBX</clip>
+</Item>
+<Item Type ="DelayedAction">
+<name>DelayedAction</name>
+<delay>1.234</delay>
+</Item>
+<Item Type ="PlayEffect">
+<name>PlayEffect</name>
+<target Type ="Target">
+<type>0</type>
+<teams>0</teams>
+<flags>0</flags>
+</target>
+<effectName>Assets/ThirdPlugins/EasyTouchBundle/EasyTouchControls/Examples/_Medias/Cartoon Soldier/Prefabs/guns/bulletCaseGenerator.prefab</effectName>
+<attachType>5</attachType>
+<point Type ="Vector3">
+<x>0</x>
+<y>1</y>
+<z>0</z>
+</point>
+</Item>
+</actions>
+</Item>
+</events>
+<modifiers>
+</modifiers>
+</Root>

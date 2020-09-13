@@ -1,5 +1,4 @@
 using System;
-using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
@@ -11,9 +10,9 @@ namespace Cfg.Ability
 	public partial class SpecialFloat : Cfg.Ability.SpecialArg
 	{
 		/// <summary>
-		/// 
+		/// float数据
 		/// <summary>
-		public readonly float value;
+		public float value;
 		public override void Write(TextWriter _1)
 		{
 			base.Write(_1);

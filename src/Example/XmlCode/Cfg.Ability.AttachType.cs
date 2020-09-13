@@ -7,27 +7,35 @@ namespace Cfg.Ability
 	/// <summary>
 	/// 
 	/// <summary>
-	public enum TargetType
+	public enum AttachType
 	{
 		/// <summary>
-		/// 自己
+		/// 默认世界坐标系
 		/// <summary>
-		SEFL = 0,
+		NONE = 0,
 		/// <summary>
-		/// 敌方
+		/// 头部
 		/// <summary>
-		TARGET = 1,
+		HEAD = 1,
 		/// <summary>
-		/// 点
+		/// 左手
 		/// <summary>
-		POINT = 2,
+		LEFT_HAND = 2,
 		/// <summary>
-		/// 被选择的任意单位
+		/// 右手
 		/// <summary>
-		UNIT = 3,
+		RIGHT_HAND = 3,
 		/// <summary>
-		/// 抛射物
+		/// 脚
 		/// <summary>
-		PROJECTILE = 4,
+		FOOT = 4,
+		/// <summary>
+		/// 中心(腰)
+		/// <summary>
+		CENTER = 5,
+		/// <summary>
+		/// 胸部
+		/// <summary>
+		CHEST = 6,
 	}
 }

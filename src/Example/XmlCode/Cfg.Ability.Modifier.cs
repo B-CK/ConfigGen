@@ -1,5 +1,4 @@
 using System;
-using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
@@ -11,21 +10,21 @@ namespace Cfg.Ability
 	public partial class Modifier : XmlObject
 	{
 		/// <summary>
-		/// 
+		/// 修饰器名称
 		/// <summary>
-		public readonly string name;
+		public string name;
 		/// <summary>
-		/// 
+		/// 事件列表
 		/// <summary>
-		public readonly List<Cfg.Ability.ModifierEvent> events = new List<Cfg.Ability.ModifierEvent>();
+		public List<Cfg.Ability.ModifierEvent> events = new List<Cfg.Ability.ModifierEvent>();
 		/// <summary>
-		/// 
+		/// 属性修改列表
 		/// <summary>
-		public readonly List<Cfg.Ability.Property> properties = new List<Cfg.Ability.Property>();
+		public List<Cfg.Ability.Property> properties = new List<Cfg.Ability.Property>();
 		/// <summary>
-		/// 
+		/// 状态修改列表
 		/// <summary>
-		public readonly List<Cfg.Ability.State> states = new List<Cfg.Ability.State>();
+		public List<Cfg.Ability.State> states = new List<Cfg.Ability.State>();
 		public override void Write(TextWriter _1)
 		{
 			Write(_1, "name", name);

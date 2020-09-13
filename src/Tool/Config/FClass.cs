@@ -46,7 +46,12 @@ namespace Tool.Config
             }
 
             var fields = info.Fields;
-            int offset = parent == null ? 0 : parent.Fields.Count;
+            int offset = 0;
+            while (parent != null)
+            {
+                offset += parent.Fields.Count;
+                parent = ClassWrap.Get(parent.Inherit);
+            }
             for (int i = 0; i < fields.Count; i++)
                 Values.Add(Data.Create(this, fields[i], data.ChildNodes[i + offset] as XmlElement));
         }
@@ -73,7 +78,7 @@ namespace Tool.Config
         }
         public override void VerifyData()
         {
-            if(!IsRoot)
+            if (!IsRoot)
                 base.VerifyData();
             else
                 for (int i = 0; i < Values.Count; i++)

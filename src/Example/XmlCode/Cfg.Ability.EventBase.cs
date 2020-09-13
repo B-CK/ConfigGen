@@ -1,5 +1,4 @@
 using System;
-using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
@@ -11,13 +10,13 @@ namespace Cfg.Ability
 	public partial class EventBase : XmlObject
 	{
 		/// <summary>
-		/// 
+		/// 事件名称
 		/// <summary>
-		public readonly string name;
+		public string name;
 		/// <summary>
-		/// 
+		/// 操作列表
 		/// <summary>
-		public readonly List<Cfg.Ability.Action> actions = new List<Cfg.Ability.Action>();
+		public List<Cfg.Ability.Action> actions = new List<Cfg.Ability.Action>();
 		public override void Write(TextWriter _1)
 		{
 			Write(_1, "name", name);

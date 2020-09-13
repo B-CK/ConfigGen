@@ -1,5 +1,4 @@
 using System;
-using XmlEditor;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
@@ -11,26 +10,21 @@ namespace Cfg.Ability
 	public partial class Target : XmlObject
 	{
 		/// <summary>
-		/// 
+		/// 目标中心
 		/// <summary>
-		public readonly Cfg.Ability.TargetType target;
+		public Cfg.Ability.TargetType type;
 		/// <summary>
-		/// 
+		/// 筛选队伍类型
 		/// <summary>
-		public readonly Cfg.Ability.UnitTeam teams;
+		public Cfg.Ability.UnitTeam teams;
 		/// <summary>
-		/// 
+		/// 标签目标类型
 		/// <summary>
-		public readonly Cfg.Ability.UnitType types;
-		/// <summary>
-		/// 
-		/// <summary>
-		public readonly Cfg.Ability.UnitFlag flags;
+		public Cfg.Ability.UnitFlag flags;
 		public override void Write(TextWriter _1)
 		{
-			Write(_1, "target", target);
+			Write(_1, "type", type);
 			Write(_1, "teams", teams);
-			Write(_1, "types", types);
 			Write(_1, "flags", flags);
 		}
 		public override void Read(XmlNode _1)
@@ -38,10 +32,9 @@ namespace Cfg.Ability
 			foreach (System.Xml.XmlNode _2 in GetChilds (_1))
 			switch (_2.Name)
 			{
-				case "target": target = (Cfg.Ability.TargetType)ReadString(_2); break;
-				case "teams": teams = (Cfg.Ability.UnitTeam)ReadString(_2); break;
-				case "types": types = (Cfg.Ability.UnitType)ReadString(_2); break;
-				case "flags": flags = (Cfg.Ability.UnitFlag)ReadString(_2); break;
+				case "type": type = (Cfg.Ability.TargetType)ReadInt(_2); break;
+				case "teams": teams = (Cfg.Ability.UnitTeam)ReadInt(_2); break;
+				case "flags": flags = (Cfg.Ability.UnitFlag)ReadInt(_2); break;
 			}
 		}
 	}
