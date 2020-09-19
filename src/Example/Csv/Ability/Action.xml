@@ -18,12 +18,12 @@
     <Class Name = "PlayEffect" Inherit = "ActionWithTarget">
         <Field Name = "effectName" Type = "string" Desc = "特效名称" />
         <Field Name = "attachType" Type = "AttachType" Desc = "绑定坐标系类型,可以是单位某节点,也可是世界坐标系" />
-		<Field Name = "point" Type = "Common.Vector3" Desc = "坐标点,如有指定节点则为该节点局部坐标.如果是世界坐标系则为世界坐标.亦可自定义坐标系" />
+		<Field Name = "point" Type = "Math.Vector3" Desc = "坐标点,如有指定节点则为该节点局部坐标.如果是世界坐标系则为世界坐标.亦可自定义坐标系" />
     </Class>
     <Class Name = "AttachEffect" Inherit = "ActionWithTarget">
 		<Field Name = "effectName" Type = "string" Desc = "特效名称" />
         <Field Name = "attachType" Type = "AttachType" Desc = "绑定坐标系类型" />
-		<Field Name = "point" Type = "Common.Vector3" Desc = "偏移量" />	
+		<Field Name = "point" Type = "Math.Vector3" Desc = "偏移量" />	
     </Class>
     <Class Name = "LinearProjectile" Inherit = "Action">
         <Field Name = "effectName" Type = "string" Desc = "特效名称" />

@@ -109,7 +109,12 @@ namespace Tool.Export
                     else if (field.IsEnum)
                         builder.IntervalLevel().AppendFormat("o.{0} = self:GetInt()\n", field.Name);
                     else if (field.IsClass)
-                        builder.IntervalLevel().AppendFormat("o.{0} = self:Get{1}Maker()\n", field.Name, Util.CorrectFullType(field.OriginalType).Replace(".", ""));
+                    {
+                        if (field.IsDynamic)
+                            builder.IntervalLevel().AppendFormat("o.{0} = self:Get{1}Maker()\n", field.Name, Util.CorrectFullType(field.OriginalType).Replace(".", ""));
+                        else
+                            builder.IntervalLevel().AppendFormat("o.{0} = self:Get{1}()\n", field.Name, Util.CorrectFullType(field.OriginalType).Replace(".", ""));
+                    }
                     else if (field.IsContainer)
                     {
                         if (field.OriginalType == Setting.LIST)

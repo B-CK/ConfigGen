@@ -1,4 +1,4 @@
-﻿<Namespace Name = "Common">
+﻿<Namespace Name = "Math">
 	<Class Name = "Vector2">
 		<Field Name = "x" Type = "float"/>
 		<Field Name = "y" Type = "float"/>		

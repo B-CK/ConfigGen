@@ -1,0 +1,60 @@
+<Root Type ="Ability">
+<name>ability_event</name>
+<baseClass></baseClass>
+<behaviorType>4</behaviorType>
+<duration>123456</duration>
+<args>
+</args>
+<assets>
+</assets>
+<events>
+<Item Type ="AbilityEvent">
+<name>OnAbilityStart</name>
+<actions>
+<Item Type ="LinearProjectile">
+<name>LinearProjectile</name>
+<effectName>Assets/ThirdPlugins/EasyTouchBundle/EasyTouchControls/Examples/_Medias/Cartoon Soldier/Prefabs/guns/bulletCase.prefab</effectName>
+<moveSpeed>1111</moveSpeed>
+<distance>123465</distance>
+<endTarget Type ="Target">
+<type>0</type>
+<teams>0</teams>
+<flags>0</flags>
+</endTarget>
+</Item>
+</actions>
+</Item>
+<Item Type ="AbilityEvent">
+<name>OnAttack</name>
+<actions>
+<Item Type ="PlaySound">
+<name>PlaySound</name>
+<target Type ="Target">
+<type>0</type>
+<teams>0</teams>
+<flags>0</flags>
+</target>
+<sound>Assets/ThirdPlugins/EasyTouchBundle/EasyTouchControls/Examples/_Medias/Sound/NeedReload.wav</sound>
+</Item>
+</actions>
+</Item>
+<Item Type ="AbilityEvent">
+<name>OnAttackFail</name>
+<actions>
+<Item Type ="PlaySound">
+<name>PlaySound</name>
+<target Type ="MultiTarget">
+<type>0</type>
+<teams>0</teams>
+<flags>0</flags>
+<radius>2</radius>
+<maxTargets>1234567</maxTargets>
+</target>
+<sound>Assets/ThirdPlugins/EasyTouchBundle/EasyTouchControls/Examples/_Medias/Sound/Gun.wav</sound>
+</Item>
+</actions>
+</Item>
+</events>
+<modifiers>
+</modifiers>
+</Root>
