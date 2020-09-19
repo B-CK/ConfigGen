@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using Tool;
 using Tool.Wrap;
@@ -38,7 +40,9 @@ namespace Tool.Export
             builder.AppendLine("}");
 
             string path = Path.Combine(Setting.LuaDir, DATA_CONFIG + ".lua");
-            Util.SaveFile(path, builder.ToString());
+            var names = ConfigWrap.Configs.Select(item => $"---@field {item.Value.Name} string");
+            string content = string.Join("\n", names) + "\n---@class ConfigName\n" + builder.ToString();
+            Util.SaveFile(path, content);
         }
         /// <summary>
         /// 数据结构定义
