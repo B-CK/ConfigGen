@@ -149,7 +149,7 @@ namespace Tool.Export
             while (eit.MoveNext())
             {
                 EnumWrap en = eit.Current.Value;
-                builder.AppendFormat("GetOrCreate('{0}')['{1}'] = {{\n", en.Namespace, en.Name);
+                builder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = {{\n", Setting.ModuleName, en.Namespace, en.Name);
                 foreach (var item in en.Values)
                     builder.IntervalLevel().AppendFormat("{0} = {1},\n", item.Key, item.Value);
                 builder.AppendLine("}");
