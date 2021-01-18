@@ -1,3 +1,0 @@
-<Module Name="Temp" Groups="All:Client:Editor:Server">
-  <Import>BX</Import>
-</Module>

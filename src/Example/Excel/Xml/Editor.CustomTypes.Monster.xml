@@ -1,8 +1,0 @@
-<Root Type ="Character">
-<ID>1</ID>
-<Custom Type ="Monster">
-<Name>大兵</Name>
-<Level>20</Level>
-<Attack>200</Attack>
-</Custom>
-</Root>

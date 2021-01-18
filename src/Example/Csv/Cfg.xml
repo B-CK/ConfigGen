@@ -1,9 +1,0 @@
-<Module Name = "Cfg">
-	<!-- <Import>AllType\AllType.xml</Import> -->
-	<!-- <Import>Model\Model.xml</Import> -->
-	<!-- <Import>Skill\Skill.xml</Import> -->
-	<Import>Ability\Ability.xml</Import>
-	<Import>Ability\Action.xml</Import>
-	<Import>Ability\Modifier.xml</Import>
-	<Import>Common\Math.xml</Import>
-</Module>

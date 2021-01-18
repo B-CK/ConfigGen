@@ -1,5 +1,0 @@
-<Namespace Name="Test_X" Desc="测试">
-  <Enum Name="firstEnum" Group="All" Desc="">
-    <Item Name="_0" Desc="" Group="Client" Value="0" Alias="Test" />
-  </Enum>
-</Namespace>

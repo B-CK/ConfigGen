@@ -1,7 +1,0 @@
-<Module Name = "Cfg">
-	<!-- <Import></Import> -->
-	<!-- <NoStruct></NoStruct> -->
-	<Import>Model\Model.xml</Import>
-	<Import>Skill\Skill.xml</Import>
-	<Import>Common\Vector.xml</Import>
-</Module>
