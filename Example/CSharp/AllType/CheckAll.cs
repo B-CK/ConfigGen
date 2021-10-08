@@ -95,7 +95,7 @@ namespace Cfg.AllType
 		public static Dictionary<int, Cfg.AllType.CheckAll> Load()
 		{
 			var dict = new Dictionary<int, Cfg.AllType.CheckAll>();
-			var path = "AllType/CheckAll.data";
+			var path = "AllType/CheckAll.csv";
 			try
 			{
 				var data = new DataStream(path, Encoding.UTF8);

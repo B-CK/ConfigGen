@@ -26,7 +26,7 @@ namespace Cfg.AllType
 		public static Dictionary<int, Cfg.AllType.Test> Load()
 		{
 			var dict = new Dictionary<int, Cfg.AllType.Test>();
-			var path = "AllType/Test.data";
+			var path = "AllType/Test.csv";
 			try
 			{
 				var data = new DataStream(path, Encoding.UTF8);

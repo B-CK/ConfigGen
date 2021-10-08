@@ -6,9 +6,7 @@ using Tool.Config;
 using System.Collections.Generic;
 using System.Reflection;
 
-//-module .\Module\Editor.xml -xmlCode XmlCode/ -group all
-//-module .\Module\Example.xml -data ./Data  -csharp CSharp/ -group all
-
+//-module .\Excel\Cfg.xml -data .\data\csv  -csharp .\csharp -group all
 
 namespace Tool
 {

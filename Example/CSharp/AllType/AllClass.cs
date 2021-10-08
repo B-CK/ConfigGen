@@ -135,7 +135,7 @@ namespace Cfg.AllType
 		public static Dictionary<int, Cfg.AllType.AllClass> Load()
 		{
 			var dict = new Dictionary<int, Cfg.AllType.AllClass>();
-			var path = "AllType/AllClass.data";
+			var path = "AllType/AllClass.csv";
 			try
 			{
 				var data = new DataStream(path, Encoding.UTF8);

@@ -1,6 +1,7 @@
 <Module Name = "Cfg">
-	<Import>Ability\Ability.xml</Import>
-	<Import>Ability\Action.xml</Import>
-	<Import>Ability\Modifier.xml</Import>
-	<Import>Common\Math.xml</Import>
+	<!-- <Import>Ability\Ability.xml</Import> -->
+	<!-- <Import>Ability\Action.xml</Import> -->
+	<!-- <Import>Ability\Modifier.xml</Import> -->
+	<!-- <Import>Common\Math.xml</Import> -->
+	<Import>类型定义\AllType.xml</Import>
 </Module>

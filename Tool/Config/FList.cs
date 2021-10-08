@@ -107,5 +107,17 @@ namespace Tool.Config
             }
             return builder.ToString();
         }
+
+        /// <summary>
+        /// Csv格式数据导出.
+        /// 注:实际导出数据与Excel填写有差异,主要差异在于List/Dict类型导出后,会导出count且移除末尾]]符号
+        /// </summary>
+        public string ExportCsv()
+        {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < _values.Count; i++)
+                builder.AppendFormat("{0}{1}\r\n", _values[i].ExportData(), Setting.CsvSplitFlag);
+            return builder.ToString();
+        }
     }
 }

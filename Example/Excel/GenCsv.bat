@@ -1,7 +1,7 @@
 cd ..
 @set tool="Tool.exe"
 
-@set module=".\Csv\Cfg.xml"
+@set module=".\Excel\Cfg.xml"
 @set data=".\data\csv"
 @set binary=".\data\binary" REM -binary %binary%
 @set lua=".\Lua"
