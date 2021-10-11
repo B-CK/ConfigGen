@@ -62,7 +62,7 @@ namespace Tool.Config
             StringBuilder builder = new StringBuilder();
             builder.Append(_values.Count);
             for (int i = 0; i < _values.Count; i++)
-                builder.AppendFormat("{0}{1}", Setting.CsvSplitFlag, _values[i].ExportData());
+                builder.AppendFormat("{0}{1}", Setting.DataSplitFlag, _values[i].ExportData());
             return builder.ToString();
         }
         public override int ExportBinary(ref byte[] bytes, int offset)
@@ -111,13 +111,14 @@ namespace Tool.Config
         /// <summary>
         /// Csv格式数据导出.
         /// 注:实际导出数据与Excel填写有差异,主要差异在于List/Dict类型导出后,会导出count且移除末尾]]符号
+        /// 注:excel默认以ascii方式打开文件则中文存在乱码,若想正确打开utf-8文件操作很麻烦
         /// </summary>
-        public string ExportCsv()
-        {
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < _values.Count; i++)
-                builder.AppendFormat("{0}{1}\r\n", _values[i].ExportData(), Setting.CsvSplitFlag);
-            return builder.ToString();
-        }
+        //public string ExportCsv()
+        //{
+        //    StringBuilder builder = new StringBuilder();
+        //    for (int i = 0; i < _values.Count; i++)
+        //        builder.AppendFormat("{0}{1}\r\n", _values[i].ExportData(), Setting.DataSplitFlag);
+        //    return builder.ToString();
+        //}
     }
 }

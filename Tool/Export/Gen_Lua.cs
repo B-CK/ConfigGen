@@ -71,7 +71,7 @@ namespace Tool.Export
                     if (!Util.MatchGroups(constant.Group)) continue;
 
                     string value = constant.Value;
-                    switch (constant.FullType)
+                    switch (constant.FullName)
                     {
                         case Setting.BOOL:
                             value = value.ToLower();
@@ -80,8 +80,8 @@ namespace Tool.Export
                             value = string.Format("'{0}'", value);
                             break;
                         default:
-                            if (EnumWrap.IsEnum(constant.FullType))
-                                value = EnumWrap.Enums[constant.FullType].GetValue(constant.Value);
+                            if (EnumWrap.IsEnum(constant.FullName))
+                                value = EnumWrap.Enums[constant.FullName].GetValue(constant.Value);
                             break;
                     }
                     builder.AppendFormat("meta.{0} = {1}\n", constant.Name, value);

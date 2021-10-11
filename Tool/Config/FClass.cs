@@ -59,9 +59,9 @@ namespace Tool.Config
         {
             StringBuilder builder = new StringBuilder();
             if (_define.IsDynamic)
-                builder.Append(Util.CorrectFullType(_fullType) + Setting.CsvSplitFlag);
+                builder.Append(Util.CorrectFullType(_fullType) + Setting.DataSplitFlag);
             for (int i = 0; i < _values.Count; i++)
-                builder.AppendFormat("{0}{1}", i > 0 ? Setting.CsvSplitFlag : "", _values[i].ExportData());
+                builder.AppendFormat("{0}{1}", i > 0 ? Setting.DataSplitFlag : "", _values[i].ExportData());
             return builder.ToString();
         }
         public override int ExportBinary(ref byte[] bytes, int offset)

@@ -49,7 +49,7 @@ namespace Tool.Config
             {
                 string key = dit.Current.Key.ExportData();
                 string value = dit.Current.Value.ExportData();
-                builder.AppendFormat("{0}{1}{0}{2}", Setting.CsvSplitFlag, key, value);
+                builder.AppendFormat("{0}{1}{0}{2}", Setting.DataSplitFlag, key, value);
             }
             return builder.ToString();
         }

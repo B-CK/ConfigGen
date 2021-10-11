@@ -9,6 +9,7 @@ using System.Data.OleDb;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Tool.Wrap;
+using System.Linq;
 
 namespace Tool
 {
@@ -111,6 +112,24 @@ namespace Tool
         }
         #endregion
 
+        /// <summary>
+        /// 以命名为单位集合收集类型
+        /// </summary>
+        public static Dictionary<string, List<ClassWrap>> GetNamespaceClasses()
+        {
+            var dict = new Dictionary<string, List<ClassWrap>>();
+            foreach (var item in ClassWrap.Classes)
+            {
+                if (dict.TryGetValue(item.Value.Namespace, out var list))
+                    list.Add(item.Value);
+                else
+                {
+                    list = new List<ClassWrap>() { item.Value };
+                    dict.Add(item.Value.FullName, list);
+                }
+            }
+            return dict;
+        }
 
         /// <summary>
         /// Xml文件反序列化

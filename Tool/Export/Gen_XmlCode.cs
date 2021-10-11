@@ -128,7 +128,7 @@ namespace Tool.Export
         {
             Comment(constant.Desc, MEM_LEVEL);
             builder.IntervalLevel(MEM_LEVEL);
-            builder.AppendLine($"{CONST_MODIFIERS} {Util.CorrectFullType(constant.FullType)} {constant.Name} = {Util.CorrectConst(constant.FullType, constant.Value)};");
+            builder.AppendLine($"{CONST_MODIFIERS} {Util.CorrectFullType(constant.FullName)} {constant.Name} = {Util.CorrectConst(constant.FullName, constant.Value)};");
         }
         static void Field(FieldWrap field)
         {

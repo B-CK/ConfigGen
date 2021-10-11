@@ -55,9 +55,9 @@ namespace Tool
         /// </summary>
         public static readonly char[] CheckSplit = new char[] { '|' };
         /// <summary>
-        /// 简单分离数据符
+        /// 简单分离数据符,可避免内容中包含\n而数据解析错误
         /// </summary>
-        public const string DataSplitFlag = "\n";
+        public const string DataSplitFlag = "\r\n";
         /// <summary>
         /// Csv数据存储分隔符
         /// </summary>
@@ -119,9 +119,9 @@ namespace Tool
 
         #region 文件相关常量  
         /// <summary>
-        /// Csv数据文件扩展名
+        /// Data数据文件扩展名
         /// </summary>
-        public const string DataFileExt = ".csv";
+        public const string DataFileExt = ".da";
         /// <summary>
         /// Excel数据行结束符
         /// </summary>
@@ -143,11 +143,6 @@ namespace Tool
         /// </summary>
         public const string VALUE = "Value";
         #endregion
-
-
-
-
-
 
     }
 }

@@ -13,7 +13,7 @@ namespace Tool.Export
             for (int i = 0; i < configs.Count; i++)
             {
                 var cfg = configs[i];
-                builder.AppendLine(cfg.Data.ExportCsv());
+                builder.AppendLine(cfg.Data.ExportData());
                 string filePath = Path.Combine(Setting.DataDir, cfg.OutputFile + Setting.DataFileExt);
                 Util.SaveFile(filePath.ToLower(), builder.ToString());
                 builder.Clear();
