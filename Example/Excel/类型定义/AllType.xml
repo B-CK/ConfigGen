@@ -49,12 +49,7 @@
 	</Class>
 	<Class Name = "M2" Inherit = "SingleClass">
 		<Field Name = "V4" Type = "bool" Desc = "继承2"/>
-	</Class>
-	
-	<Class Name = "Test" Index = "TID" DataPath="Test.xlsx">
-		<Field Name = "TID" Type = "int" Desc = "继承2"/>
-		<Field Name = "Name" Type = "string" Desc = "继承2"/>
-	</Class>
+	</Class>	
 	
     <Enum Name="CardElement" Desc="卡牌枚举">
         <Item Name = "Attack" Alias="攻击"/>
@@ -69,10 +64,6 @@
         <Item Name = "Handack" Alias="手牌攻击"/>
     </Enum>
 	
-	<Class Name = "ClientConst" Index = "TID" DataPath="Test.xlsx">
-		<Field Name = "TID" Type = "int" Desc = "继承2"/>
-		<Field Name = "Name" Type = "string" Desc = "继承2"/>
-	</Class>
 </Namespace>
 
 

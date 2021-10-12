@@ -1,0 +1,21 @@
+<Namespace Name = "TestModule">
+	<Class Name = "TClass">
+        <Field Name = "Var1" Type = "string" Desc = "Var1" />
+        <Field Name = "Var2" Type = "float" Desc = "Var2" />
+    </Class>
+	
+	<Class Name = "TM1" Inherit = "TClass">
+		<Field Name = "V3" Type = "long" Desc = "继承1"/>
+	</Class>
+	<Class Name = "TM2" Inherit = "TClass">
+		<Field Name = "V4" Type = "bool" Desc = "继承2"/>
+	</Class>
+	
+	<Class Name = "Test" Index = "TID" DataPath="Test.xlsx">
+		<Field Name = "TID" Type = "int" Desc = "继承2"/>
+		<Field Name = "Name" Type = "string" Desc = "继承2"/>
+		<Field Name = "Card" Type = "AllType.CardElement" Desc = "外部模块类型"/>
+	</Class> 
+</Namespace>
+
+

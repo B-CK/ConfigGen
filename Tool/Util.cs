@@ -115,17 +115,27 @@ namespace Tool
         /// <summary>
         /// 以命名为单位集合收集类型
         /// </summary>
-        public static Dictionary<string, List<ClassWrap>> GetNamespaceClasses()
+        public static Dictionary<string, List<object>> GetNamespaceStruct()
         {
-            var dict = new Dictionary<string, List<ClassWrap>>();
+            var dict = new Dictionary<string, List<object>>();
             foreach (var item in ClassWrap.Classes)
             {
                 if (dict.TryGetValue(item.Value.Namespace, out var list))
                     list.Add(item.Value);
                 else
                 {
-                    list = new List<ClassWrap>() { item.Value };
-                    dict.Add(item.Value.FullName, list);
+                    list = new List<object>() { item.Value };
+                    dict.Add(item.Value.Namespace, list);
+                }
+            }
+            foreach (var item in EnumWrap.Enums)
+            {
+                if (dict.TryGetValue(item.Value.Namespace, out var list))
+                    list.Add(item.Value);
+                else
+                {
+                    list = new List<object>() { item.Value };
+                    dict.Add(item.Value.Namespace, list);
                 }
             }
             return dict;

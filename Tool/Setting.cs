@@ -94,6 +94,10 @@ namespace Tool
         /// </summary>
         public static string LuaDir { get; set; }
         /// <summary>
+        /// 导出Typescript类型
+        /// </summary>
+        public static string TSDir { get; set; }
+        /// <summary>
         /// 导出CSharp类型Xml操作类
         /// </summary>
         public static string XmlCodeDir { get; set; }

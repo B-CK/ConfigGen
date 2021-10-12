@@ -4,4 +4,5 @@
 	<!-- <Import>Ability\Modifier.xml</Import> -->
 	<!-- <Import>Common\Math.xml</Import> -->
 	<Import>类型定义\AllType.xml</Import>
+	<Import>类型定义\TestModule.xml</Import>
 </Module>

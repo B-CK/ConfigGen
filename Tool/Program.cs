@@ -56,6 +56,7 @@ namespace Tool
                 Export("Java", Setting.JavaDir);
                 Export("Lua", Setting.LuaDir);
                 Export("XmlCode", Setting.XmlCodeDir);
+                Export("Typescript", Setting.TSDir);
             }
             catch (Exception e)
             {

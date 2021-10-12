@@ -13,6 +13,7 @@ namespace Tool
         public const string CS_DIR = "-csharp";
         //public const string JAVA_DIR = "-java";
         public const string LUA_DIR = "-lua";
+        public const string TS_DIR = "-ts";
         public const string XML_CODE_DIR = "-xmlCode";
         public const string GROUP = "-group";
         public const string CHECK = "-check";
@@ -104,6 +105,9 @@ namespace Tool
                         break;
                     case LUA_DIR:
                         Setting.LuaDir = CheckDirArg(LUA_DIR, args[++i]);
+                        break;
+                    case TS_DIR:
+                        Setting.TSDir = CheckDirArg(TS_DIR, args[++i]);
                         break;
                     case XML_CODE_DIR:
                         Setting.XmlCodeDir = CheckDirArg(XML_CODE_DIR, args[++i]);

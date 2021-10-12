@@ -79,7 +79,7 @@
     <Compile Include="Export\Gen_CS.cs" />
     <Compile Include="Export\Gen_Binary.cs" />
     <Compile Include="Export\Gen_Data.cs" />
-    <Compile Include="Export\Gen_TS.cs" />
+    <Compile Include="Export\Gen_Typescript.cs" />
     <Compile Include="Export\Gen_XmlCode.cs" />
     <Compile Include="EnumerableExt.cs" />
     <Compile Include="Message\MessagePackBinary.cs" />
