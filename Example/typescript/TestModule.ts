@@ -1,9 +1,10 @@
-import { Stream } from 'Config/Stream';
+import { Stream } from '../Stream';
 import * as AllType from './AllType';
 /**************************************** 数据配置表 *****************************************/
 /** Test表数据类 */
 export class TestCfg extends Stream {
-	static readonly relative = 'testmodule/test';
+	static readonly relative = 'testmodule/test.da';
+	static readonly refence = 'TestModuleTestCfg';
 	private _cfgs: Test[] = [];
 	constructor(rootDir: string) {
 		super(rootDir + TestCfg.relative);
@@ -22,6 +23,7 @@ export class TestCfg extends Stream {
 	}
 	[Symbol.iterator]() { return this._cfgs.values(); }
 }
+export let _CFG_CLASS_ = [TestCfg];
 
 /**************************************** 数据结构定义 *****************************************/
 
@@ -40,7 +42,7 @@ Object.defineProperty(Stream.prototype, 'GetTestModuleTClassMaker', {
 	value: (stream: any) => stream[`Get${stream.GetString()}`].bind(stream),
 	writable: false,
 });
-Object.defineProperty(Stream.prototype, 'GetTestModuleTClassMaker', {
+Object.defineProperty(Stream.prototype, 'GetTestModuleTClass', {
 	value: (stream: any) => new TClass(stream),
 	writable: false,
 });
@@ -90,9 +92,9 @@ Object.defineProperty(Stream.prototype, 'GetTestModuleTest', {
 });
 
 /**************************************** 声明与导出 *****************************************/
-declare module '../Config' {
-	interface ConfigMgr {
-		get TestCfg(): TestCfg;
+declare module '../CfgManager' {
+	interface CfgManager {
+		get TestModuleTestCfg(): TestCfg;
 	}
 }
 

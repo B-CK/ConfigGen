@@ -1,8 +1,9 @@
-import { Stream } from 'Config/Stream';
+import { Stream } from '../Stream';
 /**************************************** 数据配置表 *****************************************/
 /** AllClass表数据类 */
 export class AllClassCfg extends Stream {
-	static readonly relative = 'alltype/allclass';
+	static readonly relative = 'alltype/allclass.da';
+	static readonly refence = 'AllTypeAllClassCfg';
 	private _cfgs: AllClass[] = [];
 	constructor(rootDir: string) {
 		super(rootDir + AllClassCfg.relative);
@@ -23,7 +24,8 @@ export class AllClassCfg extends Stream {
 }
 /** CheckAll表数据类 */
 export class CheckAllCfg extends Stream {
-	static readonly relative = 'alltype/checkall';
+	static readonly relative = 'alltype/checkall.da';
+	static readonly refence = 'AllTypeCheckAllCfg';
 	private _cfgs: CheckAll[] = [];
 	constructor(rootDir: string) {
 		super(rootDir + CheckAllCfg.relative);
@@ -42,6 +44,7 @@ export class CheckAllCfg extends Stream {
 	}
 	[Symbol.iterator]() { return this._cfgs.values(); }
 }
+export let _CFG_CLASS_ = [AllClassCfg, CheckAllCfg];
 
 /**************************************** 数据结构定义 *****************************************/
 /** 卡牌枚举 */
@@ -187,7 +190,7 @@ Object.defineProperty(Stream.prototype, 'GetAllTypeSingleClassMaker', {
 	value: (stream: any) => stream[`Get${stream.GetString()}`].bind(stream),
 	writable: false,
 });
-Object.defineProperty(Stream.prototype, 'GetAllTypeSingleClassMaker', {
+Object.defineProperty(Stream.prototype, 'GetAllTypeSingleClass', {
 	value: (stream: any) => new SingleClass(stream),
 	writable: false,
 });
@@ -219,10 +222,10 @@ Object.defineProperty(Stream.prototype, 'GetAllTypeM2', {
 });
 
 /**************************************** 声明与导出 *****************************************/
-declare module '../Config' {
-	interface ConfigMgr {
-		get AllClassCfg(): AllClassCfg;
-		get CheckAllCfg(): CheckAllCfg;
+declare module '../CfgManager' {
+	interface CfgManager {
+		get AllTypeAllClassCfg(): AllClassCfg;
+		get AllTypeCheckAllCfg(): CheckAllCfg;
 	}
 }
 

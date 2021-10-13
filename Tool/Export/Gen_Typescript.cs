@@ -17,7 +17,7 @@ namespace Tool.Export
         {
             List<string> imports = new List<string>()
             {
-                "import { Stream } from 'Config/Stream';"
+                "import { Stream } from '../Stream';"
             };
 
             var namespaces = Util.GetNamespaceStruct();
@@ -26,13 +26,14 @@ namespace Tool.Export
                 var builder = new StringBuilder();
                 builder.AppendLine(string.Join("\n", imports));
 
+                var cfgTypes = new List<string>();
                 var configs = new StringBuilder();
                 var structs = new StringBuilder();
                 var enums = new StringBuilder();
                 var decaCfg = new StringBuilder()
-                    .AppendLine("declare module '../Config' {")
+                    .AppendLine("declare module '../CfgManager' {")
                     .IntervalLevel()
-                    .AppendLine("interface ConfigMgr {");
+                    .AppendLine("interface CfgManager {");
                 var decaStruct = new StringBuilder()
                     .AppendLine("declare module '../Stream' {")
                     .IntervalLevel()
@@ -53,9 +54,13 @@ namespace Tool.Export
                         //定义结构
                         GenConfig(configs, cls);
                         GenDataStruct(structs, cls);
-                        string cfgName = GetCfgName(cls.Name);
                         if (cls.IsConfig())
-                            decaCfg.IntervalLevel(2).AppendLine($"get {cfgName}(): {cfgName};");
+                        {
+                            string cfgName = GetCfgName(cls.Name);
+                            string fullName = GetFormatFullName(cls.FullName);
+                            decaCfg.IntervalLevel(2).AppendLine($"get {GetCfgName(fullName)}(): {cfgName};");
+                            cfgTypes.Add(cfgName);
+                        }
                         else
                             decaStruct.IntervalLevel(2).AppendLine($"Get{cls.Name}(): {cls.Name};");
                     }
@@ -64,6 +69,7 @@ namespace Tool.Export
                         GenEnum(enums, enm);
                     }
                 }
+                configs.AppendLine($"export let _CFG_CLASS_ = [{string.Join(", ", cfgTypes)}];");
                 decaCfg.IntervalLevel().AppendLine("}\n}");
                 decaStruct.IntervalLevel().AppendLine("}\n}");
                 string path = Path.Combine(Setting.TSDir, item.Key.Replace(Setting.DotSplit[0].ToString(), "") + ".ts");
@@ -180,11 +186,12 @@ namespace Tool.Export
 
             string cfgName = GetCfgName(cls.Name);
             string relative = cls.FullName.Replace(Setting.DotSplit[0], '/').ToLower();
-            string formatName = GetFormatFullName(cls.FullName);
-            string parseName = cls.IsDynamic() ? $"{formatName}Maker" : formatName;
+            string fullName = GetFormatFullName(cls.FullName);
+            string parseName = cls.IsDynamic() ? $"{fullName}Maker" : fullName;
             builder.AppendLine($"/** {cls.Name}表数据类 */")
                 .AppendLine($"export class {cfgName} extends Stream {{")
-                .IntervalLevel().AppendLine($"static readonly relative = '{relative}';")
+                .IntervalLevel().AppendLine($"static readonly relative = '{relative}{Setting.DataFileExt}';")
+                .IntervalLevel().AppendLine($"static readonly refence = '{GetCfgName(fullName)}';")
                 .IntervalLevel().AppendLine($"private _cfgs: {cls.Name}[] = [];")
                 .IntervalLevel().AppendLine("constructor(rootDir: string) {")
                 .IntervalLevel(2).AppendLine($"super(rootDir + {cfgName}.relative);")
@@ -253,7 +260,7 @@ namespace Tool.Export
                    .IntervalLevel().AppendLine("value: (stream: any) => stream[`Get${stream.GetString()}`].bind(stream),")
                    .IntervalLevel().AppendLine("writable: false,")
                    .AppendLine("});");
-            builder.AppendLine($"Object.defineProperty(Stream.prototype, 'Get{GetParseName(cls.FullName)}', {{")
+            builder.AppendLine($"Object.defineProperty(Stream.prototype, 'Get{GetFormatFullName(cls.FullName)}', {{")
                 .IntervalLevel().AppendLine($"value: (stream: any) => new {cls.Name}(stream),")
                 .IntervalLevel().AppendLine("writable: false,")
                 .AppendLine("});");
