@@ -11,7 +11,7 @@ namespace Tool.Export
     public class Gen_Typescript
     {
         static string currentspace;
-        
+
 
         public static void Gen()
         {
@@ -32,11 +32,11 @@ namespace Tool.Export
                 var enums = new StringBuilder();
                 var decaCfg = new StringBuilder()
                     .AppendLine("declare module '../CfgManager' {")
-                    .IntervalLevel()
+                    .Space()
                     .AppendLine("interface CfgManager {");
                 var decaStruct = new StringBuilder()
                     .AppendLine("declare module '../Stream' {")
-                    .IntervalLevel()
+                    .Space()
                     .AppendLine("interface StreamBase {");
 
                 foreach (var obj in item.Value)
@@ -58,11 +58,11 @@ namespace Tool.Export
                         {
                             string cfgName = GetCfgName(cls.Name);
                             string fullName = GetFormatFullName(cls.FullName);
-                            decaCfg.IntervalLevel(2).AppendLine($"get {GetCfgName(fullName)}(): {cfgName};");
+                            decaCfg.Space(2).AppendLine($"get {GetCfgName(fullName)}(): {cfgName};");
                             cfgTypes.Add(cfgName);
                         }
                         else
-                            decaStruct.IntervalLevel(2).AppendLine($"Get{cls.Name}(): {cls.Name};");
+                            decaStruct.Space(2).AppendLine($"Get{cls.Name}(): {cls.Name};");
                     }
                     else if (obj is EnumWrap enm)
                     {
@@ -70,8 +70,8 @@ namespace Tool.Export
                     }
                 }
                 configs.AppendLine($"export let _CFG_CLASS_ = [{string.Join(", ", cfgTypes)}];");
-                decaCfg.IntervalLevel().AppendLine("}\n}");
-                decaStruct.IntervalLevel().AppendLine("}\n}");
+                decaCfg.Space().AppendLine("}\n}");
+                decaStruct.Space().AppendLine("}\n}");
                 string path = Path.Combine(Setting.TSDir, item.Key.Replace(Setting.DotSplit[0].ToString(), "") + ".ts");
 
                 builder.AppendLine("/**************************************** 数据配置表 *****************************************/")
@@ -138,7 +138,13 @@ namespace Tool.Export
             else
                 return "unknow";
         }
-        static string GetParseName(string fullName)
+        static string GetDynamicName(ClassWrap cls)
+        {
+            string formatName = GetFormatFullName(cls.FullName);
+            string parseName = Setting.ModuleName + (cls.IsDynamic() ? $"{formatName}Maker" : formatName);
+            return parseName;
+        }
+        static string GetDefineName(string fullName, bool isDynamic = true)
         {
             if (Setting.RawTypes.Contains(fullName))
                 return Util.FirstCharUpper(fullName);
@@ -147,30 +153,30 @@ namespace Tool.Export
             else if (ClassWrap.IsClass(fullName))
             {
                 var cls = ClassWrap.Classes[fullName];
-                string formatName = GetFormatFullName(cls.FullName);
-                string parseName = cls.IsDynamic() ? $"{formatName}Maker" : formatName;
-                return parseName;
+                if (isDynamic)
+                    return GetDynamicName(cls);
+                else
+                    return Setting.ModuleName + GetFormatFullName(cls.FullName);
             }
             else
                 return "unknow:" + fullName;
         }
-        static string GetParseFunc(FieldWrap field)
+        static string GetDefineName(FieldWrap field)
         {
             if (field.IsRaw)
-                return $"stream.Get{Util.FirstCharUpper(field.FullName)}()";
+                return $"o.Get{Util.FirstCharUpper(field.FullName)}()";
             else if (field.IsEnum)
-                return $"<{CorrectNamespace(field.FullName)}> stream.GetInt()";
+                return $"<{CorrectNamespace(field.FullName)}>o.GetInt()";
             else if (field.IsClass)
             {
                 var cls = ClassWrap.Classes[field.FullName];
-                string formatName = GetFormatFullName(cls.FullName);
-                string parseName = cls.IsDynamic() ? $"{formatName}Maker" : formatName;
-                return $"stream.Get{parseName}()";
+                string parseName = GetDynamicName(cls);
+                return $"o.Get{parseName}()";
             }
             else if (field.OriginalType == Setting.LIST)
-                return $"stream.Get{Util.FirstCharUpper(field.OriginalType)}('{GetParseName(field.Types[1])}')";
+                return $"o.Get{Util.FirstCharUpper(field.OriginalType)}('{GetDefineName(field.Types[1])}')";
             else if (field.OriginalType == Setting.DICT)
-                return $"stream.Get{Util.FirstCharUpper(field.OriginalType)}('{GetParseName(field.Types[1])}', '{GetParseName(field.Types[2])}')";
+                return $"o.Get{Util.FirstCharUpper(field.OriginalType)}('{GetDefineName(field.Types[1])}', '{GetDefineName(field.Types[2])}')";
             else
                 return "unknow:" + field.FullName;
         }
@@ -184,31 +190,54 @@ namespace Tool.Export
             if (!cls.IsConfig())
                 return;
 
+            ConfigWrap config = ConfigWrap.Get(cls.FullName);
             string cfgName = GetCfgName(cls.Name);
             string relative = cls.FullName.Replace(Setting.DotSplit[0], '/').ToLower();
             string fullName = GetFormatFullName(cls.FullName);
-            string parseName = cls.IsDynamic() ? $"{fullName}Maker" : fullName;
-            builder.AppendLine($"/** {cls.Name}表数据类 */")
+            string parseName = GetDynamicName(cls);
+            builder.AppendLine($"/** {cls.Name}表数据类*/")
                 .AppendLine($"export class {cfgName} extends Stream {{")
-                .IntervalLevel().AppendLine($"static readonly relative = '{relative}{Setting.DataFileExt}';")
-                .IntervalLevel().AppendLine($"static readonly refence = '{GetCfgName(fullName)}';")
-                .IntervalLevel().AppendLine($"private _cfgs: {cls.Name}[] = [];")
-                .IntervalLevel().AppendLine("constructor(rootDir: string) {")
-                .IntervalLevel(2).AppendLine($"super(rootDir + {cfgName}.relative);")
-                .IntervalLevel().AppendLine("}")
-                .IntervalLevel().AppendLine($"Get(id: number): {cls.Name} | undefined {{")
-                .IntervalLevel(2).AppendLine("if (this.hasLoaded) {")
-                .IntervalLevel(3).AppendLine("return this._cfgs[id];")
-                .IntervalLevel(2).AppendLine("}")
-                .IntervalLevel(2).AppendLine("else {")
-                .IntervalLevel(3).AppendLine("this.LoadConfig();")
-                .IntervalLevel(3).AppendLine("return this._cfgs[id];")
-                .IntervalLevel(2).AppendLine("}")
-                .IntervalLevel().AppendLine("}")
-                .IntervalLevel().AppendLine("protected ParseConfig() {")
-                .IntervalLevel(2).AppendLine($"this._cfgs = this.GetList('{parseName}');")
-                .IntervalLevel().AppendLine("}")
-                .IntervalLevel().AppendLine("[Symbol.iterator]() { return this._cfgs.values(); }")
+                .Space().AppendLine($"static readonly refence = '{GetCfgName(fullName)}';")
+                .Space().AppendLine("get length() { return this._cfgs ? this._cfgs.length : 0; }")
+                .Space().AppendLine("get cfgs() { return this._cfgs; }")
+                .Space().AppendLine($"private _cfgs: {cls.Name}[] = [];")
+                .Space().AppendLine($"private _key2idx: Map<number, number> = new Map();")
+                .Space().AppendLine("constructor(rootDir: string) {")
+                .Space(2).AppendLine($"super(rootDir + '{relative}{Setting.DataFileExt}');")
+                .Space().AppendLine("}")
+                .Space().AppendLine($"/**key索引数据(主键:{config.Index.Name})*/")
+                .Space().AppendLine($"Get(key: number): {cls.Name} | undefined {{")
+                .Space(2).AppendLine("let idx = this._key2idx.get(key);")
+                .Space(2).AppendLine("if (idx == undefined) {")
+                .Space(3).AppendLine("console.error(`${this.path} key does not exist:${key}`);")
+                .Space(3).AppendLine("return undefined;")
+                .Space(2).AppendLine("}")
+                .Space(2).AppendLine("if (this.hasLoaded) {")
+                .Space(3).AppendLine("return this._cfgs[idx];")
+                .Space(2).AppendLine("}")
+                .Space(2).AppendLine("else {")
+                .Space(3).AppendLine("this.LoadConfig();")
+                .Space(3).AppendLine("return this._cfgs[idx];")
+                .Space(2).AppendLine("}")       
+                .Space().AppendLine("}")       
+                .Space().AppendLine("/**下标索引数据*/")       
+                .Space().AppendLine("At(idx:number){")       
+                .Space(2).AppendLine("if (this.hasLoaded) {")
+                .Space(3).AppendLine("return this._cfgs[idx];")
+                .Space(2).AppendLine("}")
+                .Space(2).AppendLine("else {")
+                .Space(3).AppendLine("this.LoadConfig();")
+                .Space(3).AppendLine("return this._cfgs[idx];")
+                .Space(2).AppendLine("}")
+                .Space().AppendLine("}")
+                .Space().AppendLine("protected ParseConfig() {")
+                .Space(2).AppendLine($"this._cfgs = this.GetList('{parseName}');")
+                .Space(2).AppendLine("for (let index = 0; index < this._cfgs.length; index++) {")
+                .Space(3).AppendLine("const item = this._cfgs[index];")
+                .Space(3).AppendLine($"this._key2idx.set(item.{config.Index.Name}, index);")
+                .Space(2).AppendLine("}")
+                .Space().AppendLine("}")
+                .Space().AppendLine("[Symbol.iterator]() { return this._cfgs.values(); }")
                 .AppendLine("}");
         }
         /// <summary>
@@ -241,28 +270,28 @@ namespace Tool.Export
                         }
                         break;
                 }
-                builder.IntervalLevel().AppendLine($"/** {cst.Desc} */")
-                    .IntervalLevel().AppendLine($"static readonly {cst.Name} = {value};");
+                builder.Space().AppendLine($"/** {cst.Desc} */")
+                    .Space().AppendLine($"static readonly {cst.Name} = {value};");
             }
             foreach (var item in cls.Fields)
-                builder.IntervalLevel().AppendLine($"/** {item.Desc} */")
-                    .IntervalLevel().AppendLine($"readonly {item.Name}: {GetType(item)};");
-            builder.IntervalLevel().AppendLine("constructor(stream: any) {");
+                builder.Space().AppendLine($"/** {item.Desc} */")
+                    .Space().AppendLine($"readonly {item.Name}: {GetType(item)};");
+            builder.Space().AppendLine("constructor(o: any) {");
             if (!cls.Inherit.IsEmpty())
-                builder.IntervalLevel(2).AppendLine("super(stream);");
+                builder.Space(2).AppendLine("super(o);");
             foreach (var item in cls.Fields)
-                builder.IntervalLevel(2).AppendLine($"this.{item.Name} = {GetParseFunc(item)};");
-            builder.IntervalLevel().AppendLine("}")
+                builder.Space(2).AppendLine($"this.{item.Name} = {GetDefineName(item)};");
+            builder.Space().AppendLine("}")
                 .AppendLine("}");
 
             if (cls.IsDynamic())
-                builder.AppendLine($"Object.defineProperty(Stream.prototype, 'Get{GetParseName(cls.FullName)}', {{")
-                   .IntervalLevel().AppendLine("value: (stream: any) => stream[`Get${stream.GetString()}`].bind(stream),")
-                   .IntervalLevel().AppendLine("writable: false,")
+                builder.AppendLine($"Object.defineProperty(Stream.prototype, 'Get{GetDefineName(cls.FullName)}', {{")
+                   .Space().AppendLine("value: function (this: any) { return this[`Get${this.GetString().replace(/[\\.]+/g, '')}`](); },")
+                   .Space().AppendLine("writable: false,")
                    .AppendLine("});");
-            builder.AppendLine($"Object.defineProperty(Stream.prototype, 'Get{GetFormatFullName(cls.FullName)}', {{")
-                .IntervalLevel().AppendLine($"value: (stream: any) => new {cls.Name}(stream),")
-                .IntervalLevel().AppendLine("writable: false,")
+            builder.AppendLine($"Object.defineProperty(Stream.prototype, 'Get{GetDefineName(cls.FullName, false)}', {{")
+                .Space().AppendLine($"value: function(this: any) {{ return new {cls.Name}(this); }},")
+                .Space().AppendLine("writable: false,")
                 .AppendLine("});");
         }
         static void GenEnum(StringBuilder builder, EnumWrap enm)
@@ -273,8 +302,8 @@ namespace Tool.Export
             {
                 var alias = enm.Items[item.Key].Alias;
                 if (!alias.IsEmpty())
-                    builder.IntervalLevel().AppendLine($"/**{alias}*/");
-                builder.IntervalLevel().AppendLine($"{item.Key} = {item.Value},");
+                    builder.Space().AppendLine($"/**{alias}*/");
+                builder.Space().AppendLine($"{item.Key} = {item.Value},");
             }
             builder.AppendLine("}");
         }

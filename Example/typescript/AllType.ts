@@ -1,46 +1,90 @@
 import { Stream } from '../Stream';
 /**************************************** 数据配置表 *****************************************/
-/** AllClass表数据类 */
+/** AllClass表数据类*/
 export class AllClassCfg extends Stream {
-	static readonly relative = 'alltype/allclass.da';
 	static readonly refence = 'AllTypeAllClassCfg';
+	get length() { return this._cfgs ? this._cfgs.length : 0; }
+	get cfgs() { return this._cfgs; }
 	private _cfgs: AllClass[] = [];
+	private _key2idx: Map<number, number> = new Map();
 	constructor(rootDir: string) {
-		super(rootDir + AllClassCfg.relative);
+		super(rootDir + 'alltype/allclass.da');
 	}
-	Get(id: number): AllClass | undefined {
+	/**key索引数据(主键:ID)*/
+	Get(key: number): AllClass | undefined {
+		let idx = this._key2idx.get(key);
+		if (idx == undefined) {
+			console.error(`${this.path} key does not exist:${key}`);
+			return undefined;
+		}
 		if (this.hasLoaded) {
-			return this._cfgs[id];
+			return this._cfgs[idx];
 		}
 		else {
 			this.LoadConfig();
-			return this._cfgs[id];
+			return this._cfgs[idx];
+		}
+	}
+	/**下标索引数据*/
+	At(idx:number){
+		if (this.hasLoaded) {
+			return this._cfgs[idx];
+		}
+		else {
+			this.LoadConfig();
+			return this._cfgs[idx];
 		}
 	}
 	protected ParseConfig() {
-		this._cfgs = this.GetList('AllTypeAllClass');
+		this._cfgs = this.GetList('CfgAllTypeAllClass');
+		for (let index = 0; index < this._cfgs.length; index++) {
+			const item = this._cfgs[index];
+			this._key2idx.set(item.ID, index);
+		}
 	}
 	[Symbol.iterator]() { return this._cfgs.values(); }
 }
-/** CheckAll表数据类 */
+/** CheckAll表数据类*/
 export class CheckAllCfg extends Stream {
-	static readonly relative = 'alltype/checkall.da';
 	static readonly refence = 'AllTypeCheckAllCfg';
+	get length() { return this._cfgs ? this._cfgs.length : 0; }
+	get cfgs() { return this._cfgs; }
 	private _cfgs: CheckAll[] = [];
+	private _key2idx: Map<number, number> = new Map();
 	constructor(rootDir: string) {
-		super(rootDir + CheckAllCfg.relative);
+		super(rootDir + 'alltype/checkall.da');
 	}
-	Get(id: number): CheckAll | undefined {
+	/**key索引数据(主键:ID)*/
+	Get(key: number): CheckAll | undefined {
+		let idx = this._key2idx.get(key);
+		if (idx == undefined) {
+			console.error(`${this.path} key does not exist:${key}`);
+			return undefined;
+		}
 		if (this.hasLoaded) {
-			return this._cfgs[id];
+			return this._cfgs[idx];
 		}
 		else {
 			this.LoadConfig();
-			return this._cfgs[id];
+			return this._cfgs[idx];
+		}
+	}
+	/**下标索引数据*/
+	At(idx:number){
+		if (this.hasLoaded) {
+			return this._cfgs[idx];
+		}
+		else {
+			this.LoadConfig();
+			return this._cfgs[idx];
 		}
 	}
 	protected ParseConfig() {
-		this._cfgs = this.GetList('AllTypeCheckAll');
+		this._cfgs = this.GetList('CfgAllTypeCheckAll');
+		for (let index = 0; index < this._cfgs.length; index++) {
+			const item = this._cfgs[index];
+			this._key2idx.set(item.ID, index);
+		}
 	}
 	[Symbol.iterator]() { return this._cfgs.values(); }
 }
@@ -111,26 +155,26 @@ export class AllClass {
 	readonly VarDictEnum: Map<number, string>;
 	/** 类类型字典 */
 	readonly VarDictClass: Map<string, SingleClass>;
-	constructor(stream: any) {
-		this.ID = stream.GetInt();
-		this.Index = stream.GetInt();
-		this.VarLong = stream.GetLong();
-		this.VarFloat = stream.GetFloat();
-		this.VarString = stream.GetString();
-		this.VarBool = stream.GetBool();
-		this.VarEnum = <CardElement> stream.GetInt();
-		this.VarClass = stream.GetAllTypeSingleClassMaker();
-		this.VarListBase = stream.GetList('String');
-		this.VarListClass = stream.GetList('AllTypeSingleClassMaker');
-		this.VarListCardElem = stream.GetList('String');
-		this.VarListFloat = stream.GetList('Float');
-		this.VarDictBase = stream.GetDict('Int', 'Float');
-		this.VarDictEnum = stream.GetDict('Long', 'String');
-		this.VarDictClass = stream.GetDict('String', 'AllTypeSingleClassMaker');
+	constructor(o: any) {
+		this.ID = o.GetInt();
+		this.Index = o.GetInt();
+		this.VarLong = o.GetLong();
+		this.VarFloat = o.GetFloat();
+		this.VarString = o.GetString();
+		this.VarBool = o.GetBool();
+		this.VarEnum = <CardElement>o.GetInt();
+		this.VarClass = o.GetCfgAllTypeSingleClassMaker();
+		this.VarListBase = o.GetList('String');
+		this.VarListClass = o.GetList('CfgAllTypeSingleClassMaker');
+		this.VarListCardElem = o.GetList('String');
+		this.VarListFloat = o.GetList('Float');
+		this.VarDictBase = o.GetDict('Int', 'Float');
+		this.VarDictEnum = o.GetDict('Long', 'String');
+		this.VarDictClass = o.GetDict('String', 'CfgAllTypeSingleClassMaker');
 	}
 }
-Object.defineProperty(Stream.prototype, 'GetAllTypeAllClass', {
-	value: (stream: any) => new AllClass(stream),
+Object.defineProperty(Stream.prototype, 'GetCfgAllTypeAllClass', {
+	value: function(this: any) { return new AllClass(this); },
 	writable: false,
 });
 /** 所有类型 */
@@ -157,22 +201,22 @@ export class CheckAll {
 	readonly VarDictLongString: Map<number, string>;
 	/** 类类型字典 */
 	readonly VarDictStringClass: Map<string, SingleClass>;
-	constructor(stream: any) {
-		this.ID = stream.GetInt();
-		this.Index = stream.GetInt();
-		this.VarLong = stream.GetLong();
-		this.VarFloat = stream.GetFloat();
-		this.VarString = stream.GetString();
-		this.VarListString = stream.GetList('String');
-		this.VarListStrEmpty = stream.GetList('String');
-		this.VarListFloat = stream.GetList('Float');
-		this.VarDictIntFloat = stream.GetDict('Int', 'Float');
-		this.VarDictLongString = stream.GetDict('Long', 'String');
-		this.VarDictStringClass = stream.GetDict('String', 'AllTypeSingleClassMaker');
+	constructor(o: any) {
+		this.ID = o.GetInt();
+		this.Index = o.GetInt();
+		this.VarLong = o.GetLong();
+		this.VarFloat = o.GetFloat();
+		this.VarString = o.GetString();
+		this.VarListString = o.GetList('String');
+		this.VarListStrEmpty = o.GetList('String');
+		this.VarListFloat = o.GetList('Float');
+		this.VarDictIntFloat = o.GetDict('Int', 'Float');
+		this.VarDictLongString = o.GetDict('Long', 'String');
+		this.VarDictStringClass = o.GetDict('String', 'CfgAllTypeSingleClassMaker');
 	}
 }
-Object.defineProperty(Stream.prototype, 'GetAllTypeCheckAll', {
-	value: (stream: any) => new CheckAll(stream),
+Object.defineProperty(Stream.prototype, 'GetCfgAllTypeCheckAll', {
+	value: function(this: any) { return new CheckAll(this); },
 	writable: false,
 });
 /**  */
@@ -181,43 +225,43 @@ export class SingleClass {
 	readonly Var1: string;
 	/** Var2 */
 	readonly Var2: number;
-	constructor(stream: any) {
-		this.Var1 = stream.GetString();
-		this.Var2 = stream.GetFloat();
+	constructor(o: any) {
+		this.Var1 = o.GetString();
+		this.Var2 = o.GetFloat();
 	}
 }
-Object.defineProperty(Stream.prototype, 'GetAllTypeSingleClassMaker', {
-	value: (stream: any) => stream[`Get${stream.GetString()}`].bind(stream),
+Object.defineProperty(Stream.prototype, 'GetCfgAllTypeSingleClassMaker', {
+	value: function (this: any) { return this[`Get${this.GetString().replace(/[\.]+/g, '')}`](); },
 	writable: false,
 });
-Object.defineProperty(Stream.prototype, 'GetAllTypeSingleClass', {
-	value: (stream: any) => new SingleClass(stream),
+Object.defineProperty(Stream.prototype, 'GetCfgAllTypeSingleClass', {
+	value: function(this: any) { return new SingleClass(this); },
 	writable: false,
 });
 /**  */
 export class M1 extends SingleClass {
 	/** 继承1 */
 	readonly V3: number;
-	constructor(stream: any) {
-		super(stream);
-		this.V3 = stream.GetLong();
+	constructor(o: any) {
+		super(o);
+		this.V3 = o.GetLong();
 	}
 }
-Object.defineProperty(Stream.prototype, 'GetAllTypeM1', {
-	value: (stream: any) => new M1(stream),
+Object.defineProperty(Stream.prototype, 'GetCfgAllTypeM1', {
+	value: function(this: any) { return new M1(this); },
 	writable: false,
 });
 /**  */
 export class M2 extends SingleClass {
 	/** 继承2 */
 	readonly V4: boolean;
-	constructor(stream: any) {
-		super(stream);
-		this.V4 = stream.GetBool();
+	constructor(o: any) {
+		super(o);
+		this.V4 = o.GetBool();
 	}
 }
-Object.defineProperty(Stream.prototype, 'GetAllTypeM2', {
-	value: (stream: any) => new M2(stream),
+Object.defineProperty(Stream.prototype, 'GetCfgAllTypeM2', {
+	value: function(this: any) { return new M2(this); },
 	writable: false,
 });
 

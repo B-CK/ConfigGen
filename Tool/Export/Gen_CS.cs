@@ -37,21 +37,21 @@ namespace Tool.Export
 
         static void Start(int n)
         {
-            builder.IntervalLevel(n);
+            builder.Space(n);
             builder.AppendLine("{");
         }
         static void End(int n)
         {
-            builder.IntervalLevel(n);
+            builder.Space(n);
             builder.AppendLine("}");
         }
         static void Comment(string comment, int n)
         {
-            builder.IntervalLevel(n);
+            builder.Space(n);
             builder.AppendLine("/// <summary>");
-            builder.IntervalLevel(n);
+            builder.Space(n);
             builder.AppendLine($"/// {comment}");
-            builder.IntervalLevel(n);
+            builder.Space(n);
             builder.AppendLine("/// <summary>");
         }
 
@@ -70,9 +70,9 @@ namespace Tool.Export
                     //类
                     Comment(cls.Desc, TYPE_LEVEL);
                     if (cls.Inherit.IsEmpty())
-                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public class {cls.Name} : {CLASS_CFG_OBJECT}");
+                        builder.Space(TYPE_LEVEL).AppendLine($"public class {cls.Name} : {CLASS_CFG_OBJECT}");
                     else
-                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public class {cls.Name} : {Util.CorrectFullType(cls.Inherit)}");
+                        builder.Space(TYPE_LEVEL).AppendLine($"public class {cls.Name} : {Util.CorrectFullType(cls.Inherit)}");
                     Start(TYPE_LEVEL);
                     {
                         StringBuilder initer = new StringBuilder();
@@ -92,7 +92,7 @@ namespace Tool.Export
                         }
 
                         //构造函数
-                        builder.IntervalLevel(MEM_LEVEL);
+                        builder.Space(MEM_LEVEL);
                         if (cls.Inherit.IsEmpty())
                             builder.AppendLine($"public {cls.Name}({CLASS_DATA_STREAM} {ARG_DATASTREAM})");
                         else
@@ -135,13 +135,13 @@ namespace Tool.Export
         static void Const(ConstWrap constant)
         {
             Comment(constant.Desc, MEM_LEVEL);
-            builder.IntervalLevel(MEM_LEVEL);
+            builder.Space(MEM_LEVEL);
             builder.AppendLine($"{CONST_MODIFIERS} {Util.CorrectFullType(constant.FullName)} {constant.Name} = {Util.CorrectConst(constant.FullName, constant.Value)};");
         }
         static void Field(FieldWrap field)
         {
             Comment(field.Desc, MEM_LEVEL);
-            builder.IntervalLevel(MEM_LEVEL);
+            builder.Space(MEM_LEVEL);
             if (field.IsRaw || field.IsEnum || field.IsClass)
                 builder.AppendLine($"{FEILD_MODIFIERS} {Util.CorrectFullType(field.FullName)} {field.Name};");
             else if (field.OriginalType == Setting.LIST)
@@ -154,31 +154,31 @@ namespace Tool.Export
             int level = SEM_LEVEL + 1;
             if (field.IsRaw || field.IsEnum || field.IsClass)
             {
-                initer.IntervalLevel(SEM_LEVEL);
+                initer.Space(SEM_LEVEL);
                 initer.AppendLine($"{field.Name} = {ReadValue(field)};");
             }
             else if (field.OriginalType == Setting.LIST)
             {
-                initer.IntervalLevel(SEM_LEVEL).AppendLine($"for (int n = {ARG_DATASTREAM}.GetArrayLength(); n-- > 0;)");
-                initer.IntervalLevel(SEM_LEVEL).AppendLine("{");
+                initer.Space(SEM_LEVEL).AppendLine($"for (int n = {ARG_DATASTREAM}.GetArrayLength(); n-- > 0;)");
+                initer.Space(SEM_LEVEL).AppendLine("{");
                 {
                     FieldWrap item = field.GetItemDefine();
-                    initer.IntervalLevel(level).AppendLine($"var v = {ReadValue(item)};");
-                    initer.IntervalLevel(level).AppendLine($"{field.Name}.Add(v);");
+                    initer.Space(level).AppendLine($"var v = {ReadValue(item)};");
+                    initer.Space(level).AppendLine($"{field.Name}.Add(v);");
                 }
-                initer.IntervalLevel(SEM_LEVEL).AppendLine("}");
+                initer.Space(SEM_LEVEL).AppendLine("}");
             }
             else if (field.OriginalType == Setting.DICT)
             {
-                initer.IntervalLevel(SEM_LEVEL).AppendLine($"for (int n = {ARG_DATASTREAM}.GetMapLength(); n-- > 0;)");
-                initer.IntervalLevel(SEM_LEVEL).AppendLine("{");
+                initer.Space(SEM_LEVEL).AppendLine($"for (int n = {ARG_DATASTREAM}.GetMapLength(); n-- > 0;)");
+                initer.Space(SEM_LEVEL).AppendLine("{");
                 {
                     FieldWrap key = field.GetKeyDefine();
                     FieldWrap value = field.GetValueDefine();
-                    initer.IntervalLevel(level).AppendLine($"var k = {ReadValue(key)};");
-                    initer.IntervalLevel(level).AppendLine($"{field.Name}[k] = {ReadValue(value)};");
+                    initer.Space(level).AppendLine($"var k = {ReadValue(key)};");
+                    initer.Space(level).AppendLine($"{field.Name}[k] = {ReadValue(value)};");
                 }
-                initer.IntervalLevel(SEM_LEVEL).AppendLine("}");
+                initer.Space(SEM_LEVEL).AppendLine("}");
             }
         }
         static void LoadFunc(ConfigWrap cfg)
@@ -187,37 +187,37 @@ namespace Tool.Export
             int level2 = SEM_LEVEL + 2;
             var keyType = Util.CorrectFullType(cfg.Index.FullName);
             var varType = Util.CorrectFullType(cfg.FullName);
-            builder.IntervalLevel(MEM_LEVEL).AppendLine($"public static Dictionary<{cfg.Index.FullName}, {varType}> Load()");
-            builder.IntervalLevel(MEM_LEVEL).AppendLine("{");
+            builder.Space(MEM_LEVEL).AppendLine($"public static Dictionary<{cfg.Index.FullName}, {varType}> Load()");
+            builder.Space(MEM_LEVEL).AppendLine("{");
             {
-                builder.IntervalLevel(SEM_LEVEL).AppendLine($"var dict = new Dictionary<{cfg.Index.FullName}, {varType}>();");
-                builder.IntervalLevel(SEM_LEVEL).AppendLine($"var path = \"{cfg.FullName.Replace(Setting.DotSplit[0], '/')}{Setting.DataFileExt}\";");
-                builder.IntervalLevel(SEM_LEVEL).AppendLine($"try");
-                builder.IntervalLevel(SEM_LEVEL).AppendLine($"{{");
+                builder.Space(SEM_LEVEL).AppendLine($"var dict = new Dictionary<{cfg.Index.FullName}, {varType}>();");
+                builder.Space(SEM_LEVEL).AppendLine($"var path = \"{cfg.FullName.Replace(Setting.DotSplit[0], '/')}{Setting.DataFileExt}\";");
+                builder.Space(SEM_LEVEL).AppendLine($"try");
+                builder.Space(SEM_LEVEL).AppendLine($"{{");
                 {
-                    builder.IntervalLevel(level1).AppendLine($"var data = new DataStream(path, Encoding.UTF8);");
-                    builder.IntervalLevel(level1).AppendLine($"int length = data.GetArrayLength();");
-                    builder.IntervalLevel(level1).AppendLine($"for (int i = 0; i < length; i++)");
-                    builder.IntervalLevel(level1).AppendLine($"{{");
+                    builder.Space(level1).AppendLine($"var data = new DataStream(path, Encoding.UTF8);");
+                    builder.Space(level1).AppendLine($"int length = data.GetArrayLength();");
+                    builder.Space(level1).AppendLine($"for (int i = 0; i < length; i++)");
+                    builder.Space(level1).AppendLine($"{{");
                     {
-                        builder.IntervalLevel(level2).AppendLine($"var v = new {varType}(data);");
-                        builder.IntervalLevel(level2).AppendLine($"dict.Add(v.{cfg.Index.Name}, v);");
+                        builder.Space(level2).AppendLine($"var v = new {varType}(data);");
+                        builder.Space(level2).AppendLine($"dict.Add(v.{cfg.Index.Name}, v);");
                     }
-                    builder.IntervalLevel(level1).AppendLine($"}}");
+                    builder.Space(level1).AppendLine($"}}");
                 }
-                builder.IntervalLevel(SEM_LEVEL).AppendLine($"}}");
-                builder.IntervalLevel(SEM_LEVEL).AppendLine($"catch (Exception e)");
-                builder.IntervalLevel(SEM_LEVEL).AppendLine($"{{");
+                builder.Space(SEM_LEVEL).AppendLine($"}}");
+                builder.Space(SEM_LEVEL).AppendLine($"catch (Exception e)");
+                builder.Space(SEM_LEVEL).AppendLine($"{{");
                 {
-                    builder.IntervalLevel(level1).AppendLine($"UnityEngine.Debug.LogError($\"{{path}}解析异常~\\n{{e.Message}}\\n{{e.StackTrace}}\");");
+                    builder.Space(level1).AppendLine($"UnityEngine.Debug.LogError($\"{{path}}解析异常~\\n{{e.Message}}\\n{{e.StackTrace}}\");");
                     builder.AppendLine($"#if UNITY_EDITOR");
-                    builder.IntervalLevel(level1).AppendLine($"UnityEngine.Debug.LogError($\"最后一条数据Key:{{dict.Last().Key}}.\");");
+                    builder.Space(level1).AppendLine($"UnityEngine.Debug.LogError($\"最后一条数据Key:{{dict.Last().Key}}.\");");
                     builder.AppendLine($"#endif");
                 }
-                builder.IntervalLevel(SEM_LEVEL).AppendLine($"}}");
-                builder.IntervalLevel(SEM_LEVEL).AppendLine($"return dict;");
+                builder.Space(SEM_LEVEL).AppendLine($"}}");
+                builder.Space(SEM_LEVEL).AppendLine($"return dict;");
             }
-            builder.IntervalLevel(MEM_LEVEL).AppendLine("}");
+            builder.Space(MEM_LEVEL).AppendLine("}");
         }
         #endregion
 
@@ -237,8 +237,8 @@ namespace Tool.Export
                     //枚举
                     Comment(en.Desc, TYPE_LEVEL);
                     if (en.IsFlags)
-                        builder.IntervalLevel(TYPE_LEVEL).AppendLine($"[System.Flags]");
-                    builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public enum {en.Name}");
+                        builder.Space(TYPE_LEVEL).AppendLine($"[System.Flags]");
+                    builder.Space(TYPE_LEVEL).AppendLine($"public enum {en.Name}");
                     Start(TYPE_LEVEL);
                     {
                         foreach (var item in en.Values)
@@ -246,7 +246,7 @@ namespace Tool.Export
                             var alias = en.Items[item.Key].Alias;
                             if (!alias.IsEmpty())
                                 Comment(alias, MEM_LEVEL);
-                            builder.IntervalLevel(MEM_LEVEL);
+                            builder.Space(MEM_LEVEL);
                             builder.AppendLine($"{item.Key} = {item.Value},");
                         }
                     }
@@ -267,7 +267,7 @@ namespace Tool.Export
             builder.AppendLine($"namespace {Setting.ModuleName}");
             Start(0);
             {
-                builder.IntervalLevel(TYPE_LEVEL).AppendLine($"public partial class ConfigHelper");
+                builder.Space(TYPE_LEVEL).AppendLine($"public partial class ConfigHelper");
                 Start(TYPE_LEVEL);
                 {
                     StringBuilder load = new StringBuilder();
@@ -279,16 +279,16 @@ namespace Tool.Export
                         var value = cfg.FullName;
                         var property = $"{Util.FirstCharUpper(cfg.Name)}s";
                         var field = $"_{cfg.Name.ToLower()}s";
-                        builder.IntervalLevel(MEM_LEVEL).AppendLine($"public Dictionary<{key}, {value}> {property} => {field};");
-                        builder.IntervalLevel(MEM_LEVEL).AppendLine($"private Dictionary<{key}, {value}> {field} = new Dictionary<{key}, {value}>();");
+                        builder.Space(MEM_LEVEL).AppendLine($"public Dictionary<{key}, {value}> {property} => {field};");
+                        builder.Space(MEM_LEVEL).AppendLine($"private Dictionary<{key}, {value}> {field} = new Dictionary<{key}, {value}>();");
 
-                        load.IntervalLevel(SEM_LEVEL).AppendLine($"{field} = {cfg.FullName}.Load();");
+                        load.Space(SEM_LEVEL).AppendLine($"{field} = {cfg.FullName}.Load();");
                     }
 
-                    builder.IntervalLevel(MEM_LEVEL).AppendLine("public void Load()");
-                    builder.IntervalLevel(MEM_LEVEL).AppendLine("{");
+                    builder.Space(MEM_LEVEL).AppendLine("public void Load()");
+                    builder.Space(MEM_LEVEL).AppendLine("{");
                     builder.Append(load.ToString());
-                    builder.IntervalLevel(MEM_LEVEL).AppendLine("}");
+                    builder.Space(MEM_LEVEL).AppendLine("}");
                 }
                 End(TYPE_LEVEL);
             }

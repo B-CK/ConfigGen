@@ -34,7 +34,7 @@ namespace Tool.Export
                 string method = string.Format("Get{0}", Util.CorrectFullType(cfg.FullName).Replace(new string(Setting.DotSplit), ""));
                 string index = cfg.Index.Name;
                 string relPath = cfg.OutputFile + Setting.DataFileExt;
-                builder.IntervalLevel().AppendFormat("{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
+                builder.Space().AppendFormat("{{ name = '{0}', method = '{1}', index = '{2}', output = '{3}' }},\n",
                     cfg.Name, method, index, relPath.Replace("\\", "/").ToLower());
             }
             builder.AppendLine("}");
@@ -92,15 +92,15 @@ namespace Tool.Export
                 if (cls.IsDynamic())
                 {
                     builder.AppendFormat("function Stream:Get{0}Maker()\n", funcName);
-                    builder.IntervalLevel().AppendFormat("return self['Get' .. self:GetString():gsub('%.', '')](self)\n");
+                    builder.Space().AppendFormat("return self['Get' .. self:GetString():gsub('%.', '')](self)\n");
                     builder.AppendFormat("end\n");
                 }
                 builder.AppendFormat("function Stream:Get{0}()\n", funcName);
                 if (!cls.Inherit.IsEmpty())
-                    builder.IntervalLevel().AppendFormat("local o = self:Get{0}()\n", Util.CorrectFullType(cls.Inherit).Replace(".", ""));
+                    builder.Space().AppendFormat("local o = self:Get{0}()\n", Util.CorrectFullType(cls.Inherit).Replace(".", ""));
                 else
-                    builder.IntervalLevel().AppendFormat("local o = {{}}\n");
-                builder.IntervalLevel().AppendFormat("setmetatable(o, {0})\n", fullType);
+                    builder.Space().AppendFormat("local o = {{}}\n");
+                builder.Space().AppendFormat("setmetatable(o, {0})\n", fullType);
 
                 //--普通字段
                 for (int j = 0; j < cls.Fields.Count; j++)
@@ -109,15 +109,15 @@ namespace Tool.Export
                     if (!Util.MatchGroups(field.Group)) continue;
 
                     if (field.IsRaw)
-                        builder.IntervalLevel().AppendFormat("o.{0} = self:Get{1}()\n", field.Name, field.OriginalType.FirstCharUpper());
+                        builder.Space().AppendFormat("o.{0} = self:Get{1}()\n", field.Name, field.OriginalType.FirstCharUpper());
                     else if (field.IsEnum)
-                        builder.IntervalLevel().AppendFormat("o.{0} = self:GetInt()\n", field.Name);
+                        builder.Space().AppendFormat("o.{0} = self:GetInt()\n", field.Name);
                     else if (field.IsClass)
                     {
                         if (field.IsDynamic)
-                            builder.IntervalLevel().AppendFormat("o.{0} = self:Get{1}Maker()\n", field.Name, Util.CorrectFullType(field.OriginalType).Replace(".", ""));
+                            builder.Space().AppendFormat("o.{0} = self:Get{1}Maker()\n", field.Name, Util.CorrectFullType(field.OriginalType).Replace(".", ""));
                         else
-                            builder.IntervalLevel().AppendFormat("o.{0} = self:Get{1}()\n", field.Name, Util.CorrectFullType(field.OriginalType).Replace(".", ""));
+                            builder.Space().AppendFormat("o.{0} = self:Get{1}()\n", field.Name, Util.CorrectFullType(field.OriginalType).Replace(".", ""));
                     }
                     else if (field.IsContainer)
                     {
@@ -126,7 +126,7 @@ namespace Tool.Export
                             var item = field.GetItemDefine();
                             string index = Util.CorrectFullType(item.OriginalType).Replace(".", "").FirstCharUpper();
                             if (item.IsClass && item.IsDynamic) index += "Maker";
-                            builder.IntervalLevel().AppendFormat("o.{0} = self:GetList('{1}')\n", field.Name, index);
+                            builder.Space().AppendFormat("o.{0} = self:GetList('{1}')\n", field.Name, index);
                         }
                         else if (field.OriginalType == Setting.DICT)
                         {
@@ -137,11 +137,11 @@ namespace Tool.Export
                             string value = Util.CorrectFullType(v.OriginalType).Replace(".", "").FirstCharUpper();
                             if (v.IsClass && v.IsDynamic) value += "Maker";
                             else if (v.IsEnum) value = "Int";
-                            builder.IntervalLevel().AppendFormat("o.{0} = self:GetDict('{1}', '{2}')\n", field.Name, key, value);
+                            builder.Space().AppendFormat("o.{0} = self:GetDict('{1}', '{2}')\n", field.Name, key, value);
                         }
                     }
                 }
-                builder.IntervalLevel().AppendFormat("return o\n");
+                builder.Space().AppendFormat("return o\n");
                 builder.AppendFormat("end\n");
             }
 
@@ -151,7 +151,7 @@ namespace Tool.Export
                 EnumWrap en = eit.Current.Value;
                 builder.AppendFormat("GetOrCreate('{0}.{1}')['{2}'] = {{\n", Setting.ModuleName, en.Namespace, en.Name);
                 foreach (var item in en.Values)
-                    builder.IntervalLevel().AppendFormat("{0} = {1},\n", item.Key, item.Value);
+                    builder.Space().AppendFormat("{0} = {1},\n", item.Key, item.Value);
                 builder.AppendLine("}");
             }
             builder.AppendLine("return Stream");

@@ -250,7 +250,7 @@ namespace Tool
 
             Directory.Delete(path, true);
         }
-        public static StringBuilder IntervalLevel(this StringBuilder builder, int n = 1)
+        public static StringBuilder Space(this StringBuilder builder, int n = 1)
         {
             for (int i = 0; i < n; i++)
                 builder.Append("\t");
